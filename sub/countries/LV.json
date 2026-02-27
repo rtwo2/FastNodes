@@ -1029,14 +1029,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF1\uD83C\uDDFB Latvia - SS 178.248.75.53:443",
-      "type": "ss",
-      "server": "178.248.75.53",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDF1\uD83C\uDDFB Latvia - SS 46.32.187.62:443",
       "type": "ss",
       "server": "46.32.187.62",
@@ -1045,9 +1037,17 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 178.250.191.18:443",
+      "name": "\uD83C\uDDF1\uD83C\uDDFB Latvia - SS 178.248.75.53:443",
+      "type": "ss",
+      "server": "178.248.75.53",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 91.197.1.119:443",
       "type": "vless",
-      "server": "178.250.191.18",
+      "server": "91.197.1.119",
       "port": 443,
       "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
@@ -1067,6 +1067,15 @@
       "server": "194.58.34.91",
       "port": 2020,
       "uuid": "6308d45b-ace4-495f-87a2-d1f9aad7729d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 178.250.191.18:443",
+      "type": "vless",
+      "server": "178.250.191.18",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
     },
@@ -2240,11 +2249,12 @@
         "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 213.21.222.172:443",
         "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 5.34.214.154:443",
         "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 31.57.157.90:443",
-        "\uD83C\uDDF1\uD83C\uDDFB Latvia - SS 178.248.75.53:443",
         "\uD83C\uDDF1\uD83C\uDDFB Latvia - SS 46.32.187.62:443",
-        "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 178.250.191.18:443",
+        "\uD83C\uDDF1\uD83C\uDDFB Latvia - SS 178.248.75.53:443",
+        "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 91.197.1.119:443",
         "\uD83C\uDDF1\uD83C\uDDFB Latvia - SS 185.82.126.217:2053",
         "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 194.58.34.91:2020",
+        "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 178.250.191.18:443",
         "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 195.135.252.170:443",
         "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 185.22.172.236:443",
         "\uD83C\uDDF1\uD83C\uDDFB Latvia - VLESS 185.242.106.162:2053",

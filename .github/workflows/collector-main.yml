@@ -1,0 +1,121 @@
+name: FastNodes - Main Collector (Fast & Smart)
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # every 6 hours
+  workflow_dispatch:
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 480
+
+    env:
+      SingboxPath: sing-box
+      Sources: |
+        # AvenCores/goida-vpn-configs - all 26 githubmirror files (1–26)
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/1.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/2.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/3.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/4.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/5.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/6.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/7.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/8.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/9.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/10.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/11.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/12.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/13.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/14.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/15.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/16.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/17.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/18.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/19.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/20.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/21.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/22.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/23.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/24.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/25.txt
+        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt
+
+        # MatinGhanbari/v2ray-configs
+        https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt
+
+        # roosterkid/openproxylist
+        https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download fresh GeoIP database 🌍
+        run: |
+          echo "Downloading fresh country database..."
+          if curl -fsSL "https://git.io/GeoLite2-Country.mmdb" -o ProxyCollector/Country.mmdb; then
+            echo "✅ Success! Fresh GeoIP database downloaded."
+            ls -la ProxyCollector/Country.mmdb
+          else
+            echo "⚠️ Download failed - keeping previous file if exists"
+            ls -la ProxyCollector/Country.mmdb || echo "No GeoIP file yet"
+          fi
+
+      - name: Setup .NET environment
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Restore project dependencies
+        run: dotnet restore ProxyCollector/ProxyCollector.csproj
+
+      - name: Cache sing-box (faster startup)
+        uses: actions/cache@v4
+        with:
+          path: ~/sing-box-cache/sing-box
+          key: sing-box-v1.10.6-Linux-v4
+
+      - name: Install sing-box if needed
+        run: |
+          mkdir -p ~/sing-box-cache
+          if [ ! -f ~/sing-box-cache/sing-box ]; then
+            echo "Installing fresh sing-box..."
+            curl -fsSLO https://github.com/SagerNet/sing-box/releases/download/v1.10.6/sing-box_1.10.6_linux_amd64.deb
+            sudo dpkg -i sing-box_1.10.6_linux_amd64.deb
+            sudo apt-get install -f
+            cp /usr/bin/sing-box ~/sing-box-cache/sing-box
+          else
+            echo "Using cached sing-box"
+            sudo cp ~/sing-box-cache/sing-box /usr/bin/sing-box
+            sudo chmod +x /usr/bin/sing-box
+          fi
+
+      - name: Run ProxyCollector (Collect + Rename + Best Results)
+        run: dotnet run --configuration Release --project ProxyCollector
+
+      - name: Show quick stats 📊
+        run: |
+          echo "Quick stats:"
+          wc -l sub/everything.txt | awk '{print "everything.txt lines: " $1}'
+          wc -l Best-Results/top500.txt | awk '{print "top500.txt lines: " $1}'
+          ls -lh sub/protocols/ | grep ".txt" || echo "No protocol txt files"
+          ls -lh sub/temp/ || echo "Temp folder empty?"
+
+      - name: Commit & push updated files 📦
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          git stash push -u -m "Stash before pull" || true
+          
+          git fetch origin
+          git pull --rebase origin master || true
+          
+          git stash pop || true
+          
+          git add ProxyCollector/Country.mmdb sub/ Best-Results/ || true
+          
+          git commit -m "Fresh proxies + GeoIP + Best Results (top 500) - $(date +'%Y-%m-%d %H:%M UTC') - $(wc -l < sub/everything.txt) proxies - temp backup included" --allow-empty || echo "Nothing new to commit"
+          
+          git push || echo "Push failed or no changes"

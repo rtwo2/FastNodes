@@ -19,13 +19,11 @@ namespace ProxyCollector.Collector
         private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(30) };
         private readonly IPToCountryResolver _resolver = new();
 
-        // Strict protocol whitelist – everything else → unknown.txt
         private static readonly HashSet<string> ValidProtocols = new(StringComparer.OrdinalIgnoreCase)
         {
             "vmess", "vless", "trojan", "ss", "shadowsocks", "hysteria2", "hy2", "tuic", "socks", "socks5", "anytls"
         };
 
-        // Expanded country flag map – DUPLICATE "KZ" removed
         private static readonly Dictionary<string, string> Flags = new(StringComparer.OrdinalIgnoreCase)
         {
             {"AF", "🇦🇫"}, {"AL", "🇦🇱"}, {"DZ", "🇩🇿"}, {"AR", "🇦🇷"}, {"AM", "🇦🇲"},
@@ -41,8 +39,7 @@ namespace ProxyCollector.Collector
             {"SE", "🇸🇪"}, {"CH", "🇨🇭"}, {"TH", "🇹🇭"}, {"TR", "🇹🇷"}, {"UA", "🇺🇦"},
             {"GB", "🇬🇧"}, {"US", "🇺🇸"}, {"VN", "🇻🇳"}, {"TW", "🇹🇼"}, {"LV", "🇱🇻"},
             {"LT", "🇱🇹"}, {"EE", "🇪🇪"}, {"MD", "🇲🇩"}, {"CY", "🇨🇾"}, {"GE", "🇬🇪"},
-            {"KZ", "🇰🇿"},   // ← only once
-            {"UZ", "🇺🇿"}, {"KG", "🇰🇬"}, {"TJ", "🇹🇯"}, {"TM", "🇹🇲"}
+            {"KZ", "🇰🇿"}, {"UZ", "🇺🇿"}, {"KG", "🇰🇬"}, {"TJ", "🇹🇯"}, {"TM", "🇹🇲"}
         };
 
         private static readonly string TestUrl = "http://cp.cloudflare.com/generate_204";
@@ -51,10 +48,9 @@ namespace ProxyCollector.Collector
         private const int AliveCheckTimeoutMs = 2000;
         private const int MaxFilenameRemarkLength = 150;
 
-        // Blacklist CIDRs (FireHOL + Bogons)
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
 
-        // NEW: Common proxy ports whitelist (static, no download needed)
+        // Static common proxy ports (no live source — extend here if needed)
         private static readonly HashSet<int> CommonProxyPorts = new()
         {
             80, 443, 8080, 8443, 2052, 2053, 2082, 2083, 2086, 2095, 2096,
@@ -75,45 +71,45 @@ namespace ProxyCollector.Collector
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ GeoIP download failed: {ex.Message}. Keeping previous file if exists.");
+                Console.WriteLine($"⚠️ GeoIP download failed: {ex.Message}. Keeping previous if exists.");
             }
         }
 
         private static async Task DownloadFreshFireHOLBlacklist(HttpClient http)
         {
             Console.WriteLine("Downloading fresh FireHOL Level 2 blacklist...");
-            var blacklistPath = Path.Combine(Directory.GetCurrentDirectory(), "ProxyCollector", "blacklist.netset");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "ProxyCollector", "blacklist.netset");
             const string url = "https://iplists.firehol.org/files/firehol_level2.netset";
             try
             {
                 var response = await http.GetAsync(url);
                 response.EnsureSuccessStatusCode();
-                await using var fs = new FileStream(blacklistPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                await using var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None);
                 await response.Content.CopyToAsync(fs);
-                Console.WriteLine("✅ Fresh FireHOL Level 2 blacklist downloaded.");
+                Console.WriteLine("✅ Fresh FireHOL Level 2 downloaded.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ FireHOL blacklist download failed: {ex.Message}. Keeping previous file if exists.");
+                Console.WriteLine($"⚠️ FireHOL download failed: {ex.Message}. Keeping previous if exists.");
             }
         }
 
         private static async Task DownloadFreshBogons(HttpClient http)
         {
             Console.WriteLine("Downloading fresh Bogons list...");
-            var bogonsPath = Path.Combine(Directory.GetCurrentDirectory(), "ProxyCollector", "bogons.txt");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "ProxyCollector", "bogons.txt");
             const string url = "https://www.team-cymru.org/Services/Bogons/fullbogons-ipv4.txt";
             try
             {
                 var response = await http.GetAsync(url);
                 response.EnsureSuccessStatusCode();
-                await using var fs = new FileStream(bogonsPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                await using var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None);
                 await response.Content.CopyToAsync(fs);
                 Console.WriteLine("✅ Fresh Bogons list downloaded.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ Bogons download failed: {ex.Message}. Keeping previous file if exists.");
+                Console.WriteLine($"⚠️ Bogons download failed: {ex.Message}. Keeping previous if exists.");
             }
         }
 
@@ -121,84 +117,72 @@ namespace ProxyCollector.Collector
         {
             BlacklistCidrs.Clear();
 
-            // 1. Load FireHOL Level 2
+            // FireHOL
             var fireholPath = Path.Combine(Directory.GetCurrentDirectory(), "ProxyCollector", "blacklist.netset");
             if (File.Exists(fireholPath))
             {
-                var lines = File.ReadAllLines(fireholPath);
                 int loaded = 0;
-                foreach (var line in lines)
+                foreach (var line in File.ReadAllLines(fireholPath))
                 {
                     if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line)) continue;
                     try
                     {
                         var parts = line.Split('/');
                         if (parts.Length != 2) continue;
-                        var network = IPAddress.Parse(parts[0].Trim());
+                        var net = IPAddress.Parse(parts[0].Trim());
                         var mask = int.Parse(parts[1].Trim());
-                        BlacklistCidrs.Add((network, mask));
+                        BlacklistCidrs.Add((net, mask));
                         loaded++;
                     }
                     catch { }
                 }
-                Console.WriteLine($"Loaded {loaded} CIDRs from FireHOL Level 2 blacklist.");
-            }
-            else
-            {
-                Console.WriteLine("⚠️ FireHOL blacklist.netset not found.");
+                Console.WriteLine($"Loaded {loaded} CIDRs from FireHOL.");
             }
 
-            // 2. Load Bogons (same format: CIDR lines)
+            // Bogons
             var bogonsPath = Path.Combine(Directory.GetCurrentDirectory(), "ProxyCollector", "bogons.txt");
             if (File.Exists(bogonsPath))
             {
-                var lines = File.ReadAllLines(bogonsPath);
                 int loaded = 0;
-                foreach (var line in lines)
+                foreach (var line in File.ReadAllLines(bogonsPath))
                 {
                     if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line)) continue;
                     try
                     {
                         var parts = line.Split('/');
                         if (parts.Length != 2) continue;
-                        var network = IPAddress.Parse(parts[0].Trim());
+                        var net = IPAddress.Parse(parts[0].Trim());
                         var mask = int.Parse(parts[1].Trim());
-                        BlacklistCidrs.Add((network, mask));
+                        BlacklistCidrs.Add((net, mask));
                         loaded++;
                     }
                     catch { }
                 }
-                Console.WriteLine($"Loaded {loaded} CIDRs from Bogons list.");
-            }
-            else
-            {
-                Console.WriteLine("⚠️ Bogons.txt not found.");
+                Console.WriteLine($"Loaded {loaded} CIDRs from Bogons.");
             }
         }
 
         private static bool IsBlacklisted(string ipStr)
         {
-            if (!IPAddress.TryParse(ipStr, out var ip)) return true; // invalid IP = blocked
-
-            foreach (var (network, mask) in BlacklistCidrs)
+            if (!IPAddress.TryParse(ipStr, out var ip)) return true;
+            foreach (var (net, mask) in BlacklistCidrs)
             {
-                if (IsIpInCidr(ip, network, mask)) return true;
+                if (IsIpInCidr(ip, net, mask)) return true;
             }
             return false;
         }
 
-        private static bool IsIpInCidr(IPAddress ip, IPAddress network, int mask)
+        private static bool IsIpInCidr(IPAddress ip, IPAddress net, int mask)
         {
-            byte[] ipBytes = ip.GetAddressBytes();
-            byte[] networkBytes = network.GetAddressBytes();
-            if (ipBytes.Length != networkBytes.Length) return false;
+            byte[] ipB = ip.GetAddressBytes();
+            byte[] netB = net.GetAddressBytes();
+            if (ipB.Length != netB.Length) return false;
 
             int bits = mask;
-            for (int i = 0; i < ipBytes.Length && bits > 0; i++)
+            for (int i = 0; i < ipB.Length && bits > 0; i++)
             {
-                byte maskByte = (byte)(0xFF << (8 - Math.Min(bits, 8)));
-                if ((ipBytes[i] & maskByte) != (networkBytes[i] & maskByte))
-                    return false;
+                byte m = (byte)(0xFF << (8 - Math.Min(bits, 8)));
+                if ((ipB[i] & m) != (netB[i] & m)) return false;
                 bits -= 8;
             }
             return true;
@@ -206,12 +190,11 @@ namespace ProxyCollector.Collector
 
         public async Task StartAsync()
         {
-            // Always download fresh versions of all online-based blacklists
+            // Fresh downloads for all online-based checks
             await DownloadFreshGeoIP(_http);
             await DownloadFreshFireHOLBlacklist(_http);
             await DownloadFreshBogons(_http);
 
-            // Load everything into memory once
             LoadAllBlacklists();
 
             Console.WriteLine("🚀 ProxyCollector started - FastNodes fork");
@@ -465,7 +448,325 @@ namespace ProxyCollector.Collector
             };
         }
 
-        // ... (rest of your methods: GenerateBestResultsAsync, IsProxyAliveAsync, TestProxyLatencyAsync, NormalizeProto, SaveClashJson, GenerateClashProxy, RenameRemarkInLink, ParseProxyLine, DecodeBase64 remain unchanged) ...
-        // Paste the rest of your original code here (from GenerateBestResultsAsync down to the end)
+        private async Task GenerateBestResultsAsync(List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)> proxies)
+        {
+            Console.WriteLine($"\n🏆 Testing {proxies.Count} proxies...");
+            var tested = new ConcurrentBag<(string Link, int Latency, object ClashProxy)>();
+            int processed = 0;
+
+            await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 20 }, async (p, ct) =>
+            {
+                Interlocked.Increment(ref processed);
+                if (processed % 500 == 0)
+                    Console.WriteLine($" Tested {processed}/{proxies.Count} ({Math.Round((double)processed / proxies.Count * 100, 1)}%)");
+
+                if (p.Proto.ToLowerInvariant() == "vmess") return;
+
+                if (!await IsProxyAliveAsync(p.Link)) return;
+
+                int latency = await TestProxyLatencyAsync(p.Link);
+                if (latency > 0 && latency < 1500)
+                    tested.Add((p.Link, latency, p.ClashProxy));
+            });
+
+            var sorted = tested.OrderBy(t => t.Latency).ToList();
+            var bestDir = Path.Combine(Directory.GetCurrentDirectory(), "sub", "Best-Results");
+            Directory.CreateDirectory(bestDir);
+
+            var limits = new[] { 100, 200, 300, 400, 500 };
+            foreach (var limit in limits)
+            {
+                var topN = sorted.Take(limit).ToList();
+                var txtPath = Path.Combine(bestDir, $"top{limit}.txt");
+                await File.WriteAllLinesAsync(txtPath, topN.Select(t => $"{t.Link} # latency={t.Latency}ms"));
+                Console.WriteLine($"Saved sub/Best-Results/top{limit}.txt ({topN.Count})");
+
+                var jsonProxies = topN.Select(t => t.ClashProxy).Where(p => p != null).ToList();
+                var jsonConfig = new
+                {
+                    name = $"FastNodes Top {limit}",
+                    proxies = jsonProxies,
+                    proxy_groups = new[]
+                    {
+                        new
+                        {
+                            name = "AUTO",
+                            type = "url-test",
+                            proxies = topN.Select(t => ((dynamic)t.ClashProxy).name ?? "Unnamed").ToList(),
+                            url = "http://cp.cloudflare.com/generate_204",
+                            interval = 300
+                        }
+                    },
+                    rules = new[] { "MATCH,AUTO" }
+                };
+
+                var jsonPath = Path.Combine(bestDir, $"top{limit}.json");
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(jsonConfig, options));
+                Console.WriteLine($"Saved sub/Best-Results/top{limit}.json ({topN.Count})");
+            }
+        }
+
+        private async Task<bool> IsProxyAliveAsync(string link)
+        {
+            try
+            {
+                using var client = new HttpClient { Timeout = TimeSpan.FromMilliseconds(AliveCheckTimeoutMs) };
+                var request = new HttpRequestMessage(HttpMethod.Head, TestUrl);
+                var resp = await client.SendAsync(request);
+                return resp.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task<int> TestProxyLatencyAsync(string link)
+        {
+            try
+            {
+                using var client = new HttpClient { Timeout = TimeSpan.FromMilliseconds(TestTimeoutMs) };
+                var start = DateTime.UtcNow;
+                var resp = await client.GetAsync(TestUrl);
+                var elapsed = (int)(DateTime.UtcNow - start).TotalMilliseconds;
+                return resp.IsSuccessStatusCode ? elapsed : -1;
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        private string NormalizeProto(string proto)
+        {
+            if (string.IsNullOrEmpty(proto)) return "unknown";
+            proto = proto.ToLowerInvariant();
+            if (proto.Contains("hysteria") || proto == "hy2" || proto == "hy") return "hysteria2";
+            if (proto == "ssr") return "ssr";
+            if (proto == "ss") return "ss";
+            if (proto == "vmess") return "vmess";
+            if (proto == "vless") return "vless";
+            if (proto == "trojan") return "trojan";
+            if (proto == "tuic") return "tuic";
+            return proto;
+        }
+
+        private async Task SaveClashJson(string filePath, List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)> proxies, string configName)
+        {
+            var clashProxies = proxies.Select(x => x.ClashProxy).Where(p => p != null).ToList();
+            var remarkList = proxies.Select(x => x.Remark).ToList();
+            var clashConfig = new
+            {
+                name = configName,
+                proxies = clashProxies,
+                proxy_groups = new[]
+                {
+                    new
+                    {
+                        name = "AUTO",
+                        type = "url-test",
+                        proxies = remarkList,
+                        url = "http://cp.cloudflare.com/generate_204",
+                        interval = 300
+                    }
+                },
+                rules = new[] { "MATCH,AUTO" }
+            };
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            await File.WriteAllTextAsync(filePath, JsonSerializer.Serialize(clashConfig, options));
+        }
+
+        private object GenerateClashProxy(string proto, string serverPort, string originalLine, string name)
+        {
+            string server = "unknown";
+            int port = 443;
+            if (!string.IsNullOrEmpty(serverPort) && serverPort.Contains(":"))
+            {
+                var parts = serverPort.Split(':');
+                server = parts[0];
+                if (parts.Length > 1 && int.TryParse(parts[1], out int p))
+                    port = p;
+            }
+
+            switch (proto.ToLowerInvariant())
+            {
+                case "vmess":
+                    try
+                    {
+                        string b64 = originalLine?.Substring(8)?.Split('#')?[0]?.Trim() ?? "";
+                        string decoded = DecodeBase64(b64);
+                        if (!string.IsNullOrEmpty(decoded))
+                        {
+                            var obj = JsonDocument.Parse(decoded).RootElement;
+                            string uuid = obj.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
+                            int alterId = obj.TryGetProperty("aid", out var aidProp) ? aidProp.GetInt32() : 0;
+                            string cipher = obj.TryGetProperty("scy", out var scyProp) ? scyProp.GetString() ?? "auto" : "auto";
+                            bool tls = obj.TryGetProperty("tls", out var tlsProp) && tlsProp.GetString() == "tls";
+                            return new { name, type = "vmess", server, port, uuid, alterId, cipher, tls };
+                        }
+                    }
+                    catch { }
+                    return new { name, type = "vmess", server, port, uuid = "", alterId = 0, cipher = "auto", tls = true };
+
+                case "vless":
+                    try
+                    {
+                        string uuid = originalLine?.Split('@')?[0]?.Split("://")?[1] ?? "";
+                        return new { name, type = "vless", server, port, uuid, tls = true, flow = "" };
+                    }
+                    catch { }
+                    return new { name, type = "vless", server, port, uuid = "", tls = true, flow = "" };
+
+                case "trojan":
+                    try
+                    {
+                        string password = originalLine?.Split('@')?[0]?.Split("://")?[1] ?? "";
+                        return new { name, type = "trojan", server, port, password, tls = true };
+                    }
+                    catch { }
+                    return new { name, type = "trojan", server, port, password = "", tls = true };
+
+                case "ss":
+                    try
+                    {
+                        string decoded = DecodeBase64(originalLine?.Substring(5)?.Split('#')?[0] ?? "");
+                        if (decoded.Contains("@"))
+                        {
+                            var authParts = decoded.Split('@')[0].Split(':');
+                            string cipher = authParts.Length > 0 ? authParts[0] : "aes-256-gcm";
+                            string password = authParts.Length > 1 ? authParts[1] : "";
+                            return new { name, type = "ss", server, port, cipher, password };
+                        }
+                    }
+                    catch { }
+                    return new { name, type = "ss", server, port, cipher = "aes-256-gcm", password = "" };
+
+                default:
+                    return new { name, type = proto, server, port };
+            }
+        }
+
+        private string RenameRemarkInLink(string original, string newRemark, string proto)
+        {
+            string baseLink = original.Split('#')[0].TrimEnd();
+            baseLink = Regex.Replace(baseLink,
+                @"\[.*?\]|\(.*?\)|Dynamic-\d+|-\d{4,}|ok\d{5,}|sg\.ok|mgjhju|fvb|7no|10o|ccwu\.cc|indevs\.in|zem\.in|bffv|fbvb|mghjju|ggff|ffffvbbgh|mmmv\.kr|yhjt\.tc1|ns\.cloudflare\.com|\d{4,}$|\s*:\d+$",
+                "", RegexOptions.IgnoreCase | RegexOptions.Multiline).Trim();
+
+            if (proto.ToLowerInvariant() == "vmess" && baseLink.StartsWith("vmess://"))
+            {
+                try
+                {
+                    string b64 = baseLink.Substring(8).Trim();
+                    string decoded = DecodeBase64(b64);
+                    if (string.IsNullOrEmpty(decoded)) return baseLink + "#" + Uri.EscapeDataString(newRemark);
+
+                    string trimmedDecoded = decoded.TrimStart();
+                    if (!trimmedDecoded.StartsWith("{") ||
+                        (!trimmedDecoded.Contains("\"add\"") && !trimmedDecoded.Contains("\"port\"")))
+                    {
+                        return baseLink + "#" + Uri.EscapeDataString(newRemark);
+                    }
+
+                    var jsonDoc = JsonDocument.Parse(decoded);
+                    var root = jsonDoc.RootElement;
+                    var props = new Dictionary<string, object?>();
+                    foreach (var prop in root.EnumerateObject())
+                    {
+                        props[prop.Name] = prop.Value.ValueKind == JsonValueKind.Null
+                            ? null
+                            : JsonSerializer.Deserialize<object>(prop.Value.GetRawText());
+                    }
+                    props["ps"] = newRemark;
+                    string newJson = JsonSerializer.Serialize(props);
+                    string newB64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(newJson))
+                        .Replace("+", "-").Replace("/", "_").TrimEnd('=');
+                    baseLink = "vmess://" + newB64;
+                }
+                catch { }
+            }
+
+            string escaped = Uri.EscapeDataString(newRemark);
+            return baseLink + "#" + escaped;
+        }
+
+        private (string protocol, string serverPort, string remark) ParseProxyLine(string line)
+        {
+            line = line.Trim();
+            if (string.IsNullOrEmpty(line) || line.Length < 20) return ("unknown", "", "");
+
+            string basePart = line.Split('#')[0].Trim();
+            string remark = line.Contains('#') ? Uri.UnescapeDataString(line.Split('#')[1].Trim()) : "";
+
+            try
+            {
+                var uri = new Uri(basePart);
+                string scheme = uri.Scheme.ToLowerInvariant();
+                string server = uri.Host;
+                int port = uri.Port > 0 ? uri.Port : 443;
+                string serverPort = $"{server}:{port}";
+                return (scheme, serverPort, remark);
+            }
+            catch { }
+
+            if (basePart.StartsWith("vmess://"))
+            {
+                try
+                {
+                    string b64 = basePart.Substring(8).Split('#')[0].Trim();
+                    string decoded = DecodeBase64(b64);
+                    if (!string.IsNullOrEmpty(decoded))
+                    {
+                        var obj = JsonDocument.Parse(decoded).RootElement;
+                        string? add = obj.TryGetProperty("add", out var a) ? a.GetString() : null;
+                        string? portStr = obj.TryGetProperty("port", out var p) ? p.GetString() : null;
+                        if (!string.IsNullOrEmpty(add) && !string.IsNullOrEmpty(portStr) && int.TryParse(portStr, out _))
+                            return ("vmess", $"{add}:{portStr}", remark);
+                    }
+                }
+                catch { }
+            }
+
+            if (basePart.StartsWith("hysteria2://") || basePart.StartsWith("hy2://") || basePart.StartsWith("hysteria://"))
+            {
+                try
+                {
+                    var uri = new Uri(basePart);
+                    string server = uri.Host;
+                    int port = uri.Port > 0 ? uri.Port : 443;
+                    return ("hysteria2", $"{server}:{port}", remark);
+                }
+                catch { }
+            }
+
+            var ipPortMatch = Regex.Match(line, @"(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(?::\d{1,5})?");
+            if (ipPortMatch.Success)
+            {
+                string found = ipPortMatch.Value;
+                string guessedProto = "unknown";
+                string port = found.Contains(":") ? found.Split(':')[1] : "443";
+                if (port == "443" || port == "8443" || port == "2053") guessedProto = "vless";
+                else if (port == "80" || port == "8080") guessedProto = "ss";
+                return (guessedProto, found, remark);
+            }
+
+            return ("unknown", "", "");
+        }
+
+        private string DecodeBase64(string b64)
+        {
+            try
+            {
+                b64 = b64.Replace("-", "+").Replace("_", "/").Replace(" ", "").Trim();
+                int mod = b64.Length % 4;
+                if (mod > 0) b64 += new string('=', 4 - mod);
+                return Encoding.UTF8.GetString(Convert.FromBase64String(b64));
+            }
+            catch
+            {
+                return "";
+            }
+        }
     }
 }

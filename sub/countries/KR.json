@@ -74,20 +74,20 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 47.80.13.85:443",
-      "type": "vless",
-      "server": "47.80.13.85",
-      "port": 443,
-      "uuid": "3e7f67de-648e-4871-b51a-a225214d41ee",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 20.41.66.225:443",
       "type": "vless",
       "server": "20.41.66.225",
       "port": 443,
       "uuid": "6f995056-7802-4a1d-bff7-61678e626c3f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 47.80.13.85:443",
+      "type": "vless",
+      "server": "47.80.13.85",
+      "port": 443,
+      "uuid": "3e7f67de-648e-4871-b51a-a225214d41ee",
       "tls": true,
       "flow": ""
     },
@@ -781,6 +781,14 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 20.41.66.225:443",
+      "type": "ss",
+      "server": "20.41.66.225",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - HY2 193.123.229.26:443",
       "type": "hy2",
       "server": "193.123.229.26",
@@ -913,8 +921,8 @@
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 146.56.119.234:8443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 168.107.53.214:8443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 54.180.161.186:443",
-        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 47.80.13.85:443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 20.41.66.225:443",
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 47.80.13.85:443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 59.3.3.161:443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 144.24.90.107:443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 152.70.249.67:443",
@@ -998,6 +1006,7 @@
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 152.69.227.72:8443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 54.180.161.186:443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 129.154.201.131:443",
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 20.41.66.225:443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - HY2 193.123.229.26:443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - HY2 193.123.229.162:8443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - HY2 158.180.84.138:443",

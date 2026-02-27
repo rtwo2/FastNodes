@@ -2,16 +2,16 @@
   "name": "FastNodes HYSTERIA2",
   "proxies": [
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - HYSTERIA2 150.241.79.106:443",
-      "type": "hysteria2",
-      "server": "150.241.79.106",
-      "port": 443
-    },
-    {
       "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - HYSTERIA2 179.61.132.96:8443",
       "type": "hysteria2",
       "server": "179.61.132.96",
       "port": 8443
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - HYSTERIA2 150.241.79.106:443",
+      "type": "hysteria2",
+      "server": "150.241.79.106",
+      "port": 443
     },
     {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - HY2 160.16.143.152:443",
@@ -1261,8 +1261,8 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDE9\uD83C\uDDEA Germany - HYSTERIA2 150.241.79.106:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - HYSTERIA2 179.61.132.96:8443",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - HYSTERIA2 150.241.79.106:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - HY2 160.16.143.152:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - HY2 160.16.208.122:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - HYSTERIA2 152.69.220.212:443",

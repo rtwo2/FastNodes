@@ -65,47 +65,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.140.0.0:8080",
-      "type": "vless",
-      "server": "94.140.0.0",
-      "port": 8080,
-      "uuid": "f02a08c2-f157-42c9-bdd6-74f6e2e5e8ef",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 181.214.1.246:8880",
-      "type": "vless",
-      "server": "181.214.1.246",
-      "port": 8880,
-      "uuid": "cdec0d45-211d-05bc-e0c6-a7a6c3d00aed",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 146.75.64.0:80",
       "type": "vless",
       "server": "146.75.64.0",
       "port": 80,
       "uuid": "1602a406-a38e-4211-bbdc-3f75c890303d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.140.0.74:2053",
-      "type": "vless",
-      "server": "94.140.0.74",
-      "port": 2053,
-      "uuid": "724750dd-22a6-4943-9b85-422173c6b02f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 144.31.128.129:443",
-      "type": "vless",
-      "server": "144.31.128.129",
-      "port": 443,
-      "uuid": "eb071647-72a6-46be-8e89-ff3d228d52f6",
       "tls": true,
       "flow": ""
     },
@@ -119,11 +83,47 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 181.214.1.246:8880",
+      "type": "vless",
+      "server": "181.214.1.246",
+      "port": 8880,
+      "uuid": "cdec0d45-211d-05bc-e0c6-a7a6c3d00aed",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.140.0.74:2053",
+      "type": "vless",
+      "server": "94.140.0.74",
+      "port": 2053,
+      "uuid": "724750dd-22a6-4943-9b85-422173c6b02f",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 194.135.46.37:443",
       "type": "vless",
       "server": "194.135.46.37",
       "port": 443,
       "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.140.0.0:8080",
+      "type": "vless",
+      "server": "94.140.0.0",
+      "port": 8080,
+      "uuid": "f02a08c2-f157-42c9-bdd6-74f6e2e5e8ef",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 144.31.128.129:443",
+      "type": "vless",
+      "server": "144.31.128.129",
+      "port": 443,
+      "uuid": "eb071647-72a6-46be-8e89-ff3d228d52f6",
       "tls": true,
       "flow": ""
     },
@@ -355,15 +355,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.183.169.145:443",
-      "type": "vless",
-      "server": "94.183.169.145",
-      "port": 443,
-      "uuid": "30a21764-cd85-40df-a981-905703d8edd9",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 89.35.73.250:443",
       "type": "ss",
       "server": "89.35.73.250",
@@ -455,9 +446,9 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 176.97.78.3:443",
+      "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 38.180.11.103:443",
       "type": "vless",
-      "server": "176.97.78.3",
+      "server": "38.180.11.103",
       "port": 443,
       "uuid": "eb071647-72a6-46be-8e89-ff3d228d52f6",
       "tls": true,
@@ -738,6 +729,14 @@
       "password": ""
     },
     {
+      "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - TROJAN 51.112.147.185:443",
+      "type": "trojan",
+      "server": "51.112.147.185",
+      "port": 443,
+      "password": "your_password",
+      "tls": true
+    },
+    {
       "name": "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - HY2 139.185.36.59:443",
       "type": "hy2",
       "server": "139.185.36.59",
@@ -829,13 +828,13 @@
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 31.57.155.115:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 45.86.228.104:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 91.132.51.160:443",
-        "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.140.0.0:8080",
-        "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 181.214.1.246:8880",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 146.75.64.0:80",
-        "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.140.0.74:2053",
-        "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 144.31.128.129:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 89.35.73.250:443",
+        "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 181.214.1.246:8880",
+        "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.140.0.74:2053",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 194.135.46.37:443",
+        "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.140.0.0:8080",
+        "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 144.31.128.129:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.140.0.0:8880",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 138.128.224.100:80",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.140.0.44:2053",
@@ -862,7 +861,6 @@
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 151.242.251.153:8080",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 151.242.251.147:8080",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 151.242.251.131:8080",
-        "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.183.169.145:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 89.35.73.250:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 91.132.51.160:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 181.214.1.61:2096",
@@ -874,7 +872,7 @@
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 151.242.251.137:8080",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 95.174.68.33:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 151.242.251.144:8080",
-        "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 176.97.78.3:443",
+        "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 38.180.11.103:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 3.28.107.6:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 3.28.96.23:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 40.172.119.218:443",
@@ -907,6 +905,7 @@
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 138.128.224.100:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - VLESS 94.140.0.156:8880",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 194.135.46.37:443",
+        "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - TROJAN 51.112.147.185:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - HY2 139.185.36.59:443",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 94.140.0.74:2053",
         "\uD83C\uDDE6\uD83C\uDDEA United Arab Emirates - SS 94.140.0.238:2096",

@@ -2,20 +2,20 @@
   "name": "FastNodes MH",
   "proxies": [
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDED Marshall Islands - VLESS 185.207.197.8:2096",
-      "type": "vless",
-      "server": "185.207.197.8",
-      "port": 2096,
-      "uuid": "Telegram:",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF2\uD83C\uDDED Marshall Islands - VLESS 185.207.199.251:8880",
       "type": "vless",
       "server": "185.207.199.251",
       "port": 8880,
       "uuid": "0132166f-e702-48ed-a9e7-b07af768faf8",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDED Marshall Islands - VLESS 185.207.197.8:2096",
+      "type": "vless",
+      "server": "185.207.197.8",
+      "port": 2096,
+      "uuid": "Telegram:",
       "tls": true,
       "flow": ""
     },
@@ -151,8 +151,8 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDF2\uD83C\uDDED Marshall Islands - VLESS 185.207.197.8:2096",
         "\uD83C\uDDF2\uD83C\uDDED Marshall Islands - VLESS 185.207.199.251:8880",
+        "\uD83C\uDDF2\uD83C\uDDED Marshall Islands - VLESS 185.207.197.8:2096",
         "\uD83C\uDDF2\uD83C\uDDED Marshall Islands - VLESS 185.207.197.63:8880",
         "\uD83C\uDDF2\uD83C\uDDED Marshall Islands - VLESS 185.207.198.213:8880",
         "\uD83C\uDDF2\uD83C\uDDED Marshall Islands - VLESS 185.207.199.29:8880",

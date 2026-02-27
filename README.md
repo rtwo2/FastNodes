@@ -54,7 +54,7 @@ Iran (local): https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/countri
    - Hiddify / Sing-box / Nekobox → add as subscription
    - Shadowrocket → plain text links work directly
 
-### Recommended clients (2026)
+### Recommended clients
 
 - **Clash family**: Clash Verge Rev, Clash Meta for Android, FlClash
 - **Sing-box based**: Hiddify Next, SFA, NekoBox for Android

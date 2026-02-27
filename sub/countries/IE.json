@@ -2,38 +2,13 @@
   "name": "FastNodes IE",
   "proxies": [
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - SEGVpn",
+      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - SEGVpn (Used)  \uD83E\uDD73  Surprise(3TB",
       "type": "vless",
       "server": "54.171.113.7",
       "port": 443,
       "uuid": "959a00e5-7a82-41fc-a2f5-0f9b7292ae50",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - 40.69.68.162:53232",
-      "type": "ss",
-      "server": "40.69.68.162",
-      "port": 53232,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - @flyv2ray",
-      "type": "vless",
-      "server": "34.251.70.20",
-      "port": 443,
-      "uuid": "4c26ebc3-7784-46d8-b52a-7b0ccae6f4b4",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - 52.50.233.226:22222",
-      "type": "ss",
-      "server": "52.50.233.226",
-      "port": 22222,
-      "cipher": "aes-256-gcm",
-      "password": ""
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - 85.159.229.233:443",
@@ -44,17 +19,17 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - TROJAN - VPNAzadiOfficiali[\uD83D\uDD30\u0627\u06CC\u0631\u0644\u0646\u062F]",
-      "type": "trojan",
-      "server": "52.19.49.176",
-      "port": 22222,
-      "password": "telegram-id-privatevpns",
-      "tls": true
+      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - @flyv2ray",
+      "type": "ss",
+      "server": "34.251.70.20",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - @flyv2ray",
       "type": "vless",
-      "server": "34.244.26.19",
+      "server": "34.251.70.20",
       "port": 443,
       "uuid": "4c26ebc3-7784-46d8-b52a-7b0ccae6f4b4",
       "tls": true,
@@ -69,7 +44,7 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - SEGVpn (Used)  \uD83E\uDD73  Surprise(3TB",
+      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - SEGVpn",
       "type": "vless",
       "server": "54.171.113.7",
       "port": 443,
@@ -87,29 +62,13 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - @flyv2ray",
-      "type": "ss",
-      "server": "34.251.70.20",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - 52.50.233.226:22222",
+      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - @flyv2ray",
       "type": "vless",
-      "server": "52.50.233.226",
-      "port": 22222,
-      "uuid": "05519058-d2ac-4f28-9e4a-2b2a1386749e",
+      "server": "34.244.26.19",
+      "port": 443,
+      "uuid": "4c26ebc3-7784-46d8-b52a-7b0ccae6f4b4",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - @ho3ino00\uD83E\uDD17\u2764",
-      "type": "ss",
-      "server": "40.115.121.217",
-      "port": 25579,
-      "cipher": "aes-256-gcm",
-      "password": ""
     }
   ],
   "proxy_groups": [
@@ -117,19 +76,14 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - SEGVpn",
-        "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - 40.69.68.162:53232",
-        "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - @flyv2ray",
-        "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - 52.50.233.226:22222",
-        "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - 85.159.229.233:443",
-        "\uD83C\uDDEE\uD83C\uDDEA Ireland - TROJAN - VPNAzadiOfficiali[\uD83D\uDD30\u0627\u06CC\u0631\u0644\u0646\u062F]",
-        "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - @flyv2ray",
-        "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - @flyv2ray",
         "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - SEGVpn (Used)  \uD83E\uDD73  Surprise(3TB",
-        "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - @Free_World2",
+        "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - 85.159.229.233:443",
         "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - @flyv2ray",
-        "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - 52.50.233.226:22222",
-        "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - @ho3ino00\uD83E\uDD17\u2764"
+        "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - @flyv2ray",
+        "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS - @flyv2ray",
+        "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - SEGVpn",
+        "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - @Free_World2",
+        "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS - @flyv2ray"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

@@ -4331,15 +4331,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.131.4.176:443",
-      "type": "vless",
-      "server": "45.131.4.176",
-      "port": 443,
-      "uuid": "98aec3c3-d957-4363-9933-018e533c7c06",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 95.215.8.151:443",
       "type": "vless",
       "server": "95.215.8.151",
@@ -4410,14 +4401,6 @@
       "type": "ss",
       "server": "85.209.155.9",
       "port": 8880,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 45.143.166.130:443",
-      "type": "ss",
-      "server": "45.143.166.130",
-      "port": 443,
       "cipher": "aes-256-gcm",
       "password": ""
     },
@@ -4554,14 +4537,6 @@
       "type": "ss",
       "server": "88.216.187.57",
       "port": 8880,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 146.103.102.82:80",
-      "type": "ss",
-      "server": "146.103.102.82",
-      "port": 80,
       "cipher": "aes-256-gcm",
       "password": ""
     },
@@ -5762,15 +5737,6 @@
       "server": "79.137.195.203",
       "port": 8888,
       "uuid": "JKVPN__\u0640__JKVPN",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.143.166.130:443",
-      "type": "vless",
-      "server": "45.143.166.130",
-      "port": 443,
-      "uuid": "M8UPo6huCfxRdIFcYjsXvX",
       "tls": true,
       "flow": ""
     },
@@ -6993,15 +6959,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.131.7.7:8080",
-      "type": "vless",
-      "server": "45.131.7.7",
-      "port": 8080,
-      "uuid": "f47fb03f-7f15-41e0-bd7e-2371dc710e32",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 5.182.86.128:443",
       "type": "vless",
       "server": "5.182.86.128",
@@ -7011,6 +6968,23 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.131.7.7:8080",
+      "type": "vless",
+      "server": "45.131.7.7",
+      "port": 8080,
+      "uuid": "f47fb03f-7f15-41e0-bd7e-2371dc710e32",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - TROJAN 185.107.56.53:443",
+      "type": "trojan",
+      "server": "185.107.56.53",
+      "port": 443,
+      "password": "4863e1b2-ec2f-4c71-b862-ce533028e57e",
+      "tls": true
+    },
+    {
       "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 77.238.232.228:443",
       "type": "vless",
       "server": "77.238.232.228",
@@ -7018,6 +6992,22 @@
       "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 45.143.166.130:443",
+      "type": "ss",
+      "server": "45.143.166.130",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 146.103.102.82:80",
+      "type": "ss",
+      "server": "146.103.102.82",
+      "port": 80,
+      "cipher": "aes-256-gcm",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 88.216.187.46:8880",
@@ -7147,6 +7137,15 @@
       "server": "5.10.247.138",
       "port": 2096,
       "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.143.166.130:443",
+      "type": "vless",
+      "server": "45.143.166.130",
+      "port": 443,
+      "uuid": "M8UPo6huCfxRdIFcYjsXvX",
       "tls": true,
       "flow": ""
     },
@@ -9500,7 +9499,6 @@
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 144.31.30.86:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 89.169.8.145:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 141.98.4.99:443",
-        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.131.4.176:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 95.215.8.151:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 138.124.89.247:8443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 185.176.24.159:443",
@@ -9510,7 +9508,6 @@
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 83.217.222.183:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 188.119.112.3:2052",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 85.209.155.9:8880",
-        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 45.143.166.130:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 82.115.5.141:1080",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 185.70.184.225:1080",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 89.23.103.80:443",
@@ -9528,7 +9525,6 @@
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 185.176.24.120:8443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 84.32.191.215:8880",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 88.216.187.57:8880",
-        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 146.103.102.82:80",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - TROJAN 82.192.82.226:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - TROJAN 79.137.195.203:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - TROJAN 194.164.32.27:2053",
@@ -9667,7 +9663,6 @@
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 79.137.195.203:80",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 195.26.224.169:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 79.137.195.203:8888",
-        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.143.166.130:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.131.4.67:2086",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 89.34.230.116:8880",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 89.34.230.161:8880",
@@ -9808,9 +9803,12 @@
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.131.208.114:80",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.89.244.55:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 188.119.113.68:443",
-        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.131.7.7:8080",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 5.182.86.128:443",
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.131.7.7:8080",
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - TROJAN 185.107.56.53:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 77.238.232.228:443",
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 45.143.166.130:443",
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 146.103.102.82:80",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 88.216.187.46:8880",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.131.5.253:80",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 5.180.46.9:8880",
@@ -9826,6 +9824,7 @@
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 2.56.164.250:8443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.149.12.238:2096",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 5.10.247.138:2096",
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.143.166.130:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 103.90.75.121:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 185.140.209.188:8443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 45.88.67.37:2053",

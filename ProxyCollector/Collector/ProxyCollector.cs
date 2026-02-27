@@ -80,7 +80,7 @@ namespace ProxyCollector.Collector
             {"YT", "🇾🇹"}, {"ZA", "🇿🇦"}, {"ZM", "🇿🇲"}, {"ZW", "🇿🇼"}
         };
 
-        private static readonly string TestUrl = "http://cp.cloudflare.com/generate_204";
+        private static readonly string TestUrl = "https://divar.ir";
         private const int MaxBestResults = 500;
         private const int TestTimeoutMs = 12000;          // ← increased to 12 seconds for better accuracy
         private const int AliveCheckTimeoutMs = 4000;     // ← increased to 4 seconds

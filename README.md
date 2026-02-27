@@ -1,10 +1,5 @@
 # FastNodes – Free & Fast Proxy Subscription Collector
 
-**Last updated:** February 27, 2026  
-**Total unique proxies:** ~21,700–22,000 (after deduplication & cleaning)  
-**Main protocols:** VLESS (~68%), Shadowsocks, Trojan, Hysteria2 (~200+ configs), VMess  
-**Update frequency:** Every 3 hours (GitHub Actions)
-
 This repository automatically collects, parses, deduplicates, tests latency, filters out dead/blacklisted proxies, and generates clean subscription lists in multiple formats.
 
 ### Why use these subscriptions?
@@ -69,7 +64,7 @@ Iran (local): https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/countri
 ### Notes
 
 - Proxies are tested with real connectivity checks (sing-box core)
-- Blacklisted IPs (FireHOL Level 2 + bogons) are removed
+- Blacklisted IPs (FireHOL Level 1 + bogons) are removed
 - Very long filenames / invalid formats are filtered
 - Hysteria2 configs are prioritized and growing
 - Updates run every 3 hours → if a link is slow/dead, wait up to 3 hours for refresh

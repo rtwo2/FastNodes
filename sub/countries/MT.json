@@ -1,0 +1,146 @@
+{
+  "name": "FastNodes MT",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.214:443",
+      "type": "vless",
+      "server": "193.227.99.214",
+      "port": 443,
+      "uuid": "c82f8880-bdd8-4a35-b8e7-ad5aa880f7d0",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.249:443",
+      "type": "vless",
+      "server": "193.227.99.249",
+      "port": 443,
+      "uuid": "f775978b-6e22-41a8-ae5e-5f9779e6745f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.63:8880",
+      "type": "vless",
+      "server": "193.227.99.63",
+      "port": 8880,
+      "uuid": "fab7bf9c-ddb9-4563-8a04-fb01ce6c0fbf",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.247:8880",
+      "type": "vless",
+      "server": "193.227.99.247",
+      "port": 8880,
+      "uuid": "d60fc3c5-9f07-4cdb-b81f-70af27936bdc",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.148:2096",
+      "type": "vless",
+      "server": "193.227.99.148",
+      "port": 2096,
+      "uuid": "1a25f8ad-cad2-4e93-b5bf-34e42bcac02a",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.66:8443",
+      "type": "vless",
+      "server": "193.227.99.66",
+      "port": 8443,
+      "uuid": "2321a662-adbb-49b6-9c3d-51fcef59c70d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.158:2096",
+      "type": "vless",
+      "server": "193.227.99.158",
+      "port": 2096,
+      "uuid": "1a25f8ad-cad2-4e93-b5bf-34e42bcac02a",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - TROJAN 193.227.99.226:443",
+      "type": "trojan",
+      "server": "193.227.99.226",
+      "port": 443,
+      "password": "NISHIKUITAN111",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - TROJAN 193.227.99.60:443",
+      "type": "trojan",
+      "server": "193.227.99.60",
+      "port": 443,
+      "password": "NISHIKUITAN111",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.251:8880",
+      "type": "vless",
+      "server": "193.227.99.251",
+      "port": 8880,
+      "uuid": "0132166f-e702-48ed-a9e7-b07af768faf8",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.234:8880",
+      "type": "vless",
+      "server": "193.227.99.234",
+      "port": 8880,
+      "uuid": "53fa8faf-ba4b-4322-9c69-a3e5b1555049",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.124:2053",
+      "type": "vless",
+      "server": "193.227.99.124",
+      "port": 2053,
+      "uuid": "ee2bb495-2632-445b-b1f8-3c476a50b78b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.168:8880",
+      "type": "vless",
+      "server": "193.227.99.168",
+      "port": 8880,
+      "uuid": "fab7bf9c-ddb9-4563-8a04-fb01ce6c0fbf",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.214:443",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.249:443",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.63:8880",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.247:8880",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.148:2096",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.66:8443",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.158:2096",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - TROJAN 193.227.99.226:443",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - TROJAN 193.227.99.60:443",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.251:8880",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.234:8880",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.124:2053",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.168:8880"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

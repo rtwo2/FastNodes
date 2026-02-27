@@ -1,0 +1,139 @@
+{
+  "name": "FastNodes VMESS",
+  "proxies": [
+    {
+      "name": "\uD83C\uDF0D Unknown - VMESS 172.64.152.23:443",
+      "type": "vmess",
+      "server": "172.64.152.23",
+      "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 51.81.202.62:80",
+      "type": "vmess",
+      "server": "51.81.202.62",
+      "port": 80,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VMESS 143.198.219.182:80",
+      "type": "vmess",
+      "server": "143.198.219.182",
+      "port": 80,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - VMESS 45.85.118.88:443",
+      "type": "vmess",
+      "server": "45.85.118.88",
+      "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 192.3.107.252:443",
+      "type": "vmess",
+      "server": "192.3.107.252",
+      "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDF0D Unknown - VMESS 108.162.195.202:443",
+      "type": "vmess",
+      "server": "108.162.195.202",
+      "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF5\uD83C\uDDF1 Poland - VMESS 172.64.201.25:443",
+      "type": "vmess",
+      "server": "172.64.201.25",
+      "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDF0D Unknown - VMESS 162.159.14.2:443",
+      "type": "vmess",
+      "server": "162.159.14.2",
+      "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VMESS 185.193.28.17:443",
+      "type": "vmess",
+      "server": "185.193.28.17",
+      "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 104.22.73.111:443",
+      "type": "vmess",
+      "server": "104.22.73.111",
+      "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - VMESS 45.85.118.241:443",
+      "type": "vmess",
+      "server": "45.85.118.241",
+      "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDF0D Unknown - VMESS 172.64.152.23:443",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 51.81.202.62:80",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VMESS 143.198.219.182:80",
+        "\uD83C\uDDF7\uD83C\uDDF4 Romania - VMESS 45.85.118.88:443",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 192.3.107.252:443",
+        "\uD83C\uDF0D Unknown - VMESS 108.162.195.202:443",
+        "\uD83C\uDDF5\uD83C\uDDF1 Poland - VMESS 172.64.201.25:443",
+        "\uD83C\uDF0D Unknown - VMESS 162.159.14.2:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VMESS 185.193.28.17:443",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 104.22.73.111:443",
+        "\uD83C\uDDF7\uD83C\uDDF4 Romania - VMESS 45.85.118.241:443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

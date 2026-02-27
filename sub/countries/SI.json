@@ -1,5 +1,10 @@
 {
-  "name": "FastNodes SI",
+  "port": 7890,
+  "socks_port": 7891,
+  "allow_lan": true,
+  "mode": "Rule",
+  "log_level": "info",
+  "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.60.74.56:80",
@@ -65,13 +70,20 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.53.191.238:2096",
-      "type": "vless",
-      "server": "92.53.191.238",
-      "port": 2096,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
+      "name": "\uD83C\uDDF8\uD83C\uDDEE Slovenia - SS 192.71.244.49:989",
+      "type": "ss",
+      "server": "192.71.244.49",
+      "port": 989,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEE Slovenia - SS 91.132.94.200:989",
+      "type": "ss",
+      "server": "91.132.94.200",
+      "port": 989,
+      "cipher": "aes-256-gcm",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEE Slovenia - SS 92.60.78.221:443",
@@ -96,6 +108,30 @@
       "port": 443,
       "cipher": "aes-256-gcm",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEE Slovenia - SS 192.71.244.150:990",
+      "type": "ss",
+      "server": "192.71.244.150",
+      "port": 990,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEE Slovenia - SS 192.71.244.150:989",
+      "type": "ss",
+      "server": "192.71.244.150",
+      "port": 989,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEE Slovenia - TROJAN 92.53.190.161:2087",
+      "type": "trojan",
+      "server": "92.53.190.161",
+      "port": 2087,
+      "password": "Aimer",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEE Slovenia - TROJAN 92.53.190.218:443",
@@ -238,6 +274,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 45.83.130.133:34045",
+      "type": "vless",
+      "server": "45.83.130.133",
+      "port": 34045,
+      "uuid": "d8dd94fd-540e-461d-b5d4-acebef02c22a",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.53.188.168:8880",
       "type": "vless",
       "server": "92.53.188.168",
@@ -304,10 +349,14 @@
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.53.190.248:2096",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.53.190.247:8880",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.53.188.36:443",
-        "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.53.191.238:2096",
+        "\uD83C\uDDF8\uD83C\uDDEE Slovenia - SS 192.71.244.49:989",
+        "\uD83C\uDDF8\uD83C\uDDEE Slovenia - SS 91.132.94.200:989",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - SS 92.60.78.221:443",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - SS 45.83.131.43:443",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - SS 92.53.188.36:443",
+        "\uD83C\uDDF8\uD83C\uDDEE Slovenia - SS 192.71.244.150:990",
+        "\uD83C\uDDF8\uD83C\uDDEE Slovenia - SS 192.71.244.150:989",
+        "\uD83C\uDDF8\uD83C\uDDEE Slovenia - TROJAN 92.53.190.161:2087",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - TROJAN 92.53.190.218:443",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - TROJAN 92.53.191.173:443",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - TROJAN 92.53.188.162:443",
@@ -324,6 +373,7 @@
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.53.188.3:8880",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.53.188.180:443",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.53.189.149:443",
+        "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 45.83.130.133:34045",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.53.188.168:8880",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.53.188.213:8880",
         "\uD83C\uDDF8\uD83C\uDDEE Slovenia - VLESS 92.53.189.213:8880",

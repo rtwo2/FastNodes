@@ -1,0 +1,121 @@
+{
+  "port": 7890,
+  "socks_port": 7891,
+  "allow_lan": true,
+  "mode": "Rule",
+  "log_level": "info",
+  "external_controller": "127.0.0.1:9090",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDED Thailand - TROJAN 38.54.82.205:27877",
+      "type": "trojan",
+      "server": "38.54.82.205",
+      "port": 27877,
+      "password": "pUF\u002BzmIw0QuRESBPLofx7eOj6Xc49",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDED Thailand - VLESS 168.222.16.102:80",
+      "type": "vless",
+      "server": "168.222.16.102",
+      "port": 80,
+      "uuid": "4dc817f7-2595-4330-a1b0-e35e7c6b803a",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 27.131.164.85:47121",
+      "type": "ss",
+      "server": "27.131.164.85",
+      "port": 47121,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 43.254.132.220:989",
+      "type": "ss",
+      "server": "43.254.132.220",
+      "port": 989,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 119.59.127.129:990",
+      "type": "ss",
+      "server": "119.59.127.129",
+      "port": 990,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDED Thailand - TROJAN 15.220.240.255:443",
+      "type": "trojan",
+      "server": "15.220.240.255",
+      "port": 443,
+      "password": "your_password",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 38.60.200.187:11201",
+      "type": "ss",
+      "server": "38.60.200.187",
+      "port": 11201,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 163.171.148.71:11201",
+      "type": "ss",
+      "server": "163.171.148.71",
+      "port": 11201,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 119.59.98.58:990",
+      "type": "ss",
+      "server": "119.59.98.58",
+      "port": 990,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDED Thailand - HY2 47.81.8.60:7788",
+      "type": "hy2",
+      "server": "47.81.8.60",
+      "port": 7788
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 38.54.33.47:990",
+      "type": "ss",
+      "server": "38.54.33.47",
+      "port": 990,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDF9\uD83C\uDDED Thailand - TROJAN 38.54.82.205:27877",
+        "\uD83C\uDDF9\uD83C\uDDED Thailand - VLESS 168.222.16.102:80",
+        "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 27.131.164.85:47121",
+        "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 43.254.132.220:989",
+        "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 119.59.127.129:990",
+        "\uD83C\uDDF9\uD83C\uDDED Thailand - TROJAN 15.220.240.255:443",
+        "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 38.60.200.187:11201",
+        "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 163.171.148.71:11201",
+        "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 119.59.98.58:990",
+        "\uD83C\uDDF9\uD83C\uDDED Thailand - HY2 47.81.8.60:7788",
+        "\uD83C\uDDF9\uD83C\uDDED Thailand - SS 38.54.33.47:990"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

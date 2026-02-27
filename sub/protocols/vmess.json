@@ -1,11 +1,56 @@
 {
-  "name": "FastNodes VMESS",
+  "port": 7890,
+  "socks_port": 7891,
+  "allow_lan": true,
+  "mode": "Rule",
+  "log_level": "info",
+  "external_controller": "127.0.0.1:9090",
   "proxies": [
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VMESS 192.243.124.25:27763",
+      "type": "vmess",
+      "server": "192.243.124.25",
+      "port": 27763,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 5.175.249.174:35000",
+      "type": "vmess",
+      "server": "5.175.249.174",
+      "port": 35000,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
     {
       "name": "\uD83C\uDF0D Unknown - VMESS 172.64.152.23:443",
       "type": "vmess",
       "server": "172.64.152.23",
       "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VMESS 57.129.129.139:29183",
+      "type": "vmess",
+      "server": "57.129.129.139",
+      "port": 29183,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDE6 Saudi Arabia - VMESS 158.101.229.162:15227",
+      "type": "vmess",
+      "server": "158.101.229.162",
+      "port": 15227,
       "uuid": "",
       "alterId": 0,
       "cipher": "auto",
@@ -22,10 +67,30 @@
       "tls": true
     },
     {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 74.48.134.174:36209",
+      "type": "vmess",
+      "server": "74.48.134.174",
+      "port": 36209,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VMESS 143.198.219.182:80",
       "type": "vmess",
       "server": "143.198.219.182",
       "port": 80,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 3.231.25.139:22222",
+      "type": "vmess",
+      "server": "3.231.25.139",
+      "port": 22222,
       "uuid": "",
       "alterId": 0,
       "cipher": "auto",
@@ -42,10 +107,50 @@
       "tls": true
     },
     {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 150.136.57.125:41106",
+      "type": "vmess",
+      "server": "150.136.57.125",
+      "port": 41106,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
       "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 192.3.107.252:443",
       "type": "vmess",
       "server": "192.3.107.252",
       "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - VMESS 182.151.11.238:19206",
+      "type": "vmess",
+      "server": "182.151.11.238",
+      "port": 19206,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 57.129.95.78:11201",
+      "type": "vmess",
+      "server": "57.129.95.78",
+      "port": 11201,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - VMESS 219.135.227.209:15010",
+      "type": "vmess",
+      "server": "219.135.227.209",
+      "port": 15010,
       "uuid": "",
       "alterId": 0,
       "cipher": "auto",
@@ -112,6 +217,86 @@
       "tls": true
     },
     {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VMESS 18.170.53.62:22222",
+      "type": "vmess",
+      "server": "18.170.53.62",
+      "port": 22222,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 44.198.54.79:22222",
+      "type": "vmess",
+      "server": "44.198.54.79",
+      "port": 22222,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 50.112.12.231:22222",
+      "type": "vmess",
+      "server": "50.112.12.231",
+      "port": 22222,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 3.226.235.80:22222",
+      "type": "vmess",
+      "server": "3.226.235.80",
+      "port": 22222,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VMESS 51.136.162.7:11439",
+      "type": "vmess",
+      "server": "51.136.162.7",
+      "port": 11439,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 62.133.60.60:7048",
+      "type": "vmess",
+      "server": "62.133.60.60",
+      "port": 7048,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 173.234.29.2:990",
+      "type": "vmess",
+      "server": "173.234.29.2",
+      "port": 990,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF7\uD83C\uDDFA Russia - VMESS 90.156.203.62:5112",
+      "type": "vmess",
+      "server": "90.156.203.62",
+      "port": 5112,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VMESS 15.235.41.200:80",
       "type": "vmess",
       "server": "15.235.41.200",
@@ -122,10 +307,30 @@
       "tls": true
     },
     {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 38.92.10.226:45979",
+      "type": "vmess",
+      "server": "38.92.10.226",
+      "port": 45979,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VMESS 51.79.102.253:80",
       "type": "vmess",
       "server": "51.79.102.253",
       "port": 80,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 198.23.174.168:20086",
+      "type": "vmess",
+      "server": "198.23.174.168",
+      "port": 20086,
       "uuid": "",
       "alterId": 0,
       "cipher": "auto",
@@ -146,6 +351,16 @@
       "type": "vmess",
       "server": "172.66.132.196",
       "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VMESS 65.109.204.63:36799",
+      "type": "vmess",
+      "server": "65.109.204.63",
+      "port": 36799,
       "uuid": "",
       "alterId": 0,
       "cipher": "auto",
@@ -2072,6 +2287,16 @@
       "tls": true
     },
     {
+      "name": "\uD83C\uDF0D Unknown - VMESS 188.114.97.11:2087",
+      "type": "vmess",
+      "server": "188.114.97.11",
+      "port": 2087,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
       "name": "\uD83C\uDF0D Unknown - VMESS 141.101.120.51:443",
       "type": "vmess",
       "server": "141.101.120.51",
@@ -2402,10 +2627,30 @@
       "tls": true
     },
     {
+      "name": "\uD83C\uDF0D Unknown - VMESS 172.66.44.172:2087",
+      "type": "vmess",
+      "server": "172.66.44.172",
+      "port": 2087,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
       "name": "\uD83C\uDF0D Unknown - VMESS 172.66.44.172:2096",
       "type": "vmess",
       "server": "172.66.44.172",
       "port": 2096,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDF0D Unknown - VMESS 172.67.139.111:2087",
+      "type": "vmess",
+      "server": "172.67.139.111",
+      "port": 2087,
       "uuid": "",
       "alterId": 0,
       "cipher": "auto",
@@ -3010,6 +3255,16 @@
       "alterId": 0,
       "cipher": "auto",
       "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VMESS 51.136.163.86:18435",
+      "type": "vmess",
+      "server": "51.136.163.86",
+      "port": 18435,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
     }
   ],
   "proxy_groups": [
@@ -3017,21 +3272,42 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - VMESS 192.243.124.25:27763",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 5.175.249.174:35000",
         "\uD83C\uDF0D Unknown - VMESS 172.64.152.23:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VMESS 57.129.129.139:29183",
+        "\uD83C\uDDF8\uD83C\uDDE6 Saudi Arabia - VMESS 158.101.229.162:15227",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 51.81.202.62:80",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 74.48.134.174:36209",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VMESS 143.198.219.182:80",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 3.231.25.139:22222",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VMESS 45.85.118.88:443",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 150.136.57.125:41106",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 192.3.107.252:443",
+        "\uD83C\uDDE8\uD83C\uDDF3 China - VMESS 182.151.11.238:19206",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 57.129.95.78:11201",
+        "\uD83C\uDDE8\uD83C\uDDF3 China - VMESS 219.135.227.209:15010",
         "\uD83C\uDF0D Unknown - VMESS 108.162.195.202:443",
         "\uD83C\uDDF5\uD83C\uDDF1 Poland - VMESS 172.64.201.25:443",
         "\uD83C\uDF0D Unknown - VMESS 162.159.14.2:443",
         "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VMESS 185.193.28.17:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 104.22.73.111:443",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VMESS 45.85.118.241:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VMESS 18.170.53.62:22222",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 44.198.54.79:22222",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 50.112.12.231:22222",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 3.226.235.80:22222",
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VMESS 51.136.162.7:11439",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 62.133.60.60:7048",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 173.234.29.2:990",
+        "\uD83C\uDDF7\uD83C\uDDFA Russia - VMESS 90.156.203.62:5112",
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - VMESS 15.235.41.200:80",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 38.92.10.226:45979",
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - VMESS 51.79.102.253:80",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 198.23.174.168:20086",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 209.126.84.189:443",
         "\uD83C\uDF0D Unknown - VMESS 172.66.132.196:443",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VMESS 65.109.204.63:36799",
         "\uD83C\uDF0D Unknown - VMESS 104.24.148.184:80",
         "\uD83C\uDF0D Unknown - VMESS 104.20.5.134:443",
         "\uD83C\uDF0D Unknown - VMESS 104.20.6.134:443",
@@ -3224,6 +3500,7 @@
         "\uD83C\uDF0D Unknown - VMESS 172.67.163.76:443",
         "\uD83C\uDF0D Unknown - VMESS 172.67.86.123:443",
         "\uD83C\uDF0D Unknown - VMESS 188.114.96.11:443",
+        "\uD83C\uDF0D Unknown - VMESS 188.114.97.11:2087",
         "\uD83C\uDF0D Unknown - VMESS 141.101.120.51:443",
         "\uD83C\uDF0D Unknown - VMESS 104.16.98.3:2053",
         "\uD83C\uDF0D Unknown - VMESS 104.21.27.126:2052",
@@ -3257,7 +3534,9 @@
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 198.62.62.4:443",
         "\uD83C\uDF0D Unknown - VMESS 104.16.148.244:2095",
         "\uD83C\uDF0D Unknown - VMESS 104.19.19.58:2096",
+        "\uD83C\uDF0D Unknown - VMESS 172.66.44.172:2087",
         "\uD83C\uDF0D Unknown - VMESS 172.66.44.172:2096",
+        "\uD83C\uDF0D Unknown - VMESS 172.67.139.111:2087",
         "\uD83C\uDF0D Unknown - VMESS 172.67.156.27:2053",
         "\uD83C\uDF0D Unknown - VMESS 172.67.222.26:2083",
         "\uD83C\uDF0D Unknown - VMESS 104.26.5.60:2096",
@@ -3317,7 +3596,8 @@
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 167.68.11.29:8880",
         "\uD83C\uDDF5\uD83C\uDDED Philippines - VMESS 154.83.2.254:8880",
         "\uD83C\uDDEA\uD83C\uDDF8 Spain - VMESS 185.251.80.254:8880",
-        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 184.174.80.63:8880"
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 184.174.80.63:8880",
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VMESS 51.136.163.86:18435"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

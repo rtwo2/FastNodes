@@ -1,6 +1,19 @@
 {
-  "name": "FastNodes ID",
+  "port": 7890,
+  "socks_port": 7891,
+  "allow_lan": true,
+  "mode": "Rule",
+  "log_level": "info",
+  "external_controller": "127.0.0.1:9090",
   "proxies": [
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - SS 154.205.159.100:990",
+      "type": "ss",
+      "server": "154.205.159.100",
+      "port": 990,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 43.229.254.177:80",
       "type": "vless",
@@ -9,6 +22,14 @@
       "uuid": "d50f8bc7-d4d0-44cf-8744-05fa82506864",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - SS 38.60.171.254:990",
+      "type": "ss",
+      "server": "38.60.171.254",
+      "port": 990,
+      "cipher": "aes-256-gcm",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 41.216.177.41:443",
@@ -43,6 +64,42 @@
       "tls": true
     },
     {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.232.248.242:2321",
+      "type": "vless",
+      "server": "172.232.248.242",
+      "port": 2321,
+      "uuid": "0d6b5af6-17df-4bb1-af76-e524f00602a5",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.235.251.52:321",
+      "type": "vless",
+      "server": "172.235.251.52",
+      "port": 321,
+      "uuid": "1a18e79a-ff9c-43b5-90e1-1c43561364f2",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 218.33.84.142:26518",
+      "type": "vless",
+      "server": "218.33.84.142",
+      "port": 26518,
+      "uuid": "52395e5e-40db-4c24-c32e-57954697f906",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.232.237.24:2321",
+      "type": "vless",
+      "server": "172.232.237.24",
+      "port": 2321,
+      "uuid": "89ae5e18-3b81-4e5d-a645-d85012c602b1",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 108.137.18.26:8443",
       "type": "trojan",
       "server": "108.137.18.26",
@@ -56,11 +113,17 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - SS 154.205.159.100:990",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 43.229.254.177:80",
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - SS 38.60.171.254:990",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 41.216.177.41:443",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.176.78.153:443",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.226.139.201:443",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 43.218.139.54:443",
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.232.248.242:2321",
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.235.251.52:321",
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 218.33.84.142:26518",
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.232.237.24:2321",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 108.137.18.26:8443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",

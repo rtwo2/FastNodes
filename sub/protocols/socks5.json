@@ -1,6 +1,17 @@
 {
-  "name": "FastNodes SOCKS5",
+  "port": 7890,
+  "socks_port": 7891,
+  "allow_lan": true,
+  "mode": "Rule",
+  "log_level": "info",
+  "external_controller": "127.0.0.1:9090",
   "proxies": [
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SOCKS5 121.169.46.116:1090",
+      "type": "socks5",
+      "server": "121.169.46.116",
+      "port": 1090
+    },
     {
       "name": "\uD83C\uDDF7\uD83C\uDDFA Russia - SOCKS5 46.146.220.247:1080",
       "type": "socks5",
@@ -14,6 +25,30 @@
       "port": 1080
     },
     {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - SOCKS5 192.111.129.145:16894",
+      "type": "socks5",
+      "server": "192.111.129.145",
+      "port": 16894
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - SOCKS5 192.111.130.5:17002",
+      "type": "socks5",
+      "server": "192.111.130.5",
+      "port": 17002
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - SOCKS5 192.111.139.165:4145",
+      "type": "socks5",
+      "server": "192.111.139.165",
+      "port": 4145
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SOCKS5 194.233.68.54:1088",
+      "type": "socks5",
+      "server": "194.233.68.54",
+      "port": 1088
+    },
+    {
       "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SOCKS5 31.59.129.75:1080",
       "type": "socks5",
       "server": "31.59.129.75",
@@ -24,6 +59,12 @@
       "type": "socks5",
       "server": "64.227.131.240",
       "port": 1080
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - SOCKS5 49.13.73.161:2025",
+      "type": "socks5",
+      "server": "49.13.73.161",
+      "port": 2025
     }
   ],
   "proxy_groups": [
@@ -31,10 +72,16 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SOCKS5 121.169.46.116:1090",
         "\uD83C\uDDF7\uD83C\uDDFA Russia - SOCKS5 46.146.220.247:1080",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SOCKS5 134.199.159.23:1080",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - SOCKS5 192.111.129.145:16894",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - SOCKS5 192.111.130.5:17002",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - SOCKS5 192.111.139.165:4145",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SOCKS5 194.233.68.54:1088",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SOCKS5 31.59.129.75:1080",
-        "\uD83C\uDDEE\uD83C\uDDF3 India - SOCKS5 64.227.131.240:1080"
+        "\uD83C\uDDEE\uD83C\uDDF3 India - SOCKS5 64.227.131.240:1080",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - SOCKS5 49.13.73.161:2025"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

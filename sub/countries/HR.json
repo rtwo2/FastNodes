@@ -1,6 +1,28 @@
 {
-  "name": "FastNodes HR",
+  "port": 7890,
+  "socks_port": 7891,
+  "allow_lan": true,
+  "mode": "Rule",
+  "log_level": "info",
+  "external_controller": "127.0.0.1:9090",
   "proxies": [
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 5.181.2.76:36608",
+      "type": "ss",
+      "server": "5.181.2.76",
+      "port": 36608,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF7 Croatia - VLESS 5.181.2.112:7610",
+      "type": "vless",
+      "server": "5.181.2.112",
+      "port": 7610,
+      "uuid": "8346adf1-76ff-41d6-8ca4-044c817a3ec9",
+      "tls": true,
+      "flow": ""
+    },
     {
       "name": "\uD83C\uDDED\uD83C\uDDF7 Croatia - VLESS 213.182.199.63:8880",
       "type": "vless",
@@ -11,6 +33,30 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 5.181.2.73:43248",
+      "type": "ss",
+      "server": "5.181.2.73",
+      "port": 43248,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 46.183.184.61:989",
+      "type": "ss",
+      "server": "46.183.184.61",
+      "port": 989,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 46.183.184.64:989",
+      "type": "ss",
+      "server": "46.183.184.64",
+      "port": 989,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 213.182.199.38:443",
       "type": "ss",
       "server": "213.182.199.38",
@@ -19,10 +65,34 @@
       "password": ""
     },
     {
+      "name": "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 169.150.242.77:990",
+      "type": "ss",
+      "server": "169.150.242.77",
+      "port": 990,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 185.156.110.92:443",
       "type": "ss",
       "server": "185.156.110.92",
       "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 46.183.184.60:989",
+      "type": "ss",
+      "server": "46.183.184.60",
+      "port": 989,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 46.183.184.62:989",
+      "type": "ss",
+      "server": "46.183.184.62",
+      "port": 989,
       "cipher": "aes-256-gcm",
       "password": ""
     },
@@ -43,6 +113,14 @@
       "uuid": "bc80d34e7b0c41f18d72e3330cf8f93e",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 5.181.2.74:45977",
+      "type": "ss",
+      "server": "5.181.2.74",
+      "port": 45977,
+      "cipher": "aes-256-gcm",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -50,11 +128,20 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
+        "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 5.181.2.76:36608",
+        "\uD83C\uDDED\uD83C\uDDF7 Croatia - VLESS 5.181.2.112:7610",
         "\uD83C\uDDED\uD83C\uDDF7 Croatia - VLESS 213.182.199.63:8880",
+        "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 5.181.2.73:43248",
+        "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 46.183.184.61:989",
+        "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 46.183.184.64:989",
         "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 213.182.199.38:443",
+        "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 169.150.242.77:990",
         "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 185.156.110.92:443",
+        "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 46.183.184.60:989",
+        "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 46.183.184.62:989",
         "\uD83C\uDDED\uD83C\uDDF7 Croatia - VLESS 5.181.2.78:8443",
-        "\uD83C\uDDED\uD83C\uDDF7 Croatia - VLESS 5.181.2.73:8443"
+        "\uD83C\uDDED\uD83C\uDDF7 Croatia - VLESS 5.181.2.73:8443",
+        "\uD83C\uDDED\uD83C\uDDF7 Croatia - SS 5.181.2.74:45977"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

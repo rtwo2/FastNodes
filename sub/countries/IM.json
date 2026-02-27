@@ -1,6 +1,20 @@
 {
-  "name": "FastNodes IM",
+  "port": 7890,
+  "socks_port": 7891,
+  "allow_lan": true,
+  "mode": "Rule",
+  "log_level": "info",
+  "external_controller": "127.0.0.1:9090",
   "proxies": [
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.229.238:2096",
+      "type": "vless",
+      "server": "185.162.229.238",
+      "port": 2096,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.138:2096",
       "type": "vless",
@@ -11,11 +25,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.229.238:2096",
+      "name": "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.186:2087",
       "type": "vless",
-      "server": "185.162.229.238",
-      "port": 2096,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "server": "185.162.231.186",
+      "port": 2087,
+      "uuid": "31a27ed1-2ec6-4ab5-95b6-3e213e59e0a9",
       "tls": true,
       "flow": ""
     },
@@ -216,8 +230,9 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.138:2096",
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.229.238:2096",
+        "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.138:2096",
+        "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.186:2087",
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.228.3:80",
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.213:8880",
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - SS 86.38.4.73:8881",

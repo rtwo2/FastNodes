@@ -1,5 +1,10 @@
 {
-  "name": "FastNodes NZ",
+  "port": 7890,
+  "socks_port": 7891,
+  "allow_lan": true,
+  "mode": "Rule",
+  "log_level": "info",
+  "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
       "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 172.64.197.116:8080",
@@ -9,6 +14,14 @@
       "uuid": "79978027-ef16-4137-b18e-905f8c18f845",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - TROJAN 45.15.140.107:19106",
+      "type": "trojan",
+      "server": "45.15.140.107",
+      "port": 19106,
+      "password": "tSk5LQoJr7F.WnRsUM4hT",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 114.129.43.251:8880",
@@ -29,12 +42,13 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - TROJAN 202.37.33.80:443",
-      "type": "trojan",
-      "server": "202.37.33.80",
-      "port": 443,
-      "password": "6884d714-d3c4-4b49-aa20-767ea92837d6",
-      "tls": true
+      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 45.15.140.38:28495",
+      "type": "vless",
+      "server": "45.15.140.38",
+      "port": 28495,
+      "uuid": "7e296434-2d17-48d3-928d-19eaa34aecb1",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - SS 172.64.197.116:8080",
@@ -51,9 +65,10 @@
       "type": "url-test",
       "proxies": [
         "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 172.64.197.116:8080",
+        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - TROJAN 45.15.140.107:19106",
         "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 114.129.43.251:8880",
         "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 114.129.43.168:8880",
-        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - TROJAN 202.37.33.80:443",
+        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 45.15.140.38:28495",
         "\uD83C\uDDF3\uD83C\uDDFF New Zealand - SS 172.64.197.116:8080"
       ],
       "url": "http://cp.cloudflare.com/generate_204",

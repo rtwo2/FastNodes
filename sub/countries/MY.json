@@ -1,0 +1,126 @@
+{
+  "name": "FastNodes MY",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.200:8443",
+      "type": "vless",
+      "server": "45.89.107.200",
+      "port": 8443,
+      "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VMESS 38.54.98.110:2052",
+      "type": "vmess",
+      "server": "38.54.98.110",
+      "port": 2052,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.128.54.17:443",
+      "type": "vless",
+      "server": "45.128.54.17",
+      "port": 443,
+      "uuid": "297df885-9161-46cb-94d4-90a8a8489645",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 47.254.207.127:443",
+      "type": "vless",
+      "server": "47.254.207.127",
+      "port": 443,
+      "uuid": "3e7f67de-648e-4871-b51a-a225214d41ee",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 47.250.132.147:443",
+      "type": "vless",
+      "server": "47.250.132.147",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - TROJAN 202.43.102.57:443",
+      "type": "trojan",
+      "server": "202.43.102.57",
+      "port": 443,
+      "password": "6e1b9a65-884f-3aa9-9469-bf6ec0f08610",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.227:443",
+      "type": "vless",
+      "server": "45.89.107.227",
+      "port": 443,
+      "uuid": "0226ff6d-b500-430f-8291-96b56d677660",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.235:443",
+      "type": "vless",
+      "server": "45.89.107.235",
+      "port": 443,
+      "uuid": "a396bc99-8614-4452-92e3-3c9f81c54588",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - SS 47.250.132.147:443",
+      "type": "ss",
+      "server": "47.250.132.147",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - TROJAN 45.89.107.118:443",
+      "type": "trojan",
+      "server": "45.89.107.118",
+      "port": 443,
+      "password": "554f139b-f31f-41c4-99f9-73d60647db26",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.244:443",
+      "type": "vless",
+      "server": "45.89.107.244",
+      "port": 443,
+      "uuid": "6fe4cdfd-11a8-4d3b-94a4-4b735da523de",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.200:8443",
+        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VMESS 38.54.98.110:2052",
+        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.128.54.17:443",
+        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 47.254.207.127:443",
+        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 47.250.132.147:443",
+        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - TROJAN 202.43.102.57:443",
+        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.227:443",
+        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.235:443",
+        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - SS 47.250.132.147:443",
+        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - TROJAN 45.89.107.118:443",
+        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.244:443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

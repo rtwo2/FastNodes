@@ -1,0 +1,88 @@
+{
+  "name": "FastNodes CN",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 42.236.73.72:443",
+      "type": "vless",
+      "server": "42.236.73.72",
+      "port": 443,
+      "uuid": "11916472-4e2c-49c6-b75d-71196b3a7ecf",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - VMESS 125.124.254.5:1080",
+      "type": "vmess",
+      "server": "125.124.254.5",
+      "port": 1080,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 139.196.41.153:443",
+      "type": "vless",
+      "server": "139.196.41.153",
+      "port": 443,
+      "uuid": "14b02e2a-8930-4afb-8412-ea4a4954ca5b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - TROJAN 42.236.73.72:443",
+      "type": "trojan",
+      "server": "42.236.73.72",
+      "port": 443,
+      "password": "fuck",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 103.44.255.81:443",
+      "type": "vless",
+      "server": "103.44.255.81",
+      "port": 443,
+      "uuid": "23d9aa04-8a2a-4ffc-9a3c-479a9f43f6fe",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 117.187.185.76:443",
+      "type": "vless",
+      "server": "117.187.185.76",
+      "port": 443,
+      "uuid": "d6b8011a-c725-435a-9fec-bf6d3530392c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 123.138.202.49:443",
+      "type": "vless",
+      "server": "123.138.202.49",
+      "port": 443,
+      "uuid": "d6b8011a-c725-435a-9fec-bf6d3530392c",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 42.236.73.72:443",
+        "\uD83C\uDDE8\uD83C\uDDF3 China - VMESS 125.124.254.5:1080",
+        "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 139.196.41.153:443",
+        "\uD83C\uDDE8\uD83C\uDDF3 China - TROJAN 42.236.73.72:443",
+        "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 103.44.255.81:443",
+        "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 117.187.185.76:443",
+        "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 123.138.202.49:443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

@@ -91,8 +91,8 @@ namespace ProxyCollector.Collector
         {
             80, 443, 8080, 8443, 2052, 2053, 2082, 2083, 2086, 2095, 2096,
             8880, 8888, 10000, 10001, 20000, 30000,
-            1080, 10808, 10809, 7890, 7891, 1081, 8000, 8881, 8882, 8883,  // added safe/common
-            2010, 2011, 2020, 8889, 9999, 1443, 10443, 4433               // extra common ones
+            1080, 10808, 10809, 7890, 7891, 1081, 8000, 8881, 8882, 8883,
+            2010, 2011, 2020, 8889, 9999, 1443, 10443, 4433
         };
 
         private static async Task DownloadFreshGeoIP(HttpClient http)
@@ -764,7 +764,6 @@ namespace ProxyCollector.Collector
                 string guessedProto = "unknown";
                 string port = found.Contains(":") ? found.Split(':')[1] : "443";
 
-                // Improved fallback detection
                 string lowerLine = line.ToLowerInvariant();
                 if (lowerLine.StartsWith("vless://")) guessedProto = "vless";
                 else if (lowerLine.StartsWith("vmess://")) guessedProto = "vmess";
@@ -773,10 +772,21 @@ namespace ProxyCollector.Collector
                 else if (lowerLine.StartsWith("hysteria2://") || lowerLine.StartsWith("hy2://")) guessedProto = "hysteria2";
                 else
                 {
-                    // port-based fallback only if scheme not found
-                    if (port == "443" || port == "8443" || port == "2053" || port == "2096" || port == "2010") guessedProto = "vless";
-                    else if (port == "80" || port == "8080" || port == "8888") guessedProto = "ss";
-                    else if (port == "1080" || port == "7890") guessedProto = "socks";
+                    // Fallback: look for base64-like patterns or typical fields inside the line/remark
+                    if (line.Contains("eyJhZGQiOi") || line.Contains("\"add\":") || line.Contains("vmess://") || line.Contains("vless://"))
+                    {
+                        if (line.Contains("\"net\":\"ws\"") || line.Contains("\"net\":\"tcp\"") || line.Contains("path") || line.Contains("sni") || line.Contains("host"))
+                            guessedProto = "vmess";  // most common for base64 vmess
+                        else if (line.Contains("reality") || line.Contains("xtls") || line.Contains("flow") || line.Contains("pbk=") || line.Contains("sid="))
+                            guessedProto = "vless";
+                    }
+                    else
+                    {
+                        // port-based fallback only if no scheme or base64 pattern found
+                        if (port == "443" || port == "8443" || port == "2053" || port == "2096" || port == "2010") guessedProto = "vless";
+                        else if (port == "80" || port == "8080" || port == "8888") guessedProto = "ss";
+                        else if (port == "1080" || port == "7890") guessedProto = "socks";
+                    }
                 }
 
                 return (guessedProto, found, remark);

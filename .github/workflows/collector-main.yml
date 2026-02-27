@@ -92,7 +92,7 @@ jobs:
           git stash push -u -m "Stash before pull" || true
           
           git fetch origin
-          git pull --rebase origin main || true   # ← changed to main (your default branch)
+          git pull --rebase origin main || true
           
           git stash pop || true
           
@@ -100,4 +100,5 @@ jobs:
           
           git commit -m "Fresh proxies + GeoIP + blacklist + Best Results (top 500) - $(date +'%Y-%m-%d %H:%M UTC') - $(wc -l < sub/everything.txt) proxies - temp backup included" --allow-empty || echo "Nothing new to commit"
           
-          git push || echo "Push failed or no changes"
+          # Force-with-lease is safer than plain push when rebasing
+          git push --force-with-lease origin main || echo "Push failed (check repo settings → Actions → Workflow permissions → must be 'Read and write')"

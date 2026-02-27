@@ -90,12 +90,10 @@ namespace ProxyCollector.Collector
         private static readonly HashSet<int> CommonProxyPorts = new()
         {
             80, 443, 8080, 8443, 2052, 2053, 2082, 2083, 2086, 2095, 2096,
-            8880, 8888, 10000, 10001, 20000, 30000
+            8880, 8888, 10000, 10001, 20000, 30000,
+            1080, 10808, 10809, 7890, 7891, 1081, 8000, 8881, 8882, 8883,  // added safe/common
+            2010, 2011, 2020, 8889, 9999, 1443, 10443, 4433               // extra common ones
         };
-
-        // ──────────────────────────────────────────────────────────────
-        // Download functions (unchanged)
-        // ──────────────────────────────────────────────────────────────
 
         private static async Task DownloadFreshGeoIP(HttpClient http)
         {
@@ -156,6 +154,7 @@ namespace ProxyCollector.Collector
         private static void LoadAllBlacklists()
         {
             BlacklistCidrs.Clear();
+
             var fireholPath = Path.Combine(Directory.GetCurrentDirectory(), "ProxyCollector", "blacklist.netset");
             if (File.Exists(fireholPath))
             {
@@ -214,6 +213,7 @@ namespace ProxyCollector.Collector
             byte[] ipB = ip.GetAddressBytes();
             byte[] netB = net.GetAddressBytes();
             if (ipB.Length != netB.Length) return false;
+
             int bits = mask;
             for (int i = 0; i < ipB.Length && bits > 0; i++)
             {
@@ -272,7 +272,7 @@ namespace ProxyCollector.Collector
             var seenNormalized = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             int skippedNumbered = 0, parseFail = 0, skippedLongFilename = 0, skippedBlacklisted = 0;
 
-            Console.WriteLine("\n🧹 Parsing + strict deduplicating + **forced clean renaming**...");
+            Console.WriteLine("\n🧹 Parsing + strict deduplicating + forced clean renaming...");
             int processed = 0;
             foreach (var line in rawLines)
             {
@@ -290,7 +290,7 @@ namespace ProxyCollector.Collector
 
                 string cleaned = Regex.Replace(trimmed, @"^(?:Telegram\s*[:=]?\s*@[^@]+@|Telegram\s*-\s*|Telegram\s+@|t\.me\/[^@]+@)", "", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-                var (proto, serverPort, _) = ParseProxyLine(cleaned); // ignore original remark
+                var (proto, serverPort, _) = ParseProxyLine(cleaned);
                 if (string.IsNullOrEmpty(serverPort) || !serverPort.Contains(":")) 
                 {
                     parseFail++;
@@ -347,9 +347,6 @@ namespace ProxyCollector.Collector
                 string flag = Flags.TryGetValue(countryCode, out var f) ? f : "🌍";
                 string countryDisplay = info?.CountryName ?? GetCountryNameFromCode(countryCode);
 
-                // ──────────────────────────────────────────────────────────────
-                // FORCE clean remark — ignore original completely
-                // ──────────────────────────────────────────────────────────────
                 string cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} {ipOrHost}:{portStr}";
 
                 var renamedLink = RenameRemarkInLink(cleaned, cleanRemark, proto);
@@ -467,10 +464,6 @@ namespace ProxyCollector.Collector
                 _ => "Unknown"
             };
         }
-
-        // ──────────────────────────────────────────────────────────────
-        // The rest of the file remains the same (GenerateBestResultsAsync, IsProxyAliveAsync, etc.)
-        // ──────────────────────────────────────────────────────────────
 
         private async Task GenerateBestResultsAsync(List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)> proxies)
         {
@@ -770,8 +763,22 @@ namespace ProxyCollector.Collector
                 string found = ipPortMatch.Value;
                 string guessedProto = "unknown";
                 string port = found.Contains(":") ? found.Split(':')[1] : "443";
-                if (port == "443" || port == "8443" || port == "2053") guessedProto = "vless";
-                else if (port == "80" || port == "8080") guessedProto = "ss";
+
+                // Improved fallback detection
+                string lowerLine = line.ToLowerInvariant();
+                if (lowerLine.StartsWith("vless://")) guessedProto = "vless";
+                else if (lowerLine.StartsWith("vmess://")) guessedProto = "vmess";
+                else if (lowerLine.StartsWith("ss://")) guessedProto = "ss";
+                else if (lowerLine.StartsWith("trojan://")) guessedProto = "trojan";
+                else if (lowerLine.StartsWith("hysteria2://") || lowerLine.StartsWith("hy2://")) guessedProto = "hysteria2";
+                else
+                {
+                    // port-based fallback only if scheme not found
+                    if (port == "443" || port == "8443" || port == "2053" || port == "2096" || port == "2010") guessedProto = "vless";
+                    else if (port == "80" || port == "8080" || port == "8888") guessedProto = "ss";
+                    else if (port == "1080" || port == "7890") guessedProto = "socks";
+                }
+
                 return (guessedProto, found, remark);
             }
 

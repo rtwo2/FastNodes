@@ -1,0 +1,73 @@
+{
+  "name": "FastNodes ID",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 43.229.254.177:80",
+      "type": "vless",
+      "server": "43.229.254.177",
+      "port": 80,
+      "uuid": "d50f8bc7-d4d0-44cf-8744-05fa82506864",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 41.216.177.41:443",
+      "type": "trojan",
+      "server": "41.216.177.41",
+      "port": 443,
+      "password": "274c1b23-2bfe-40ac-943c-ebc1aa044b22",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.176.78.153:443",
+      "type": "trojan",
+      "server": "103.176.78.153",
+      "port": 443,
+      "password": "idc117okt",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.226.139.201:443",
+      "type": "trojan",
+      "server": "103.226.139.201",
+      "port": 443,
+      "password": "idc117okt",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 43.218.139.54:443",
+      "type": "trojan",
+      "server": "43.218.139.54",
+      "port": 443,
+      "password": "your_password",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 108.137.18.26:8443",
+      "type": "trojan",
+      "server": "108.137.18.26",
+      "port": 8443,
+      "password": "cf4295378e209e70d12c5bdd017144dfd1c772d3",
+      "tls": true
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 43.229.254.177:80",
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 41.216.177.41:443",
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.176.78.153:443",
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.226.139.201:443",
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 43.218.139.54:443",
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 108.137.18.26:8443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

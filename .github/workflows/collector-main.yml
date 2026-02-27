@@ -1,7 +1,7 @@
 name: Collect & Test Proxies (FastNodes)
 
 on:
-  Schedule:
+  schedule:
     - cron: '0 */3 * * *'     # every 3 hours (at minute 0 of every 3rd hour)
   workflow_dispatch:
 

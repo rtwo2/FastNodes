@@ -220,8 +220,22 @@ namespace ProxyCollector.Collector
                     };
                 }
 
-                var flag = Flags.TryGetValue(countryCode, out var f) ? f : "🌍";
-                string countryName = info?.CountryName ?? GetCountryNameFromCode(countryCode);
+                // ──────────────────────────────────────────────────────────────
+                // FIXED flag + country display logic (this is the only change)
+                // ──────────────────────────────────────────────────────────────
+                string flag;
+                string countryDisplay;
+
+                if (countryCode == "XX")
+                {
+                    flag = "🌍";
+                    countryDisplay = "Unknown";
+                }
+                else
+                {
+                    flag = Flags.TryGetValue(countryCode, out var f) ? f : "🌍";
+                    countryDisplay = info?.CountryName ?? GetCountryNameFromCode(countryCode);
+                }
 
                 string cleanRemark;
                 if (string.IsNullOrWhiteSpace(originalRemark) ||
@@ -230,11 +244,11 @@ namespace ProxyCollector.Collector
                     originalRemark.Contains("Telegram") || originalRemark.Contains("t.me") ||
                     originalRemark.Contains("channel") || originalRemark.Contains("group"))
                 {
-                    cleanRemark = $"{flag} {countryName} - {proto.ToUpperInvariant()} - {ipOrHost}:{portStr}";
+                    cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} - {ipOrHost}:{portStr}";
                 }
                 else
                 {
-                    cleanRemark = $"{flag} {countryName} - {proto.ToUpperInvariant()} - {originalRemark.Trim()}";
+                    cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} - {originalRemark.Trim()}";
                 }
 
                 var renamedLink = RenameRemarkInLink(cleaned, cleanRemark, proto);

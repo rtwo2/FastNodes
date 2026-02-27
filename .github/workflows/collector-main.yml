@@ -2,7 +2,7 @@ name: FastNodes - Main Collector (Fast & Smart)
 
 on:
   schedule:
-    - cron: '0 */6 * * *'          # every 6 hours
+    - cron: '0 */6 * * *' # every 6 hours
   workflow_dispatch:
 
 jobs:
@@ -40,15 +40,63 @@ jobs:
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/24.txt
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/25.txt
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt
-        # MatinGhanbari/v2ray-configs
+       
+        # Other existing sources
         https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt
-        # roosterkid/openproxylist
         https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt
+        https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/all_extracted_configs.txt
+        https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt
+        https://raw.githubusercontent.com/barry-far/V2ray-config/main/All_Configs_Sub.txt
+        https://raw.githubusercontent.com/roosterkid/openproxylist/refs/heads/main/V2RAY.txt
+        https://raw.githubusercontent.com/ShatakVPN/ConfigForge-V2Ray/main/configs/all.txt
+        https://raw.githubusercontent.com/miladtahanian/V2RayCFGDumper/refs/heads/main/sub.txt
+        https://raw.githubusercontent.com/Delta-Kronecker/V2ray-Config/refs/heads/main/sub.txt
+        https://raw.githubusercontent.com/mostafasadeghifar/v2ray-config/main/config_file.txt
+        https://raw.githubusercontent.com/liMilCo/v2r/main/all_configs.txt
+       
+        # Proxify - mixed subscriptions (38 files)
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-1.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-2.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-3.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-4.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-5.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-6.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-7.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-8.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-9.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-10.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-11.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-12.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-13.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-14.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-15.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-16.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-17.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-18.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-19.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-20.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-21.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-22.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-23.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-24.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-25.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-26.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-27.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-28.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-29.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-30.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-31.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-32.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-33.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-34.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-35.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-36.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-37.txt
+        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-38.txt
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Download fresh GeoIP database 🌍
         run: |
           echo "Downloading fresh country database..."
@@ -59,7 +107,6 @@ jobs:
             echo "⚠️ Download failed - keeping previous file if exists"
             ls -la ProxyCollector/Country.mmdb || echo "No GeoIP file yet"
           fi
-
       - name: Download fresh FireHOL Level 2 blacklist 🔒
         run: |
           echo "Downloading fresh FireHOL Level 2 blacklist..."
@@ -71,21 +118,17 @@ jobs:
             echo "⚠️ Download failed - keeping previous"
             wc -l ProxyCollector/blacklist.netset || echo "No blacklist yet"
           fi
-
       - name: Setup .NET environment
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
-
       - name: Restore project dependencies
         run: dotnet restore ProxyCollector/ProxyCollector.csproj
-
       - name: Cache sing-box (faster startup)
         uses: actions/cache@v4
         with:
           path: ~/sing-box-cache/sing-box
           key: sing-box-v1.10.6-Linux-v4
-
       - name: Install sing-box if needed
         run: |
           mkdir -p ~/sing-box-cache
@@ -100,10 +143,8 @@ jobs:
             sudo cp ~/sing-box-cache/sing-box /usr/bin/sing-box
             sudo chmod +x /usr/bin/sing-box
           fi
-
       - name: Run ProxyCollector (Collect + Rename + Best Results)
         run: dotnet run --configuration Release --project ProxyCollector
-
       - name: Show quick stats 📊
         run: |
           echo "Quick stats:"
@@ -111,22 +152,21 @@ jobs:
           wc -l sub/Best-Results/top500.txt | awk '{print "top500.txt lines: " $1}'
           ls -lh sub/protocols/ | grep ".txt" || echo "No protocol txt files"
           ls -lh sub/temp/ || echo "Temp folder empty?"
-
       - name: Commit & push updated files 📦
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          
+         
           git stash push -u -m "Stash before pull" || true
-          
+         
           git fetch origin
           git pull --rebase origin main || true
-          
+         
           git stash pop || true
-          
+         
           git add ProxyCollector/Country.mmdb ProxyCollector/blacklist.netset sub/ || true
-          
+         
           git commit -m "Fresh proxies + GeoIP + blacklist + Best Results (top 500) - $(date +'%Y-%m-%d %H:%M UTC') - $(wc -l < sub/everything.txt) proxies - temp backup included" --allow-empty || echo "Nothing new to commit"
-          
+         
           # Force-with-lease is safer than plain push when rebasing
           git push --force-with-lease origin main || echo "Push failed (check repo settings → Actions → Workflow permissions → must be 'Read and write')"

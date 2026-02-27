@@ -115,16 +115,16 @@ namespace ProxyCollector.Collector
 
         private static async Task DownloadFreshFireHOLBlacklist(HttpClient http)
         {
-            Console.WriteLine("Downloading fresh FireHOL Level 2 blacklist...");
+            Console.WriteLine("Downloading fresh FireHOL Level 1 blacklist...");
             var path = Path.Combine(Directory.GetCurrentDirectory(), "ProxyCollector", "blacklist.netset");
-            const string url = "https://iplists.firehol.org/files/firehol_level2.netset";
+            const string url = "https://iplists.firehol.org/files/firehol_level1.netset";
             try
             {
                 var response = await http.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 await using var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None);
                 await response.Content.CopyToAsync(fs);
-                Console.WriteLine("✅ Fresh FireHOL Level 2 downloaded.");
+                Console.WriteLine("✅ Fresh FireHOL Level 1 downloaded.");
             }
             catch (Exception ex)
             {

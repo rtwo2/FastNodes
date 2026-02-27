@@ -415,6 +415,57 @@
       "uuid": "d342d11e-d424-4583-b36e-524ab1f0afa4",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 199.232.33.127:443",
+      "type": "vless",
+      "server": "199.232.33.127",
+      "port": 443,
+      "uuid": "89b3cbba-e6ac-485a-9481-976a0415eab9",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEA\uD83C\uDDF8 Spain - SS 199.232.33.127:443",
+      "type": "ss",
+      "server": "199.232.33.127",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 199.232.32.247:443",
+      "type": "vless",
+      "server": "199.232.32.247",
+      "port": 443,
+      "uuid": "89b3cbba-e6ac-485a-9481-976a0415eab9",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 199.232.32.234:443",
+      "type": "vless",
+      "server": "199.232.32.234",
+      "port": 443,
+      "uuid": "89b3cbba-e6ac-485a-9481-976a0415eab9",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEA\uD83C\uDDF8 Spain - TROJAN 199.232.32.213:443",
+      "type": "trojan",
+      "server": "199.232.32.213",
+      "port": 443,
+      "password": "jsxj911dddd",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEA\uD83C\uDDF8 Spain - TROJAN 194.62.96.160:443",
+      "type": "trojan",
+      "server": "194.62.96.160",
+      "port": 443,
+      "password": "3774827088566296576",
+      "tls": true
     }
   ],
   "proxy_groups": [
@@ -468,7 +519,13 @@
         "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 185.251.82.177:8880",
         "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 185.251.80.3:8880",
         "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 185.251.81.3:8880",
-        "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 94.250.246.200:8080"
+        "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 94.250.246.200:8080",
+        "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 199.232.33.127:443",
+        "\uD83C\uDDEA\uD83C\uDDF8 Spain - SS 199.232.33.127:443",
+        "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 199.232.32.247:443",
+        "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 199.232.32.234:443",
+        "\uD83C\uDDEA\uD83C\uDDF8 Spain - TROJAN 199.232.32.213:443",
+        "\uD83C\uDDEA\uD83C\uDDF8 Spain - TROJAN 194.62.96.160:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

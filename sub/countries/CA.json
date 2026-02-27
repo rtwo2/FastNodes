@@ -1129,6 +1129,30 @@
       "uuid": "9b1bd0fe-4e14-44b9-8f43-075924389f25",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 23.227.60.8:443",
+      "type": "ss",
+      "server": "23.227.60.8",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 23.227.38.208:2053",
+      "type": "trojan",
+      "server": "23.227.38.208",
+      "port": 2053,
+      "password": "89b3cbba-e6ac-485a-9481-976a0415eab9",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 15.156.168.85:443",
+      "type": "trojan",
+      "server": "15.156.168.85",
+      "port": 443,
+      "password": "3747000103274291200",
+      "tls": true
     }
   ],
   "proxy_groups": [
@@ -1267,7 +1291,10 @@
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 172.105.3.132:443",
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 209.200.246.41:443",
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 193.203.203.66:443",
-        "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 149.248.52.96:443"
+        "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 149.248.52.96:443",
+        "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 23.227.60.8:443",
+        "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 23.227.38.208:2053",
+        "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 15.156.168.85:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

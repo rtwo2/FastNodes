@@ -6774,6 +6774,46 @@
       "port": 443,
       "cipher": "aes-256-gcm",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 185.176.24.2:443",
+      "type": "ss",
+      "server": "185.176.24.2",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - TROJAN 45.131.208.81:443",
+      "type": "trojan",
+      "server": "45.131.208.81",
+      "port": 443,
+      "password": "bpb-trojan",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 51.158.252.130:443",
+      "type": "ss",
+      "server": "51.158.252.130",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - TROJAN 89.39.70.207:443",
+      "type": "trojan",
+      "server": "89.39.70.207",
+      "port": 443,
+      "password": "3747000103274291200",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - TROJAN 5.180.79.168:443",
+      "type": "trojan",
+      "server": "5.180.79.168",
+      "port": 443,
+      "password": "af4b064a9c39472fb34ad8b113acdc6b",
+      "tls": true
     }
   ],
   "proxy_groups": [
@@ -7550,7 +7590,12 @@
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 151.101.205.194:80",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 62.84.102.162:443",
         "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - VLESS 146.103.117.172:443",
-        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 144.124.243.180:443"
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 144.124.243.180:443",
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 185.176.24.2:443",
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - TROJAN 45.131.208.81:443",
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - SS 51.158.252.130:443",
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - TROJAN 89.39.70.207:443",
+        "\uD83C\uDDF3\uD83C\uDDF1 Netherlands - TROJAN 5.180.79.168:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

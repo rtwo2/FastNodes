@@ -632,6 +632,24 @@
       "port": 1080,
       "cipher": "aes-256-gcm",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDF7 T\u00FCrkiye - VLESS 104.22.52.235:80",
+      "type": "vless",
+      "server": "104.22.52.235",
+      "port": 80,
+      "uuid": "b5cdabf0-e048-4fa2-90da-9379b1a4926e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDF7 T\u00FCrkiye - VLESS 104.22.52.235:443",
+      "type": "vless",
+      "server": "104.22.52.235",
+      "port": 443,
+      "uuid": "571f64c7-bff0-4d33-8765-56ad2334cb55",
+      "tls": true,
+      "flow": ""
     }
   ],
   "proxy_groups": [
@@ -710,7 +728,9 @@
         "\uD83C\uDDF9\uD83C\uDDF7 T\u00FCrkiye - VLESS 37.140.242.245:8880",
         "\uD83C\uDDF9\uD83C\uDDF7 T\u00FCrkiye - VLESS 188.132.141.247:8880",
         "\uD83C\uDDF9\uD83C\uDDF7 T\u00FCrkiye - VLESS 62.60.233.213:443",
-        "\uD83C\uDDF9\uD83C\uDDF7 T\u00FCrkiye - SS 185.39.204.27:1080"
+        "\uD83C\uDDF9\uD83C\uDDF7 T\u00FCrkiye - SS 185.39.204.27:1080",
+        "\uD83C\uDDF9\uD83C\uDDF7 T\u00FCrkiye - VLESS 104.22.52.235:80",
+        "\uD83C\uDDF9\uD83C\uDDF7 T\u00FCrkiye - VLESS 104.22.52.235:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

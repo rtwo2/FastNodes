@@ -1776,6 +1776,63 @@
       "port": 8881,
       "cipher": "aes-256-gcm",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 79.127.70.122:2083",
+      "type": "ss",
+      "server": "79.127.70.122",
+      "port": 2083,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 2.189.175.126:2052",
+      "type": "ss",
+      "server": "2.189.175.126",
+      "port": 2052,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 79.127.70.82:8443",
+      "type": "ss",
+      "server": "79.127.70.82",
+      "port": 8443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 79.127.70.114:443",
+      "type": "ss",
+      "server": "79.127.70.114",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 185.143.234.120:2053",
+      "type": "vless",
+      "server": "185.143.234.120",
+      "port": 2053,
+      "uuid": "53a58a9f-204a-4351-b093-16b9ada44071",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - TROJAN 79.127.70.123:2083",
+      "type": "trojan",
+      "server": "79.127.70.123",
+      "port": 2083,
+      "password": "ec94daf9-442f-4a6b-9633-70c90006dfdd",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - TROJAN 79.127.70.123:443",
+      "type": "trojan",
+      "server": "79.127.70.123",
+      "port": 443,
+      "password": "672a7a10-7e7a-40c6-8a45-2b2f799ae1dc",
+      "tls": true
     }
   ],
   "proxy_groups": [
@@ -1982,7 +2039,14 @@
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 217.60.247.108:443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 87.107.185.201:8443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 178.239.150.85:2010",
-        "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 85.133.228.75:8881"
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 85.133.228.75:8881",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 79.127.70.122:2083",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 2.189.175.126:2052",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 79.127.70.82:8443",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 79.127.70.114:443",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 185.143.234.120:2053",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - TROJAN 79.127.70.123:2083",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - TROJAN 79.127.70.123:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

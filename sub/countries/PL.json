@@ -804,6 +804,30 @@
       "uuid": "05071212-5966-430d-a53b-d4472581ddc8",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF5\uD83C\uDDF1 Poland - TROJAN 91.206.179.250:443",
+      "type": "trojan",
+      "server": "91.206.179.250",
+      "port": 443,
+      "password": "3648425794742788096",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF5\uD83C\uDDF1 Poland - TROJAN 104.22.27.200:443",
+      "type": "trojan",
+      "server": "104.22.27.200",
+      "port": 443,
+      "password": "NISHIKUITAN222",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF5\uD83C\uDDF1 Poland - SS 51.77.53.200:443",
+      "type": "ss",
+      "server": "51.77.53.200",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -901,7 +925,10 @@
         "\uD83C\uDDF5\uD83C\uDDF1 Poland - VLESS 185.188.147.79:443",
         "\uD83C\uDDF5\uD83C\uDDF1 Poland - VLESS 45.144.48.48:443",
         "\uD83C\uDDF5\uD83C\uDDF1 Poland - VLESS 151.115.123.226:443",
-        "\uD83C\uDDF5\uD83C\uDDF1 Poland - VLESS 144.31.0.77:8443"
+        "\uD83C\uDDF5\uD83C\uDDF1 Poland - VLESS 144.31.0.77:8443",
+        "\uD83C\uDDF5\uD83C\uDDF1 Poland - TROJAN 91.206.179.250:443",
+        "\uD83C\uDDF5\uD83C\uDDF1 Poland - TROJAN 104.22.27.200:443",
+        "\uD83C\uDDF5\uD83C\uDDF1 Poland - SS 51.77.53.200:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

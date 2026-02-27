@@ -597,6 +597,30 @@
       "uuid": "fab7bf9c-ddb9-4563-8a04-fb01ce6c0fbf",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 80.240.112.32:443",
+      "type": "trojan",
+      "server": "80.240.112.32",
+      "port": 443,
+      "password": "3747000103274291200",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 85.90.194.160:443",
+      "type": "trojan",
+      "server": "85.90.194.160",
+      "port": 443,
+      "password": "3747000103274291200",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 45.12.144.61:443",
+      "type": "trojan",
+      "server": "45.12.144.61",
+      "port": 443,
+      "password": "af4b064a9c39472fb34ad8b113acdc6b",
+      "tls": true
     }
   ],
   "proxy_groups": [
@@ -671,7 +695,10 @@
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.89.7:2053",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.88.63:8880",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.89.156:8880",
-        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.89.63:8880"
+        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.89.63:8880",
+        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 80.240.112.32:443",
+        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 85.90.194.160:443",
+        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 45.12.144.61:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

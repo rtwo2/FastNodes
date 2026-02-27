@@ -1993,6 +1993,62 @@
       "uuid": "---Telegram----V2RAYNGCLOUD---",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEA Sweden - TROJAN 185.146.173.115:443",
+      "type": "trojan",
+      "server": "185.146.173.115",
+      "port": 443,
+      "password": "9a4bc15d-a7d4-4181-9485-405629c36894",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEA Sweden - TROJAN 185.146.173.52:8880",
+      "type": "trojan",
+      "server": "185.146.173.52",
+      "port": 8880,
+      "password": "23b41d65-d0b2-4a50-f94d-ae187e0bd456",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEA Sweden - TROJAN 185.146.173.158:443",
+      "type": "trojan",
+      "server": "185.146.173.158",
+      "port": 443,
+      "password": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEA Sweden - SS 185.146.173.115:443",
+      "type": "ss",
+      "server": "185.146.173.115",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEA Sweden - SS 185.146.173.52:8880",
+      "type": "ss",
+      "server": "185.146.173.52",
+      "port": 8880,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEA Sweden - SS 185.146.173.158:443",
+      "type": "ss",
+      "server": "185.146.173.158",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEA Sweden - TROJAN 65.20.115.19:443",
+      "type": "trojan",
+      "server": "65.20.115.19",
+      "port": 443,
+      "password": "wkmY1R4EcP",
+      "tls": true
     }
   ],
   "proxy_groups": [
@@ -2225,7 +2281,14 @@
         "\uD83C\uDDF8\uD83C\uDDEA Sweden - VLESS 185.146.173.18:443",
         "\uD83C\uDDF8\uD83C\uDDEA Sweden - TUIC 70.34.197.98:443",
         "\uD83C\uDDF8\uD83C\uDDEA Sweden - VLESS 56.228.33.101:443",
-        "\uD83C\uDDF8\uD83C\uDDEA Sweden - VLESS 194.104.94.25:443"
+        "\uD83C\uDDF8\uD83C\uDDEA Sweden - VLESS 194.104.94.25:443",
+        "\uD83C\uDDF8\uD83C\uDDEA Sweden - TROJAN 185.146.173.115:443",
+        "\uD83C\uDDF8\uD83C\uDDEA Sweden - TROJAN 185.146.173.52:8880",
+        "\uD83C\uDDF8\uD83C\uDDEA Sweden - TROJAN 185.146.173.158:443",
+        "\uD83C\uDDF8\uD83C\uDDEA Sweden - SS 185.146.173.115:443",
+        "\uD83C\uDDF8\uD83C\uDDEA Sweden - SS 185.146.173.52:8880",
+        "\uD83C\uDDF8\uD83C\uDDEA Sweden - SS 185.146.173.158:443",
+        "\uD83C\uDDF8\uD83C\uDDEA Sweden - TROJAN 65.20.115.19:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

@@ -4363,6 +4363,54 @@
       "uuid": "109282ee-8e89-4879-8d94-cfefe654d625",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 51.68.215.55:443",
+      "type": "trojan",
+      "server": "51.68.215.55",
+      "port": 443,
+      "password": "ComYEI7fQv",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 158.178.192.221:443",
+      "type": "trojan",
+      "server": "158.178.192.221",
+      "port": 443,
+      "password": "NISHIKUITAN222",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 45.32.148.182:443",
+      "type": "trojan",
+      "server": "45.32.148.182",
+      "port": 443,
+      "password": "wkmY1R4EcP",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 54.37.12.219:8080",
+      "type": "ss",
+      "server": "54.37.12.219",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 54.37.12.70:8000",
+      "type": "ss",
+      "server": "54.37.12.70",
+      "port": 8000,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 162.19.10.218:443",
+      "type": "trojan",
+      "server": "162.19.10.218",
+      "port": 443,
+      "password": "af4b064a9c39472fb34ad8b113acdc6b",
+      "tls": true
     }
   ],
   "proxy_groups": [
@@ -4870,7 +4918,13 @@
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 45.67.139.117:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 95.179.217.208:8880",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 130.49.77.10:443",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 135.125.143.200:443"
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 135.125.143.200:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 51.68.215.55:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 158.178.192.221:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 45.32.148.182:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - SS 54.37.12.219:8080",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - SS 54.37.12.70:8000",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 162.19.10.218:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

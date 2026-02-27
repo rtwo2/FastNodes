@@ -1,12 +1,12 @@
 name: Collect & Test Proxies (FastNodes)
 
 on:
-  schedule:
+  Schedule:
     - cron: '0 */3 * * *'     # every 3 hours (at minute 0 of every 3rd hour)
   workflow_dispatch:
 
 jobs:
-  collect:
+  Collect:
     runs-on: ubuntu-24.04
 
     steps:

@@ -2,16 +2,15 @@
   "name": "FastNodes IT",
   "proxies": [
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 94.23.72.40:8443",
-      "type": "vless",
-      "server": "94.23.72.40",
-      "port": 8443,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - 172.238.229.254:14051",
+      "type": "trojan",
+      "server": "172.238.229.254",
+      "port": 14051,
+      "password": "OdgHycGphesfLmPMYolUF",
+      "tls": true
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - ita01-vlr02.tcp-reset-club.net:443",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - \uD83D\uDCCA20@oneclickvpnkeys",
       "type": "vless",
       "server": "ita01-vlr02.tcp-reset-club.net",
       "port": 443,
@@ -20,25 +19,23 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 89.150.57.167:443",
-      "type": "vless",
-      "server": "89.150.57.167",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83C\uDDEE\uD83C\uDDF9 180 - IT - SS/AEAD - 443",
+      "type": "ss",
+      "server": "38.180.195.193",
       "port": 443,
-      "uuid": "1c4aceb6-bff7-4737-8c5d-43afb3dc350b",
-      "tls": true,
-      "flow": ""
+      "cipher": "aes-256-gcm",
+      "password": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 80.211.141.177:443",
-      "type": "vless",
-      "server": "80.211.141.177",
-      "port": 443,
-      "uuid": "c2d73a71-923a-4a53-bc4b-dfb47db20527",
-      "tls": true,
-      "flow": ""
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - @V2rayNG3",
+      "type": "trojan",
+      "server": "172.238.229.254",
+      "port": 14051,
+      "password": "OdgHycGphesfLmPMYolUF",
+      "tls": true
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 172.232.217.185:8880",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - ConfigPositive VLESS US 3",
       "type": "vless",
       "server": "172.232.217.185",
       "port": 8880,
@@ -47,7 +44,49 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 172.232.192.163:8880",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83D\uDC80N\u039ETISHI\u03A3LD\uD83D\uDD25 | @netishield \u26A1\uFE0F\uD83D\uDEE1\uFE0F\uD83D\uDC7E\uD83C\uDDEE\uD83C\uDDF9",
+      "type": "ss",
+      "server": "57.131.38.151",
+      "port": 8443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - \uD83C\uDDEE\uD83C\uDDF9 TCP-Reality | @Express_alaki | src @v2nodes",
+      "type": "vless",
+      "server": "80.211.141.177",
+      "port": 443,
+      "uuid": "c2d73a71-923a-4a53-bc4b-dfb47db20527",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83D\uDCCA20@oneclickvpnkeys",
+      "type": "ss",
+      "server": "ita01-vlr02.tcp-reset-club.net",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - @canfingV2rayNG",
+      "type": "vless",
+      "server": "24dc5c91924c5346.freestly.sapienza-mahan.ir",
+      "port": 443,
+      "uuid": "d230f0f7-6826-4f8e-8dbb-69ee2c837358",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 249-\uD83C\uDDEE\uD83C\uDDF9 IT\uD83D\uDC2D@GheychiAmoozesh",
+      "type": "ss",
+      "server": "176.126.83.158",
+      "port": 990,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - ConfigPositive VLESS US 4",
       "type": "vless",
       "server": "172.232.192.163",
       "port": 8880,
@@ -56,31 +95,20 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 185.247.184.147:2060",
-      "type": "vless",
-      "server": "185.247.184.147",
-      "port": 2060,
-      "uuid": "4a60a8e0-b51d-41ae-8500-1b0b6724c6e6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 147.45.51.16:2096",
-      "type": "vless",
-      "server": "147.45.51.16",
-      "port": 2096,
-      "uuid": "16747acc-95c8-44ba-9b66-3d8a0c035347",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 158.180.231.216:443",
-      "type": "vless",
-      "server": "158.180.231.216",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \u003E\u003E@OutlineVpnOfficial::IT",
+      "type": "ss",
+      "server": "176.126.83.121",
       "port": 443,
-      "uuid": "a13df940-020c-465f-bc89-ee5279b5cd6a",
-      "tls": true,
-      "flow": ""
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83C\uDDEE\uD83C\uDDF9 203 - IT - SS/AEAD - 443",
+      "type": "ss",
+      "server": "promo19v.bystrivpn.ru",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 57.131.19.236:5058",
@@ -92,221 +120,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - realmadrid2italy1seriea.q.aparat-archive.ir:8880",
-      "type": "vless",
-      "server": "realmadrid2italy1seriea.q.aparat-archive.ir",
-      "port": 8880,
-      "uuid": "4583d428-8ff9-4000-bcbd-953fe8c8df17",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 89.150.48.171:443",
-      "type": "vless",
-      "server": "89.150.48.171",
-      "port": 443,
-      "uuid": "854eea7a-c834-4f62-9e17-ae63d1086f36",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - cdi.chekino.ir:20811",
-      "type": "vless",
-      "server": "cdi.chekino.ir",
-      "port": 20811,
-      "uuid": "a6b57d25-a1ca-4ce8-8a93-ac5eaaa8dae4",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 45.147.250.11:2096",
-      "type": "vless",
-      "server": "45.147.250.11",
-      "port": 2096,
-      "uuid": "b9814af7-75f0-4ffe-bd02-d52792c3771b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - ov-italy1.09vpn.com:80",
-      "type": "vless",
-      "server": "ov-italy1.09vpn.com",
-      "port": 80,
-      "uuid": "b3051b10-716d-455b-9811-aefcce3d633e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 95.141.36.10:443",
-      "type": "vless",
-      "server": "95.141.36.10",
-      "port": 443,
-      "uuid": "4bdc57ea-b143-493b-9654-be66e049f81e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 185.47.172.105:2083",
-      "type": "vless",
-      "server": "185.47.172.105",
-      "port": 2083,
-      "uuid": "354712c4-dab3-452c-89fd-0a2edd6999f9",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 95.141.35.101:443",
-      "type": "vless",
-      "server": "95.141.35.101",
-      "port": 443,
-      "uuid": "22418064-ba0f-42a2-8838-3c005733cec7",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 4a5d89b9376ebaba.freestly.sapienza-mahan.ir:443",
-      "type": "vless",
-      "server": "4a5d89b9376ebaba.freestly.sapienza-mahan.ir",
-      "port": 443,
-      "uuid": "31351ae7-e506-43d3-9fcf-246c5248d336",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - 172.238.229.254:14051",
-      "type": "trojan",
-      "server": "172.238.229.254",
-      "port": 14051,
-      "password": "OdgHycGphesfLmPMYolUF",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - italy.aparat-movies-download.ir:42538",
-      "type": "vless",
-      "server": "italy.aparat-movies-download.ir",
-      "port": 42538,
-      "uuid": "b6effac4-2883-47ff-8325-93d0a3d75c22",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - mcnew.dl101movis.ir:80",
-      "type": "vless",
-      "server": "mcnew.dl101movis.ir",
-      "port": 80,
-      "uuid": "235197ba-d15f-456b-a3c4-cce04dd5149c",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VMESS - 109.122.209.78:1003",
-      "type": "vmess",
-      "server": "109.122.209.78",
-      "port": 1003,
-      "uuid": "",
-      "alterId": 0,
-      "cipher": "auto",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 57.131.38.151:8443",
-      "type": "ss",
-      "server": "57.131.38.151",
-      "port": 8443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - 212.102.54.11:43118",
-      "type": "trojan",
-      "server": "212.102.54.11",
-      "port": 43118,
-      "password": "ypDt8RkT7J",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 185.247.184.115:2096",
-      "type": "vless",
-      "server": "185.247.184.115",
-      "port": 2096,
-      "uuid": "16747acc-95c8-44ba-9b66-3d8a0c035347",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 24dc5c91924c5346.freestly.sapienza-mahan.ir:443",
-      "type": "vless",
-      "server": "24dc5c91924c5346.freestly.sapienza-mahan.ir",
-      "port": 443,
-      "uuid": "d230f0f7-6826-4f8e-8dbb-69ee2c837358",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 185.213.21.5:2376",
-      "type": "ss",
-      "server": "185.213.21.5",
-      "port": 2376,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 82.102.26.92:33992",
-      "type": "ss",
-      "server": "82.102.26.92",
-      "port": 33992,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 95.174.23.218:989",
-      "type": "ss",
-      "server": "95.174.23.218",
-      "port": 989,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 92.223.93.140:50007",
-      "type": "ss",
-      "server": "92.223.93.140",
-      "port": 50007,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 92.223.79.76:50007",
-      "type": "ss",
-      "server": "92.223.79.76",
-      "port": 50007,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 95.141.37.111:812",
-      "type": "ss",
-      "server": "95.141.37.111",
-      "port": 812,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 57.131.42.19:8389",
-      "type": "ss",
-      "server": "57.131.42.19",
-      "port": 8389,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - dx.ktmwan.top:10713",
-      "type": "ss",
-      "server": "dx.ktmwan.top",
-      "port": 10713,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 38.180.195.193:443",
       "type": "ss",
       "server": "38.180.195.193",
@@ -315,267 +128,15 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 82.102.26.117:33992",
-      "type": "ss",
-      "server": "82.102.26.117",
-      "port": 33992,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 82.102.26.117:44236",
-      "type": "ss",
-      "server": "82.102.26.117",
-      "port": 44236,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - it-full.privateip.net:443",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - All_12--@V2rayAlpha",
       "type": "trojan",
-      "server": "it-full.privateip.net",
-      "port": 443,
-      "password": "8d16a256-42d7-4431-8039-da1eb06cafbc",
+      "server": "172.238.229.254",
+      "port": 14051,
+      "password": "OdgHycGphesfLmPMYolUF",
       "tls": true
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:19682",
-      "type": "trojan",
-      "server": "gzdx01.jcnode.top",
-      "port": 19682,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:28033",
-      "type": "trojan",
-      "server": "gzdx01.jcnode.top",
-      "port": 28033,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:28606",
-      "type": "trojan",
-      "server": "gzdx01.jcnode.top",
-      "port": 28606,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:32631",
-      "type": "trojan",
-      "server": "gzdx01.jcnode.top",
-      "port": 32631,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:34472",
-      "type": "trojan",
-      "server": "gzdx01.jcnode.top",
-      "port": 34472,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:40027",
-      "type": "trojan",
-      "server": "gzdx01.jcnode.top",
-      "port": 40027,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:40716",
-      "type": "trojan",
-      "server": "gzdx01.jcnode.top",
-      "port": 40716,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:43686",
-      "type": "trojan",
-      "server": "gzdx01.jcnode.top",
-      "port": 43686,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:45920",
-      "type": "trojan",
-      "server": "gzdx01.jcnode.top",
-      "port": 45920,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:62525",
-      "type": "trojan",
-      "server": "gzdx01.jcnode.top",
-      "port": 62525,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:10340",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 10340,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:13734",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 13734,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:27897",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 27897,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:28474",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 28474,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:29679",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 29679,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:36554",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 36554,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:38624",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 38624,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:47020",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 47020,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:51840",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 51840,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:52702",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 52702,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:53826",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 53826,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:56586",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 56586,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:64328",
-      "type": "trojan",
-      "server": "gzyd.jcnode.top",
-      "port": 64328,
-      "password": "f441a2b0-31ef-490d-bd91-9b1cd960f4ce",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - 15.160.138.221:443",
-      "type": "trojan",
-      "server": "15.160.138.221",
-      "port": 443,
-      "password": "your_password",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VMESS - 149.62.189.23:30028",
-      "type": "vmess",
-      "server": "149.62.189.23",
-      "port": 30028,
-      "uuid": "",
-      "alterId": 0,
-      "cipher": "auto",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 80.211.133.156:443",
-      "type": "vless",
-      "server": "80.211.133.156",
-      "port": 443,
-      "uuid": "d443fb54-207c-4fa4-b9d8-3ae2a2957532",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 147.45.51.160:443",
-      "type": "vless",
-      "server": "147.45.51.160",
-      "port": 443,
-      "uuid": "3e7f67de-648e-4871-b51a-a225214d41ee",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - ita01-vlr02.tcp-reset-club.net:443",
-      "type": "ss",
-      "server": "ita01-vlr02.tcp-reset-club.net",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - promo19v.bystrivpn.ru:443",
-      "type": "ss",
-      "server": "promo19v.bystrivpn.ru",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 176.126.83.158:990",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \u003E\u003E@FreakConfig::XX",
       "type": "ss",
       "server": "176.126.83.158",
       "port": 990,
@@ -583,204 +144,20 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 57.131.42.19:8390",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - telegram \uD83C\uDFAA dailyv2ry",
       "type": "ss",
-      "server": "57.131.42.19",
-      "port": 8390,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 84.17.58.152:8443",
-      "type": "vless",
-      "server": "84.17.58.152",
-      "port": 8443,
-      "uuid": "eda2c296-a990-4d41-bbdf-f9c96b9579cd",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - tralalero.site:8443",
-      "type": "vless",
-      "server": "tralalero.site",
-      "port": 8443,
-      "uuid": "eda2c296-a990-4d41-bbdf-f9c96b9579cd",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - pt1vless.instavpn.ru:443",
-      "type": "vless",
-      "server": "pt1vless.instavpn.ru",
-      "port": 443,
-      "uuid": "4b4bba60-beb2-4741-a0d0-0c5013e30d70",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 151.101.241.242:80",
-      "type": "vless",
-      "server": "151.101.241.242",
-      "port": 80,
-      "uuid": "3d4c79ff-a031-4652-b04c-91a8ab0edd44",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 217.12.219.51:443",
-      "type": "vless",
-      "server": "217.12.219.51",
-      "port": 443,
-      "uuid": "f22c9b63-f93b-4650-80d7-937c5422c471",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 217.12.219.53:443",
-      "type": "vless",
-      "server": "217.12.219.53",
-      "port": 443,
-      "uuid": "f22c9b63-f93b-4650-80d7-937c5422c471",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 176.126.83.121:443",
-      "type": "ss",
-      "server": "176.126.83.121",
+      "server": "38.180.195.193",
       "port": 443,
       "cipher": "aes-256-gcm",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 185.47.172.105:2083",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83C\uDDEE\uD83C\uDDF9 IT | SS | @satellitenewspersian",
       "type": "ss",
-      "server": "185.47.172.105",
-      "port": 2083,
+      "server": "176.126.83.158",
+      "port": 990,
       "cipher": "aes-256-gcm",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 92.223.93.233:1035",
-      "type": "ss",
-      "server": "92.223.93.233",
-      "port": 1035,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 147.45.51.30:443",
-      "type": "ss",
-      "server": "147.45.51.30",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 84.33.193.79:18760",
-      "type": "ss",
-      "server": "84.33.193.79",
-      "port": 18760,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 151.101.242.172:80",
-      "type": "vless",
-      "server": "151.101.242.172",
-      "port": 80,
-      "uuid": "3d1b7cfd-0019-4b71-9c8e-b922e5e262c3",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 146.75.55.82:80",
-      "type": "vless",
-      "server": "146.75.55.82",
-      "port": 80,
-      "uuid": "5586c2a9-c92c-4974-9b70-ca44622c6c8c",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 188.213.165.231:8585",
-      "type": "vless",
-      "server": "188.213.165.231",
-      "port": 8585,
-      "uuid": "56c04341-2180-4e1f-9646-cdeb79cbbbad",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - turboo-server-bot.aftabz.com:8080",
-      "type": "vless",
-      "server": "turboo-server-bot.aftabz.com",
-      "port": 8080,
-      "uuid": "92c79723-eb54-4c48-bb81-83423a0e6440",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 141.227.140.218:3037",
-      "type": "vless",
-      "server": "141.227.140.218",
-      "port": 3037,
-      "uuid": "a0a3e34d-87e4-4ff3-b04a-875c85325d62",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 141.227.140.214:2030",
-      "type": "vless",
-      "server": "141.227.140.214",
-      "port": 2030,
-      "uuid": "c8a71f9b-692d-4916-ad73-f070ac00257f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 146.75.54.228:443",
-      "type": "vless",
-      "server": "146.75.54.228",
-      "port": 443,
-      "uuid": "tell--ZEDMODEON",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VMESS - it2.fisifisi.com:8090",
-      "type": "vmess",
-      "server": "it2.fisifisi.com",
-      "port": 8090,
-      "uuid": "",
-      "alterId": 0,
-      "cipher": "auto",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 178.159.94.187:10103",
-      "type": "vless",
-      "server": "178.159.94.187",
-      "port": 10103,
-      "uuid": "2e14cd54-fa4f-4165-b6c7-f01109f09636",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - m0lgeqvz64o91poadc2i.02.karyl.top:32100",
-      "type": "trojan",
-      "server": "m0lgeqvz64o91poadc2i.02.karyl.top",
-      "port": 32100,
-      "password": "acf3a1a8-5d2c-455b-be63-585136cfd292",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - iyv5w1np9ck6xokyuvgn.01.karyl.top:32101",
-      "type": "trojan",
-      "server": "iyv5w1np9ck6xokyuvgn.01.karyl.top",
-      "port": 32101,
-      "password": "acf3a1a8-5d2c-455b-be63-585136cfd292",
-      "tls": true
     }
   ],
   "proxy_groups": [
@@ -788,98 +165,25 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 94.23.72.40:8443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - ita01-vlr02.tcp-reset-club.net:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 89.150.57.167:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 80.211.141.177:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 172.232.217.185:8880",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 172.232.192.163:8880",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 185.247.184.147:2060",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 147.45.51.16:2096",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 158.180.231.216:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 57.131.19.236:5058",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - realmadrid2italy1seriea.q.aparat-archive.ir:8880",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 89.150.48.171:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - cdi.chekino.ir:20811",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 45.147.250.11:2096",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - ov-italy1.09vpn.com:80",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 95.141.36.10:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 185.47.172.105:2083",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 95.141.35.101:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 4a5d89b9376ebaba.freestly.sapienza-mahan.ir:443",
         "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - 172.238.229.254:14051",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - italy.aparat-movies-download.ir:42538",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - mcnew.dl101movis.ir:80",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VMESS - 109.122.209.78:1003",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 57.131.38.151:8443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - 212.102.54.11:43118",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 185.247.184.115:2096",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 24dc5c91924c5346.freestly.sapienza-mahan.ir:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 185.213.21.5:2376",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 82.102.26.92:33992",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 95.174.23.218:989",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 92.223.93.140:50007",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 92.223.79.76:50007",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 95.141.37.111:812",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 57.131.42.19:8389",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - dx.ktmwan.top:10713",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - \uD83D\uDCCA20@oneclickvpnkeys",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83C\uDDEE\uD83C\uDDF9 180 - IT - SS/AEAD - 443",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - @V2rayNG3",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - ConfigPositive VLESS US 3",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83D\uDC80N\u039ETISHI\u03A3LD\uD83D\uDD25 | @netishield \u26A1\uFE0F\uD83D\uDEE1\uFE0F\uD83D\uDC7E\uD83C\uDDEE\uD83C\uDDF9",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - \uD83C\uDDEE\uD83C\uDDF9 TCP-Reality | @Express_alaki | src @v2nodes",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83D\uDCCA20@oneclickvpnkeys",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - @canfingV2rayNG",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 249-\uD83C\uDDEE\uD83C\uDDF9 IT\uD83D\uDC2D@GheychiAmoozesh",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - ConfigPositive VLESS US 4",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \u003E\u003E@OutlineVpnOfficial::IT",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83C\uDDEE\uD83C\uDDF9 203 - IT - SS/AEAD - 443",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 57.131.19.236:5058",
         "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 38.180.195.193:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 82.102.26.117:33992",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 82.102.26.117:44236",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - it-full.privateip.net:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:19682",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:28033",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:28606",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:32631",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:34472",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:40027",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:40716",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:43686",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:45920",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzdx01.jcnode.top:62525",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:10340",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:13734",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:27897",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:28474",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:29679",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:36554",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:38624",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:47020",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:51840",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:52702",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:53826",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:56586",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - gzyd.jcnode.top:64328",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - 15.160.138.221:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VMESS - 149.62.189.23:30028",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 80.211.133.156:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 147.45.51.160:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - ita01-vlr02.tcp-reset-club.net:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - promo19v.bystrivpn.ru:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 176.126.83.158:990",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 57.131.42.19:8390",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 84.17.58.152:8443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - tralalero.site:8443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - pt1vless.instavpn.ru:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 151.101.241.242:80",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 217.12.219.51:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 217.12.219.53:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 176.126.83.121:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 185.47.172.105:2083",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 92.223.93.233:1035",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 147.45.51.30:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 84.33.193.79:18760",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 151.101.242.172:80",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 146.75.55.82:80",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 188.213.165.231:8585",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - turboo-server-bot.aftabz.com:8080",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 141.227.140.218:3037",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 141.227.140.214:2030",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 146.75.54.228:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VMESS - it2.fisifisi.com:8090",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - 178.159.94.187:10103",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - m0lgeqvz64o91poadc2i.02.karyl.top:32100",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - iyv5w1np9ck6xokyuvgn.01.karyl.top:32101"
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN - All_12--@V2rayAlpha",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \u003E\u003E@FreakConfig::XX",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - telegram \uD83C\uDFAA dailyv2ry",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83C\uDDEE\uD83C\uDDF9 IT | SS | @satellitenewspersian"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

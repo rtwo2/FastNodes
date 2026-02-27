@@ -1089,20 +1089,38 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 2.189.255.24:8080",
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 31.14.115.53:443",
       "type": "vless",
-      "server": "2.189.255.24",
-      "port": 8080,
-      "uuid": "b197b4f9-0c3b-aaa7-ba41-939c6dd5967f",
+      "server": "31.14.115.53",
+      "port": 443,
+      "uuid": "c86fa766-355a-4748-9725-380d39e176c1",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 5.160.46.121:2020",
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 78.39.57.73:443",
       "type": "vless",
-      "server": "5.160.46.121",
+      "server": "78.39.57.73",
+      "port": 443,
+      "uuid": "c3b4b127-a7d9-4ded-b221-0023ccbe3f69",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 37.202.245.62:2020",
+      "type": "vless",
+      "server": "37.202.245.62",
       "port": 2020,
-      "uuid": "5a959203-e2c3-434b-a60f-dd188bf4dc0a",
+      "uuid": "a7f96f25-aae6-4481-8c0c-71c91bc13cf2",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 193.24.121.20:8080",
+      "type": "vless",
+      "server": "193.24.121.20",
+      "port": 8080,
+      "uuid": "68248b5b-517d-4a55-b055-ba2d123f913b",
       "tls": true,
       "flow": ""
     },
@@ -1601,15 +1619,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 78.39.57.73:443",
-      "type": "vless",
-      "server": "78.39.57.73",
-      "port": 443,
-      "uuid": "c3b4b127-a7d9-4ded-b221-0023ccbe3f69",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 45.142.189.71:443",
       "type": "vless",
       "server": "45.142.189.71",
@@ -1736,15 +1745,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 193.24.121.20:8080",
-      "type": "vless",
-      "server": "193.24.121.20",
-      "port": 8080,
-      "uuid": "68248b5b-517d-4a55-b055-ba2d123f913b",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 188.212.99.17:443",
       "type": "vless",
       "server": "188.212.99.17",
@@ -1786,6 +1786,23 @@
       "port": 443,
       "cipher": "aes-256-gcm",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 5.160.46.121:2020",
+      "type": "vless",
+      "server": "5.160.46.121",
+      "port": 2020,
+      "uuid": "5a959203-e2c3-434b-a60f-dd188bf4dc0a",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - TROJAN 109.95.67.212:443",
+      "type": "trojan",
+      "server": "109.95.67.212",
+      "port": 443,
+      "password": "JQUeAxiGU6",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VMESS 185.243.49.155:2096",
@@ -1911,15 +1928,6 @@
       "server": "193.242.125.18",
       "port": 80,
       "uuid": "8db31176-aed6-402d-aa1b-a8b04b5c3b48",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 37.202.245.62:2020",
-      "type": "vless",
-      "server": "37.202.245.62",
-      "port": 2020,
-      "uuid": "a7f96f25-aae6-4481-8c0c-71c91bc13cf2",
       "tls": true,
       "flow": ""
     },
@@ -2300,8 +2308,10 @@
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 193.151.137.72:8443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 37.202.239.179:2052",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - TROJAN 212.33.206.111:80",
-        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 2.189.255.24:8080",
-        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 5.160.46.121:2020",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 31.14.115.53:443",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 78.39.57.73:443",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 37.202.245.62:2020",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 193.24.121.20:8080",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 188.121.100.120:2095",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 193.58.119.134:443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 81.12.21.147:443",
@@ -2359,7 +2369,6 @@
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 188.121.104.160:443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 45.94.215.101:443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 94.182.142.16:2020",
-        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 78.39.57.73:443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 45.142.189.71:443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 212.80.20.50:443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 185.226.119.16:8080",
@@ -2374,12 +2383,13 @@
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 188.212.97.195:2010",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 85.133.250.174:443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 185.226.119.119:2020",
-        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 193.24.121.20:8080",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 188.212.99.17:443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 217.60.247.108:443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 87.107.185.201:8443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 178.239.150.85:2010",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 45.11.187.10:443",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 5.160.46.121:2020",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - TROJAN 109.95.67.212:443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VMESS 185.243.49.155:2096",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 37.32.9.178:8080",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 37.152.190.255:443",
@@ -2394,7 +2404,6 @@
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 81.31.245.204:443",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 193.151.151.92:80",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 193.242.125.18:80",
-        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 37.202.245.62:2020",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 46.245.64.203:2095",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS 94.139.191.67:2053",
         "\uD83C\uDDEE\uD83C\uDDF7 Iran - SS 5.160.144.77:443",

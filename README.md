@@ -24,37 +24,6 @@
 - Clash Meta / Sing-box ready JSON configs with auto group (`url-test`)
 - Fully automatic – runs every 6 hours via GitHub Actions
 
-## Folder Structure
-FastNodes/
-├── ProxyCollector/                 # .NET 9 source code
-│   ├── Country.mmdb                # GeoLite2 country database
-│   └── blacklist.netset            # FireHOL Level 2 IP blacklist
-├── sub/
-│   ├── everything.txt              # all working proxies (~20–30k lines)
-│   ├── everything.json             # Clash / Sing-box compatible
-│   ├── protocols/
-│   │   ├── vless.txt
-│   │   ├── vmess.txt
-│   │   ├── trojan.txt
-│   │   ├── ss.txt
-│   │   └── …
-│   ├── countries/
-│   │   ├── US.txt
-│   │   ├── RU.txt
-│   │   ├── IR.txt
-│   │   └── …
-│   ├── temp/
-│   │   └── temp_everything.txt     # raw collected lines before filtering
-│   └── Best-Results/
-│       ├── top100.txt / .json
-│       ├── top200.txt / .json
-│       ├── top300.txt / .json
-│       ├── top400.txt / .json
-│       └── top500.txt / .json      # fastest proxies (real latency tested)
-└── .github/workflows/
-└── collector-main.yml          # the automation pipeline
-
-
 ## How to Use
 
 ### Option 1 – Subscribe directly (easiest)

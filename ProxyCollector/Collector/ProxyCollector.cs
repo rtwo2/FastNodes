@@ -40,6 +40,7 @@ namespace ProxyCollector.Collector
         private const int MaxBestResults = 500;
         private const int TestTimeoutMs = 5000;
         private const int AliveCheckTimeoutMs = 2000;
+        private const int MaxFilenameRemarkLength = 150; // safe limit for filenames
 
         public async Task StartAsync()
         {
@@ -81,9 +82,10 @@ namespace ProxyCollector.Collector
             Console.WriteLine($"💾 Saved raw → {tempPath} ({rawLines.Count} lines)");
 
             var renamedProxies = new List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)>();
-            var seenNormalized = new HashSet<string>(StringComparer.OrdinalIgnoreCase); // strict dedup key
+            var seenNormalized = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             int skippedNumbered = 0;
             int parseFail = 0;
+            int skippedLongFilename = 0;
 
             Console.WriteLine("\n🧹 Parsing + strict deduplicating + renaming...");
             int processed = 0;
@@ -96,7 +98,6 @@ namespace ProxyCollector.Collector
                 var trimmed = line.Trim();
                 if (string.IsNullOrWhiteSpace(trimmed)) continue;
 
-                // Skip lines that already have (1), (2), ... in remark (pre-existing numbered dupes)
                 if (Regex.IsMatch(trimmed, @"\s*\(\d+\)\s*$"))
                 {
                     skippedNumbered++;
@@ -154,7 +155,6 @@ namespace ProxyCollector.Collector
 
                 var renamedLink = RenameRemarkInLink(line, cleanRemark, proto);
 
-                // Strict dedup key: proto + server:port + normalized clean remark
                 string dedupKey = $"{proto.ToLowerInvariant()}:{serverPort}#{cleanRemark.Replace(" ", "").ToLowerInvariant()}";
 
                 if (seenNormalized.Add(dedupKey))
@@ -189,18 +189,39 @@ namespace ProxyCollector.Collector
             {
                 var key = g.Key.ToLowerInvariant();
                 if (key == "unknown" && g.Count() < 10) continue;
-                var txt = Path.Combine(protocolsDir, $"{key}.txt");
-                await File.WriteAllLinesAsync(txt, g.Select(x => x.Link));
-                Console.WriteLine($" → {txt} ({g.Count()})");
 
-                var json = Path.Combine(protocolsDir, $"{key}.json");
-                await SaveClashJson(json, g.ToList(), $"FastNodes {g.Key.ToUpper()}");
+                // Safe filename: truncate long remarks + hash if needed
+                string safeKey = key.Length > MaxFilenameRemarkLength 
+                    ? key.Substring(0, MaxFilenameRemarkLength - 10) + "-" + key.GetHashCode().ToString("x8")
+                    : key;
+
+                safeKey = Regex.Replace(safeKey, @"[^a-zA-Z0-9-]", "-"); // remove invalid chars
+
+                var txt = Path.Combine(protocolsDir, $"{safeKey}.txt");
+                try
+                {
+                    await File.WriteAllLinesAsync(txt, g.Select(x => x.Link));
+                    Console.WriteLine($" → {txt} ({g.Count()})");
+                }
+                catch (PathTooLongException)
+                {
+                    skippedLongFilename++;
+                    Console.WriteLine($"Skipped long filename protocol: {key} ({g.Count()} nodes)");
+                }
+
+                var json = Path.Combine(protocolsDir, $"{safeKey}.json");
+                try
+                {
+                    await SaveClashJson(json, g.ToList(), $"FastNodes {g.Key.ToUpper()}");
+                }
+                catch { /* silent */ }
             }
 
             Console.WriteLine("By country...");
             foreach (var g in renamedProxies.GroupBy(x => x.CountryCode))
             {
                 if (string.IsNullOrEmpty(g.Key) || g.Key == "XX" || g.Count() < 5) continue;
+
                 var txt = Path.Combine(countriesDir, $"{g.Key}.txt");
                 await File.WriteAllLinesAsync(txt, g.Select(x => x.Link));
                 Console.WriteLine($" → {txt} ({g.Count()})");
@@ -210,6 +231,7 @@ namespace ProxyCollector.Collector
             }
 
             await GenerateBestResultsAsync(renamedProxies);
+            Console.WriteLine($"\nSkipped long filenames: {skippedLongFilename}");
             Console.WriteLine("\n🎉 Done!");
         }
 
@@ -455,28 +477,39 @@ namespace ProxyCollector.Collector
                 {
                     string b64 = baseLink.Substring(8).Trim();
                     string decoded = DecodeBase64(b64);
-                    if (!string.IsNullOrEmpty(decoded))
+
+                    if (string.IsNullOrWhiteSpace(decoded))
+                        return baseLink + "#" + Uri.EscapeDataString(newRemark);
+
+                    string trimmedDecoded = decoded.TrimStart();
+                    if (!trimmedDecoded.StartsWith("{") || 
+                        (!trimmedDecoded.Contains("\"add\"") && !trimmedDecoded.Contains("\"port\"")))
                     {
-                        var jsonDoc = JsonDocument.Parse(decoded);
-                        var root = jsonDoc.RootElement;
-                        var props = new Dictionary<string, object?>();
-                        foreach (var prop in root.EnumerateObject())
-                        {
-                            props[prop.Name] = prop.Value.ValueKind == JsonValueKind.Null ? null : JsonSerializer.Deserialize<object>(prop.Value.GetRawText());
-                        }
-
-                        props["ps"] = newRemark;
-
-                        string newJson = JsonSerializer.Serialize(props);
-                        string newB64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(newJson))
-                            .Replace("+", "-").Replace("/", "_").TrimEnd('=');
-
-                        baseLink = "vmess://" + newB64;
+                        return baseLink + "#" + Uri.EscapeDataString(newRemark);
                     }
+
+                    var jsonDoc = JsonDocument.Parse(decoded);
+                    var root = jsonDoc.RootElement;
+                    var props = new Dictionary<string, object?>();
+
+                    foreach (var prop in root.EnumerateObject())
+                    {
+                        props[prop.Name] = prop.Value.ValueKind == JsonValueKind.Null 
+                            ? null 
+                            : JsonSerializer.Deserialize<object>(prop.Value.GetRawText());
+                    }
+
+                    props["ps"] = newRemark;
+
+                    string newJson = JsonSerializer.Serialize(props);
+                    string newB64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(newJson))
+                        .Replace("+", "-").Replace("/", "_").TrimEnd('=');
+
+                    baseLink = "vmess://" + newB64;
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine($"vmess re-encode failed: {ex.Message}");
+                    // Silent - no spam
                 }
             }
 

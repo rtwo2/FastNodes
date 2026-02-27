@@ -54,12 +54,12 @@ jobs:
             ls -la ProxyCollector/Country.mmdb || echo "No GeoIP file yet"
           fi
 
-      - name: Download fresh FireHOL Level 2 blacklist
+      - name: Download fresh FireHOL Level 1 blacklist
         run: |
-          echo "Downloading fresh FireHOL Level 2 blacklist..."
-          BLACKLIST_URL="https://iplists.firehol.org/files/firehol_level2.netset"
+          echo "Downloading fresh FireHOL Level 1 blacklist..."
+          BLACKLIST_URL="https://iplists.firehol.org/files/firehol_level1.netset"
           if curl -fsSL "$BLACKLIST_URL" -o ProxyCollector/blacklist.netset; then
-            echo "✅ Success! Fresh Level 2 blacklist downloaded."
+            echo "✅ Success! Fresh Level 1 blacklist downloaded."
             wc -l ProxyCollector/blacklist.netset | awk '{print "Lines in blacklist: " $1}'
           else
             echo "⚠️ Download failed - keeping previous"

@@ -2,8 +2,8 @@ name: FastNodes - Main Collector (Fast & Smart)
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # every 6 hours
-  workflow_dispatch:
+    - cron: '0 */2 * * *'          # ← Every 2 hours (at :00)
+  workflow_dispatch:               # Still allows manual trigger
 
 jobs:
   Collect:
@@ -40,7 +40,7 @@ jobs:
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/24.txt
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/25.txt
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt
-       
+
         # Other existing sources
         https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt
         https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt
@@ -53,7 +53,7 @@ jobs:
         https://raw.githubusercontent.com/Delta-Kronecker/V2ray-Config/refs/heads/main/sub.txt
         https://raw.githubusercontent.com/mostafasadeghifar/v2ray-config/main/config_file.txt
         https://raw.githubusercontent.com/liMilCo/v2r/main/all_configs.txt
-       
+
         # Proxify - mixed subscriptions (38 files)
         https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-1.txt
         https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-2.txt
@@ -97,6 +97,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Download fresh GeoIP database 🌍
         run: |
           echo "Downloading fresh country database..."
@@ -107,6 +108,7 @@ jobs:
             echo "⚠️ Download failed - keeping previous file if exists"
             ls -la ProxyCollector/Country.mmdb || echo "No GeoIP file yet"
           fi
+
       - name: Download fresh FireHOL Level 2 blacklist 🔒
         run: |
           echo "Downloading fresh FireHOL Level 2 blacklist..."
@@ -118,17 +120,21 @@ jobs:
             echo "⚠️ Download failed - keeping previous"
             wc -l ProxyCollector/blacklist.netset || echo "No blacklist yet"
           fi
+
       - name: Setup .NET environment
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
+
       - name: Restore project dependencies
         run: dotnet restore ProxyCollector/ProxyCollector.csproj
+
       - name: Cache sing-box (faster startup)
         uses: actions/cache@v4
         with:
           path: ~/sing-box-cache/sing-box
           key: sing-box-v1.10.6-Linux-v4
+
       - name: Install sing-box if needed
         run: |
           mkdir -p ~/sing-box-cache
@@ -143,8 +149,10 @@ jobs:
             sudo cp ~/sing-box-cache/sing-box /usr/bin/sing-box
             sudo chmod +x /usr/bin/sing-box
           fi
+
       - name: Run ProxyCollector (Collect + Rename + Best Results)
         run: dotnet run --configuration Release --project ProxyCollector
+
       - name: Show quick stats 📊
         run: |
           echo "Quick stats:"
@@ -152,21 +160,22 @@ jobs:
           wc -l sub/Best-Results/top500.txt | awk '{print "top500.txt lines: " $1}'
           ls -lh sub/protocols/ | grep ".txt" || echo "No protocol txt files"
           ls -lh sub/temp/ || echo "Temp folder empty?"
+
       - name: Commit & push updated files 📦
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-         
+          
           git stash push -u -m "Stash before pull" || true
-         
+          
           git fetch origin
           git pull --rebase origin main || true
-         
+          
           git stash pop || true
-         
+          
           git add ProxyCollector/Country.mmdb ProxyCollector/blacklist.netset sub/ || true
-         
+          
           git commit -m "Fresh proxies + GeoIP + blacklist + Best Results (top 500) - $(date +'%Y-%m-%d %H:%M UTC') - $(wc -l < sub/everything.txt) proxies - temp backup included" --allow-empty || echo "Nothing new to commit"
-         
+          
           # Force-with-lease is safer than plain push when rebasing
           git push --force-with-lease origin main || echo "Push failed (check repo settings → Actions → Workflow permissions → must be 'Read and write')"

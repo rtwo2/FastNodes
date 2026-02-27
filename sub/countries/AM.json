@@ -2,6 +2,15 @@
   "name": "FastNodes AM",
   "proxies": [
     {
+      "name": "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS - \uD83C\uDDE6\uD83C\uDDF2(@DarkTeam_VPN)",
+      "type": "vless",
+      "server": "am.connect-opengate.cv",
+      "port": 8443,
+      "uuid": "05f0c31f-d127-4a4e-a43c-b040ba8e42d0",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS - @v2_mod_shop\uD83D\uDE80 \uD83C\uDDE6\uD83C\uDDF2",
       "type": "vless",
       "server": "am.connect-opengate.cv",
@@ -17,15 +26,6 @@
       "port": 8443,
       "cipher": "aes-256-gcm",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS - \uD83C\uDDE6\uD83C\uDDF2(@DarkTeam_VPN)",
-      "type": "vless",
-      "server": "am.connect-opengate.cv",
-      "port": 8443,
-      "uuid": "05f0c31f-d127-4a4e-a43c-b040ba8e42d0",
-      "tls": true,
-      "flow": ""
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS - 048-\uD83D\uDC2D@GheychiAmoozesh",
@@ -59,9 +59,9 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
+        "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS - \uD83C\uDDE6\uD83C\uDDF2(@DarkTeam_VPN)",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS - @v2_mod_shop\uD83D\uDE80 \uD83C\uDDE6\uD83C\uDDF2",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - SS - \uD83C\uDDE6\uD83C\uDDF2(@DarkTeam_VPN)",
-        "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS - \uD83C\uDDE6\uD83C\uDDF2(@DarkTeam_VPN)",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS - 048-\uD83D\uDC2D@GheychiAmoozesh",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - SS - @V2rayNGVPN\u002B\u003C=\u002B\u06A9\u0627\u0646\u0641\u06CC\u06AF\u002B\u0631\u0627\u06CC\u06AF\u0627\u0646",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS - Join Sho:@IRAN_V2RAY1 [\uD83C\uDDE6\uD83C\uDDF2]"

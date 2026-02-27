@@ -2,20 +2,38 @@
   "name": "FastNodes EE",
   "proxies": [
     {
-      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD83C\uDDEA\uD83C\uDDEA TCP-Reality | @Express_alaki | src @JKVPN",
+      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @irmeliy | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627",
       "type": "vless",
-      "server": "ee.connectv.net",
+      "server": "91.184.250.227",
       "port": 443,
-      "uuid": "d38ee50c-c3d5-402f-907a-ab6ba229d774",
+      "uuid": "ff9035ba-4052-4fa5-8ccf-f9a6ca57407d",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - Config 1 - @lebertad",
+      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - 144.31.178.150:443",
       "type": "vless",
-      "server": "s481.ccgfw.top",
+      "server": "144.31.178.150",
       "port": 443,
-      "uuid": "8c6118b9-78a8-3b3b-a49a-6aa9cb5b1d4e",
+      "uuid": "03dd7e7c-8d2a-4cd2-b920-f5ed564fc8c4",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - 37.252.4.81:24773",
+      "type": "vless",
+      "server": "37.252.4.81",
+      "port": 24773,
+      "uuid": "cdaf9409-936e-4056-94d5-e68e9bf0d306",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD83C\uDDEA\uD83C\uDDEA EE | VLESS | @vpnplusee_free #1",
+      "type": "vless",
+      "server": "91.184.250.227",
+      "port": 443,
+      "uuid": "ff9035ba-4052-4fa5-8ccf-f9a6ca57407d",
       "tls": true,
       "flow": ""
     },
@@ -47,11 +65,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @irmeliy | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627",
+      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD83C\uDDEA\uD83C\uDDEA TCP-Reality | @Express_alaki | src @JKVPN",
       "type": "vless",
-      "server": "91.184.250.227",
+      "server": "ee.connectv.net",
       "port": 443,
-      "uuid": "ff9035ba-4052-4fa5-8ccf-f9a6ca57407d",
+      "uuid": "d38ee50c-c3d5-402f-907a-ab6ba229d774",
       "tls": true,
       "flow": ""
     },
@@ -65,37 +83,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - SS - 206-\uD83C\uDDEA\uD83C\uDDEA EE\uD83D\uDC2D@GheychiAmoozesh",
-      "type": "ss",
-      "server": "185.193.49.88",
-      "port": 989,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - 37.252.4.81:24773",
+      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - Config 1 - @lebertad",
       "type": "vless",
-      "server": "37.252.4.81",
-      "port": 24773,
-      "uuid": "cdaf9409-936e-4056-94d5-e68e9bf0d306",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD83C\uDDEA\uD83C\uDDEA EE | VLESS | @vpnplusee_free #1",
-      "type": "vless",
-      "server": "91.184.250.227",
+      "server": "s481.ccgfw.top",
       "port": 443,
-      "uuid": "ff9035ba-4052-4fa5-8ccf-f9a6ca57407d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - 144.31.178.150:443",
-      "type": "vless",
-      "server": "144.31.178.150",
-      "port": 443,
-      "uuid": "03dd7e7c-8d2a-4cd2-b920-f5ed564fc8c4",
+      "uuid": "8c6118b9-78a8-3b3b-a49a-6aa9cb5b1d4e",
       "tls": true,
       "flow": ""
     },
@@ -114,17 +106,16 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD83C\uDDEA\uD83C\uDDEA TCP-Reality | @Express_alaki | src @JKVPN",
-        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - Config 1 - @lebertad",
+        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @irmeliy | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627",
+        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - 144.31.178.150:443",
+        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - 37.252.4.81:24773",
+        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD83C\uDDEA\uD83C\uDDEA EE | VLESS | @vpnplusee_free #1",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - 91.184.250.227:443",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \u2705@AR14N24b",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - @Banehfori \u0648\u0635\u0644 \u0634\u0648 \u0627\u06CC\u0631\u0627\u0646\u06CC\uD83D\uDD34",
-        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @irmeliy | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627",
+        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD83C\uDDEA\uD83C\uDDEA TCP-Reality | @Express_alaki | src @JKVPN",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - @v2ray_proxy_npv\u002B\u2744\uFE0F\u002B@ClouddVPN",
-        "\uD83C\uDDEA\uD83C\uDDEA Estonia - SS - 206-\uD83C\uDDEA\uD83C\uDDEA EE\uD83D\uDC2D@GheychiAmoozesh",
-        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - 37.252.4.81:24773",
-        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD83C\uDDEA\uD83C\uDDEA EE | VLESS | @vpnplusee_free #1",
-        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - 144.31.178.150:443",
+        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - Config 1 - @lebertad",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @vpnplusee_free | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627"
       ],
       "url": "http://cp.cloudflare.com/generate_204",

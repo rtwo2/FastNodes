@@ -2,7 +2,16 @@
   "name": "FastNodes IM",
   "proxies": [
     {
-      "name": "\uD83C\uDF0D Isle of Man - VLESS - \u003E\u003E@outline_vpn::US",
+      "name": "\uD83C\uDF0D Isle of Man - VLESS - VayNora",
+      "type": "vless",
+      "server": "185.162.229.238",
+      "port": 2096,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Isle of Man - VLESS - @chillguy_vpn",
       "type": "vless",
       "server": "185.162.231.138",
       "port": 2096,
@@ -20,7 +29,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDF0D Isle of Man - VLESS - @chillguy_vpn",
+      "name": "\uD83C\uDF0D Isle of Man - VLESS - \u003E\u003E@outline_vpn::US",
       "type": "vless",
       "server": "185.162.231.138",
       "port": 2096,
@@ -35,15 +44,6 @@
       "port": 2096,
       "cipher": "aes-256-gcm",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDF0D Isle of Man - VLESS - VayNora",
-      "type": "vless",
-      "server": "185.162.229.238",
-      "port": 2096,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
     },
     {
       "name": "\uD83C\uDF0D Isle of Man - VLESS - \u269C\uFE0FJoin Sho: @IRAN_V2RAY1\u269C\uFE0F",
@@ -68,11 +68,11 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDF0D Isle of Man - VLESS - \u003E\u003E@outline_vpn::US",
-        "\uD83C\uDF0D Isle of Man - VLESS - \uD83D\uDEE1 V 73 @Outline_Vpn",
-        "\uD83C\uDF0D Isle of Man - VLESS - @chillguy_vpn",
-        "\uD83C\uDF0D Isle of Man - SS - \uD83D\uDEE1 V 73 @Outline_Vpn",
         "\uD83C\uDF0D Isle of Man - VLESS - VayNora",
+        "\uD83C\uDF0D Isle of Man - VLESS - @chillguy_vpn",
+        "\uD83C\uDF0D Isle of Man - VLESS - \uD83D\uDEE1 V 73 @Outline_Vpn",
+        "\uD83C\uDF0D Isle of Man - VLESS - \u003E\u003E@outline_vpn::US",
+        "\uD83C\uDF0D Isle of Man - SS - \uD83D\uDEE1 V 73 @Outline_Vpn",
         "\uD83C\uDF0D Isle of Man - VLESS - \u269C\uFE0FJoin Sho: @IRAN_V2RAY1\u269C\uFE0F",
         "\uD83C\uDF0D Isle of Man - SS - G 12 (@Outline_Vpn) free"
       ],

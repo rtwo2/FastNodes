@@ -2,19 +2,29 @@
   "name": "FastNodes LU",
   "proxies": [
     {
-      "name": "\uD83C\uDF0D Luxembourg - TROJAN - 188.42.88.252:2083",
-      "type": "trojan",
-      "server": "188.42.88.252",
-      "port": 2083,
-      "password": "Go5e2nKM8P",
-      "tls": true
+      "name": "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDDE9\uD83C\uDDEA HamrahAval @vtolink",
+      "type": "vless",
+      "server": "188.42.88.244",
+      "port": 443,
+      "uuid": "6e34f2c5-6c71-4010-c292-10d05ef4a9a2",
+      "tls": true,
+      "flow": ""
     },
     {
-      "name": "\uD83C\uDF0D Luxembourg - VLESS - @v2rayngninja",
+      "name": "\uD83C\uDF0D Luxembourg - VLESS - @icv2ray",
+      "type": "vless",
+      "server": "188.42.88.238",
+      "port": 2096,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Luxembourg - VLESS - V2rayngninja",
       "type": "vless",
       "server": "95.85.95.85",
       "port": 443,
-      "uuid": "22ebc3ad-2e41-4fb3-acdd-c6269ac9bf81",
+      "uuid": "4cb39a2e-0aa0-43c4-bd94-5026c13e9ba3",
       "tls": true,
       "flow": ""
     },
@@ -27,20 +37,36 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDF0D Luxembourg - VLESS - @icv2ray",
+      "name": "\uD83C\uDF0D Luxembourg - SS - V2rayngninja",
+      "type": "ss",
+      "server": "95.85.95.85",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDF10 TCP-Reality | @Express_alaki | src @V2rayBaaz",
       "type": "vless",
-      "server": "188.42.88.238",
-      "port": 2096,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "server": "45.12.144.89",
+      "port": 443,
+      "uuid": "d94c383d-cb22-4182-a0c0-ec2bc047996e",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDDEB\uD83C\uDDF7 V2rayngninja",
+      "name": "\uD83C\uDF0D Luxembourg - TROJAN - 188.42.88.252:2083",
+      "type": "trojan",
+      "server": "188.42.88.252",
+      "port": 2083,
+      "password": "Go5e2nKM8P",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDDF1\uD83C\uDDFA[Mav2ray]",
       "type": "vless",
-      "server": "2.56.220.2",
+      "server": "45.12.144.89",
       "port": 443,
-      "uuid": "52b45d8f-3ab7-44fd-af91-321a27982584",
+      "uuid": "d94c383d-cb22-4182-a0c0-ec2bc047996e",
       "tls": true,
       "flow": ""
     },
@@ -53,54 +79,11 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDF0D Luxembourg - SS - V2rayngninja",
-      "type": "ss",
-      "server": "95.85.95.85",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDDE9\uD83C\uDDEA HamrahAval @vtolink",
-      "type": "vless",
-      "server": "188.42.88.244",
-      "port": 443,
-      "uuid": "6e34f2c5-6c71-4010-c292-10d05ef4a9a2",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDF10 TCP-Reality | @Express_alaki | src @V2rayProxy",
-      "type": "vless",
-      "server": "45.12.144.89",
-      "port": 443,
-      "uuid": "d94c383d-cb22-4182-a0c0-ec2bc047996e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDF0D Luxembourg - TROJAN - @v2rayNG_VPNN[\u0647\u0645\u0631\u0627\u0647 \u0627\u0648\u0644]",
-      "type": "trojan",
-      "server": "188.42.88.144",
-      "port": 2053,
-      "password": "Go5e2nKM8T",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDF0D Luxembourg - VLESS - V2rayngninja",
+      "name": "\uD83C\uDF0D Luxembourg - VLESS - @v2rayngninja",
       "type": "vless",
       "server": "95.85.95.85",
       "port": 443,
-      "uuid": "4cb39a2e-0aa0-43c4-bd94-5026c13e9ba3",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDDF1\uD83C\uDDFA[Mav2ray]",
-      "type": "vless",
-      "server": "45.12.144.89",
-      "port": 443,
-      "uuid": "d94c383d-cb22-4182-a0c0-ec2bc047996e",
+      "uuid": "22ebc3ad-2e41-4fb3-acdd-c6269ac9bf81",
       "tls": true,
       "flow": ""
     },
@@ -113,7 +96,24 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDF10 TCP-Reality | @Express_alaki | src @V2rayBaaz",
+      "name": "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDDEB\uD83C\uDDF7 V2rayngninja",
+      "type": "vless",
+      "server": "2.56.220.2",
+      "port": 443,
+      "uuid": "52b45d8f-3ab7-44fd-af91-321a27982584",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Luxembourg - TROJAN - @v2rayNG_VPNN[\u0647\u0645\u0631\u0627\u0647 \u0627\u0648\u0644]",
+      "type": "trojan",
+      "server": "188.42.88.144",
+      "port": 2053,
+      "password": "Go5e2nKM8T",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDF10 TCP-Reality | @Express_alaki | src @V2rayProxy",
       "type": "vless",
       "server": "45.12.144.89",
       "port": 443,
@@ -135,20 +135,20 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDF0D Luxembourg - TROJAN - 188.42.88.252:2083",
-        "\uD83C\uDF0D Luxembourg - VLESS - @v2rayngninja",
-        "\uD83C\uDF0D Luxembourg - SS - \uD83C\uDDEB\uD83C\uDDF7 V2rayngninja",
-        "\uD83C\uDF0D Luxembourg - VLESS - @icv2ray",
-        "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDDEB\uD83C\uDDF7 V2rayngninja",
-        "\uD83C\uDF0D Luxembourg - TROJAN - 188.42.88.252:2087",
-        "\uD83C\uDF0D Luxembourg - SS - V2rayngninja",
         "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDDE9\uD83C\uDDEA HamrahAval @vtolink",
-        "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDF10 TCP-Reality | @Express_alaki | src @V2rayProxy",
-        "\uD83C\uDF0D Luxembourg - TROJAN - @v2rayNG_VPNN[\u0647\u0645\u0631\u0627\u0647 \u0627\u0648\u0644]",
+        "\uD83C\uDF0D Luxembourg - VLESS - @icv2ray",
         "\uD83C\uDF0D Luxembourg - VLESS - V2rayngninja",
-        "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDDF1\uD83C\uDDFA[Mav2ray]",
-        "\uD83C\uDF0D Luxembourg - SS - @v2rayngninja",
+        "\uD83C\uDF0D Luxembourg - SS - \uD83C\uDDEB\uD83C\uDDF7 V2rayngninja",
+        "\uD83C\uDF0D Luxembourg - SS - V2rayngninja",
         "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDF10 TCP-Reality | @Express_alaki | src @V2rayBaaz",
+        "\uD83C\uDF0D Luxembourg - TROJAN - 188.42.88.252:2083",
+        "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDDF1\uD83C\uDDFA[Mav2ray]",
+        "\uD83C\uDF0D Luxembourg - TROJAN - 188.42.88.252:2087",
+        "\uD83C\uDF0D Luxembourg - VLESS - @v2rayngninja",
+        "\uD83C\uDF0D Luxembourg - SS - @v2rayngninja",
+        "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDDEB\uD83C\uDDF7 V2rayngninja",
+        "\uD83C\uDF0D Luxembourg - TROJAN - @v2rayNG_VPNN[\u0647\u0645\u0631\u0627\u0647 \u0627\u0648\u0644]",
+        "\uD83C\uDF0D Luxembourg - VLESS - \uD83C\uDF10 TCP-Reality | @Express_alaki | src @V2rayProxy",
         "\uD83C\uDF0D Luxembourg - SS - WiFi-@V2rayAlpha--4"
       ],
       "url": "http://cp.cloudflare.com/generate_204",

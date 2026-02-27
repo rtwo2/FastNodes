@@ -2,20 +2,45 @@
   "name": "FastNodes DK",
   "proxies": [
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - ss.mrrnasr.ir:443",
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - @canfingV2rayNG",
       "type": "vless",
-      "server": "ss.mrrnasr.ir",
+      "server": "016fab73dd0e5521.freestly.sapienza-mahan.ir",
       "port": 443,
-      "uuid": "647ae650-8374-42c8-80a2-3c04c529f6c2",
+      "uuid": "983da2df-bc52-4226-84c1-bbfef0704427",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - vmesskhodam",
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - @\uD835\uDDF6\uD835\uDDE7\uD835\uDDE9\uD835\uDFEE\uD835\uDDE5\uD835\uDDD4\uD835\uDDEC\u002B/\u002B\uD835\uDDE9\uD835\uDDE3\uD835\uDDE1",
+      "type": "ss",
+      "server": "45.148.31.0",
+      "port": 15855,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - @canfingV2rayNG",
       "type": "vless",
-      "server": "ss.mrrnasr.ir",
+      "server": "04cc4ef1beb1b536.freestly.sapienza-mahan.ir",
       "port": 443,
-      "uuid": "51c27910-f70a-4dac-b8f1-88ac6f1cbdf5",
+      "uuid": "983da2df-bc52-4226-84c1-bbfef0704427",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - \uD83C\uDDE9\uD83C\uDDF0 GozargahVPN",
+      "type": "ss",
+      "server": "45.148.31.0",
+      "port": 15855,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - \uD83C\uDDE9\uD83C\uDDF0 GozargahVPN",
+      "type": "vless",
+      "server": "45.148.31.0",
+      "port": 15855,
+      "uuid": "e4fc4761-154f-490e-bbaa-b4fa193f1073",
       "tls": true,
       "flow": ""
     },
@@ -29,16 +54,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - 45.148.31.0:15855",
-      "type": "vless",
-      "server": "45.148.31.0",
-      "port": 15855,
-      "uuid": "e4fc4761-154f-490e-bbaa-b4fa193f1073",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - \uD83C\uDDE9\uD83C\uDDF0 GozargahVPN",
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - \u003E\u003E@oneclickvpnkeys::XX",
       "type": "vless",
       "server": "45.148.31.0",
       "port": 15855,
@@ -56,46 +72,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - @canfingV2rayNG",
-      "type": "vless",
-      "server": "04cc4ef1beb1b536.freestly.sapienza-mahan.ir",
-      "port": 443,
-      "uuid": "983da2df-bc52-4226-84c1-bbfef0704427",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - E1",
-      "type": "vless",
-      "server": "ss.mrrnasr.ir",
-      "port": 443,
-      "uuid": "fd2a640b-efc5-478c-ad06-bba48de7e256",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - \u003E\u003E@oneclickvpnkeys::XX",
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - 45.148.31.0:15855",
       "type": "vless",
       "server": "45.148.31.0",
       "port": 15855,
       "uuid": "e4fc4761-154f-490e-bbaa-b4fa193f1073",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - \uD83C\uDDE9\uD83C\uDDF0 GozargahVPN",
-      "type": "ss",
-      "server": "45.148.31.0",
-      "port": 15855,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - \uD83C\uDDF3\uD83C\uDDF1 \u2022 configfarsi",
-      "type": "vless",
-      "server": "f126.fast199.hosting-ip.com",
-      "port": 80,
-      "uuid": "306398b1-e333-4ad0-8763-8d6b3f73c3ff",
       "tls": true,
       "flow": ""
     }
@@ -105,17 +86,15 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - ss.mrrnasr.ir:443",
-        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - vmesskhodam",
-        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - @\uD835\uDDF6\uD835\uDDE7\uD835\uDDE9\uD835\uDFEE\uD835\uDDE5\uD835\uDDD4\uD835\uDDEC\u002B/\u002B\uD835\uDDE9\uD835\uDDE3\uD835\uDDE1",
-        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - 45.148.31.0:15855",
-        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - \uD83C\uDDE9\uD83C\uDDF0 GozargahVPN",
-        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - \u0633\u0631\u0648\u0631 \u0631\u0627\u06CC\u06AF\u0627\u0646 \u0645\u062A\u0635\u0644 \u0628\u06CC\u0634\u062A\u0631 \u062F\u0631 \u0686\u0646\u0644\uD83C\uDF0A @vmess_ir",
         "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - @canfingV2rayNG",
-        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - E1",
-        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - \u003E\u003E@oneclickvpnkeys::XX",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - @\uD835\uDDF6\uD835\uDDE7\uD835\uDDE9\uD835\uDFEE\uD835\uDDE5\uD835\uDDD4\uD835\uDDEC\u002B/\u002B\uD835\uDDE9\uD835\uDDE3\uD835\uDDE1",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - @canfingV2rayNG",
         "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - \uD83C\uDDE9\uD83C\uDDF0 GozargahVPN",
-        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - \uD83C\uDDF3\uD83C\uDDF1 \u2022 configfarsi"
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - \uD83C\uDDE9\uD83C\uDDF0 GozargahVPN",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - @\uD835\uDDF6\uD835\uDDE7\uD835\uDDE9\uD835\uDFEE\uD835\uDDE5\uD835\uDDD4\uD835\uDDEC\u002B/\u002B\uD835\uDDE9\uD835\uDDE3\uD835\uDDE1",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - \u003E\u003E@oneclickvpnkeys::XX",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - \u0633\u0631\u0648\u0631 \u0631\u0627\u06CC\u06AF\u0627\u0646 \u0645\u062A\u0635\u0644 \u0628\u06CC\u0634\u062A\u0631 \u062F\u0631 \u0686\u0646\u0644\uD83C\uDF0A @vmess_ir",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - 45.148.31.0:15855"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

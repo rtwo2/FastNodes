@@ -2,7 +2,25 @@
   "name": "FastNodes FI",
   "proxies": [
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 2.cdnconn.com:23335",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
+      "type": "vless",
+      "server": "37.27.4.187",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 95.217.242.125:990",
+      "type": "vless",
+      "server": "95.217.242.125",
+      "port": 990,
+      "uuid": "fc64a8a6-6ed0-4706-abe9-67c1cc11e142",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
       "type": "vless",
       "server": "2.cdnconn.com",
       "port": 23335,
@@ -11,7 +29,16 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11574",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-Reality | @Express_alaki | src @v2nodes",
+      "type": "vless",
+      "server": "45.144.53.156",
+      "port": 8104,
+      "uuid": "db27262a-4151-4c36-8e5f-2cf7fd387a0f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6620",
       "type": "vless",
       "server": "my.kiomars.shop",
       "port": 6620,
@@ -20,11 +47,160 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 TCP-None | @Express_alaki | src @iP_CF",
       "type": "vless",
       "server": "31.56.205.56",
-      "port": 57124,
-      "uuid": "3af5f9c4-9128-41f2-bc56-a927788d12f8",
+      "port": 32480,
+      "uuid": "af048307-527c-4178-8d56-271ac082870b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDF80",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "a09d2931-c961-4f4e-9288-eab639c5fc03",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 46.62.220.103:27802",
+      "type": "vless",
+      "server": "46.62.220.103",
+      "port": 27802,
+      "uuid": "a42343e4-c498-42b7-8361-c03a36e7a5fb",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - UNKNOWN - 95.216.154.119:37265",
+      "type": "unknown",
+      "server": "95.216.154.119",
+      "port": 37265
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @Spartan_YT",
+      "type": "ss",
+      "server": "85.9.213.76",
+      "port": 1080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6665",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6665,
+      "uuid": "cfa44910-d8e0-4469-8e0c-88a9f5e96e6b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @HajmVPN_Config | \uD83C\uDDEB\uD83C\uDDEE",
+      "type": "vless",
+      "server": "135.181.205.220",
+      "port": 31421,
+      "uuid": "0fd6389a-acb9-48b4-8d2c-63edc5dbc4ba",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[15]",
+      "type": "vless",
+      "server": "157.180.94.33",
+      "port": 8880,
+      "uuid": "982b57eb-8f57-49ea-a087-42b90dddb64b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @icv2ray",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[21]",
+      "type": "vless",
+      "server": "157.180.94.33",
+      "port": 8443,
+      "uuid": "c11dc97a-b0a0-4389-821d-01617b17df20",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
+      "type": "vless",
+      "server": "38.244.137.198",
+      "port": 443,
+      "uuid": "09748875-9da3-440e-9809-9752e1dda1e4",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @iP_CF",
+      "type": "vless",
+      "server": "31.56.205.56",
+      "port": 20553,
+      "uuid": "0a542d0e-4d05-418f-97c2-94d0455005da",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6664",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "a09d2931-c961-4f4e-9288-eab639c5fc03",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E140",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6610,
+      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE9\uD83C\uDDEA Germany (Aruba Networks)",
+      "type": "vless",
+      "server": "bm.boulvarmoein.shop",
+      "port": 2095,
+      "uuid": "bm.boulvarmoein.shop",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+      "type": "vless",
+      "server": "193.233.23.204",
+      "port": 443,
+      "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-None | @Express_alaki | src @V2rayProxy",
+      "type": "vless",
+      "server": "135.181.205.220",
+      "port": 31421,
+      "uuid": "0fd6389a-acb9-48b4-8d2c-63edc5dbc4ba",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @icv2ray",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6620,
+      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
       "tls": true,
       "flow": ""
     },
@@ -38,24 +214,16 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Config 2 - @lebertad",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @iP_CF",
       "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6620,
-      "uuid": "c457426a-b74d-4f67-90f5-9e2fde31411b",
+      "server": "31.56.205.56",
+      "port": 57124,
+      "uuid": "3af5f9c4-9128-41f2-bc56-a927788d12f8",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - promo18v.bystrivpn.ru:443",
-      "type": "ss",
-      "server": "promo18v.bystrivpn.ru",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6610",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE9\uD83C\uDDEA@ConfigV2RayNG",
       "type": "vless",
       "server": "my.kiomars.shop",
       "port": 6610,
@@ -64,47 +232,65 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 187-\uD83C\uDDEB\uD83C\uDDEE \uD83D\uDC2D@GheychiAmoozesh",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[16]",
       "type": "vless",
-      "server": "94.177.13.135",
-      "port": 442,
-      "uuid": "438aeb08-fafe-5c22-bda7-17baf4f24aaa",
+      "server": "157.180.94.33",
+      "port": 8880,
+      "uuid": "7536801d-8b86-4063-8ea4-107350dcbfd5",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @WedBaZtel",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE FI-1- \uD83D\uDE80 | \u067E\u0631\u0633\u0631\u0639\u062A",
       "type": "vless",
-      "server": "2.cdnconn.com",
-      "port": 23335,
-      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
+      "server": "64.188.73.65",
+      "port": 20150,
+      "uuid": "643ea714-3410-4476-a3b1-f71789886b2c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Config 5 - @lebertad",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6610,
+      "uuid": "c457426a-b74d-4f67-90f5-9e2fde31411b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2_mod_shop\uD83D\uDE80",
+      "type": "vless",
+      "server": "64.188.73.12",
+      "port": 443,
+      "uuid": "99bd2791-8e27-435b-a1e2-c9b625101af9",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @CUSTOMVPNSERVER",
+      "type": "vless",
+      "server": "89.167.17.75",
+      "port": 443,
+      "uuid": "19773cc6-89a3-47c6-bc10-885460cd2b7b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.109.241.111:443",
+      "type": "vless",
+      "server": "65.109.241.111",
+      "port": 443,
+      "uuid": "934943ff-bc93-4715-ed3c-c7b33cdedb40",
       "tls": true,
       "flow": ""
     },
     {
       "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
       "type": "vless",
-      "server": "37.27.4.187",
+      "server": "37.27.243.248",
       "port": 443,
       "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2raybaaz \uD83C\uDFAD",
-      "type": "vless",
-      "server": "2.cdnconn.com",
-      "port": 23335,
-      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[12]",
-      "type": "vless",
-      "server": "157.180.94.33",
-      "port": 8880,
-      "uuid": "38d9aa32-f728-489d-84f9-0e9a76970ce1",
       "tls": true,
       "flow": ""
     },
@@ -118,47 +304,20 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E151",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - VayNora",
       "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6610,
-      "uuid": "c457426a-b74d-4f67-90f5-9e2fde31411b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-      "type": "vless",
-      "server": "194.53.54.30",
+      "server": "185.228.233.22",
       "port": 443,
-      "uuid": "Telegram:",
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDC89\uD835\uDC95\uD835\uDC95\uD835\uDC91\uD835\uDC94://\uD835\uDC95.\uD835\uDC8E\uD835\uDC86/\uD835\uDC75\uD835\uDC77\uD835\uDC7D_\uD835\uDC70\uD835\uDC79 \uD83C\uDF1F",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u003E\u003E@oneclickvpnkeys::FI",
       "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6610,
-      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - fi.connectv.net:443",
-      "type": "vless",
-      "server": "fi.connectv.net",
-      "port": 443,
-      "uuid": "8b70357d-b654-4a29-85de-e5fef1afefbd",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 278 - FI - VLESS/REALITY/PBK/SID/VISION/UTLS - 443",
-      "type": "vless",
-      "server": "46.62.128.207",
-      "port": 443,
-      "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
+      "server": "2.cdnconn.com",
+      "port": 23335,
+      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
       "tls": true,
       "flow": ""
     },
@@ -172,7 +331,42 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u2705@AR14N24b",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - vmesskhodam",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "78793680-044c-46d7-8062-8ad3497476f6",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 631 - FI - VLESS/REALITY/PBK/SID/UTLS - 45884",
+      "type": "vless",
+      "server": "93.152.207.254",
+      "port": 45884,
+      "uuid": "57a5f6b3-ea58-4d4e-ad9c-a9830f148184",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF6A27@oneclickvpnkeys",
+      "type": "vless",
+      "server": "85.192.48.152",
+      "port": 23335,
+      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @Capital_NET",
+      "type": "ss",
+      "server": "37.27.21.47",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @WedBaZtel",
       "type": "vless",
       "server": "2.cdnconn.com",
       "port": 23335,
@@ -181,13 +375,65 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6664",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - promo18v.bystrivpn.ru:443",
+      "type": "ss",
+      "server": "promo18v.bystrivpn.ru",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
       "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "a09d2931-c961-4f4e-9288-eab639c5fc03",
+      "server": "194.164.235.8",
+      "port": 443,
+      "uuid": "Telegram:",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6610",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6610,
+      "uuid": "c457426a-b74d-4f67-90f5-9e2fde31411b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[11]",
+      "type": "vless",
+      "server": "157.180.94.33",
+      "port": 8880,
+      "uuid": "bbd3270a-0349-4449-8e3f-e795f2c8c54b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 2.cdnconn.com:23335",
+      "type": "vless",
+      "server": "2.cdnconn.com",
+      "port": 23335,
+      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @iP_CF",
+      "type": "vless",
+      "server": "31.56.205.56",
+      "port": 13612,
+      "uuid": "cbb94bf1-02cc-46ba-bc01-061b5f38e0ac",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - TROJAN - 37.27.249.93:20000",
+      "type": "trojan",
+      "server": "37.27.249.93",
+      "port": 20000,
+      "password": "2AAF5UEsSd",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - TROJAN - @V2rayNG3",
@@ -207,16 +453,34 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel : @Daily_Configs",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 85.192.48.50:443",
       "type": "vless",
-      "server": "94.177.13.135",
-      "port": 442,
-      "uuid": "escovpn_69551ragul",
+      "server": "85.192.48.50",
+      "port": 443,
+      "uuid": "02fb468f-21f2-460e-bfa1-ef52ae5e627f",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @HajmVPN_Config | \uD83C\uDDEB\uD83C\uDDEE",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - IR-@V2rayAlpha-21",
+      "type": "vless",
+      "server": "194.34.132.15",
+      "port": 443,
+      "uuid": "18f72be7-0651-4037-928b-8a309d685796",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[12]",
+      "type": "vless",
+      "server": "157.180.94.33",
+      "port": 8880,
+      "uuid": "38d9aa32-f728-489d-84f9-0e9a76970ce1",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
       "type": "vless",
       "server": "135.181.205.220",
       "port": 31421,
@@ -225,73 +489,154 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 81.85.72.197:443",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Spartan_YT\uD83C\uDDF8\uD83C\uDDEA",
       "type": "vless",
-      "server": "81.85.72.197",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Config 2 - @lebertad",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6620,
+      "uuid": "c457426a-b74d-4f67-90f5-9e2fde31411b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - fi1.mahboob.top:2086",
+      "type": "vless",
+      "server": "fi1.mahboob.top",
+      "port": 2086,
+      "uuid": "5ef655fa-2673-b270-3d94-7cf976fb17a3",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - M111",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-Reality | @Express_alaki | src @V2rayProxy",
+      "type": "vless",
+      "server": "92.63.224.18",
       "port": 443,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "uuid": "b823aaa4-7b6f-49cb-98e4-ffc0a1fb19ee",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-      "type": "vless",
-      "server": "193.233.23.204",
-      "port": 443,
-      "uuid": "Telegram:",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.109.241.111:443",
-      "type": "vless",
-      "server": "65.109.241.111",
-      "port": 443,
-      "uuid": "990f5f4d-5568-4e0a-96bf-2d86270d8fbf",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - :)-telegram:@set_v2ray",
-      "type": "vless",
-      "server": "138.124.59.128",
-      "port": 48200,
-      "uuid": "d165a1e8-f4b7-4ed8-bca1-d8a61197b597",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - my.kiomars.shop:6665",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - my.kiomars.shop:6664",
       "type": "ss",
       "server": "my.kiomars.shop",
-      "port": 6665,
+      "port": 6664,
       "cipher": "aes-256-gcm",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6665",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11614",
       "type": "vless",
       "server": "my.kiomars.shop",
-      "port": 6665,
-      "uuid": "cfa44910-d8e0-4469-8e0c-88a9f5e96e6b",
+      "port": 6620,
+      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83D\uDC80N\u039ETISHI\u03A3LD\uD83D\uDD25 | @netishield \u26A1\uFE0F\uD83D\uDEE1\uFE0F\uD83D\uDC7E\uD83C\uDDEB\uD83C\uDDEE",
       "type": "ss",
-      "server": "37.27.4.187",
-      "port": 443,
+      "server": "95.217.37.166",
+      "port": 2020,
       "cipher": "aes-256-gcm",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - TROJAN - 37.27.249.93:20000",
-      "type": "trojan",
-      "server": "37.27.249.93",
-      "port": 20000,
-      "password": "2AAF5UEsSd",
-      "tls": true
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2raybaaz \uD83C\uDFAD",
+      "type": "vless",
+      "server": "2.cdnconn.com",
+      "port": 23335,
+      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 144.31.18.73:2083",
+      "type": "vless",
+      "server": "144.31.18.73",
+      "port": 2083,
+      "uuid": "c501c66b-c6c2-456b-b604-80393b83d67f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - vmesskhodam",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6620,
+      "uuid": "78793680-044c-46d7-8062-8ad3497476f6",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @AkbarConfig\uD83D\uDC48\u06A9\u0627\u0646\u0641\u06CC\u06AF \u0631\u0648\u0632\u0627\u0646\u0647 \u062F\u0631",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6665,
+      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - [@ConfigPositive]\u002B",
+      "type": "vless",
+      "server": "89.167.17.75",
+      "port": 443,
+      "uuid": "96cf6955-1dbb-4fe3-a96c-03381b93ef7f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-Reality | @Express_alaki | src @V2rayProxy",
+      "type": "vless",
+      "server": "45.144.53.156",
+      "port": 8104,
+      "uuid": "db27262a-4151-4c36-8e5f-2cf7fd387a0f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE9\uD83C\uDDEAAll\u00B9 | @BigSmoke_Config",
+      "type": "vless",
+      "server": "135.181.205.220",
+      "port": 31421,
+      "uuid": "0fd6389a-acb9-48b4-8d2c-63edc5dbc4ba",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - de.mobileemdad.top:42542",
+      "type": "ss",
+      "server": "de.mobileemdad.top",
+      "port": 42542,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[11]",
+      "type": "vless",
+      "server": "37.27.212.52",
+      "port": 8880,
+      "uuid": "759918a1-e0bf-47ad-80fb-3b331f83a59b",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE[openproxylist.com] vless-FI",
@@ -305,9 +650,98 @@
     {
       "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2rayNG3",
       "type": "vless",
-      "server": "46.62.220.103",
-      "port": 27802,
-      "uuid": "a42343e4-c498-42b7-8361-c03a36e7a5fb",
+      "server": "85.192.48.50",
+      "port": 443,
+      "uuid": "02fb468f-21f2-460e-bfa1-ef52ae5e627f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+      "type": "vless",
+      "server": "193.124.225.148",
+      "port": 443,
+      "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+      "type": "vless",
+      "server": "185.233.82.86",
+      "port": 443,
+      "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDC89\uD835\uDC95\uD835\uDC95\uD835\uDC91\uD835\uDC94://\uD835\uDC95.\uD835\uDC8E\uD835\uDC86/\uD835\uDC75\uD835\uDC77\uD835\uDC7D_\uD835\uDC70\uD835\uDC79 \uD83C\uDF1F",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6610,
+      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel : @Daily_Configs",
+      "type": "vless",
+      "server": "94.177.13.135",
+      "port": 442,
+      "uuid": "escovpn_69551ragul",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6620,
+      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @V2rayNG3",
+      "type": "ss",
+      "server": "promo18v.bystrivpn.ru",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u2705@AR14N24b",
+      "type": "vless",
+      "server": "2.cdnconn.com",
+      "port": 23335,
+      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6610,
+      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @vpnbaz \uD83E\uDDF6",
+      "type": "vless",
+      "server": "2.cdnconn.com",
+      "port": 23335,
+      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E81",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "4e392aec-fd42-48aa-bc52-a7f927dd7da0",
       "tls": true,
       "flow": ""
     },
@@ -321,6 +755,60 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
+      "type": "vless",
+      "server": "81.85.72.197",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2_mod_shop\uD83D\uDE80 \uD83C\uDDEB\uD83C\uDDEE",
+      "type": "vless",
+      "server": "45.91.193.124",
+      "port": 41617,
+      "uuid": "e42513dd-e4de-446f-a7df-2bc23db90ba1",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDFE3 @Bluefilter_org | \u06A9\u0627\u0646\u0627\u0644\u0645\u0648\u0646 \u26AA",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "4eb24ed7-251d-46fe-89c2-833f21bb1c41",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Golestan_VPN - \uD83D\uDD4A\uFE0F",
+      "type": "vless",
+      "server": "65.109.221.182",
+      "port": 46000,
+      "uuid": "b8773ac0-5d39-455d-a05b-a5f14d194049",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @daredevill_404",
+      "type": "vless",
+      "server": "37.27.91.234",
+      "port": 7335,
+      "uuid": "7bf5480b-a130-4e9d-a9d2-07f354653853",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[14]",
+      "type": "vless",
+      "server": "157.180.94.33",
+      "port": 8880,
+      "uuid": "d098e8a9-0bb8-4b07-8ce1-6c36b5f5e47e",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2rayNG3",
       "type": "vless",
       "server": "65.109.231.154",
@@ -330,25 +818,184 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 45.91.193.124:41617",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - de.mobileemdad.top:42542",
       "type": "vless",
-      "server": "45.91.193.124",
+      "server": "de.mobileemdad.top",
+      "port": 42542,
+      "uuid": "cdfa4c4f-64ed-4bbf-8783-acec492eaaee",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[31]",
+      "type": "vless",
+      "server": "157.180.75.119",
+      "port": 8080,
+      "uuid": "7b0f240f-db1f-4660-b7f5-65612612769f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDDEB\uD83C\uDDEE Finland",
+      "type": "ss",
+      "server": "vip-81.f-sub.lenalizmy0ve.ir",
+      "port": 45542,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 TCP-None | @Express_alaki | src @V2rayng_Fast",
+      "type": "vless",
+      "server": "135.181.205.220",
+      "port": 31421,
+      "uuid": "0fd6389a-acb9-48b4-8d2c-63edc5dbc4ba",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11637",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6620,
+      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
+      "type": "vless",
+      "server": "31.56.205.56",
+      "port": 57124,
+      "uuid": "3af5f9c4-9128-41f2-bc56-a927788d12f8",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel : @Daily_Configs",
+      "type": "vless",
+      "server": "2.cdnconn.com",
+      "port": 23335,
+      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[13]",
+      "type": "vless",
+      "server": "157.180.94.33",
+      "port": 8880,
+      "uuid": "50922b4b-166c-4cca-8ba1-ef91c5f32d2f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Config 2 - @lebertad",
+      "type": "vless",
+      "server": "fn1.easyserf.top",
+      "port": 443,
+      "uuid": "12adb397-701e-475e-91f6-e0c766f87fa4",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - my.kiomars.shop:6665",
+      "type": "ss",
+      "server": "my.kiomars.shop",
+      "port": 6665,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[21]",
+      "type": "vless",
+      "server": "157.180.19.140",
+      "port": 443,
+      "uuid": "0f3ab1b4-3cd2-4e5e-ac12-25efbe4a36ea",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @BrilliantGift \uD83D\uDC8E \u0639\u0636\u0648 \u0634\u0648",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6665,
+      "uuid": "cfa44910-d8e0-4469-8e0c-88a9f5e96e6b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+      "type": "vless",
+      "server": "203.18.98.197",
+      "port": 2053,
+      "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+      "type": "vless",
+      "server": "109.248.163.226",
+      "port": 8443,
+      "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Hddify",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "a09d2931-c961-4f4e-9288-eab639c5fc03",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 81.85.72.197:443",
+      "type": "vless",
+      "server": "81.85.72.197",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
+      "type": "ss",
+      "server": "37.27.4.187",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel id: @Argo_VPN1 \uD83C\uDDEB\uD83C\uDDEE",
+      "type": "vless",
+      "server": "46.8.237.61",
       "port": 41617,
       "uuid": "e42513dd-e4de-446f-a7df-2bc23db90ba1",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - fin-0001-xr.packet-drop-society.net:11443",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
       "type": "vless",
-      "server": "fin-0001-xr.packet-drop-society.net",
-      "port": 11443,
-      "uuid": "913b07fe-eae9-4985-9a39-33acaba25a2c",
+      "server": "31.56.205.56",
+      "port": 20553,
+      "uuid": "0a542d0e-4d05-418f-97c2-94d0455005da",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6620",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDF80",
+      "type": "vless",
+      "server": "fi2.techdatacloud.org",
+      "port": 443,
+      "uuid": "28b49e0a-318c-4806-8294-5a30cb7159ff",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E152",
       "type": "vless",
       "server": "my.kiomars.shop",
       "port": 6620,
@@ -357,10 +1004,90 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @icv2ray",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @irmeliy | vip | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627 \uD83C\uDF3E",
       "type": "vless",
       "server": "my.kiomars.shop",
       "port": 6620,
+      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDDEB\uD83C\uDDEE",
+      "type": "vless",
+      "server": "fi.connectv.net",
+      "port": 443,
+      "uuid": "8b70357d-b654-4a29-85de-e5fef1afefbd",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
+      "type": "ss",
+      "server": "37.27.243.248",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE - FI - @FreeOnlineVPN",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "4eb24ed7-251d-46fe-89c2-833f21bb1c41",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2rayNG3",
+      "type": "vless",
+      "server": "46.62.220.103",
+      "port": 27802,
+      "uuid": "a42343e4-c498-42b7-8361-c03a36e7a5fb",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E141",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6620,
+      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Donald_vpn-3",
+      "type": "vless",
+      "server": "77.42.77.102",
+      "port": 46704,
+      "uuid": "ea736b2b-0f0a-4b9f-865f-83e0014ffc8c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - fi.connectv.net:443",
+      "type": "vless",
+      "server": "fi.connectv.net",
+      "port": 443,
+      "uuid": "8b70357d-b654-4a29-85de-e5fef1afefbd",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDC89\uD835\uDC95\uD835\uDC95\uD835\uDC91\uD835\uDC94://\uD835\uDC95.\uD835\uDC8E\uD835\uDC86/\uD835\uDC75\uD835\uDC77\uD835\uDC7D_\uD835\uDC70\uD835\uDC79 \uD83C\uDF1F",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6620,
+      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @irmeliy | vip | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627 \uD83C\uDF3E",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6610,
       "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
       "tls": true,
       "flow": ""
@@ -375,7 +1102,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC9C @Bluefilter_org | \u06A9\u0627\u0646\u0627\u0644\u0645\u0648\u0646 \uD83E\uDD0D",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11574",
       "type": "vless",
       "server": "my.kiomars.shop",
       "port": 6620,
@@ -384,176 +1111,15 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rayngzendegimamad\uD83D\uDD4A\uFE0F",
-      "type": "vless",
-      "server": "38.244.137.198",
-      "port": 443,
-      "uuid": "09748875-9da3-440e-9809-9752e1dda1e4",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @CUSTOMVPNSERVER",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83E\uDD89@FreeConfigForYou",
       "type": "ss",
-      "server": "89.167.17.75",
-      "port": 443,
+      "server": "185.193.102.7",
+      "port": 57456,
       "cipher": "aes-256-gcm",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-Reality | @Express_alaki | src @V2rayProxy",
-      "type": "vless",
-      "server": "92.63.224.18",
-      "port": 443,
-      "uuid": "b823aaa4-7b6f-49cb-98e4-ffc0a1fb19ee",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 4-V2rrayVPN 4",
-      "type": "vless",
-      "server": "89.167.78.138",
-      "port": 11491,
-      "uuid": "7d9b4c33-cdfe-4c13-b8ed-de57b16eec4f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel : @Daily_Configs",
-      "type": "vless",
-      "server": "65.109.211.33",
-      "port": 80,
-      "uuid": "b95c7b94-487b-416d-bc4e-b5ebac7954d8",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
-      "type": "vless",
-      "server": "37.27.243.248",
-      "port": 443,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDFAD@vpnserverrr",
-      "type": "vless",
-      "server": "2.cdnconn.com",
-      "port": 23335,
-      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @Spartan_YT",
-      "type": "ss",
-      "server": "85.9.213.76",
-      "port": 1080,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u26A1 @HajmVPN_Config",
-      "type": "vless",
-      "server": "fi1.mahboob.top",
-      "port": 2086,
-      "uuid": "5ef655fa-2673-b270-3d94-7cf976fb17a3",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 631 - FI - VLESS/REALITY/PBK/SID/UTLS - 45884",
-      "type": "vless",
-      "server": "93.152.207.254",
-      "port": 45884,
-      "uuid": "57a5f6b3-ea58-4d4e-ad9c-a9830f148184",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[16]",
-      "type": "vless",
-      "server": "157.180.94.33",
-      "port": 8880,
-      "uuid": "7536801d-8b86-4063-8ea4-107350dcbfd5",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E81",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "4e392aec-fd42-48aa-bc52-a7f927dd7da0",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
-      "type": "vless",
-      "server": "135.181.205.220",
-      "port": 31421,
-      "uuid": "0fd6389a-acb9-48b4-8d2c-63edc5dbc4ba",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 95.217.137.22:31772",
-      "type": "vless",
-      "server": "95.217.137.22",
-      "port": 31772,
-      "uuid": "fa48198a-f51d-4a53-fbd3-bcfd4d1b48e1",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 46.62.220.103:27802",
-      "type": "vless",
-      "server": "46.62.220.103",
-      "port": 27802,
-      "uuid": "a42343e4-c498-42b7-8361-c03a36e7a5fb",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel : @Daily_Configs",
-      "type": "vless",
-      "server": "2.cdnconn.com",
-      "port": 23335,
-      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @AkbarConfig\uD83D\uDC48\u06A9\u0627\u0646\u0641\u06CC\u06AF \u0631\u0648\u0632\u0627\u0646\u0647 \u062F\u0631",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6665,
-      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
-      "type": "vless",
-      "server": "65.109.211.33",
-      "port": 80,
-      "uuid": "b95c7b94-487b-416d-bc4e-b5ebac7954d8",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 185.109.21.139:443",
-      "type": "vless",
-      "server": "185.109.21.139",
-      "port": 443,
-      "uuid": "2cd6ed0f-636e-4e6c-9449-5a263d7a0fa5",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDF80",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u003E\u003E@oneclickvpnkeys::DE",
       "type": "vless",
       "server": "fi.connectv.net",
       "port": 443,
@@ -562,542 +1128,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 46.62.128.207:443",
-      "type": "vless",
-      "server": "46.62.128.207",
-      "port": 443,
-      "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-None | @Express_alaki | src @V2rayProxy",
-      "type": "vless",
-      "server": "135.181.205.220",
-      "port": 31421,
-      "uuid": "0fd6389a-acb9-48b4-8d2c-63edc5dbc4ba",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 144.31.18.73:2083",
-      "type": "vless",
-      "server": "144.31.18.73",
-      "port": 2083,
-      "uuid": "c501c66b-c6c2-456b-b604-80393b83d67f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83D\uDC80N\u039ETISHI\u03A3LD\uD83D\uDD25 | @netishield \u26A1\uFE0F\uD83D\uDEE1\uFE0F\uD83D\uDC7E\uD83C\uDDEB\uD83C\uDDEE",
-      "type": "ss",
-      "server": "95.217.37.166",
-      "port": 2020,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 85.192.48.50:443",
-      "type": "vless",
-      "server": "85.192.48.50",
-      "port": 443,
-      "uuid": "02fb468f-21f2-460e-bfa1-ef52ae5e627f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - M112",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6665,
-      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - IR-@V2rayAlpha-21",
-      "type": "vless",
-      "server": "194.34.132.15",
-      "port": 443,
-      "uuid": "18f72be7-0651-4037-928b-8a309d685796",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11614",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6620,
-      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[13]",
-      "type": "vless",
-      "server": "157.180.94.33",
-      "port": 8880,
-      "uuid": "50922b4b-166c-4cca-8ba1-ef91c5f32d2f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @icv2ray",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - my.kiomars.shop:6664",
-      "type": "ss",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u003E\u003E@oneclickvpnkeys::FI",
-      "type": "vless",
-      "server": "2.cdnconn.com",
-      "port": 23335,
-      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - UNKNOWN - 95.216.183.164:22222",
-      "type": "unknown",
-      "server": "95.216.183.164",
-      "port": 22222
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - h6-\u2705\u002B@v2rayNG_VPNN\u002B-\u002B\u0631\u0641\u0639\u002B\u0641\u06CC\u0644\u062A\u0631\u2699 \u0627\u06CC\u0631\u0627\u0646\u0633\u0644",
-      "type": "vless",
-      "server": "95.217.243.42",
-      "port": 443,
-      "uuid": "1e9f5961-a660-46ed-c8ad-98461fea739c",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Enzewa_Network\uD83D\uDC48\u062C\u0648\u06CC\u0646\u200C\u0634\u0648\u0642\u0637\u0639\u200C\u0646\u0634\u06CC",
-      "type": "vless",
-      "server": "31.56.205.56",
-      "port": 20553,
-      "uuid": "0a542d0e-4d05-418f-97c2-94d0455005da",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @CUSTOMVPNSERVER",
-      "type": "vless",
-      "server": "89.167.17.75",
-      "port": 443,
-      "uuid": "19773cc6-89a3-47c6-bc10-885460cd2b7b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - 31.56.113.145:3256",
-      "type": "ss",
-      "server": "31.56.113.145",
-      "port": 3256,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - vmesskhodam",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6610,
-      "uuid": "78793680-044c-46d7-8062-8ad3497476f6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2_mod_shop\uD83D\uDE80 \uD83C\uDDEB\uD83C\uDDEE",
-      "type": "vless",
-      "server": "45.91.193.124",
-      "port": 41617,
-      "uuid": "e42513dd-e4de-446f-a7df-2bc23db90ba1",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[21]",
-      "type": "vless",
-      "server": "157.180.19.140",
-      "port": 443,
-      "uuid": "0f3ab1b4-3cd2-4e5e-ac12-25efbe4a36ea",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF6A27@oneclickvpnkeys",
-      "type": "vless",
-      "server": "85.192.48.152",
-      "port": 23335,
-      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[15]",
-      "type": "vless",
-      "server": "157.180.94.33",
-      "port": 8880,
-      "uuid": "982b57eb-8f57-49ea-a087-42b90dddb64b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Golestan_VPN - \uD83D\uDD4A\uFE0F",
-      "type": "vless",
-      "server": "65.109.221.182",
-      "port": 46000,
-      "uuid": "b8773ac0-5d39-455d-a05b-a5f14d194049",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u26A1 @HajmVPN_Config",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "4e392aec-fd42-48aa-bc52-a7f927dd7da0",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 95.217.242.125:990",
-      "type": "vless",
-      "server": "95.217.242.125",
-      "port": 990,
-      "uuid": "fc64a8a6-6ed0-4706-abe9-67c1cc11e142",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @BrilliantGift \uD83D\uDC8E \u0639\u0636\u0648 \u0634\u0648",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "cfa44910-d8e0-4469-8e0c-88a9f5e96e6b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
-      "type": "vless",
-      "server": "31.56.205.56",
-      "port": 20553,
-      "uuid": "0a542d0e-4d05-418f-97c2-94d0455005da",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-      "type": "vless",
-      "server": "109.248.163.191",
-      "port": 443,
-      "uuid": "Telegram:",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - [@ConfigPositive]\u002B",
-      "type": "ss",
-      "server": "38.244.209.215",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - M111",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 TCP-None | @Express_alaki | src @iP_CF",
-      "type": "vless",
-      "server": "31.56.205.56",
-      "port": 32480,
-      "uuid": "af048307-527c-4178-8d56-271ac082870b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE9\uD83C\uDDEA@ConfigV2RayNG",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6610,
-      "uuid": "c457426a-b74d-4f67-90f5-9e2fde31411b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-      "type": "vless",
-      "server": "193.124.225.148",
-      "port": 443,
-      "uuid": "Telegram:",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Config 5 - @lebertad",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6610,
-      "uuid": "c457426a-b74d-4f67-90f5-9e2fde31411b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[14]",
-      "type": "vless",
-      "server": "157.180.94.33",
-      "port": 8880,
-      "uuid": "d098e8a9-0bb8-4b07-8ce1-6c36b5f5e47e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDDEB\uD83C\uDDEE Finland",
-      "type": "ss",
-      "server": "vip-81.f-sub.lenalizmy0ve.ir",
-      "port": 45542,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83E\uDDF6@vpnserverrr",
-      "type": "vless",
-      "server": "2.cdnconn.com",
-      "port": 23335,
-      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - vmesskhodam",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "78793680-044c-46d7-8062-8ad3497476f6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE6\uD83C\uDDF1@ConfigV2RayNG",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6620,
-      "uuid": "c457426a-b74d-4f67-90f5-9e2fde31411b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[11]",
-      "type": "vless",
-      "server": "157.180.94.33",
-      "port": 8880,
-      "uuid": "bbd3270a-0349-4449-8e3f-e795f2c8c54b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 95.216.183.164:22222",
-      "type": "vless",
-      "server": "95.216.183.164",
-      "port": 22222,
-      "uuid": "7dd31513-1779-4e6b-aa77-18011edeab47",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83E\uDDE2-@turbov2box",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "a09d2931-c961-4f4e-9288-eab639c5fc03",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @Capital_NET",
-      "type": "ss",
-      "server": "37.27.21.47",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
       "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6610,
-      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @BrilliantGift \uD83D\uDC8E \u0639\u0636\u0648 \u0634\u0648",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6665,
-      "uuid": "cfa44910-d8e0-4469-8e0c-88a9f5e96e6b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel id: @Argo_VPN1 \uD83C\uDDEB\uD83C\uDDEE",
-      "type": "vless",
-      "server": "46.8.237.61",
-      "port": 41617,
-      "uuid": "e42513dd-e4de-446f-a7df-2bc23db90ba1",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2_mod_shop\uD83D\uDE80",
-      "type": "vless",
-      "server": "64.188.73.12",
-      "port": 443,
-      "uuid": "99bd2791-8e27-435b-a1e2-c9b625101af9",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-      "type": "vless",
-      "server": "185.233.82.86",
-      "port": 443,
-      "uuid": "Telegram:",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E11",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "a09d2931-c961-4f4e-9288-eab639c5fc03",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E140",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6610,
-      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[21]",
-      "type": "vless",
-      "server": "157.180.94.33",
-      "port": 8443,
-      "uuid": "c11dc97a-b0a0-4389-821d-01617b17df20",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @irmeliy | vip | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627 \uD83C\uDF3E",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6610,
-      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - VayNora",
-      "type": "vless",
-      "server": "185.228.233.22",
-      "port": 443,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE Finland",
-      "type": "vless",
-      "server": "vip-81.f-sub.lenalizmy0ve.ir",
-      "port": 45542,
-      "uuid": "ca936f22-fbe1-443d-15cb-9cf2ee9b8334",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @irmeliy \uD83C\uDFAD",
-      "type": "vless",
-      "server": "2.cdnconn.com",
-      "port": 23335,
-      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-      "type": "vless",
-      "server": "203.18.98.197",
-      "port": 2053,
-      "uuid": "Telegram:",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 TCP-Reality | @Express_alaki | src @V2rayng_Fast",
-      "type": "vless",
-      "server": "45.144.53.37",
-      "port": 8104,
-      "uuid": "db27262a-4151-4c36-8e5f-2cf7fd387a0f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-      "type": "vless",
-      "server": "194.164.235.8",
-      "port": 443,
-      "uuid": "Telegram:",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @appsooner \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 \uD83D\uDD4A\uFE0F",
-      "type": "vless",
-      "server": "46.8.237.61",
-      "port": 41617,
-      "uuid": "e42513dd-e4de-446f-a7df-2bc23db90ba1",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6620,
-      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @iP_CF",
-      "type": "vless",
-      "server": "31.56.205.56",
-      "port": 57124,
-      "uuid": "3af5f9c4-9128-41f2-bc56-a927788d12f8",
+      "server": "65.109.211.33",
+      "port": 80,
+      "uuid": "b95c7b94-487b-416d-bc4e-b5ebac7954d8",
       "tls": true,
       "flow": ""
     },
@@ -1111,6 +1146,128 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDD18 T.me/V2HUBIR | Join Now \u2705\uFE0F",
+      "type": "vless",
+      "server": "109.206.236.109",
+      "port": 443,
+      "uuid": "Telegram\uD83C\uDDE8\uD83C\uDDF3 ",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - my.kiomars.shop:6620",
+      "type": "ss",
+      "server": "my.kiomars.shop",
+      "port": 6620,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @BrilliantGift \uD83D\uDC8E \u0639\u0636\u0648 \u0634\u0648",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "cfa44910-d8e0-4469-8e0c-88a9f5e96e6b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel : @Daily_Configs",
+      "type": "vless",
+      "server": "65.109.211.33",
+      "port": 80,
+      "uuid": "b95c7b94-487b-416d-bc4e-b5ebac7954d8",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 46.62.128.207:443",
+      "type": "vless",
+      "server": "46.62.128.207",
+      "port": 443,
+      "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @CUSTOMVPNSERVER",
+      "type": "ss",
+      "server": "89.167.17.75",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83E\uDDE2-@turbov2box",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "a09d2931-c961-4f4e-9288-eab639c5fc03",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDF6A27@oneclickvpnkeys",
+      "type": "ss",
+      "server": "85.192.48.152",
+      "port": 23335,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[11]",
+      "type": "vless",
+      "server": "157.180.19.140",
+      "port": 8880,
+      "uuid": "2f213d34-c9bd-4caa-876c-1242a1b91f1f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u26A1 @HajmVPN_Config",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "4e392aec-fd42-48aa-bc52-a7f927dd7da0",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 4-V2rrayVPN 4",
+      "type": "vless",
+      "server": "89.167.78.138",
+      "port": 11491,
+      "uuid": "7d9b4c33-cdfe-4c13-b8ed-de57b16eec4f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @V2HUBIR",
+      "type": "vless",
+      "server": "31.56.205.56",
+      "port": 57124,
+      "uuid": "3af5f9c4-9128-41f2-bc56-a927788d12f8",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \u2705@AR14N24b",
+      "type": "ss",
+      "server": "31.56.113.145",
+      "port": 3256,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2Meli",
+      "type": "vless",
+      "server": "37.27.220.198",
+      "port": 2001,
+      "uuid": "f4b81795-2e5a-4584-ea25-44bc16e8fc2c",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2RAYROZ | \uD83D\uDC7B\uD83D\uDE80",
       "type": "vless",
       "server": "94.177.13.135",
@@ -1120,88 +1277,117 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[31]",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @irmeliy \uD83C\uDFAD",
       "type": "vless",
-      "server": "157.180.75.119",
-      "port": 8080,
-      "uuid": "7b0f240f-db1f-4660-b7f5-65612612769f",
+      "server": "2.cdnconn.com",
+      "port": 23335,
+      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Config 2 - @lebertad",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.108.108.151:443",
       "type": "vless",
-      "server": "fn1.easyserf.top",
+      "server": "65.108.108.151",
       "port": 443,
-      "uuid": "12adb397-701e-475e-91f6-e0c766f87fa4",
+      "uuid": "feaf1d64-b44c-4cc8-b114-4001478c1fd0",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - fi1.mahboob.top:2086",
-      "type": "vless",
-      "server": "fi1.mahboob.top",
-      "port": 2086,
-      "uuid": "5ef655fa-2673-b270-3d94-7cf976fb17a3",
-      "tls": true,
-      "flow": ""
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - TROJAN - \uD83C\uDDF7\uD83C\uDDFARU\u4FC4\u7F57\u65AF",
+      "type": "trojan",
+      "server": "212.193.18.144",
+      "port": 36158,
+      "password": "ZblhWr0mqMakCPg.N",
+      "tls": true
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - UNKNOWN - 95.216.154.119:37265",
-      "type": "unknown",
-      "server": "95.216.154.119",
-      "port": 37265
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @AkbarConfig\uD83D\uDC48\u06A9\u0627\u0646\u0641\u06CC\u06AF \u0631\u0648\u0632\u0627\u0646\u0647 \u062F\u0631",
       "type": "vless",
-      "server": "81.85.72.197",
+      "server": "37.27.243.248",
       "port": 443,
       "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDF80",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 45.91.193.124:41617",
       "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "a09d2931-c961-4f4e-9288-eab639c5fc03",
+      "server": "45.91.193.124",
+      "port": 41617,
+      "uuid": "e42513dd-e4de-446f-a7df-2bc23db90ba1",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDF6A38@oneclickvpnkeys",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 TCP-Reality | @Express_alaki | src @V2rayng_Fast",
+      "type": "vless",
+      "server": "45.144.53.37",
+      "port": 8104,
+      "uuid": "db27262a-4151-4c36-8e5f-2cf7fd387a0f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - 31.56.113.145:3256",
       "type": "ss",
-      "server": "85.192.48.144",
-      "port": 23335,
+      "server": "31.56.113.145",
+      "port": 3256,
       "cipher": "aes-256-gcm",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE FI-1- \uD83D\uDE80 | \u067E\u0631\u0633\u0631\u0639\u062A",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2rayNG3",
       "type": "vless",
-      "server": "64.188.73.65",
-      "port": 20150,
-      "uuid": "643ea714-3410-4476-a3b1-f71789886b2c",
+      "server": "46.62.128.207",
+      "port": 443,
+      "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC0A66@oneclickvpnkeys",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDFAD@vpnserverrr",
       "type": "vless",
-      "server": "77.91.85.109",
-      "port": 443,
-      "uuid": "8101e743-fab1-4c81-906c-f62eef26b07b",
+      "server": "2.cdnconn.com",
+      "port": 23335,
+      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Enzewa_Network\uD83D\uDC48\u062C\u0648\u06CC\u0646\u200C\u0634\u0648\u0642\u0637\u0639\u200C\u0646\u0634\u06CC",
       "type": "vless",
-      "server": "38.244.137.198",
+      "server": "31.56.205.56",
+      "port": 20553,
+      "uuid": "0a542d0e-4d05-418f-97c2-94d0455005da",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Capital_NET",
+      "type": "vless",
+      "server": "37.27.21.47",
       "port": 443,
-      "uuid": "09748875-9da3-440e-9809-9752e1dda1e4",
+      "uuid": "a0562dec-26ac-43d4-ba1d-785c334e644f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E151",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6610,
+      "uuid": "c457426a-b74d-4f67-90f5-9e2fde31411b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.109.192.110:55953",
+      "type": "vless",
+      "server": "65.109.192.110",
+      "port": 55953,
+      "uuid": "b5ee8f67-0f25-467b-aca4-01001f00d802",
       "tls": true,
       "flow": ""
     },
@@ -1215,11 +1401,116 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Capital_NET",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rayngzendegimamad\uD83D\uDD4A\uFE0F",
       "type": "vless",
-      "server": "37.27.21.47",
+      "server": "38.244.137.198",
       "port": 443,
-      "uuid": "a0562dec-26ac-43d4-ba1d-785c334e644f",
+      "uuid": "09748875-9da3-440e-9809-9752e1dda1e4",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+      "type": "vless",
+      "server": "204.77.1.55",
+      "port": 443,
+      "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC9C @Bluefilter_org | \u06A9\u0627\u0646\u0627\u0644\u0645\u0648\u0646 \uD83E\uDD0D",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6610,
+      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - h6-\u2705\u002B@v2rayNG_VPNN\u002B-\u002B\u0631\u0641\u0639\u002B\u0641\u06CC\u0644\u062A\u0631\u2699 \u0627\u06CC\u0631\u0627\u0646\u0633\u0644",
+      "type": "vless",
+      "server": "95.217.243.42",
+      "port": 443,
+      "uuid": "1e9f5961-a660-46ed-c8ad-98461fea739c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+      "type": "vless",
+      "server": "109.248.163.191",
+      "port": 443,
+      "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC0A66@oneclickvpnkeys",
+      "type": "vless",
+      "server": "77.91.85.109",
+      "port": 443,
+      "uuid": "8101e743-fab1-4c81-906c-f62eef26b07b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - fin-0001-xr.packet-drop-society.net:11443",
+      "type": "vless",
+      "server": "fin-0001-xr.packet-drop-society.net",
+      "port": 11443,
+      "uuid": "913b07fe-eae9-4985-9a39-33acaba25a2c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE Finland",
+      "type": "vless",
+      "server": "vip-81.f-sub.lenalizmy0ve.ir",
+      "port": 45542,
+      "uuid": "ca936f22-fbe1-443d-15cb-9cf2ee9b8334",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Mr_Emaaad\u002B-\u002B\u002B\u0639\u0650\u0645\u0640\u0640\u0670\u0627\u0653\u062F\u002B|\u002BEm\u0653ad",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "4eb24ed7-251d-46fe-89c2-833f21bb1c41",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - UNKNOWN - 95.216.183.164:22222",
+      "type": "unknown",
+      "server": "95.216.183.164",
+      "port": 22222
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 95.217.137.22:31772",
+      "type": "vless",
+      "server": "95.217.137.22",
+      "port": 31772,
+      "uuid": "fa48198a-f51d-4a53-fbd3-bcfd4d1b48e1",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE6\uD83C\uDDF1@ConfigV2RayNG",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6620,
+      "uuid": "c457426a-b74d-4f67-90f5-9e2fde31411b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - vmesskhodam",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6610,
+      "uuid": "78793680-044c-46d7-8062-8ad3497476f6",
       "tls": true,
       "flow": ""
     },
@@ -1241,318 +1532,20 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - de.mobileemdad.top:42542",
-      "type": "ss",
-      "server": "de.mobileemdad.top",
-      "port": 42542,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDF6A27@oneclickvpnkeys",
-      "type": "ss",
-      "server": "85.192.48.152",
-      "port": 23335,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Donald_vpn-3",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @appsooner \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 \uD83D\uDD4A\uFE0F",
       "type": "vless",
-      "server": "77.42.77.102",
-      "port": 46704,
-      "uuid": "ea736b2b-0f0a-4b9f-865f-83e0014ffc8c",
+      "server": "46.8.237.61",
+      "port": 41617,
+      "uuid": "e42513dd-e4de-446f-a7df-2bc23db90ba1",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @icv2ray",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - :)-telegram:@set_v2ray",
       "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6665,
-      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @AkbarConfig\uD83D\uDC48\u06A9\u0627\u0646\u0641\u06CC\u06AF \u0631\u0648\u0632\u0627\u0646\u0647 \u062F\u0631",
-      "type": "vless",
-      "server": "37.27.243.248",
-      "port": 443,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[11]",
-      "type": "vless",
-      "server": "37.27.212.52",
-      "port": 8880,
-      "uuid": "759918a1-e0bf-47ad-80fb-3b331f83a59b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC9C @Bluefilter_org | \u06A9\u0627\u0646\u0627\u0644\u0645\u0648\u0646 \uD83E\uDD0D",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6610,
-      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDD18 T.me/V2HUBIR | Join Now \u2705\uFE0F",
-      "type": "vless",
-      "server": "2.cdnconn.com",
-      "port": 23335,
-      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDDEB\uD83C\uDDEE",
-      "type": "vless",
-      "server": "fi.connectv.net",
-      "port": 443,
-      "uuid": "8b70357d-b654-4a29-85de-e5fef1afefbd",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - my.kiomars.shop:6620",
-      "type": "ss",
-      "server": "my.kiomars.shop",
-      "port": 6620,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @daredevill_404",
-      "type": "vless",
-      "server": "37.27.91.234",
-      "port": 7335,
-      "uuid": "7bf5480b-a130-4e9d-a9d2-07f354653853",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-      "type": "vless",
-      "server": "109.248.163.226",
-      "port": 8443,
-      "uuid": "Telegram:",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 TCP-None | @Express_alaki | src @V2rayng_Fast",
-      "type": "vless",
-      "server": "135.181.205.220",
-      "port": 31421,
-      "uuid": "0fd6389a-acb9-48b4-8d2c-63edc5dbc4ba",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.109.192.110:55953",
-      "type": "vless",
-      "server": "65.109.192.110",
-      "port": 55953,
-      "uuid": "b5ee8f67-0f25-467b-aca4-01001f00d802",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-Reality | @Express_alaki | src @v2nodes",
-      "type": "vless",
-      "server": "45.144.53.156",
-      "port": 8104,
-      "uuid": "db27262a-4151-4c36-8e5f-2cf7fd387a0f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
-      "type": "ss",
-      "server": "37.27.243.248",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDC89\uD835\uDC95\uD835\uDC95\uD835\uDC91\uD835\uDC94://\uD835\uDC95.\uD835\uDC8E\uD835\uDC86/\uD835\uDC75\uD835\uDC77\uD835\uDC7D_\uD835\uDC70\uD835\uDC79 \uD83C\uDF1F",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6620,
-      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-Reality | @Express_alaki | src @V2rayProxy",
-      "type": "vless",
-      "server": "45.144.53.156",
-      "port": 8104,
-      "uuid": "db27262a-4151-4c36-8e5f-2cf7fd387a0f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83E\uDD89@FreeConfigForYou",
-      "type": "ss",
-      "server": "185.193.102.7",
-      "port": 57456,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE9\uD83C\uDDEAAll\u00B9 | @BigSmoke_Config",
-      "type": "vless",
-      "server": "135.181.205.220",
-      "port": 31421,
-      "uuid": "0fd6389a-acb9-48b4-8d2c-63edc5dbc4ba",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - de.mobileemdad.top:42542",
-      "type": "vless",
-      "server": "de.mobileemdad.top",
-      "port": 42542,
-      "uuid": "cdfa4c4f-64ed-4bbf-8783-acec492eaaee",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @irmeliy | vip | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627 \uD83C\uDF3E",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6620,
-      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-      "type": "vless",
-      "server": "204.77.1.55",
-      "port": 443,
-      "uuid": "Telegram:",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @vpnbaz \uD83E\uDDF6",
-      "type": "vless",
-      "server": "2.cdnconn.com",
-      "port": 23335,
-      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - All-@V2rayAlpha-34",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6665,
-      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - TROJAN - \uD83C\uDDF7\uD83C\uDDFARU\u4FC4\u7F57\u65AF",
-      "type": "trojan",
-      "server": "212.193.18.144",
-      "port": 36158,
-      "password": "ZblhWr0mqMakCPg.N",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \u2705@AR14N24b",
-      "type": "ss",
-      "server": "31.56.113.145",
-      "port": 3256,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Mr_Emaaad\u002B-\u002B\u002B\u0639\u0650\u0645\u0640\u0640\u0670\u0627\u0653\u062F\u002B|\u002BEm\u0653ad",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "4eb24ed7-251d-46fe-89c2-833f21bb1c41",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE - FI - @FreeOnlineVPN",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "4eb24ed7-251d-46fe-89c2-833f21bb1c41",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11637",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6620,
-      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @V2rayNG3",
-      "type": "ss",
-      "server": "promo18v.bystrivpn.ru",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
-      "type": "vless",
-      "server": "2.cdnconn.com",
-      "port": 23335,
-      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11519",
-      "type": "vless",
-      "server": "144.31.18.7",
-      "port": 443,
-      "uuid": "b127d2d2-277a-491e-bf80-2e8688fa85e2",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - [@ConfigPositive]\u002B",
-      "type": "vless",
-      "server": "89.167.17.75",
-      "port": 443,
-      "uuid": "96cf6955-1dbb-4fe3-a96c-03381b93ef7f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Spartan_YT\uD83C\uDDF8\uD83C\uDDEA",
-      "type": "vless",
-      "server": "my.kiomars.shop",
-      "port": 6664,
-      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @iP_CF",
-      "type": "vless",
-      "server": "31.56.205.56",
-      "port": 13612,
-      "uuid": "cbb94bf1-02cc-46ba-bc01-061b5f38e0ac",
+      "server": "138.124.59.128",
+      "port": 48200,
+      "uuid": "d165a1e8-f4b7-4ed8-bca1-d8a61197b597",
       "tls": true,
       "flow": ""
     },
@@ -1566,38 +1559,29 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[11]",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC9C @Bluefilter_org | \u06A9\u0627\u0646\u0627\u0644\u0645\u0648\u0646 \uD83E\uDD0D",
       "type": "vless",
-      "server": "157.180.19.140",
-      "port": 8880,
-      "uuid": "2f213d34-c9bd-4caa-876c-1242a1b91f1f",
+      "server": "my.kiomars.shop",
+      "port": 6620,
+      "uuid": "af5100bf-ffe6-43de-bee5-b16cf5a3528e",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u003E\u003E@oneclickvpnkeys::DE",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 185.109.21.139:443",
       "type": "vless",
-      "server": "fi.connectv.net",
+      "server": "185.109.21.139",
       "port": 443,
-      "uuid": "8b70357d-b654-4a29-85de-e5fef1afefbd",
+      "uuid": "2cd6ed0f-636e-4e6c-9449-5a263d7a0fa5",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @V2HUBIR",
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E11",
       "type": "vless",
-      "server": "31.56.205.56",
-      "port": 57124,
-      "uuid": "3af5f9c4-9128-41f2-bc56-a927788d12f8",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @iP_CF",
-      "type": "vless",
-      "server": "31.56.205.56",
-      "port": 20553,
-      "uuid": "0a542d0e-4d05-418f-97c2-94d0455005da",
+      "server": "my.kiomars.shop",
+      "port": 6664,
+      "uuid": "a09d2931-c961-4f4e-9288-eab639c5fc03",
       "tls": true,
       "flow": ""
     },
@@ -1608,11 +1592,126 @@
       "port": 59917
     },
     {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+      "type": "vless",
+      "server": "194.53.54.30",
+      "port": 443,
+      "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDF6A38@oneclickvpnkeys",
+      "type": "ss",
+      "server": "85.192.48.144",
+      "port": 23335,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @icv2ray",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6665,
+      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - [@ConfigPositive]\u002B",
+      "type": "ss",
+      "server": "38.244.209.215",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - M112",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6665,
+      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 278 - FI - VLESS/REALITY/PBK/SID/VISION/UTLS - 443",
+      "type": "vless",
+      "server": "46.62.128.207",
+      "port": 443,
+      "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u26A1 @HajmVPN_Config",
+      "type": "vless",
+      "server": "fi1.mahboob.top",
+      "port": 2086,
+      "uuid": "5ef655fa-2673-b270-3d94-7cf976fb17a3",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDD18 T.me/V2HUBIR | Join Now \u2705\uFE0F",
+      "type": "vless",
+      "server": "2.cdnconn.com",
+      "port": 23335,
+      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83E\uDDF6@vpnserverrr",
+      "type": "vless",
+      "server": "2.cdnconn.com",
+      "port": 23335,
+      "uuid": "e384913f-8863-47b4-8858-a84b68abb4a6",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.109.231.154:8880",
       "type": "vless",
       "server": "65.109.231.154",
       "port": 8880,
       "uuid": "32bcee33-6646-42d9-8067-9988e2a58647",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - All-@V2rayAlpha-34",
+      "type": "vless",
+      "server": "my.kiomars.shop",
+      "port": 6665,
+      "uuid": "1b646fd4-c911-4c3f-b66a-420c1fa33e6c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 95.216.183.164:22222",
+      "type": "vless",
+      "server": "95.216.183.164",
+      "port": 22222,
+      "uuid": "7dd31513-1779-4e6b-aa77-18011edeab47",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11519",
+      "type": "vless",
+      "server": "144.31.18.7",
+      "port": 443,
+      "uuid": "b127d2d2-277a-491e-bf80-2e8688fa85e2",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDF80",
+      "type": "vless",
+      "server": "fi.connectv.net",
+      "port": 443,
+      "uuid": "8b70357d-b654-4a29-85de-e5fef1afefbd",
       "tls": true,
       "flow": ""
     },
@@ -2004,189 +2103,200 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 2.cdnconn.com:23335",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11574",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF6A38@oneclickvpnkeys",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Config 2 - @lebertad",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - promo18v.bystrivpn.ru:443",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6610",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 187-\uD83C\uDDEB\uD83C\uDDEE \uD83D\uDC2D@GheychiAmoozesh",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @WedBaZtel",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2raybaaz \uD83C\uDFAD",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[12]",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @HqV2rayNG \uD83C\uDDEB\uD83C\uDDEE 3/4 - 18 February",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E151",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDC89\uD835\uDC95\uD835\uDC95\uD835\uDC91\uD835\uDC94://\uD835\uDC95.\uD835\uDC8E\uD835\uDC86/\uD835\uDC75\uD835\uDC77\uD835\uDC7D_\uD835\uDC70\uD835\uDC79 \uD83C\uDF1F",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - fi.connectv.net:443",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 278 - FI - VLESS/REALITY/PBK/SID/VISION/UTLS - 443",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Donald_vpn-4",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u2705@AR14N24b",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 95.217.242.125:990",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-Reality | @Express_alaki | src @v2nodes",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6620",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 TCP-None | @Express_alaki | src @iP_CF",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDF80",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 46.62.220.103:27802",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - UNKNOWN - 95.216.154.119:37265",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @Spartan_YT",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6665",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @HajmVPN_Config | \uD83C\uDDEB\uD83C\uDDEE",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[15]",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @icv2ray",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[21]",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @iP_CF",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6664",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E140",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE9\uD83C\uDDEA Germany (Aruba Networks)",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-None | @Express_alaki | src @V2rayProxy",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @icv2ray",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF6A38@oneclickvpnkeys",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @iP_CF",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE9\uD83C\uDDEA@ConfigV2RayNG",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[16]",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE FI-1- \uD83D\uDE80 | \u067E\u0631\u0633\u0631\u0639\u062A",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Config 5 - @lebertad",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2_mod_shop\uD83D\uDE80",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @CUSTOMVPNSERVER",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.109.241.111:443",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @HqV2rayNG \uD83C\uDDEB\uD83C\uDDEE 3/4 - 18 February",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - VayNora",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u003E\u003E@oneclickvpnkeys::FI",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Donald_vpn-4",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - vmesskhodam",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 631 - FI - VLESS/REALITY/PBK/SID/UTLS - 45884",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF6A27@oneclickvpnkeys",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @Capital_NET",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @WedBaZtel",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - promo18v.bystrivpn.ru:443",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6610",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[11]",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 2.cdnconn.com:23335",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @iP_CF",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - TROJAN - 37.27.249.93:20000",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - TROJAN - @V2rayNG3",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 77.91.85.109:443",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel : @Daily_Configs",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @HajmVPN_Config | \uD83C\uDDEB\uD83C\uDDEE",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 81.85.72.197:443",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.109.241.111:443",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - :)-telegram:@set_v2ray",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - my.kiomars.shop:6665",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6665",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - TROJAN - 37.27.249.93:20000",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE[openproxylist.com] vless-FI",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2rayNG3",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u26A1 @HajmVPN_Config",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2rayNG3",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 45.91.193.124:41617",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - fin-0001-xr.packet-drop-society.net:11443",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - my.kiomars.shop:6620",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @icv2ray",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @NetZoneNews | \uD83C\uDDF8\uD83C\uDDEA",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC9C @Bluefilter_org | \u06A9\u0627\u0646\u0627\u0644\u0645\u0648\u0646 \uD83E\uDD0D",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rayngzendegimamad\uD83D\uDD4A\uFE0F",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @CUSTOMVPNSERVER",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-Reality | @Express_alaki | src @V2rayProxy",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 4-V2rrayVPN 4",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel : @Daily_Configs",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDFAD@vpnserverrr",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @Spartan_YT",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u26A1 @HajmVPN_Config",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 631 - FI - VLESS/REALITY/PBK/SID/UTLS - 45884",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[16]",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E81",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 95.217.137.22:31772",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 46.62.220.103:27802",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel : @Daily_Configs",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @AkbarConfig\uD83D\uDC48\u06A9\u0627\u0646\u0641\u06CC\u06AF \u0631\u0648\u0632\u0627\u0646\u0647 \u062F\u0631",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 185.109.21.139:443",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDF80",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 46.62.128.207:443",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-None | @Express_alaki | src @V2rayProxy",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 144.31.18.73:2083",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83D\uDC80N\u039ETISHI\u03A3LD\uD83D\uDD25 | @netishield \u26A1\uFE0F\uD83D\uDEE1\uFE0F\uD83D\uDC7E\uD83C\uDDEB\uD83C\uDDEE",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 85.192.48.50:443",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - M112",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - IR-@V2rayAlpha-21",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11614",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[13]",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @icv2ray",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - my.kiomars.shop:6664",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u003E\u003E@oneclickvpnkeys::FI",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - UNKNOWN - 95.216.183.164:22222",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - h6-\u2705\u002B@v2rayNG_VPNN\u002B-\u002B\u0631\u0641\u0639\u002B\u0641\u06CC\u0644\u062A\u0631\u2699 \u0627\u06CC\u0631\u0627\u0646\u0633\u0644",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Enzewa_Network\uD83D\uDC48\u062C\u0648\u06CC\u0646\u200C\u0634\u0648\u0642\u0637\u0639\u200C\u0646\u0634\u06CC",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @CUSTOMVPNSERVER",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - 31.56.113.145:3256",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - vmesskhodam",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2_mod_shop\uD83D\uDE80 \uD83C\uDDEB\uD83C\uDDEE",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[21]",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF6A27@oneclickvpnkeys",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[15]",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Golestan_VPN - \uD83D\uDD4A\uFE0F",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u26A1 @HajmVPN_Config",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 95.217.242.125:990",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @BrilliantGift \uD83D\uDC8E \u0639\u0636\u0648 \u0634\u0648",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[12]",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - [@ConfigPositive]\u002B",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - M111",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 TCP-None | @Express_alaki | src @iP_CF",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE9\uD83C\uDDEA@ConfigV2RayNG",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Config 5 - @lebertad",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[14]",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDDEB\uD83C\uDDEE Finland",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83E\uDDF6@vpnserverrr",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - vmesskhodam",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE6\uD83C\uDDF1@ConfigV2RayNG",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[11]",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 95.216.183.164:22222",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83E\uDDE2-@turbov2box",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @Capital_NET",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @BrilliantGift \uD83D\uDC8E \u0639\u0636\u0648 \u0634\u0648",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel id: @Argo_VPN1 \uD83C\uDDEB\uD83C\uDDEE",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2_mod_shop\uD83D\uDE80",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E11",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E140",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[21]",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @irmeliy | vip | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627 \uD83C\uDF3E",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - VayNora",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE Finland",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @irmeliy \uD83C\uDFAD",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 TCP-Reality | @Express_alaki | src @V2rayng_Fast",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @appsooner \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 \uD83D\uDD4A\uFE0F",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @iP_CF",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.109.186.15:53773",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2RAYROZ | \uD83D\uDC7B\uD83D\uDE80",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[31]",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Spartan_YT\uD83C\uDDF8\uD83C\uDDEA",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Config 2 - @lebertad",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - fi1.mahboob.top:2086",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - UNKNOWN - 95.216.154.119:37265",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - M111",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-Reality | @Express_alaki | src @V2rayProxy",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - my.kiomars.shop:6664",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11614",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83D\uDC80N\u039ETISHI\u03A3LD\uD83D\uDD25 | @netishield \u26A1\uFE0F\uD83D\uDEE1\uFE0F\uD83D\uDC7E\uD83C\uDDEB\uD83C\uDDEE",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2raybaaz \uD83C\uDFAD",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 144.31.18.73:2083",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - vmesskhodam",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @AkbarConfig\uD83D\uDC48\u06A9\u0627\u0646\u0641\u06CC\u06AF \u0631\u0648\u0632\u0627\u0646\u0647 \u062F\u0631",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - [@ConfigPositive]\u002B",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-Reality | @Express_alaki | src @V2rayProxy",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE9\uD83C\uDDEAAll\u00B9 | @BigSmoke_Config",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - de.mobileemdad.top:42542",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[11]",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE[openproxylist.com] vless-FI",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2rayNG3",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDC89\uD835\uDC95\uD835\uDC95\uD835\uDC91\uD835\uDC94://\uD835\uDC95.\uD835\uDC8E\uD835\uDC86/\uD835\uDC75\uD835\uDC77\uD835\uDC7D_\uD835\uDC70\uD835\uDC79 \uD83C\uDF1F",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel : @Daily_Configs",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @V2rayNG3",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u2705@AR14N24b",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @vpnbaz \uD83E\uDDF6",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E81",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u26A1 @HajmVPN_Config",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2_mod_shop\uD83D\uDE80 \uD83C\uDDEB\uD83C\uDDEE",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDFE3 @Bluefilter_org | \u06A9\u0627\u0646\u0627\u0644\u0645\u0648\u0646 \u26AA",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Golestan_VPN - \uD83D\uDD4A\uFE0F",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @daredevill_404",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[14]",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2rayNG3",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - de.mobileemdad.top:42542",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[31]",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDDEB\uD83C\uDDEE Finland",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 TCP-None | @Express_alaki | src @V2rayng_Fast",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11637",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel : @Daily_Configs",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[13]",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Config 2 - @lebertad",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - my.kiomars.shop:6665",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[21]",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @BrilliantGift \uD83D\uDC8E \u0639\u0636\u0648 \u0634\u0648",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Hddify",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 81.85.72.197:443",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel id: @Argo_VPN1 \uD83C\uDDEB\uD83C\uDDEE",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDF80",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDF6A38@oneclickvpnkeys",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE FI-1- \uD83D\uDE80 | \u067E\u0631\u0633\u0631\u0639\u062A",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC0A66@oneclickvpnkeys",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @chillguy_vpn",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @vpnbaz \uD83C\uDFAD",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E152",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @irmeliy | vip | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627 \uD83C\uDF3E",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDDEB\uD83C\uDDEE",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE - FI - @FreeOnlineVPN",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2rayNG3",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E141",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Donald_vpn-3",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - fi.connectv.net:443",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDC89\uD835\uDC95\uD835\uDC95\uD835\uDC91\uD835\uDC94://\uD835\uDC95.\uD835\uDC8E\uD835\uDC86/\uD835\uDC75\uD835\uDC77\uD835\uDC7D_\uD835\uDC70\uD835\uDC79 \uD83C\uDF1F",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @irmeliy | vip | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627 \uD83C\uDF3E",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @NetZoneNews | \uD83C\uDDF8\uD83C\uDDEA",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11574",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83E\uDD89@FreeConfigForYou",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u003E\u003E@oneclickvpnkeys::DE",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.109.186.15:53773",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDD18 T.me/V2HUBIR | Join Now \u2705\uFE0F",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - my.kiomars.shop:6620",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @BrilliantGift \uD83D\uDC8E \u0639\u0636\u0648 \u0634\u0648",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Channel : @Daily_Configs",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 46.62.128.207:443",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @CUSTOMVPNSERVER",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83E\uDDE2-@turbov2box",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDF6A27@oneclickvpnkeys",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[11]",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u26A1 @HajmVPN_Config",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 4-V2rrayVPN 4",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @V2HUBIR",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \u2705@AR14N24b",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2Meli",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2RAYROZ | \uD83D\uDC7B\uD83D\uDE80",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @irmeliy \uD83C\uDFAD",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.108.108.151:443",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - TROJAN - \uD83C\uDDF7\uD83C\uDDFARU\u4FC4\u7F57\u65AF",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @AkbarConfig\uD83D\uDC48\u06A9\u0627\u0646\u0641\u06CC\u06AF \u0631\u0648\u0632\u0627\u0646\u0647 \u062F\u0631",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 45.91.193.124:41617",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 TCP-Reality | @Express_alaki | src @V2rayng_Fast",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - 31.56.113.145:3256",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @V2rayNG3",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDFAD@vpnserverrr",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Enzewa_Network\uD83D\uDC48\u062C\u0648\u06CC\u0646\u200C\u0634\u0648\u0642\u0637\u0639\u200C\u0646\u0634\u06CC",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Capital_NET",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E151",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.109.192.110:55953",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @vpnbaz \uD83C\uDFAD",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rayngzendegimamad\uD83D\uDD4A\uFE0F",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC9C @Bluefilter_org | \u06A9\u0627\u0646\u0627\u0644\u0645\u0648\u0646 \uD83E\uDD0D",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - h6-\u2705\u002B@v2rayNG_VPNN\u002B-\u002B\u0631\u0641\u0639\u002B\u0641\u06CC\u0644\u062A\u0631\u2699 \u0627\u06CC\u0631\u0627\u0646\u0633\u0644",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC0A66@oneclickvpnkeys",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - fin-0001-xr.packet-drop-society.net:11443",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE Finland",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Mr_Emaaad\u002B-\u002B\u002B\u0639\u0650\u0645\u0640\u0640\u0670\u0627\u0653\u062F\u002B|\u002BEm\u0653ad",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - UNKNOWN - 95.216.183.164:22222",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 95.217.137.22:31772",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE6\uD83C\uDDF1@ConfigV2RayNG",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - vmesskhodam",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @daredevill_404",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC80N\u039ETISHI\u03A3LD\uD83D\uDD25 | @netishield \u26A1\uFE0F\uD83D\uDEE1\uFE0F\uD83D\uDC7E\uD83C\uDDEB\uD83C\uDDEE",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - de.mobileemdad.top:42542",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDF6A27@oneclickvpnkeys",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - Donald_vpn-3",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @icv2ray",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @AkbarConfig\uD83D\uDC48\u06A9\u0627\u0646\u0641\u06CC\u06AF \u0631\u0648\u0632\u0627\u0646\u0647 \u062F\u0631",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[11]",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC9C @Bluefilter_org | \u06A9\u0627\u0646\u0627\u0644\u0645\u0648\u0646 \uD83E\uDD0D",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDD18 T.me/V2HUBIR | Join Now \u2705\uFE0F",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDDEB\uD83C\uDDEE",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - my.kiomars.shop:6620",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @daredevill_404",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 TCP-None | @Express_alaki | src @V2rayng_Fast",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.109.192.110:55953",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-Reality | @Express_alaki | src @v2nodes",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDDEB\uD83C\uDDEEFinland\u002B-\u003E\u002B\uD83C\uDDE9\uD83C\uDDEAGermany\u002B\u26A1@DeamNet_Proxy",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDC89\uD835\uDC95\uD835\uDC95\uD835\uDC91\uD835\uDC94://\uD835\uDC95.\uD835\uDC8E\uD835\uDC86/\uD835\uDC75\uD835\uDC77\uD835\uDC7D_\uD835\uDC70\uD835\uDC79 \uD83C\uDF1F",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE TCP-Reality | @Express_alaki | src @V2rayProxy",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83E\uDD89@FreeConfigForYou",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDE9\uD83C\uDDEAAll\u00B9 | @BigSmoke_Config",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - de.mobileemdad.top:42542",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @irmeliy | vip | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627 \uD83C\uDF3E",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @vpnbaz \uD83E\uDDF6",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - All-@V2rayAlpha-34",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - TROJAN - \uD83C\uDDF7\uD83C\uDDFARU\u4FC4\u7F57\u65AF",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \u2705@AR14N24b",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Mr_Emaaad\u002B-\u002B\u002B\u0639\u0650\u0645\u0640\u0640\u0670\u0627\u0653\u062F\u002B|\u002BEm\u0653ad",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE - FI - @FreeOnlineVPN",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11637",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - @V2rayNG3",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @meliproxyy",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11519",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - [@ConfigPositive]\u002B",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @Spartan_YT\uD83C\uDDF8\uD83C\uDDEA",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @iP_CF",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @appsooner \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 \uD83D\uDD4A\uFE0F",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - :)-telegram:@set_v2ray",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 67 - FI - VLESS/REALITY/PBK/SID/UTLS - 443",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDEB8 Cephalon_ala-[11]",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u003E\u003E@oneclickvpnkeys::DE",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @V2HUBIR",
-        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDF10 WS-None | @Express_alaki | src @iP_CF",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDC9C @Bluefilter_org | \u06A9\u0627\u0646\u0627\u0644\u0645\u0648\u0646 \uD83E\uDD0D",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 185.109.21.139:443",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - E11",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - UNKNOWN - 95.217.137.22:59917",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u06A9\u0627\u0646\u0627\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645 : Free_VPN_CH@",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - \uD83C\uDF6A38@oneclickvpnkeys",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @icv2ray",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - SS - [@ConfigPositive]\u002B",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - M112",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83C\uDDEB\uD83C\uDDEE 278 - FI - VLESS/REALITY/PBK/SID/VISION/UTLS - 443",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u26A1 @HajmVPN_Config",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDD18 T.me/V2HUBIR | Join Now \u2705\uFE0F",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83E\uDDF6@vpnserverrr",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 65.109.231.154:8880",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - All-@V2rayAlpha-34",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - 95.216.183.164:22222",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - @v2rays_ha 11519",
+        "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - azadiiivpn \uD83C\uDF80",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @vpnplusee_free | \u06A9\u0627\u0646\u0627\u0644 \u0645\u0627",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \uD83D\uDCCA47@oneclickvpnkeys",
         "\uD83C\uDDEB\uD83C\uDDEE Finland - VLESS - \u062A\u0648 \u06A9\u0627\u0646\u0627\u0644 \u0646\u062A\u0648\u0631\u0644\u062F \u0646\u0628\u0627\u0634\u06CC\u062F \u0642\u0637\u0639 \u0645\u06CC\u0634\u0646@networld_vpn",

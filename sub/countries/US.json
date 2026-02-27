@@ -192,13 +192,14 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 45.136.149.145:443",
-      "type": "vless",
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 45.136.149.145:443",
+      "type": "vmess",
       "server": "45.136.149.145",
       "port": 443,
-      "uuid": "eyJhZGQiOiI4LjIxMC4xOTcuMTM4IiwiYWlkIjoiMCIsImFscG4iOiIiLCJmcCI6IiIsImhvc3QiOiIiLCJpZCI6IjUwNzU5NTNiLWNjMWItNGIyYy1lM2Y2LWRmNGNhNmI4ZTExYyIsIm5ldCI6IndzIiwicGF0aCI6Ii8iLCJwb3J0IjoiMTAwNiIsInBzIjoi8J\u002BQrzk3QG9uZWNsaWNrdnBua2V5cyIsInNjeSI6ImF1dG8iLCJzbmkiOiIiLCJ0bHMiOiIiLCJ0eXBlIjoiIiwidiI6IjIifQ==\u003Cbr/\u003Evless",
-      "tls": true,
-      "flow": ""
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 198.71.191.38:443",
@@ -279,10 +280,12 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - UNKNOWN 45.194.53.28:2096",
-      "type": "unknown",
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 45.194.53.28:2096",
+      "type": "ss",
       "server": "45.194.53.28",
-      "port": 2096
+      "port": 2096,
+      "cipher": "aes-256-gcm",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 209.126.84.189:443",
@@ -336,6 +339,15 @@
       "port": 8888,
       "cipher": "aes-256-gcm",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 45.136.149.145:443",
+      "type": "vless",
+      "server": "45.136.149.145",
+      "port": 443,
+      "uuid": "ddb913e5-492f-42e8-baec-93c9c5d333d6",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 142.111.162.39:443",
@@ -1799,6 +1811,14 @@
       "password": ""
     },
     {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 45.136.149.145:443",
+      "type": "ss",
+      "server": "45.136.149.145",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 5.161.157.83:443",
       "type": "vless",
       "server": "5.161.157.83",
@@ -1895,10 +1915,13 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - UNKNOWN 160.153.136.8:2096",
-      "type": "unknown",
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 160.153.136.8:2096",
+      "type": "vless",
       "server": "160.153.136.8",
-      "port": 2096
+      "port": 2096,
+      "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 14.102.228.238:2096",
@@ -2066,10 +2089,13 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - UNKNOWN 72.167.243.8:2096",
-      "type": "unknown",
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 72.167.243.8:2096",
+      "type": "vless",
       "server": "72.167.243.8",
-      "port": 2096
+      "port": 2096,
+      "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 172.233.173.93:443",
@@ -2201,6 +2227,14 @@
       "password": ""
     },
     {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 23.157.40.120:8000",
+      "type": "ss",
+      "server": "23.157.40.120",
+      "port": 8000,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 167.82.92.159:80",
       "type": "ss",
       "server": "167.82.92.159",
@@ -2267,6 +2301,15 @@
       "server": "172.233.160.243",
       "port": 443,
       "uuid": "6fee3115-e2db-4b44-b6f0-68cd4135da2f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 45.194.53.28:2096",
+      "type": "vless",
+      "server": "45.194.53.28",
+      "port": 2096,
+      "uuid": "Telegram\uD83C\uDDE8\uD83C\uDDF3 ",
       "tls": true,
       "flow": ""
     },
@@ -2852,7 +2895,7 @@
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 199.232.0.177:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 140.248.158.132:80",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 198.62.62.38:443",
-        "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 45.136.149.145:443",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 45.136.149.145:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 198.71.191.38:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 199.232.79.229:80",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 172.67.20.220:2096",
@@ -2862,13 +2905,14 @@
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 82.26.93.241:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 199.232.79.229:80",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 135.148.152.98:443",
-        "\uD83C\uDDFA\uD83C\uDDF8 United States - UNKNOWN 45.194.53.28:2096",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 45.194.53.28:2096",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 209.126.84.189:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 199.68.156.38:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 151.101.98.79:80",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 142.248.80.157:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 143.20.236.51:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 69.50.92.111:8888",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 45.136.149.145:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 142.111.162.39:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 64.176.215.70:80",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 198.62.62.235:443",
@@ -3037,6 +3081,7 @@
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 172.234.132.232:10001",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - TROJAN 23.247.137.64:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 199.34.230.38:443",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 45.136.149.145:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 5.161.157.83:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 172.237.128.156:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 50.116.18.83:443",
@@ -3048,7 +3093,7 @@
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 198.12.145.38:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 172.233.183.136:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 172.234.31.30:443",
-        "\uD83C\uDDFA\uD83C\uDDF8 United States - UNKNOWN 160.153.136.8:2096",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 160.153.136.8:2096",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 14.102.228.238:2096",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VMESS 51.81.202.62:80",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 172.233.173.124:443",
@@ -3068,7 +3113,7 @@
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 141.193.213.20:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 172.64.111.69:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 154.53.60.197:80",
-        "\uD83C\uDDFA\uD83C\uDDF8 United States - UNKNOWN 72.167.243.8:2096",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 72.167.243.8:2096",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 172.233.173.93:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 172.233.157.213:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 199.119.137.95:2053",
@@ -3084,6 +3129,7 @@
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 135.84.74.43:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 132.226.85.167:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 209.94.90.38:443",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 23.157.40.120:8000",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 167.82.92.159:80",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 172.233.218.242:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 104.22.62.239:80",
@@ -3092,6 +3138,7 @@
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 151.101.64.155:80",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 199.119.137.95:2053",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 172.233.160.243:443",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 45.194.53.28:2096",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - VLESS 172.236.234.120:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - TROJAN 129.146.254.39:443",
         "\uD83C\uDDFA\uD83C\uDDF8 United States - SS 185.193.48.157:443",

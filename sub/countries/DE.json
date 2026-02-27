@@ -844,10 +844,13 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 5.10.215.8:2096",
-      "type": "unknown",
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 5.10.215.8:2096",
+      "type": "vless",
       "server": "5.10.215.8",
-      "port": 2096
+      "port": 2096,
+      "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 18.199.99.98:443",
@@ -884,10 +887,13 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 31.185.108.8:2096",
-      "type": "unknown",
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 31.185.108.8:2096",
+      "type": "vless",
       "server": "31.185.108.8",
-      "port": 2096
+      "port": 2096,
+      "uuid": "Telegram:",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 77.110.100.122:443",
@@ -1156,10 +1162,14 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 116.203.11.168:2052",
-      "type": "unknown",
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 116.203.11.168:2052",
+      "type": "vmess",
       "server": "116.203.11.168",
-      "port": 2052
+      "port": 2052,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 91.107.159.32:443",
@@ -1523,10 +1533,14 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 91.107.190.249:2095",
-      "type": "unknown",
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 91.107.190.249:2095",
+      "type": "vmess",
       "server": "91.107.190.249",
-      "port": 2095
+      "port": 2095,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 94.156.115.109:443",
@@ -1655,10 +1669,14 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 195.201.250.231:2052",
-      "type": "unknown",
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 195.201.250.231:2052",
+      "type": "vmess",
       "server": "195.201.250.231",
-      "port": 2052
+      "port": 2052,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 3.120.186.36:443",
@@ -2222,10 +2240,13 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 5.10.215.28:2096",
-      "type": "unknown",
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 5.10.215.28:2096",
+      "type": "vless",
       "server": "5.10.215.28",
-      "port": 2096
+      "port": 2096,
+      "uuid": "Telegram\uD83C\uDDE8\uD83C\uDDF3 ",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 57.129.24.131:443",
@@ -2764,10 +2785,14 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 195.201.255.242:2052",
-      "type": "unknown",
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 195.201.255.242:2052",
+      "type": "vmess",
       "server": "195.201.255.242",
-      "port": 2052
+      "port": 2052,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 193.46.81.73:443",
@@ -3566,13 +3591,12 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 185.235.241.99:443",
-      "type": "vless",
+      "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 185.235.241.99:443",
+      "type": "ss",
       "server": "185.235.241.99",
       "port": 443,
-      "uuid": "eyJ2IjogIjIiLCAicHMiOiAidGVsZWdyYW0gXHVkODNkXHVkZTgwIGRhaWx5djJyeSIsICJhZGQiOiAiNTQuMjA2LjE5Mi45IiwgInBvcnQiOiAiMTY0MDciLCAiaWQiOiAiMDhmNDUwMjgtMWRiNi00ZTkzLWJmNTEtZDM0NGI2YzcxZTE5IiwgImFpZCI6ICIwIiwgInNjeSI6ICJhdXRvIiwgIm5ldCI6ICJ0Y3AiLCAidHlwZSI6ICJub25lIiwgImhvc3QiOiAiIiwgInBhdGgiOiAiIiwgInRscyI6ICIiLCAic25pIjogIiIsICJhbHBuIjogIiIsICJmcCI6ICIiLCAiaW5zZWN1cmUiOiAiMCJ9\u003Cbr/\u003Evless",
-      "tls": true,
-      "flow": ""
+      "cipher": "aes-256-gcm",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 57.129.64.163:443",
@@ -3701,12 +3725,12 @@
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 195.245.239.197:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 178.17.58.38:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 3.79.229.48:443",
-        "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 5.10.215.8:2096",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 5.10.215.8:2096",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 18.199.99.98:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 3.120.146.221:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 18.195.116.169:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 138.124.186.52:443",
-        "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 31.185.108.8:2096",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 31.185.108.8:2096",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 77.110.100.122:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 45.83.129.17:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 144.31.17.116:443",
@@ -3737,7 +3761,7 @@
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 18.159.35.41:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 91.99.16.244:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 78.47.131.39:443",
-        "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 116.203.11.168:2052",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 116.203.11.168:2052",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 91.107.159.32:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 193.46.81.73:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 109.120.177.84:443",
@@ -3779,7 +3803,7 @@
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 4.185.113.10:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 5.75.194.45:8443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 3.79.235.30:443",
-        "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 91.107.190.249:2095",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 91.107.190.249:2095",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 94.156.115.109:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 5.254.85.152:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 94.156.102.58:443",
@@ -3794,7 +3818,7 @@
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 159.195.60.150:2053",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 3.71.181.229:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 49.13.74.174:8080",
-        "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 195.201.250.231:2052",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 195.201.250.231:2052",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 3.120.186.36:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 3.121.110.238:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 57.129.47.12:2053",
@@ -3858,7 +3882,7 @@
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 92.118.231.187:8443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 3.64.9.31:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 3.68.220.245:443",
-        "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 5.10.215.28:2096",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 5.10.215.28:2096",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 57.129.24.131:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 159.223.24.65:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 3.125.43.74:443",
@@ -3921,7 +3945,7 @@
         "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 3.120.146.221:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 195.206.242.122:2053",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 91.99.106.117:443",
-        "\uD83C\uDDE9\uD83C\uDDEA Germany - UNKNOWN 195.201.255.242:2052",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 195.201.255.242:2052",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 193.46.81.73:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 62.141.42.201:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 128.140.49.29:443",
@@ -4013,7 +4037,7 @@
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 95.128.157.251:8443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 78.47.131.39:8443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 185.235.241.117:443",
-        "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 185.235.241.99:443",
+        "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 185.235.241.99:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VMESS 57.129.64.163:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - VLESS 91.98.153.140:443",
         "\uD83C\uDDE9\uD83C\uDDEA Germany - SS 185.235.241.67:443"

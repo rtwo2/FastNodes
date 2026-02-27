@@ -21,10 +21,13 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - UNKNOWN 45.12.30.28:2096",
-      "type": "unknown",
+      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.12.30.28:2096",
+      "type": "vless",
       "server": "45.12.30.28",
-      "port": 2096
+      "port": 2096,
+      "uuid": "Telegram\uD83C\uDDE8\uD83C\uDDF3 ",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 45.12.30.95:443",
@@ -63,15 +66,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.85.118.88:443",
-      "type": "vless",
-      "server": "45.85.118.88",
-      "port": 443,
-      "uuid": "eyJhZGQiOiIxMTYuMjAzLjEuMTk3IiwiYWlkIjoiMCIsImFscG4iOiIiLCJmcCI6IiIsImhvc3QiOiJibWkuaXIiLCJpZCI6IjE4NDJiNjk2LWZiNzktNGQ3NC05NGI4LThmYWY1MzdkN2VjYiIsIm5ldCI6InRjcCIsInBhdGgiOiIvIiwicG9ydCI6Ijg0NDMiLCJwcyI6IkBDb25maWdWMlJheU5HIiwic2N5IjoiYXV0byIsInNuaSI6IiIsInRscyI6IiIsInR5cGUiOiJodHRwIiwidiI6IjIifQ==vmess",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 45.85.119.138:2096",
       "type": "ss",
       "server": "45.85.119.138",
@@ -97,13 +91,14 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.85.118.241:443",
-      "type": "vless",
+      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - VMESS 45.85.118.241:443",
+      "type": "vmess",
       "server": "45.85.118.241",
       "port": 443,
-      "uuid": "eyJhZGQiOiI0NS44NS4xMTguMSIsImFpZCI6IjAiLCJhbHBuIjoiaDIsaHR0cC8xLjEiLCJmcCI6ImVkZ2UiLCJob3N0IjoiTGlsbGUudjJyYXkub25saW5lIiwiaWQiOiJBNTlFMzIwQy1CQUM2LTQ1RTMtOEEyNy0xNTE4NjEwNzA4RDAiLCJuZXQiOiJ3cyIsInBhdGgiOiIvc3BlZWR0ZXN0IiwicG9ydCI6IjQ0MyIsInBzIjoi2qnYp9mG2KfZhCDZhdinIEB2cG5tYXNpIiwic2N5IjoiYXV0byIsInNuaSI6IkxpbGxlLnYycmF5Lm9ubGluZSIsInRscyI6InRscyIsInR5cGUiOiIiLCJ2IjoiMiJ9vmess",
-      "tls": true,
-      "flow": ""
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - VMESS 45.85.118.88:8443",
@@ -174,16 +169,15 @@
       "proxies": [
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 188.241.241.28:2053",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VMESS 45.85.119.48:2053",
-        "\uD83C\uDDF7\uD83C\uDDF4 Romania - UNKNOWN 45.12.30.28:2096",
+        "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.12.30.28:2096",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 45.12.30.95:443",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.85.118.209:443",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VMESS 45.85.118.88:443",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.85.119.138:2096",
-        "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.85.118.88:443",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 45.85.119.138:2096",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.85.119.120:2083",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 188.241.241.28:2053",
-        "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.85.118.241:443",
+        "\uD83C\uDDF7\uD83C\uDDF4 Romania - VMESS 45.85.118.241:443",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VMESS 45.85.118.88:8443",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - TROJAN 45.85.119.179:8443",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.85.119.120:443",

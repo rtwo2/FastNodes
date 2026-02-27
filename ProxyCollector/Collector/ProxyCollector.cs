@@ -17,7 +17,10 @@ namespace ProxyCollector.Collector
     public class ProxyCollector
     {
         private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(30) };
-        private readonly IPToCountryResolver _resolver = new();
+
+        // Lazy resolver — created only after downloads finish
+        private IPToCountryResolver? _resolver;
+        private IPToCountryResolver Resolver => _resolver ??= new IPToCountryResolver();
 
         private static readonly HashSet<string> ValidProtocols = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -50,7 +53,7 @@ namespace ProxyCollector.Collector
 
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
 
-        // Static common proxy ports (no live source — extend here if needed)
+        // Static common proxy ports whitelist (no download needed — extend here if you want)
         private static readonly HashSet<int> CommonProxyPorts = new()
         {
             80, 443, 8080, 8443, 2052, 2053, 2082, 2083, 2086, 2095, 2096,
@@ -190,7 +193,10 @@ namespace ProxyCollector.Collector
 
         public async Task StartAsync()
         {
-            // Fresh downloads for all online-based checks
+            // ──────────────────────────────────────────────────────────────
+            // ALL DOWNLOADS FIRST — before resolver is created/used
+            // This prevents the "file in use" lock error
+            // ──────────────────────────────────────────────────────────────
             await DownloadFreshGeoIP(_http);
             await DownloadFreshFireHOLBlacklist(_http);
             await DownloadFreshBogons(_http);
@@ -280,7 +286,7 @@ namespace ProxyCollector.Collector
                 }
 
                 string countryCode = "XX";
-                var info = _resolver.GetCountry(ipOrHost);
+                var info = Resolver.GetCountry(ipOrHost);   // ← using lazy resolver
                 countryCode = info?.CountryCode?.ToUpperInvariant() ?? "XX";
 
                 string lowerHost = ipOrHost.ToLowerInvariant();

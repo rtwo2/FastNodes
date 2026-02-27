@@ -781,76 +781,87 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 43.201.29.47:443",
-      "type": "ss",
-      "server": "43.201.29.47",
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 3.39.234.134:443",
+      "type": "vless",
+      "server": "3.39.234.134",
       "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
+      "uuid": "4c26ebc3-7784-46d8-b52a-7b0ccae6f4b4",
+      "tls": true,
+      "flow": ""
     },
     {
-      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 52.79.157.153:443",
-      "type": "ss",
-      "server": "52.79.157.153",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - TROJAN 152.70.249.67:443",
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - TROJAN 182.209.240.254:443",
       "type": "trojan",
-      "server": "152.70.249.67",
+      "server": "182.209.240.254",
       "port": 443,
-      "password": "NISHIKUITAN222",
+      "password": "6455f944-7c07-4ab0-b88f-440e581f41d9",
       "tls": true
     },
     {
-      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 13.125.51.118:443",
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 43.201.6.50:80",
       "type": "ss",
-      "server": "13.125.51.118",
+      "server": "43.201.6.50",
+      "port": 80,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 47.80.12.87:443",
+      "type": "ss",
+      "server": "47.80.12.87",
       "port": 443,
       "cipher": "aes-256-gcm",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 13.125.37.249:443",
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 158.179.173.208:443",
+      "type": "vless",
+      "server": "158.179.173.208",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 20.47.90.83:443",
+      "type": "vless",
+      "server": "20.47.90.83",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 47.80.13.85:443",
       "type": "ss",
-      "server": "13.125.37.249",
+      "server": "47.80.13.85",
       "port": 443,
       "cipher": "aes-256-gcm",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 3.35.137.32:443",
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 152.69.227.72:8443",
       "type": "ss",
-      "server": "3.35.137.32",
-      "port": 443,
+      "server": "152.69.227.72",
+      "port": 8443,
       "cipher": "aes-256-gcm",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - TROJAN 43.202.142.243:443",
-      "type": "trojan",
-      "server": "43.202.142.243",
-      "port": 443,
-      "password": "3747000103274291200",
-      "tls": true
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 146.56.119.234:8443",
+      "type": "ss",
+      "server": "146.56.119.234",
+      "port": 8443,
+      "cipher": "aes-256-gcm",
+      "password": ""
     },
     {
-      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - TROJAN 13.125.25.144:443",
-      "type": "trojan",
-      "server": "13.125.25.144",
-      "port": 443,
-      "password": "3782591447421952000",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - TROJAN 13.125.85.5:443",
-      "type": "trojan",
-      "server": "13.125.85.5",
-      "port": 443,
-      "password": "3747000103274291200",
-      "tls": true
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 168.107.53.214:8443",
+      "type": "ss",
+      "server": "168.107.53.214",
+      "port": 8443,
+      "cipher": "aes-256-gcm",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -951,15 +962,16 @@
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 152.69.227.72:8443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 54.180.161.186:443",
         "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 129.154.201.131:443",
-        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 43.201.29.47:443",
-        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 52.79.157.153:443",
-        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - TROJAN 152.70.249.67:443",
-        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 13.125.51.118:443",
-        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 13.125.37.249:443",
-        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 3.35.137.32:443",
-        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - TROJAN 43.202.142.243:443",
-        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - TROJAN 13.125.25.144:443",
-        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - TROJAN 13.125.85.5:443"
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 3.39.234.134:443",
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - TROJAN 182.209.240.254:443",
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 43.201.6.50:80",
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 47.80.12.87:443",
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 158.179.173.208:443",
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - VLESS 20.47.90.83:443",
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 47.80.13.85:443",
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 152.69.227.72:8443",
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 146.56.119.234:8443",
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SS 168.107.53.214:8443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

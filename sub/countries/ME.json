@@ -1,0 +1,66 @@
+{
+  "name": "FastNodes ME",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDEA Montenegro - VLESS 92.42.96.217:2053",
+      "type": "vless",
+      "server": "92.42.96.217",
+      "port": 2053,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDEA Montenegro - VLESS 92.42.96.223:443",
+      "type": "vless",
+      "server": "92.42.96.223",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDEA Montenegro - VLESS 92.42.96.233:443",
+      "type": "vless",
+      "server": "92.42.96.233",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDEA Montenegro - SS 92.42.96.217:2053",
+      "type": "ss",
+      "server": "92.42.96.217",
+      "port": 2053,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDEA Montenegro - SS 92.42.96.233:443",
+      "type": "ss",
+      "server": "92.42.96.233",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDF2\uD83C\uDDEA Montenegro - VLESS 92.42.96.217:2053",
+        "\uD83C\uDDF2\uD83C\uDDEA Montenegro - VLESS 92.42.96.223:443",
+        "\uD83C\uDDF2\uD83C\uDDEA Montenegro - VLESS 92.42.96.233:443",
+        "\uD83C\uDDF2\uD83C\uDDEA Montenegro - SS 92.42.96.217:2053",
+        "\uD83C\uDDF2\uD83C\uDDEA Montenegro - SS 92.42.96.233:443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

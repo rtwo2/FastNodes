@@ -239,12 +239,71 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN 95.110.142.205:443",
-      "type": "trojan",
-      "server": "95.110.142.205",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 57.131.38.150:443",
+      "type": "vless",
+      "server": "57.131.38.150",
       "port": 443,
-      "password": "3774827088566296576",
-      "tls": true
+      "uuid": "c28db9f0-109a-424d-82ac-f5d6b4fd5515",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 80.211.236.42:443",
+      "type": "vless",
+      "server": "80.211.236.42",
+      "port": 443,
+      "uuid": "29632408-8a2f-4bfc-a7b3-c8c8cdb220ac",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 80.211.236.167:443",
+      "type": "vless",
+      "server": "80.211.236.167",
+      "port": 443,
+      "uuid": "a3dd7bef-f742-4ee4-897e-0d91629571bb",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 95.141.35.101:443",
+      "type": "ss",
+      "server": "95.141.35.101",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 172.232.192.163:8880",
+      "type": "ss",
+      "server": "172.232.192.163",
+      "port": 8880,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 80.211.236.167:443",
+      "type": "ss",
+      "server": "80.211.236.167",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 80.211.141.177:443",
+      "type": "ss",
+      "server": "80.211.141.177",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 151.101.241.242:80",
+      "type": "ss",
+      "server": "151.101.241.242",
+      "port": 80,
+      "cipher": "aes-256-gcm",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -279,7 +338,14 @@
         "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 151.101.242.172:80",
         "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 146.75.55.82:80",
         "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 146.75.54.228:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - TROJAN 95.110.142.205:443"
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 57.131.38.150:443",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 80.211.236.42:443",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 80.211.236.167:443",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 95.141.35.101:443",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 172.232.192.163:8880",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 80.211.236.167:443",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 80.211.141.177:443",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 151.101.241.242:80"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

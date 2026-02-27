@@ -235,6 +235,66 @@
       "uuid": "f64bdc57-0f54-4705-bf75-cfd646d98c06",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.133.65.202:8443",
+      "type": "vless",
+      "server": "195.133.65.202",
+      "port": 8443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.133.65.48:443",
+      "type": "vless",
+      "server": "195.133.65.48",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 194.87.24.48:8443",
+      "type": "vless",
+      "server": "194.87.24.48",
+      "port": 8443,
+      "uuid": "010c8bf7-0a43-404f-a6c5-2427acb4d476",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 212.193.4.209:443",
+      "type": "vless",
+      "server": "212.193.4.209",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 194.87.24.48:8443",
+      "type": "ss",
+      "server": "194.87.24.48",
+      "port": 8443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.133.65.48:443",
+      "type": "ss",
+      "server": "195.133.65.48",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 212.193.4.209:443",
+      "type": "ss",
+      "server": "212.193.4.209",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -268,7 +328,14 @@
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.85.23.54:2053",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 193.124.18.168:8880",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.85.23.138:2096",
-        "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 193.124.18.13:443"
+        "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 193.124.18.13:443",
+        "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.133.65.202:8443",
+        "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.133.65.48:443",
+        "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 194.87.24.48:8443",
+        "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 212.193.4.209:443",
+        "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 194.87.24.48:8443",
+        "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.133.65.48:443",
+        "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 212.193.4.209:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

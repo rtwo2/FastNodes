@@ -88,6 +88,23 @@
       "uuid": "157448af-8ecf-4075-a9e9-b23a6a94899b",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF4 Norway - VLESS 217.170.206.157:443",
+      "type": "vless",
+      "server": "217.170.206.157",
+      "port": 443,
+      "uuid": "c310c80c-1e60-42a7-8b01-ca1123df0c16",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 217.170.199.132:443",
+      "type": "ss",
+      "server": "217.170.199.132",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -104,7 +121,9 @@
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - VLESS 46.29.238.196:443",
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 107.174.114.71:443",
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - TROJAN 5.182.34.216:2096",
-        "\uD83C\uDDF3\uD83C\uDDF4 Norway - VLESS 95.173.205.70:8443"
+        "\uD83C\uDDF3\uD83C\uDDF4 Norway - VLESS 95.173.205.70:8443",
+        "\uD83C\uDDF3\uD83C\uDDF4 Norway - VLESS 217.170.206.157:443",
+        "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 217.170.199.132:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

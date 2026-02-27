@@ -150,6 +150,24 @@
       "uuid": "2add6241-8fe8-3922-8347-da25e8ced601",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 203.69.248.40:10443",
+      "type": "vless",
+      "server": "203.69.248.40",
+      "port": 10443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 220.130.58.230:443",
+      "type": "vless",
+      "server": "220.130.58.230",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
     }
   ],
   "proxy_groups": [
@@ -174,7 +192,9 @@
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.250.152.209:8443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 61.221.189.241:8443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 61.220.126.180:443",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 103.137.62.229:443"
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 103.137.62.229:443",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 203.69.248.40:10443",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 220.130.58.230:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

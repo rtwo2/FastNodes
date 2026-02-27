@@ -244,6 +244,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.198:8443",
+      "type": "vless",
+      "server": "217.13.104.198",
+      "port": 8443,
+      "uuid": "7837d5c4-b23f-44fc-b2e7-3bd478bbce41",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.128:443",
       "type": "vless",
       "server": "217.13.104.128",
@@ -260,6 +269,23 @@
       "uuid": "a8cc4860-2daa-a943-a2ba-d2ea31251d11",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.97.198:8443",
+      "type": "vless",
+      "server": "87.229.97.198",
+      "port": 8443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - SS 79.127.133.79:8443",
+      "type": "ss",
+      "server": "79.127.133.79",
+      "port": 8443,
+      "cipher": "aes-256-gcm",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -294,8 +320,11 @@
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.149:443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.154:443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.130:443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.198:8443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.128:443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.100.155:80"
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.100.155:80",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.97.198:8443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - SS 79.127.133.79:8443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

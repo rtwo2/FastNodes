@@ -415,28 +415,63 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - TROJAN 185.67.125.78:443",
-      "type": "trojan",
-      "server": "185.67.125.78",
-      "port": 443,
-      "password": "3774827088566296576",
-      "tls": true
+      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - SOCKS5 64.227.131.240:1080",
+      "type": "socks5",
+      "server": "64.227.131.240",
+      "port": 1080
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - TROJAN 185.67.125.177:443",
-      "type": "trojan",
-      "server": "185.67.125.177",
-      "port": 443,
-      "password": "3747000103274291200",
-      "tls": true
+      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.89.105.56:8443",
+      "type": "vless",
+      "server": "45.89.105.56",
+      "port": 8443,
+      "uuid": "05b544a4-d479-4ba4-8208-950bd4411453",
+      "tls": true,
+      "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - TROJAN 185.67.125.147:443",
-      "type": "trojan",
-      "server": "185.67.125.147",
+      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 13.200.192.197:443",
+      "type": "vless",
+      "server": "13.200.192.197",
       "port": 443,
-      "password": "3747000103274291200",
-      "tls": true
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 139.84.163.149:443",
+      "type": "vless",
+      "server": "139.84.163.149",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 35.154.123.52:443",
+      "type": "vless",
+      "server": "35.154.123.52",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 98.70.26.236:443",
+      "type": "vless",
+      "server": "98.70.26.236",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - SS 194.61.31.126:443",
+      "type": "ss",
+      "server": "194.61.31.126",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -491,9 +526,13 @@
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 103.245.228.63:8880",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 144.24.126.26:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 103.245.228.238:2096",
-        "\uD83C\uDDEE\uD83C\uDDF3 India - TROJAN 185.67.125.78:443",
-        "\uD83C\uDDEE\uD83C\uDDF3 India - TROJAN 185.67.125.177:443",
-        "\uD83C\uDDEE\uD83C\uDDF3 India - TROJAN 185.67.125.147:443"
+        "\uD83C\uDDEE\uD83C\uDDF3 India - SOCKS5 64.227.131.240:1080",
+        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.89.105.56:8443",
+        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 13.200.192.197:443",
+        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 139.84.163.149:443",
+        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 35.154.123.52:443",
+        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 98.70.26.236:443",
+        "\uD83C\uDDEE\uD83C\uDDF3 India - SS 194.61.31.126:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

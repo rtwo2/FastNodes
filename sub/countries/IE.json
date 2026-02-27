@@ -131,13 +131,28 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS 199.232.26.64:443",
-      "type": "vless",
-      "server": "199.232.26.64",
+      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS 34.244.73.113:443",
+      "type": "ss",
+      "server": "34.244.73.113",
       "port": 443,
-      "uuid": "89b3cbba-e6ac-485a-9481-976a0415eab9",
-      "tls": true,
-      "flow": ""
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS 34.251.108.96:443",
+      "type": "ss",
+      "server": "34.251.108.96",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS 34.249.82.191:443",
+      "type": "ss",
+      "server": "34.249.82.191",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -160,7 +175,9 @@
         "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS 38.180.152.210:8881",
         "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS 37.0.6.46:443",
         "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS 3.249.170.171:443",
-        "\uD83C\uDDEE\uD83C\uDDEA Ireland - VLESS 199.232.26.64:443"
+        "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS 34.244.73.113:443",
+        "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS 34.251.108.96:443",
+        "\uD83C\uDDEE\uD83C\uDDEA Ireland - SS 34.249.82.191:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

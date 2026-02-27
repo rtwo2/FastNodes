@@ -32,10 +32,34 @@
       "port": 443
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - HYSTERIA2 210.231.184.93:4433",
-      "type": "hysteria2",
-      "server": "210.231.184.93",
-      "port": 4433
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - HY2 160.16.104.77:443",
+      "type": "hy2",
+      "server": "160.16.104.77",
+      "port": 443
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - HY2 66.245.192.15:443",
+      "type": "hy2",
+      "server": "66.245.192.15",
+      "port": 443
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - HY2 81.168.83.89:2083",
+      "type": "hy2",
+      "server": "81.168.83.89",
+      "port": 2083
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - HY2 43.153.7.213:8443",
+      "type": "hy2",
+      "server": "43.153.7.213",
+      "port": 8443
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - HY2 31.58.214.130:2083",
+      "type": "hy2",
+      "server": "31.58.214.130",
+      "port": 2083
     }
   ],
   "proxy_groups": [
@@ -48,7 +72,11 @@
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - HY2 160.16.143.152:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - HY2 160.16.208.122:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - HYSTERIA2 152.69.220.212:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - HYSTERIA2 210.231.184.93:4433"
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - HY2 160.16.104.77:443",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - HY2 66.245.192.15:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - HY2 81.168.83.89:2083",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - HY2 43.153.7.213:8443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - HY2 31.58.214.130:2083"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

@@ -43,6 +43,22 @@
       "port": 2096,
       "password": "ttfang",
       "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDFF Belize - SS 45.135.235.238:2096",
+      "type": "ss",
+      "server": "45.135.235.238",
+      "port": 2096,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDFF Belize - SS 202.181.177.178:443",
+      "type": "ss",
+      "server": "202.181.177.178",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -54,7 +70,9 @@
         "\uD83C\uDDE7\uD83C\uDDFF Belize - VLESS 45.135.235.238:2096",
         "\uD83C\uDDE7\uD83C\uDDFF Belize - VLESS 45.135.235.247:8880",
         "\uD83C\uDDE7\uD83C\uDDFF Belize - TROJAN 45.135.235.196:443",
-        "\uD83C\uDDE7\uD83C\uDDFF Belize - TROJAN 45.135.235.216:2096"
+        "\uD83C\uDDE7\uD83C\uDDFF Belize - TROJAN 45.135.235.216:2096",
+        "\uD83C\uDDE7\uD83C\uDDFF Belize - SS 45.135.235.238:2096",
+        "\uD83C\uDDE7\uD83C\uDDFF Belize - SS 202.181.177.178:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Net;
 using ProxyCollector.Configuration;
-using ProxyCollector.Services;           // ← this was missing / removed → added back
+using ProxyCollector.Services;
 
 namespace ProxyCollector.Collector
 {
@@ -25,7 +25,7 @@ namespace ProxyCollector.Collector
             "vmess", "vless", "trojan", "ss", "shadowsocks", "hysteria2", "hy2", "tuic", "socks", "socks5", "anytls"
         };
 
-        // Expanded country flag map
+        // Expanded country flag map – DUPLICATE "KZ" removed
         private static readonly Dictionary<string, string> Flags = new(StringComparer.OrdinalIgnoreCase)
         {
             {"AF", "🇦🇫"}, {"AL", "🇦🇱"}, {"DZ", "🇩🇿"}, {"AR", "🇦🇷"}, {"AM", "🇦🇲"},
@@ -34,14 +34,15 @@ namespace ProxyCollector.Collector
             {"CO", "🇨🇴"}, {"HR", "🇭🇷"}, {"CZ", "🇨🇿"}, {"DK", "🇩🇰"}, {"EG", "🇪🇬"},
             {"FI", "🇫🇮"}, {"FR", "🇫🇷"}, {"DE", "🇩🇪"}, {"GR", "🇬🇷"}, {"HK", "🇭🇰"},
             {"HU", "🇭🇺"}, {"IN", "🇮🇳"}, {"ID", "🇮🇩"}, {"IR", "🇮🇷"}, {"IE", "🇮🇪"},
-            {"IL", "🇮🇱"}, {"IT", "🇮🇹"}, {"JP", "🇯🇵"}, {"KZ", "🇰🇿"}, {"KR", "🇰🇷"},
+            {"IL", "🇮🇱"}, {"IT", "🇮🇹"}, {"JP", "🇯🇵"}, {"KR", "🇰🇷"},
             {"MY", "🇲🇾"}, {"MX", "🇲🇽"}, {"NL", "🇳🇱"}, {"NZ", "🇳🇿"}, {"NO", "🇳🇴"},
             {"PK", "🇵🇰"}, {"PH", "🇵🇭"}, {"PL", "🇵🇱"}, {"PT", "🇵🇹"}, {"RU", "🇷🇺"},
             {"SA", "🇸🇦"}, {"RS", "🇷🇸"}, {"SG", "🇸🇬"}, {"ZA", "🇿🇦"}, {"ES", "🇪🇸"},
             {"SE", "🇸🇪"}, {"CH", "🇨🇭"}, {"TH", "🇹🇭"}, {"TR", "🇹🇷"}, {"UA", "🇺🇦"},
             {"GB", "🇬🇧"}, {"US", "🇺🇸"}, {"VN", "🇻🇳"}, {"TW", "🇹🇼"}, {"LV", "🇱🇻"},
             {"LT", "🇱🇹"}, {"EE", "🇪🇪"}, {"MD", "🇲🇩"}, {"CY", "🇨🇾"}, {"GE", "🇬🇪"},
-            {"KZ", "🇰🇿"}, {"UZ", "🇺🇿"}, {"KG", "🇰🇬"}, {"TJ", "🇹🇯"}, {"TM", "🇹🇲"}
+            {"KZ", "🇰🇿"},   // ← only once
+            {"UZ", "🇺🇿"}, {"KG", "🇰🇬"}, {"TJ", "🇹🇯"}, {"TM", "🇹🇲"}
         };
 
         private static readonly string TestUrl = "http://cp.cloudflare.com/generate_204";
@@ -348,13 +349,6 @@ namespace ProxyCollector.Collector
                 _ => "Unknown"
             };
         }
-
-        // ──────────────────────────────────────────────────────────────
-        // The methods below are unchanged from your original version
-        // (GenerateBestResultsAsync, IsProxyAliveAsync, TestProxyLatencyAsync,
-        //  NormalizeProto, SaveClashJson, GenerateClashProxy, RenameRemarkInLink,
-        //  ParseProxyLine, DecodeBase64)
-        // ──────────────────────────────────────────────────────────────
 
         private async Task GenerateBestResultsAsync(List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)> proxies)
         {

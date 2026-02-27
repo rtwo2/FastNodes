@@ -17,7 +17,6 @@ namespace ProxyCollector.Collector
     public class ProxyCollector
     {
         private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(30) };
-
         private IPToCountryResolver? _resolver;
         private IPToCountryResolver Resolver => _resolver ??= new IPToCountryResolver();
 
@@ -31,7 +30,7 @@ namespace ProxyCollector.Collector
             {"AD", "🇦🇩"}, {"AE", "🇦🇪"}, {"AF", "🇦🇫"}, {"AG", "🇦🇬"}, {"AI", "🇦🇮"},
             {"AL", "🇦🇱"}, {"AM", "🇦🇲"}, {"AO", "🇦🇴"}, {"AQ", "🇦🇶"}, {"AR", "🇦🇷"},
             {"AS", "🇦🇸"}, {"AT", "🇦🇹"}, {"AU", "🇦🇺"}, {"AW", "🇦🇼"}, {"AX", "🇦🇽"},
-            {"AZ", "🇦🇿"}, {"BA", "🇧🇦"}, {"BB", "🇧🇧"}, {"BD", "🇧🇩"}, {"BE", "🇧🇪"},
+            {"AZ", "🇦🇿"}, {"BA", "🇧🇦"}, {"BB", "🇧🇭"}, {"BD", "🇧🇩"}, {"BE", "🇧🇪"},
             {"BF", "🇧🇫"}, {"BG", "🇧🇬"}, {"BH", "🇧🇭"}, {"BI", "🇧🇮"}, {"BJ", "🇧🇯"},
             {"BL", "🇧🇱"}, {"BM", "🇧🇲"}, {"BN", "🇧🇳"}, {"BO", "🇧🇴"}, {"BQ", "🇧🇶"},
             {"BR", "🇧🇷"}, {"BS", "🇧🇸"}, {"BT", "🇧🇹"}, {"BV", "🇧🇻"}, {"BW", "🇧🇼"},
@@ -82,8 +81,8 @@ namespace ProxyCollector.Collector
 
         private static readonly string TestUrl = "http://cp.cloudflare.com/generate_204";
         private const int MaxBestResults = 500;
-        private const int TestTimeoutMs = 12000;          // ← increased to 12 seconds for better accuracy
-        private const int AliveCheckTimeoutMs = 4000;     // ← increased to 4 seconds
+        private const int TestTimeoutMs = 12000; // Increased for accuracy
+        private const int AliveCheckTimeoutMs = 4000; // Increased for accuracy
 
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
 
@@ -213,7 +212,6 @@ namespace ProxyCollector.Collector
             byte[] ipB = ip.GetAddressBytes();
             byte[] netB = net.GetAddressBytes();
             if (ipB.Length != netB.Length) return false;
-
             int bits = mask;
             for (int i = 0; i < ipB.Length && bits > 0; i++)
             {
@@ -229,9 +227,7 @@ namespace ProxyCollector.Collector
             await DownloadFreshGeoIP(_http);
             await DownloadFreshFireHOLBlacklist(_http);
             await DownloadFreshBogons(_http);
-
             LoadAllBlacklists();
-
             Console.WriteLine("🚀 ProxyCollector started - FastNodes fork");
             Console.WriteLine("----------------------------------------");
             await RunFullCollectionMode();
@@ -241,7 +237,6 @@ namespace ProxyCollector.Collector
         {
             var urls = CollectorConfig.Instance.Sources;
             var rawLines = new List<string>();
-
             Console.WriteLine("🔍 Fetching proxy lists from sources...");
             foreach (var url in urls)
             {
@@ -260,18 +255,15 @@ namespace ProxyCollector.Collector
                     Console.WriteLine($"Failed to fetch {url}: {ex.Message}");
                 }
             }
-
             Console.WriteLine($"\n📊 Total raw lines collected: {rawLines.Count}");
             var tempDir = Path.Combine(Directory.GetCurrentDirectory(), "sub", "temp");
             Directory.CreateDirectory(tempDir);
             var tempPath = Path.Combine(tempDir, "temp_everything.txt");
             await File.WriteAllLinesAsync(tempPath, rawLines);
             Console.WriteLine($"💾 Saved raw → {tempPath} ({rawLines.Count} lines)");
-
             var renamedProxies = new List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)>();
             var seenNormalized = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             int skippedNumbered = 0, parseFail = 0, skippedLongFilename = 0, skippedBlacklisted = 0;
-
             Console.WriteLine("\n🧹 Parsing + strict deduplicating + forced clean renaming...");
             int processed = 0;
             foreach (var line in rawLines)
@@ -279,45 +271,36 @@ namespace ProxyCollector.Collector
                 processed++;
                 if (processed % 1000 == 0)
                     Console.WriteLine($" {processed}/{rawLines.Count} ({Math.Round((double)processed / rawLines.Count * 100, 1)}%)");
-
                 var trimmed = line.Trim();
                 if (string.IsNullOrWhiteSpace(trimmed)) continue;
-                if (Regex.IsMatch(trimmed, @"\s*\(\d+\)\s*$"))
+                if (Regex.IsMatch(trimmed, @"\s*\(\d{2,}\)\s*$"))  // Light: only skip (10+)
                 {
                     skippedNumbered++;
                     continue;
                 }
-
-                string cleaned = Regex.Replace(trimmed, @"^(?:Telegram\s*[:=]?\s*@[^@]+@|Telegram\s*-\s*|Telegram\s+@|t\.me\/[^@]+@)", "", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
-                var (proto, serverPort, _) = ParseProxyLine(cleaned);
-                if (string.IsNullOrEmpty(serverPort) || !serverPort.Contains(":")) 
+                var (proto, serverPort, _) = ParseProxyLine(trimmed);  // Use trimmed directly (no aggressive prefix strip)
+                if (string.IsNullOrEmpty(serverPort) || !serverPort.Contains(":"))
                 {
                     parseFail++;
                     continue;
                 }
-
                 var parts = serverPort.Split(':', StringSplitOptions.RemoveEmptyEntries);
                 if (parts.Length < 2) continue;
                 string ipOrHost = parts[0];
                 string portStr = parts[1];
-
-                if (!int.TryParse(portStr, out int port) || !CommonProxyPorts.Contains(port))
+                if (!int.TryParse(portStr, out int port))  // Removed CommonProxyPorts filter
                 {
                     parseFail++;
                     continue;
                 }
-
                 if (IsBlacklisted(ipOrHost))
                 {
                     skippedBlacklisted++;
                     continue;
                 }
-
                 string countryCode = "XX";
                 var info = Resolver.GetCountry(ipOrHost);
                 countryCode = info?.CountryCode?.ToUpperInvariant() ?? "XX";
-
                 string lowerHost = ipOrHost.ToLowerInvariant();
                 if (countryCode == "XX")
                 {
@@ -343,48 +326,36 @@ namespace ProxyCollector.Collector
                         _ => "XX"
                     };
                 }
-
                 string flag = Flags.TryGetValue(countryCode, out var f) ? f : "🌍";
                 string countryDisplay = info?.CountryName ?? GetCountryNameFromCode(countryCode);
-
                 string cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} {ipOrHost}:{portStr}";
-
-                var renamedLink = RenameRemarkInLink(cleaned, cleanRemark, proto);
-
+                var renamedLink = RenameRemarkInLink(trimmed, cleanRemark, proto);  // Use trimmed (keeps more original)
                 string dedupKey = $"{proto.ToLowerInvariant()}:{serverPort}#{cleanRemark.Replace(" ", "").ToLowerInvariant()}";
-
                 if (seenNormalized.Add(dedupKey))
                 {
-                    object clashProxy = GenerateClashProxy(proto, serverPort, cleaned, cleanRemark);
+                    object clashProxy = GenerateClashProxy(proto, serverPort, trimmed, cleanRemark);
                     renamedProxies.Add((renamedLink, proto, countryCode, serverPort, cleanRemark, clashProxy));
                 }
             }
-
             Console.WriteLine($"Finished → {renamedProxies.Count} unique (dupes: {parseFail}, numbered: {skippedNumbered}, blacklisted: {skippedBlacklisted}, long fn: {skippedLongFilename})");
-
             var sub = Path.Combine(Directory.GetCurrentDirectory(), "sub");
             var protocolsDir = Path.Combine(sub, "protocols");
             var countriesDir = Path.Combine(sub, "countries");
             var bestDir = Path.Combine(sub, "Best-Results");
-
             Directory.CreateDirectory(sub);
             Directory.CreateDirectory(protocolsDir);
             Directory.CreateDirectory(countriesDir);
             Directory.CreateDirectory(bestDir);
-
             var allPath = Path.Combine(sub, "everything.txt");
             await File.WriteAllLinesAsync(allPath, renamedProxies.Select(x => x.Link));
             Console.WriteLine($"Saved everything.txt ({renamedProxies.Count})");
-
             await SaveClashJson(Path.Combine(sub, "everything.json"), renamedProxies, "FastNodes Everything");
             Console.WriteLine("Saved everything.json");
-
             Console.WriteLine("By protocol...");
             foreach (var g in renamedProxies.GroupBy(x => NormalizeProto(x.Proto)))
             {
                 var key = g.Key.ToLowerInvariant();
                 if (key == "unknown" && g.Count() < 10) continue;
-
                 string safeKey = key switch
                 {
                     var k when k.Contains("vmess") => "vmess",
@@ -395,7 +366,6 @@ namespace ProxyCollector.Collector
                     var k when k.Contains("tuic") => "tuic",
                     _ => key.Length > 20 ? key.Substring(0, 20) : key
                 };
-
                 var txt = Path.Combine(protocolsDir, $"{safeKey}.txt");
                 try
                 {
@@ -407,11 +377,9 @@ namespace ProxyCollector.Collector
                     skippedLongFilename++;
                     Console.WriteLine($"Skipped long filename: {key} ({g.Count()})");
                 }
-
                 var json = Path.Combine(protocolsDir, $"{safeKey}.json");
                 await SaveClashJson(json, g.ToList(), $"FastNodes {safeKey.ToUpper()}");
             }
-
             Console.WriteLine("By country...");
             foreach (var g in renamedProxies.GroupBy(x => x.CountryCode))
             {
@@ -419,11 +387,9 @@ namespace ProxyCollector.Collector
                 var txt = Path.Combine(countriesDir, $"{g.Key}.txt");
                 await File.WriteAllLinesAsync(txt, g.Select(x => x.Link));
                 Console.WriteLine($" → {txt} ({g.Count()})");
-
                 var json = Path.Combine(countriesDir, $"{g.Key}.json");
                 await SaveClashJson(json, g.ToList(), $"FastNodes {g.Key}");
             }
-
             var unknowns = renamedProxies.Where(p => !ValidProtocols.Contains(p.Proto)).Select(p => p.Link).ToList();
             if (unknowns.Any())
             {
@@ -431,7 +397,6 @@ namespace ProxyCollector.Collector
                 await File.WriteAllLinesAsync(unknownPath, unknowns);
                 Console.WriteLine($" → {unknownPath} ({unknowns.Count})");
             }
-
             await GenerateBestResultsAsync(renamedProxies);
             Console.WriteLine("\n🎉 Done!");
         }
@@ -470,26 +435,20 @@ namespace ProxyCollector.Collector
             Console.WriteLine($"\n🏆 Testing {proxies.Count} proxies...");
             var tested = new ConcurrentBag<(string Link, int Latency, object ClashProxy)>();
             int processed = 0;
-
             await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 20 }, async (p, ct) =>
             {
+                // Removed vmess skip - now includes vmess in testing
                 Interlocked.Increment(ref processed);
                 if (processed % 500 == 0)
                     Console.WriteLine($" Tested {processed}/{proxies.Count} ({Math.Round((double)processed / proxies.Count * 100, 1)}%)");
-
-                if (p.Proto.ToLowerInvariant() == "vmess") return;
-
                 if (!await IsProxyAliveAsync(p.Link)) return;
-
                 int latency = await TestProxyLatencyAsync(p.Link);
                 if (latency > 0 && latency < 1500)
                     tested.Add((p.Link, latency, p.ClashProxy));
             });
-
             var sorted = tested.OrderBy(t => t.Latency).ToList();
             var bestDir = Path.Combine(Directory.GetCurrentDirectory(), "sub", "Best-Results");
             Directory.CreateDirectory(bestDir);
-
             var limits = new[] { 100, 200, 300, 400, 500 };
             foreach (var limit in limits)
             {
@@ -497,7 +456,6 @@ namespace ProxyCollector.Collector
                 var txtPath = Path.Combine(bestDir, $"top{limit}.txt");
                 await File.WriteAllLinesAsync(txtPath, topN.Select(t => $"{t.Link} # latency={t.Latency}ms"));
                 Console.WriteLine($"Saved sub/Best-Results/top{limit}.txt ({topN.Count})");
-
                 var jsonProxies = topN.Select(t => t.ClashProxy).Where(p => p != null).ToList();
                 var jsonConfig = new
                 {
@@ -516,7 +474,6 @@ namespace ProxyCollector.Collector
                     },
                     rules = new[] { "MATCH,AUTO" }
                 };
-
                 var jsonPath = Path.Combine(bestDir, $"top{limit}.json");
                 var options = new JsonSerializerOptions { WriteIndented = true };
                 await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(jsonConfig, options));
@@ -575,9 +532,14 @@ namespace ProxyCollector.Collector
             var remarkList = proxies.Select(x => x.Remark).ToList();
             var clashConfig = new
             {
-                name = configName,
+                port = 7890,  // Mixed port
+                socks_port = 7891,
+                allow_lan = true,
+                mode = "Rule",
+                log_level = "info",
+                external_controller = "127.0.0.1:9090",
                 proxies = clashProxies,
-                proxy_groups = new[]
+                proxy_groups = new[]  // Hyphen via naming
                 {
                     new
                     {
@@ -605,7 +567,6 @@ namespace ProxyCollector.Collector
                 if (parts.Length > 1 && int.TryParse(parts[1], out int p))
                     port = p;
             }
-
             switch (proto.ToLowerInvariant())
             {
                 case "vmess":
@@ -625,7 +586,6 @@ namespace ProxyCollector.Collector
                     }
                     catch { }
                     return new { name, type = "vmess", server, port, uuid = "", alterId = 0, cipher = "auto", tls = true };
-
                 case "vless":
                     try
                     {
@@ -634,7 +594,6 @@ namespace ProxyCollector.Collector
                     }
                     catch { }
                     return new { name, type = "vless", server, port, uuid = "", tls = true, flow = "" };
-
                 case "trojan":
                     try
                     {
@@ -643,7 +602,6 @@ namespace ProxyCollector.Collector
                     }
                     catch { }
                     return new { name, type = "trojan", server, port, password = "", tls = true };
-
                 case "ss":
                     try
                     {
@@ -658,7 +616,6 @@ namespace ProxyCollector.Collector
                     }
                     catch { }
                     return new { name, type = "ss", server, port, cipher = "aes-256-gcm", password = "" };
-
                 default:
                     return new { name, type = proto, server, port };
             }
@@ -668,9 +625,8 @@ namespace ProxyCollector.Collector
         {
             string baseLink = original.Split('#')[0].TrimEnd();
             baseLink = Regex.Replace(baseLink,
-                @"\[.*?\]|\(.*?\)|Dynamic-\d+|-\d{4,}|ok\d{5,}|sg\.ok|mgjhju|fvb|7no|10o|ccwu\.cc|indevs\.in|zem\.in|bffv|fbvb|mghjju|ggff|ffffvbbgh|mmmv\.kr|yhjt\.tc1|ns\.cloudflare\.com|\d{4,}$|\s*:\d+$",
+                @"Dynamic-\d+|-ok\d{5,}|-\d{4,}$",  // Lightened junk removal
                 "", RegexOptions.IgnoreCase | RegexOptions.Multiline).Trim();
-
             if (proto.ToLowerInvariant() == "vmess" && baseLink.StartsWith("vmess://"))
             {
                 try
@@ -678,14 +634,12 @@ namespace ProxyCollector.Collector
                     string b64 = baseLink.Substring(8).Trim();
                     string decoded = DecodeBase64(b64);
                     if (string.IsNullOrEmpty(decoded)) return baseLink + "#" + Uri.EscapeDataString(newRemark);
-
                     string trimmedDecoded = decoded.TrimStart();
                     if (!trimmedDecoded.StartsWith("{") ||
                         (!trimmedDecoded.Contains("\"add\"") && !trimmedDecoded.Contains("\"port\"")))
                     {
                         return baseLink + "#" + Uri.EscapeDataString(newRemark);
                     }
-
                     var jsonDoc = JsonDocument.Parse(decoded);
                     var root = jsonDoc.RootElement;
                     var props = new Dictionary<string, object?>();
@@ -703,7 +657,6 @@ namespace ProxyCollector.Collector
                 }
                 catch { }
             }
-
             string escaped = Uri.EscapeDataString(newRemark);
             return baseLink + "#" + escaped;
         }
@@ -712,16 +665,8 @@ namespace ProxyCollector.Collector
         {
             line = line.Trim();
             if (string.IsNullOrEmpty(line) || line.Length < 20) return ("unknown", "", "");
-
-            // Step 1: Aggressive prefix cleanup (Telegram junk: flags, emojis, common words)
-            string cleanedLine = Regex.Replace(line,
-                @"^(?:[\uD83C-\uDBFF][\uDC00-\uDFFF]?|[\u0600-\u06FF]|[\u0750-\u077F]|[\u08A0-\u08FF]|[\uFB50-\uFDFF]|[\uFE70-\uFEFF]|[\u2700-\u27BF]|[\u2600-\u26FF]|🆕|📱|📶|new|کانفیگ|سرور|ایر|ایرانسل|📡|⚡|🔥|✅|➡️|\s*-\s*)+",
-                "", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Trim();
-
-            string basePart = cleanedLine.Split('#')[0].Trim();
-            string remark = cleanedLine.Contains('#') ? Uri.UnescapeDataString(cleanedLine.Split('#')[1].Trim()) : "";
-
-            // Step 2: Try standard URI parse on cleaned base part
+            string basePart = line.Split('#')[0].Trim();
+            string remark = line.Contains('#') ? Uri.UnescapeDataString(line.Split('#')[1].Trim()) : "";
             try
             {
                 var uri = new Uri(basePart);
@@ -734,33 +679,25 @@ namespace ProxyCollector.Collector
                 }
             }
             catch { }
-
-            // Step 3: Look for scheme ANYWHERE in the cleaned line
-            string lowerClean = cleanedLine.ToLowerInvariant();
+            string lowerClean = line.ToLowerInvariant();
             string guessedProto = "unknown";
-
             if (lowerClean.Contains("vless://")) guessedProto = "vless";
             else if (lowerClean.Contains("vmess://")) guessedProto = "vmess";
             else if (lowerClean.Contains("ss://")) guessedProto = "ss";
             else if (lowerClean.Contains("trojan://")) guessedProto = "trojan";
             else if (lowerClean.Contains("hysteria2://") || lowerClean.Contains("hy2://")) guessedProto = "hysteria2";
-
-            // Step 4: Base64-first detection (Telegram channels often start with base64)
-            if (guessedProto == "unknown" && (cleanedLine.Contains("eyJhZGQiOi") || cleanedLine.Contains("\"add\":") || (cleanedLine.Contains("id") && cleanedLine.Contains("port"))))
+            if (guessedProto == "unknown" && (line.Contains("eyJhZGQiOi") || line.Contains("\"add\":") || (line.Contains("id") && line.Contains("port"))))
             {
-                if (cleanedLine.Contains("reality") || cleanedLine.Contains("pbk=") || cleanedLine.Contains("flow=") || cleanedLine.Contains("xtls") || cleanedLine.Contains("grpc") || cleanedLine.Contains("kcp") || cleanedLine.Contains("sid="))
+                if (line.Contains("reality") || line.Contains("pbk=") || line.Contains("flow=") || line.Contains("xtls") || line.Contains("grpc") || line.Contains("kcp") || line.Contains("sid="))
                     guessedProto = "vless";
-                else if (cleanedLine.Contains("net") || cleanedLine.Contains("scy") || cleanedLine.Contains("aid") || cleanedLine.Contains("ps"))
+                else if (line.Contains("net") || line.Contains("scy") || line.Contains("aid") || line.Contains("ps"))
                     guessedProto = "vmess";
             }
-
-            // Step 5: IP:port fallback (only if still unknown)
-            var ipPortMatch = Regex.Match(cleanedLine, @"(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(?::\d{1,5})?");
+            var ipPortMatch = Regex.Match(line, @"(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(?::\d{1,5})?");
             if (ipPortMatch.Success && guessedProto == "unknown")
             {
                 string found = ipPortMatch.Value;
                 string port = found.Contains(":") ? found.Split(':')[1] : "443";
-
                 if (port == "443" || port == "8443" || port == "2053" || port == "2096" || port == "2083" || port == "2086")
                     guessedProto = "vless";
                 else if (port == "80" || port == "8080" || port == "8888")
@@ -768,10 +705,8 @@ namespace ProxyCollector.Collector
                 else if (port == "1080" || port == "7890")
                     guessedProto = "socks";
             }
-
             if (guessedProto != "unknown" && ipPortMatch.Success)
                 return (guessedProto, ipPortMatch.Value, remark);
-
             return ("unknown", "", "");
         }
 

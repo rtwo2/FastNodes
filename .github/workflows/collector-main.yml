@@ -40,10 +40,8 @@ jobs:
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/24.txt
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/25.txt
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt
-
         # MatinGhanbari/v2ray-configs
         https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt
-
         # roosterkid/openproxylist
         https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt
 
@@ -60,6 +58,18 @@ jobs:
           else
             echo "⚠️ Download failed - keeping previous file if exists"
             ls -la ProxyCollector/Country.mmdb || echo "No GeoIP file yet"
+          fi
+
+      - name: Download fresh IP blacklist (FireHOL Level 1) 🔒
+        run: |
+          echo "Downloading fresh FireHOL Level 1 blacklist (bad IPs/CIDRs)..."
+          BLACKLIST_URL="https://iplists.firehol.org/files/firehol_level1.netset"
+          if curl -fsSL "$BLACKLIST_URL" -o ProxyCollector/blacklist.netset; then
+            echo "✅ Success! Fresh blacklist downloaded."
+            wc -l ProxyCollector/blacklist.netset | awk '{print "Lines in blacklist: " $1}'
+          else
+            echo "⚠️ Download failed - keeping previous blacklist if exists"
+            wc -l ProxyCollector/blacklist.netset || echo "No blacklist file yet"
           fi
 
       - name: Setup .NET environment
@@ -106,16 +116,16 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          
+         
           git stash push -u -m "Stash before pull" || true
-          
+         
           git fetch origin
           git pull --rebase origin master || true
-          
+         
           git stash pop || true
-          
-          git add ProxyCollector/Country.mmdb sub/ Best-Results/ || true
-          
-          git commit -m "Fresh proxies + GeoIP + Best Results (top 500) - $(date +'%Y-%m-%d %H:%M UTC') - $(wc -l < sub/everything.txt) proxies - temp backup included" --allow-empty || echo "Nothing new to commit"
-          
+         
+          git add ProxyCollector/Country.mmdb ProxyCollector/blacklist.netset sub/ Best-Results/ || true
+         
+          git commit -m "Fresh proxies + GeoIP + blacklist + Best Results (top 500) - $(date +'%Y-%m-%d %H:%M UTC') - $(wc -l < sub/everything.txt) proxies - temp backup included" --allow-empty || echo "Nothing new to commit"
+         
           git push || echo "Push failed or no changes"

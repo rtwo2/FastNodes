@@ -82,8 +82,8 @@ namespace ProxyCollector.Collector
 
         private static readonly string TestUrl = "http://cp.cloudflare.com/generate_204";
         private const int MaxBestResults = 500;
-        private const int TestTimeoutMs = 5000;
-        private const int AliveCheckTimeoutMs = 2000;
+        private const int TestTimeoutMs = 12000;          // ← increased to 12 seconds for better accuracy
+        private const int AliveCheckTimeoutMs = 4000;     // ← increased to 4 seconds
 
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
 
@@ -714,7 +714,6 @@ namespace ProxyCollector.Collector
             if (string.IsNullOrEmpty(line) || line.Length < 20) return ("unknown", "", "");
 
             // Step 1: Aggressive prefix cleanup (Telegram junk: flags, emojis, common words)
-            // Removed \p{IsPersian} etc. — using broad Unicode ranges + explicit patterns instead
             string cleanedLine = Regex.Replace(line,
                 @"^(?:[\uD83C-\uDBFF][\uDC00-\uDFFF]?|[\u0600-\u06FF]|[\u0750-\u077F]|[\u08A0-\u08FF]|[\uFB50-\uFDFF]|[\uFE70-\uFEFF]|[\u2700-\u27BF]|[\u2600-\u26FF]|🆕|📱|📶|new|کانفیگ|سرور|ایر|ایرانسل|📡|⚡|🔥|✅|➡️|\s*-\s*)+",
                 "", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Trim();

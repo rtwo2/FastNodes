@@ -18,7 +18,6 @@ namespace ProxyCollector.Collector
     {
         private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(30) };
 
-        // Lazy resolver — created only after downloads finish
         private IPToCountryResolver? _resolver;
         private IPToCountryResolver Resolver => _resolver ??= new IPToCountryResolver();
 
@@ -27,10 +26,6 @@ namespace ProxyCollector.Collector
             "vmess", "vless", "trojan", "ss", "shadowsocks", "hysteria2", "hy2", "tuic", "socks", "socks5", "anytls"
         };
 
-        // ──────────────────────────────────────────────────────────────
-        // ALL possible ISO 3166-1 alpha-2 country flags (249 entries)
-        // Nothing less — every officially assigned code with emoji is here
-        // ──────────────────────────────────────────────────────────────
         private static readonly Dictionary<string, string> Flags = new(StringComparer.OrdinalIgnoreCase)
         {
             {"AD", "🇦🇩"}, {"AE", "🇦🇪"}, {"AF", "🇦🇫"}, {"AG", "🇦🇬"}, {"AI", "🇦🇮"},
@@ -89,7 +84,6 @@ namespace ProxyCollector.Collector
         private const int MaxBestResults = 500;
         private const int TestTimeoutMs = 5000;
         private const int AliveCheckTimeoutMs = 2000;
-        private const int MaxFilenameRemarkLength = 150;
 
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
 
@@ -98,6 +92,10 @@ namespace ProxyCollector.Collector
             80, 443, 8080, 8443, 2052, 2053, 2082, 2083, 2086, 2095, 2096,
             8880, 8888, 10000, 10001, 20000, 30000
         };
+
+        // ──────────────────────────────────────────────────────────────
+        // Download functions (unchanged)
+        // ──────────────────────────────────────────────────────────────
 
         private static async Task DownloadFreshGeoIP(HttpClient http)
         {
@@ -274,7 +272,7 @@ namespace ProxyCollector.Collector
             var seenNormalized = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             int skippedNumbered = 0, parseFail = 0, skippedLongFilename = 0, skippedBlacklisted = 0;
 
-            Console.WriteLine("\n🧹 Parsing + strict deduplicating + renaming...");
+            Console.WriteLine("\n🧹 Parsing + strict deduplicating + **forced clean renaming**...");
             int processed = 0;
             foreach (var line in rawLines)
             {
@@ -292,7 +290,7 @@ namespace ProxyCollector.Collector
 
                 string cleaned = Regex.Replace(trimmed, @"^(?:Telegram\s*[:=]?\s*@[^@]+@|Telegram\s*-\s*|Telegram\s+@|t\.me\/[^@]+@)", "", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-                var (proto, serverPort, originalRemark) = ParseProxyLine(cleaned);
+                var (proto, serverPort, _) = ParseProxyLine(cleaned); // ignore original remark
                 if (string.IsNullOrEmpty(serverPort) || !serverPort.Contains(":")) 
                 {
                     parseFail++;
@@ -349,19 +347,10 @@ namespace ProxyCollector.Collector
                 string flag = Flags.TryGetValue(countryCode, out var f) ? f : "🌍";
                 string countryDisplay = info?.CountryName ?? GetCountryNameFromCode(countryCode);
 
-                string cleanRemark;
-                if (string.IsNullOrWhiteSpace(originalRemark) ||
-                    originalRemark.Length > 80 ||
-                    Regex.IsMatch(originalRemark, @"^[A-Za-z0-9+/=]{40,}$") ||
-                    originalRemark.Contains("Telegram") || originalRemark.Contains("t.me") ||
-                    originalRemark.Contains("channel") || originalRemark.Contains("group"))
-                {
-                    cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} - {ipOrHost}:{portStr}";
-                }
-                else
-                {
-                    cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} - {originalRemark.Trim()}";
-                }
+                // ──────────────────────────────────────────────────────────────
+                // FORCE clean remark — ignore original completely
+                // ──────────────────────────────────────────────────────────────
+                string cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} {ipOrHost}:{portStr}";
 
                 var renamedLink = RenameRemarkInLink(cleaned, cleanRemark, proto);
 
@@ -471,9 +460,17 @@ namespace ProxyCollector.Collector
                 "IN" => "India",
                 "MD" => "Moldova",
                 "CY" => "Cyprus",
+                "AE" => "United Arab Emirates",
+                "SC" => "Seychelles",
+                "IM" => "Isle of Man",
+                "LU" => "Luxembourg",
                 _ => "Unknown"
             };
         }
+
+        // ──────────────────────────────────────────────────────────────
+        // The rest of the file remains the same (GenerateBestResultsAsync, IsProxyAliveAsync, etc.)
+        // ──────────────────────────────────────────────────────────────
 
         private async Task GenerateBestResultsAsync(List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)> proxies)
         {

@@ -1,244 +1,34 @@
-name: FastNodes - Main Collector (Fast & Smart)
+name: Collect & Test Proxies (FastNodes)
 
 on:
   schedule:
-    - cron: '0 */2 * * *'          # Every 2 hours
+    - cron: '*/30 * * * *'   # every 30 minutes
   workflow_dispatch:
 
 jobs:
-  Collect:
-    runs-on: ubuntu-latest
-    timeout-minutes: 480
-
-    env:
-      SingboxPath: sing-box
-      Sources: |
-        # === ORIGINAL SOURCES (AvenCores + Proxify + others) ===
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/1.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/2.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/3.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/4.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/5.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/6.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/7.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/8.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/9.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/10.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/11.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/12.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/13.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/14.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/15.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/16.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/17.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/18.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/19.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/20.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/21.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/22.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/23.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/24.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/25.txt
-        https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt
-        https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt
-        https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt
-        https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/all_extracted_configs.txt
-        https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt
-        https://raw.githubusercontent.com/barry-far/V2ray-config/main/All_Configs_Sub.txt
-        https://raw.githubusercontent.com/roosterkid/openproxylist/refs/heads/main/V2RAY.txt
-        https://raw.githubusercontent.com/ShatakVPN/ConfigForge-V2Ray/main/configs/all.txt
-        https://raw.githubusercontent.com/miladtahanian/V2RayCFGDumper/refs/heads/main/sub.txt
-        https://raw.githubusercontent.com/Delta-Kronecker/V2ray-Config/refs/heads/main/sub.txt
-        https://raw.githubusercontent.com/mostafasadeghifar/v2ray-config/main/config_file.txt
-        https://raw.githubusercontent.com/liMilCo/v2r/main/all_configs.txt
-
-        # Proxify mixed (38 files)
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-1.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-2.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-3.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-4.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-5.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-6.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-7.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-8.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-9.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-10.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-11.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-12.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-13.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-14.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-15.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-16.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-17.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-18.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-19.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-20.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-21.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-22.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-23.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-24.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-25.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-26.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-27.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-28.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-29.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-30.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-31.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-32.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-33.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-34.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-35.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-36.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-37.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-38.txt
-
-        # === NEW SOURCES (your latest batch + cleaned) ===
-        https://raw.githubusercontent.com/STR97/STRUGOV/refs/heads/main/STR.BYPASS
-        https://raw.githubusercontent.com/Danialsamadi/v2go/refs/heads/main/AllConfigsSub.txt
-        https://raw.githubusercontent.com/LalatinaHub/Mineral/refs/heads/master/result/nodes
-        https://raw.githubusercontent.com/Farid-Karimi/Config-Collector/refs/heads/main/mixed_iran.txt
-        https://raw.githubusercontent.com/nscl5/4/refs/heads/main/Splitted-By-Protocol/ss.txt
-        https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/super-sub.txt
-        https://raw.githubusercontent.com/itsyebekhe/PSG/main/subscriptions/xray/base64/xhttp
-        https://raw.githubusercontent.com/itsyebekhe/PSG/main/subscriptions/nekobox/mix.json
-        https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/subs/sub1.txt
-        https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/filtered/subs/ss.txt
-        https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/filtered/subs/vless.txt
-        https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/filtered/subs/vmess.txt
-        https://raw.githubusercontent.com/NiREvil/vless/refs/heads/main/sub/SSTime
-        https://raw.githubusercontent.com/NiREvil/vless/refs/heads/main/sub/fragment
-        https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub1.txt
-        https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub2.txt
-        https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub3.txt
-        https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub4.txt
-        https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub6.txt
-        https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub7.txt
-        https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub8.txt
-        https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub9.txt
-        https://raw.githubusercontent.com/azadnet05/pages.dev/sub/4d794980-54c0-4fcb-8def-c2beaecadbad
-        https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/refs/heads/main/Best-Results/proxies.txt
-        https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/main/splitted-by-protocol/vless.txt
-        https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/main/splitted-by-protocol/shadowsocks.txt
-        https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed
-        https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/python/hysteria2
-        https://raw.githubusercontent.com/Pawdroid/Free-servers/main/static/sub_en
-        https://raw.githubusercontent.com/mohamadfg-dev/telegram-v2ray-configs-collector/refs/heads/main/category/httpupgrade.txt
-        https://raw.githubusercontent.com/mohamadfg-dev/telegram-v2ray-configs-collector/refs/heads/main/category/xhttp.txt
-        https://shadowmere.xyz/api/b64sub
-        https://raw.githubusercontent.com/NiREvil/vless/refs/heads/main/sub/fragment
-        https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/refs/heads/main/Protocols/ss.txt
-        https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/refs/heads/main/Protocols/vmess.txt
-        https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/refs/heads/main/Protocols/vless.txt
-        https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html
-        https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/vless.html
-        https://raw.githubusercontent.com/Mahdi0024/ProxyCollector/refs/heads/master/sub/proxies.txt
-        https://raw.githubusercontent.com/10ium/free-config/refs/heads/main/HighSpeed.txt
-        https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/raw/refs/heads/main/configs/proxy_configs.txt
-        https://sub.amiralter.com/config-lite
-        https://sub.amiralter.com/config
-        https://raw.githubusercontent.com/DarknessShade/Sub/main/V2mix
-        https://raw.githubusercontent.com/DarknessShade/Sub/main/Ss
-        https://raw.githubusercontent.com/nscl5/5/refs/heads/main/configs/vmess.txt
-        https://raw.githubusercontent.com/nscl5/5/refs/heads/main/configs/all.txt
-        https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/hy2
-        https://raw.githubusercontent.com/lagzian/IranConfigCollector/main/Base64.txt
-        https://raw.githubusercontent.com/lagzian/SS-Collector/refs/heads/main/SS/TrinityBase
-        https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt
-        https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt
-        https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vmess.txt
-        https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/ss.txt
-        https://raw.githubusercontent.com/AzadNetCH/Clash/refs/heads/main/AzadNet.txt
-        https://raw.githubusercontent.com/Leon406/SubCrawler/refs/heads/main/sub/share/a11
-        https://raw.githubusercontent.com/imalrzai/ExclaveVirtual/refs/heads/main/ExclaveVirtual
-        https://raw.githubusercontent.com/youfoundamin/V2rayCollector/main/mixed_iran.txt
-        https://raw.githubusercontent.com/youfoundamin/V2rayCollector/main/ss_iran.txt
-        https://raw.githubusercontent.com/youfoundamin/V2rayCollector/main/vless_iran.txt
-        https://raw.githubusercontent.com/Pawdroid/Free-servers/refs/heads/main/sub
-        https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/ss
-        https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/trojan
-        https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/vless
-        https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_BASE64.txt
-        https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt
-        https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/vless_iran.txt
-        https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/ss_iran.txt
-        https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/ss_configs.txt
-        https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/V2Ray-Config-By-EbraSha.txt
-        https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vmess_configs.txt
-        https://raw.githubusercontent.com/Argh94/V2RayAutoConfig/refs/heads/main/configs/Vmess.txt
-        https://raw.githubusercontent.com/Argh94/V2RayAutoConfig/refs/heads/main/configs/Hysteria2.txt
-        https://raw.githubusercontent.com/Argh94/V2RayAutoConfig/refs/heads/main/configs/Germany.txt
-        https://raw.githubusercontent.com/Stinsonysm/GO_V2rayCollector/refs/heads/main/trojan_iran.txt
-        https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector_Py/refs/heads/main/sub/Mix/mix.txt
-        https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector_Py/refs/heads/main/sub/United%20States/config.txt
-        https://raw.githubusercontent.com/liketolivefree/kobabi/main/sub.txt
-        https://raw.githubusercontent.com/liketolivefree/kobabi/main/sub_all.txt
-        https://raw.githubusercontent.com/10ium/ScrapeAndCategorize/refs/heads/main/output_configs/Hysteria2.txt
-        https://raw.githubusercontent.com/10ium/V2ray-Config/main/Splitted-By-Protocol/hysteria2.txt
-        https://raw.githubusercontent.com/10ium/V2Hub3/main/merged_base64
-        https://raw.githubusercontent.com/10ium/V2Hub3/refs/heads/main/Split/Normal/shadowsocks
-        https://raw.githubusercontent.com/10ium/V2Hub3/refs/heads/main/Split/Normal/reality
-        https://raw.githubusercontent.com/10ium/base64-encoder/main/encoded/10ium_mixed_iran.txt
-        https://raw.githubusercontent.com/10ium/ScrapeAndCategorize/refs/heads/main/output_configs/Vless.txt
-        https://raw.githubusercontent.com/10ium/ScrapeAndCategorize/refs/heads/main/output_configs/ShadowSocks.txt
-        https://raw.githubusercontent.com/10ium/ScrapeAndCategorize/refs/heads/main/output_configs/Trojan.txt
-        https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub1.txt
-        https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub2.txt
-        https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub3.txt
-        https://github.com/Epodonios/v2ray-configs/raw/main/All_Configs_base64_Sub.txt
-        https://azadnet05.pages.dev/sub/4d794980-54c0-4fcb-8def-c2beaecadbad
-        https://raw.githubusercontent.com/rango-cfs/NewCollector/refs/heads/main/v2ray_links.txt
-        https://vpny.net/Mobile
-        https://vpny.net/Home
-        https://raw.githubusercontent.com/STR97/STRUGOV/refs/heads/main/STR.BYPASS
-        https://raw.githubusercontent.com/Danialsamadi/v2go/refs/heads/main/AllConfigsSub.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-1.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-2.txt
-        https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/seperated_by_protocol/shadowsocks.txt
-        https://raw.githubusercontent.com/LalatinaHub/Mineral/refs/heads/master/result/nodes
-        https://raw.githubusercontent.com/Farid-Karimi/Config-Collector/refs/heads/main/mixed_iran.txt
+  collect:
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          repository: rtwo2/FastNodes
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download fresh GeoIP database 🌍
-        run: |
-          echo "Downloading fresh country database..."
-          if curl -fsSL "https://git.io/GeoLite2-Country.mmdb" -o ProxyCollector/Country.mmdb; then
-            echo "✅ Success! Fresh GeoIP database downloaded."
-            ls -la ProxyCollector/Country.mmdb
-          else
-            echo "⚠️ Download failed - keeping previous file if exists"
-            ls -la ProxyCollector/Country.mmdb || echo "No GeoIP file yet"
-          fi
-
-      - name: Download fresh FireHOL Level 2 blacklist 🔒
-        run: |
-          echo "Downloading fresh FireHOL Level 2 blacklist..."
-          BLACKLIST_URL="https://iplists.firehol.org/files/firehol_level2.netset"
-          if curl -fsSL "$BLACKLIST_URL" -o ProxyCollector/blacklist.netset; then
-            echo "✅ Success! Fresh Level 2 blacklist downloaded."
-            wc -l ProxyCollector/blacklist.netset | awk '{print "Lines in blacklist: " $1}'
-          else
-            echo "⚠️ Download failed - keeping previous"
-            wc -l ProxyCollector/blacklist.netset || echo "No blacklist yet"
-          fi
-
-      - name: Setup .NET environment
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
 
-      - name: Restore project dependencies
-        run: dotnet restore ProxyCollector/ProxyCollector.csproj
-
-      - name: Cache sing-box (faster startup)
+      - name: Cache sing-box
         uses: actions/cache@v4
+        id: cache-singbox
         with:
           path: ~/sing-box-cache/sing-box
           key: sing-box-v1.10.6-Linux-v4
 
-      - name: Install sing-box if needed
+      - name: Install or restore sing-box
         run: |
           mkdir -p ~/sing-box-cache
           if [ ! -f ~/sing-box-cache/sing-box ]; then
@@ -253,31 +43,264 @@ jobs:
             sudo chmod +x /usr/bin/sing-box
           fi
 
-      - name: Run ProxyCollector (Collect + Rename + Best Results)
+      - name: Download fresh GeoIP database
+        run: |
+          echo "Downloading fresh country database..."
+          if curl -fsSL "https://git.io/GeoLite2-Country.mmdb" -o ProxyCollector/Country.mmdb; then
+            echo "✅ Success! Fresh GeoIP database downloaded."
+            ls -la ProxyCollector/Country.mmdb
+          else
+            echo "⚠️ Download failed - keeping previous file if exists"
+            ls -la ProxyCollector/Country.mmdb || echo "No GeoIP file yet"
+          fi
+
+      - name: Download fresh FireHOL Level 2 blacklist
+        run: |
+          echo "Downloading fresh FireHOL Level 2 blacklist..."
+          BLACKLIST_URL="https://iplists.firehol.org/files/firehol_level2.netset"
+          if curl -fsSL "$BLACKLIST_URL" -o ProxyCollector/blacklist.netset; then
+            echo "✅ Success! Fresh Level 2 blacklist downloaded."
+            wc -l ProxyCollector/blacklist.netset | awk '{print "Lines in blacklist: " $1}'
+          else
+            echo "⚠️ Download failed - keeping previous"
+            wc -l ProxyCollector/blacklist.netset || echo "No blacklist yet"
+          fi
+
+      - name: Restore & run ProxyCollector
+        env:
+          SingboxPath: sing-box
+          Sources: |
+            # === ORIGINAL SOURCES (AvenCores + Proxify + others) ===
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/1.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/2.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/3.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/4.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/5.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/6.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/7.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/8.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/9.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/10.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/11.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/12.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/13.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/14.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/15.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/16.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/17.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/18.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/19.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/20.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/21.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/22.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/23.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/24.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/25.txt
+            https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt
+            https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt
+            https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt
+            https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/all_extracted_configs.txt
+            https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt
+            https://raw.githubusercontent.com/barry-far/V2ray-config/main/All_Configs_Sub.txt
+            https://raw.githubusercontent.com/roosterkid/openproxylist/refs/heads/main/V2RAY.txt
+            https://raw.githubusercontent.com/ShatakVPN/ConfigForge-V2Ray/main/configs/all.txt
+            https://raw.githubusercontent.com/miladtahanian/V2RayCFGDumper/refs/heads/main/sub.txt
+            https://raw.githubusercontent.com/Delta-Kronecker/V2ray-Config/refs/heads/main/sub.txt
+            https://raw.githubusercontent.com/mostafasadeghifar/v2ray-config/main/config_file.txt
+            https://raw.githubusercontent.com/liMilCo/v2r/main/all_configs.txt
+
+            # Proxify mixed (38 files)
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-1.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-2.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-3.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-4.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-5.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-6.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-7.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-8.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-9.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-10.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-11.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-12.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-13.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-14.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-15.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-16.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-17.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-18.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-19.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-20.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-21.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-22.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-23.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-24.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-25.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-26.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-27.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-28.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-29.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-30.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-31.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-32.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-33.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-34.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-35.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-36.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-37.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-38.txt
+
+            # === 2026 HYSTERIA2 PRIORITY SOURCES ===
+            https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/filtered/subs/hysteria2.txt
+            https://raw.githubusercontent.com/Argh94/V2RayAutoConfig/refs/heads/main/configs/Hysteria2.txt
+            https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/python/hysteria2
+            https://raw.githubusercontent.com/coldwater-10/V2ray-Config-Lite/main/Splitted-By-Protocol/hysteria2.txt
+            https://raw.githubusercontent.com/10ium/V2ray-Config/main/Splitted-By-Protocol/hysteria2.txt
+
+            # === asgharkapk/Sub-Config-Extractor Clash YAMLs (Feb 2026 aggregator - high quality, deduped) ===
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/Epodonios/v2ray-configs/All_Configs_base64_Sub.txt.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/Surfboardv2ray/TGParse/splitted/mixed.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/Surfboardv2ray/TGParse/mixed.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/moneyfly1_merged_proxies_new.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/trojanvmess.pages.dev/cmcm_b64.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/mahdibland/SSAggregator/sub/sub_merge_yaml.yml.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/mahdibland/SSAggregator/sub/sub_merge_base64.txt.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/Surfboardv2ray/TGParse/splitted/vless.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/base64-encoder/ndsphonemy/_my.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/V2Hub3/merged_base64.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/AzadNetCH/Clash/AzadNet.txt.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/AzadNet/-t.me.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/MatinGhanbari/v2ray-configs/subscriptions/filtered/subs/ss.txt.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/MatinGhanbari/v2ray-configs/ss.txt.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/MatinGhanbari/v2ray-configs/vmess.txt.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/robin.victoriacross.ir.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/base64-encoder/rb360full_Reza-2.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/base64-encoder/ndsphonemy/_default.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/vpnclashfa-backup/SubConfigShuffler/10ium_V2ray_Config_All_cloudflare.txt.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/base64-encoder/miladtahanian_config.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/Epodonios/v2ray-configs/ss.txt.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/base64-encoder/FreedomGuard/_Finder_configs.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/base64-encoder/rb360full_Reza-Collection.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/HiN-VPN/subscription/hiddify/mix.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/vpnclashfa-backup/MirrorMan/v2nodes.b64.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/base64-encoder/NiREvil_SSTime.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/base64-encoder/Surfboardv2ray/_IR.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/base64-encoder/MahsaNetConfigTopic.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/base64-encoder/ResistalProxy_server.yaml
+            https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/base64-encoder/10ium_ss_iran.txt.yaml
+
+            # === NEW SOURCES (your latest batch + cleaned) ===
+            https://raw.githubusercontent.com/STR97/STRUGOV/refs/heads/main/STR.BYPASS
+            https://raw.githubusercontent.com/Danialsamadi/v2go/refs/heads/main/AllConfigsSub.txt
+            https://raw.githubusercontent.com/LalatinaHub/Mineral/refs/heads/master/result/nodes
+            https://raw.githubusercontent.com/Farid-Karimi/Config-Collector/refs/heads/main/mixed_iran.txt
+            https://raw.githubusercontent.com/nscl5/4/refs/heads/main/Splitted-By-Protocol/ss.txt
+            https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/refs/heads/main/subscriptions/v2ray/super-sub.txt
+            https://raw.githubusercontent.com/itsyebekhe/PSG/main/subscriptions/xray/base64/xhttp
+            https://raw.githubusercontent.com/itsyebekhe/PSG/main/subscriptions/nekobox/mix.json
+            https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/subs/sub1.txt
+            https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/filtered/subs/ss.txt
+            https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/filtered/subs/vless.txt
+            https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/filtered/subs/vmess.txt
+            https://raw.githubusercontent.com/NiREvil/vless/refs/heads/main/sub/SSTime
+            https://raw.githubusercontent.com/NiREvil/vless/refs/heads/main/sub/fragment
+            https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub1.txt
+            https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub2.txt
+            https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub3.txt
+            https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub4.txt
+            https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub6.txt
+            https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub7.txt
+            https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub8.txt
+            https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub9.txt
+            https://raw.githubusercontent.com/azadnet05/pages.dev/sub/4d794980-54c0-4fcb-8def-c2beaecadbad
+            https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/refs/heads/main/Best-Results/proxies.txt
+            https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/main/splitted-by-protocol/vless.txt
+            https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/main/splitted-by-protocol/shadowsocks.txt
+            https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed
+            https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/python/hysteria2
+            https://raw.githubusercontent.com/Pawdroid/Free-servers/main/static/sub_en
+            https://raw.githubusercontent.com/mohamadfg-dev/telegram-v2ray-configs-collector/refs/heads/main/category/httpupgrade.txt
+            https://raw.githubusercontent.com/mohamadfg-dev/telegram-v2ray-configs-collector/refs/heads/main/category/xhttp.txt
+            https://shadowmere.xyz/api/b64sub
+            https://raw.githubusercontent.com/NiREvil/vless/refs/heads/main/sub/fragment
+            https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/refs/heads/main/Protocols/ss.txt
+            https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/refs/heads/main/Protocols/vmess.txt
+            https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/refs/heads/main/Protocols/vless.txt
+            https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html
+            https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/vless.html
+            https://raw.githubusercontent.com/Mahdi0024/ProxyCollector/refs/heads/master/sub/proxies.txt
+            https://raw.githubusercontent.com/10ium/free-config/refs/heads/main/HighSpeed.txt
+            https://raw.githubusercontent.com/4n0nymou3/multi-proxy-config-fetcher/raw/refs/heads/main/configs/proxy_configs.txt
+            https://sub.amiralter.com/config-lite
+            https://sub.amiralter.com/config
+            https://raw.githubusercontent.com/DarknessShade/Sub/main/V2mix
+            https://raw.githubusercontent.com/DarknessShade/Sub/main/Ss
+            https://raw.githubusercontent.com/nscl5/5/refs/heads/main/configs/vmess.txt
+            https://raw.githubusercontent.com/nscl5/5/refs/heads/main/configs/all.txt
+            https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/hy2
+            https://raw.githubusercontent.com/lagzian/IranConfigCollector/main/Base64.txt
+            https://raw.githubusercontent.com/lagzian/SS-Collector/refs/heads/main/SS/TrinityBase
+            https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt
+            https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vless.txt
+            https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/vmess.txt
+            https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/ss.txt
+            https://raw.githubusercontent.com/AzadNetCH/Clash/refs/heads/main/AzadNet.txt
+            https://raw.githubusercontent.com/Leon406/SubCrawler/refs/heads/main/sub/share/a11
+            https://raw.githubusercontent.com/imalrzai/ExclaveVirtual/refs/heads/main/ExclaveVirtual
+            https://raw.githubusercontent.com/youfoundamin/V2rayCollector/main/mixed_iran.txt
+            https://raw.githubusercontent.com/youfoundamin/V2rayCollector/main/ss_iran.txt
+            https://raw.githubusercontent.com/youfoundamin/V2rayCollector/main/vless_iran.txt
+            https://raw.githubusercontent.com/Pawdroid/Free-servers/refs/heads/main/sub
+            https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/ss
+            https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/trojan
+            https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/vless
+            https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_BASE64.txt
+            https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt
+            https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/vless_iran.txt
+            https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/ss_iran.txt
+            https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/ss_configs.txt
+            https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/V2Ray-Config-By-EbraSha.txt
+            https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vmess_configs.txt
+            https://raw.githubusercontent.com/Argh94/V2RayAutoConfig/refs/heads/main/configs/Vmess.txt
+            https://raw.githubusercontent.com/Argh94/V2RayAutoConfig/refs/heads/main/configs/Hysteria2.txt
+            https://raw.githubusercontent.com/Argh94/V2RayAutoConfig/refs/heads/main/configs/Germany.txt
+            https://raw.githubusercontent.com/Stinsonysm/GO_V2rayCollector/refs/heads/main/trojan_iran.txt
+            https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector_Py/refs/heads/main/sub/Mix/mix.txt
+            https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector_Py/refs/heads/main/sub/United%20States/config.txt
+            https://raw.githubusercontent.com/liketolivefree/kobabi/main/sub.txt
+            https://raw.githubusercontent.com/liketolivefree/kobabi/main/sub_all.txt
+            https://raw.githubusercontent.com/10ium/ScrapeAndCategorize/refs/heads/main/output_configs/Hysteria2.txt
+            https://raw.githubusercontent.com/10ium/V2ray-Config/main/Splitted-By-Protocol/hysteria2.txt
+            https://raw.githubusercontent.com/10ium/V2Hub3/main/merged_base64
+            https://raw.githubusercontent.com/10ium/V2Hub3/refs/heads/main/Split/Normal/shadowsocks
+            https://raw.githubusercontent.com/10ium/V2Hub3/refs/heads/main/Split/Normal/reality
+            https://raw.githubusercontent.com/10ium/base64-encoder/main/encoded/10ium_mixed_iran.txt
+            https://raw.githubusercontent.com/10ium/ScrapeAndCategorize/refs/heads/main/output_configs/Vless.txt
+            https://raw.githubusercontent.com/10ium/ScrapeAndCategorize/refs/heads/main/output_configs/ShadowSocks.txt
+            https://raw.githubusercontent.com/10ium/ScrapeAndCategorize/refs/heads/main/output_configs/Trojan.txt
+            https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub1.txt
+            https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub2.txt
+            https://raw.githubusercontent.com/Epodonios/v2ray-configs/refs/heads/main/Sub3.txt
+            https://github.com/Epodonios/v2ray-configs/raw/main/All_Configs_base64_Sub.txt
+            https://azadnet05.pages.dev/sub/4d794980-54c0-4fcb-8def-c2beaecadbad
+            https://raw.githubusercontent.com/rango-cfs/NewCollector/refs/heads/main/v2ray_links.txt
+            https://vpny.net/Mobile
+            https://vpny.net/Home
+            https://raw.githubusercontent.com/STR97/STRUGOV/refs/heads/main/STR.BYPASS
+            https://raw.githubusercontent.com/Danialsamadi/v2go/refs/heads/main/AllConfigsSub.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-1.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-2.txt
+            https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/seperated_by_protocol/shadowsocks.txt
+            https://raw.githubusercontent.com/LalatinaHub/Mineral/refs/heads/master/result/nodes
+            https://raw.githubusercontent.com/Farid-Karimi/Config-Collector/refs/heads/main/mixed_iran.txt
+
         run: dotnet run --configuration Release --project ProxyCollector
 
-      - name: Show quick stats 📊
-        run: |
-          echo "Quick stats:"
-          wc -l sub/everything.txt | awk '{print "everything.txt lines: " $1}'
-          wc -l sub/Best-Results/top500.txt | awk '{print "top500.txt lines: " $1}'
-          ls -lh sub/protocols/ | grep ".txt" || echo "No protocol txt files"
-          ls -lh sub/temp/ || echo "Temp folder empty?"
-
-      - name: Commit & push updated files 📦
+      - name: Commit & push results
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           
-          git stash push -u -m "Stash before pull" || true
+          git add ProxyCollector/Country.mmdb ProxyCollector/blacklist.netset ProxyCollector/bogons.txt sub/
+          git commit -m "Fresh proxies + GeoIP + blacklist + Best Results - $(date +'%Y-%m-%d %H:%M UTC') - $(wc -l < sub/everything.txt) proxies" --allow-empty || echo "Nothing new to commit"
           
-          git fetch origin
-          git pull --rebase origin main || true
-          
-          git stash pop || true
-          
-          git add ProxyCollector/Country.mmdb ProxyCollector/blacklist.netset sub/ || true
-          
-          git commit -m "Fresh proxies + GeoIP + blacklist + Best Results (top 500) - $(date +'%Y-%m-%d %H:%M UTC') - $(wc -l < sub/everything.txt) proxies - temp backup included" --allow-empty || echo "Nothing new to commit"
-          
-          git push --force-with-lease origin main || echo "Push failed (check repo settings → Actions → Workflow permissions → must be 'Read and write')"
+          git push origin main || echo "Push failed"

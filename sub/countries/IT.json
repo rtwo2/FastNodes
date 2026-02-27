@@ -2,7 +2,7 @@
   "name": "FastNodes IT",
   "proxies": [
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83D\uDC80N\u039ETISHI\u03A3LD\uD83D\uDD25 | @netishield \u26A1\uFE0F\uD83D\uDEE1\uFE0F\uD83D\uDC7E\uD83C\uDDEE\uD83C\uDDF9",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 57.131.38.151:8443",
       "type": "ss",
       "server": "57.131.38.151",
       "port": 8443,
@@ -10,7 +10,7 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83C\uDDEE\uD83C\uDDF9 180 - IT - SS/AEAD - 443",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 38.180.195.193:443",
       "type": "ss",
       "server": "38.180.195.193",
       "port": 443,
@@ -18,7 +18,7 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - \uD83C\uDDEE\uD83C\uDDF9 TCP-Reality | @Express_alaki | src @v2nodes",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 80.211.141.177:443",
       "type": "vless",
       "server": "80.211.141.177",
       "port": 443,
@@ -27,7 +27,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - ConfigPositive VLESS US 3",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 172.232.217.185:8880",
       "type": "vless",
       "server": "172.232.217.185",
       "port": 8880,
@@ -36,7 +36,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - ConfigPositive VLESS US 4",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 172.232.192.163:8880",
       "type": "vless",
       "server": "172.232.192.163",
       "port": 8880,
@@ -45,25 +45,9 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \u003E\u003E@OutlineVpnOfficial::IT",
+      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 176.126.83.121:443",
       "type": "ss",
       "server": "176.126.83.121",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 38.180.195.193:443",
-      "type": "ss",
-      "server": "38.180.195.193",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - telegram \uD83C\uDFAA dailyv2ry",
-      "type": "ss",
-      "server": "38.180.195.193",
       "port": 443,
       "cipher": "aes-256-gcm",
       "password": ""
@@ -74,14 +58,12 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83D\uDC80N\u039ETISHI\u03A3LD\uD83D\uDD25 | @netishield \u26A1\uFE0F\uD83D\uDEE1\uFE0F\uD83D\uDC7E\uD83C\uDDEE\uD83C\uDDF9",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \uD83C\uDDEE\uD83C\uDDF9 180 - IT - SS/AEAD - 443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - \uD83C\uDDEE\uD83C\uDDF9 TCP-Reality | @Express_alaki | src @v2nodes",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - ConfigPositive VLESS US 3",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS - ConfigPositive VLESS US 4",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - \u003E\u003E@OutlineVpnOfficial::IT",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - 38.180.195.193:443",
-        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS - telegram \uD83C\uDFAA dailyv2ry"
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 57.131.38.151:8443",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 38.180.195.193:443",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 80.211.141.177:443",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 172.232.217.185:8880",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - VLESS 172.232.192.163:8880",
+        "\uD83C\uDDEE\uD83C\uDDF9 Italy - SS 176.126.83.121:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

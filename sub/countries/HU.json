@@ -2,7 +2,7 @@
   "name": "FastNodes HU",
   "proxies": [
     {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS - \uD83C\uDF6A33@oneclickvpnkeys",
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.97.154:443",
       "type": "vless",
       "server": "87.229.97.154",
       "port": 443,
@@ -11,7 +11,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - SS - \uD83C\uDF6A33@oneclickvpnkeys",
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - SS 87.229.97.154:443",
       "type": "ss",
       "server": "87.229.97.154",
       "port": 443,
@@ -19,7 +19,7 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS - All-@V2rayAlpha-19",
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 92.61.70.38:443",
       "type": "vless",
       "server": "92.61.70.38",
       "port": 443,
@@ -28,16 +28,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS - \u269C\uFE0F\uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @tik7net_vpn   \u0686\u0646\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645\uD83C\uDDE8\uD83C\uDDFF",
-      "type": "vless",
-      "server": "92.61.70.38",
-      "port": 443,
-      "uuid": "bb0f3b3d-a3d1-429a-9b75-263bd9200b6f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS - \uD83D\uDD38JOIN SHO: @IRAN_V2RAY1\u269C\uFE0F",
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.100.155:80",
       "type": "vless",
       "server": "87.229.100.155",
       "port": 80,
@@ -46,16 +37,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS - \uD83C\uDDED\uD83C\uDDFA 620 - HU - VLESS/REALITY/PBK/SID/VISION/UTLS - 8443",
-      "type": "vless",
-      "server": "79.127.133.79",
-      "port": 8443,
-      "uuid": "291a2db3-04b5-4089-af90-adb5d1ce05ff",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS - \uD83C\uDDED\uD83C\uDDFA 625 - HU - VLESS/REALITY/PBK/SID/VISION/UTLS - 8443",
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 79.127.133.79:8443",
       "type": "vless",
       "server": "79.127.133.79",
       "port": 8443,
@@ -69,13 +51,11 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS - \uD83C\uDF6A33@oneclickvpnkeys",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - SS - \uD83C\uDF6A33@oneclickvpnkeys",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS - All-@V2rayAlpha-19",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS - \u269C\uFE0F\uD835\uDDDD\uD835\uDDFC\uD835\uDDF6\uD835\uDDFB \u27A0 @tik7net_vpn   \u0686\u0646\u0644 \u062A\u0644\u06AF\u0631\u0627\u0645\uD83C\uDDE8\uD83C\uDDFF",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS - \uD83D\uDD38JOIN SHO: @IRAN_V2RAY1\u269C\uFE0F",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS - \uD83C\uDDED\uD83C\uDDFA 620 - HU - VLESS/REALITY/PBK/SID/VISION/UTLS - 8443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS - \uD83C\uDDED\uD83C\uDDFA 625 - HU - VLESS/REALITY/PBK/SID/VISION/UTLS - 8443"
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.97.154:443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - SS 87.229.97.154:443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 92.61.70.38:443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.100.155:80",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 79.127.133.79:8443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

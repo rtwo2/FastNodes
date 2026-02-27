@@ -77,10 +77,10 @@ namespace ProxyCollector.Collector
             {"VN", "🇻🇳"}, {"VU", "🇻🇺"}, {"WF", "🇼🇫"}, {"WS", "🇼🇸"}, {"YE", "🇾🇪"},
             {"YT", "🇾🇹"}, {"ZA", "🇿🇦"}, {"ZM", "🇿🇲"}, {"ZW", "🇿🇼"}
         };
-        private static readonly string[] TestEndpoints = { "1.1.1.1:443", "8.8.8.8:443", "9.9.9.9:443" }; // Cloudflare → Google → Quad9
+        private static readonly string TestUrl = "https://divar.ir";
         private const int MaxBestResults = 500;
-        private const int TestTimeoutMs = 12000;
-        private const int AliveCheckTimeoutMs = 4000;
+        private const int TestTimeoutMs = 12000; // ← increased to 12 seconds for better accuracy
+        private const int AliveCheckTimeoutMs = 4000; // ← increased to 4 seconds
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
         private static readonly HashSet<int> CommonProxyPorts = new()
         {
@@ -89,7 +89,6 @@ namespace ProxyCollector.Collector
             1080, 10808, 10809, 7890, 7891, 1081, 8000, 8881, 8882, 8883,
             2010, 2011, 2020, 8889, 9999, 1443, 10443, 4433
         };
-
         private static async Task DownloadFreshGeoIP(HttpClient http)
         {
             Console.WriteLine("Downloading fresh GeoIP database...");
@@ -107,7 +106,6 @@ namespace ProxyCollector.Collector
                 Console.WriteLine($"⚠️ GeoIP download failed: {ex.Message}. Keeping previous if exists.");
             }
         }
-
         private static async Task DownloadFreshFireHOLBlacklist(HttpClient http)
         {
             Console.WriteLine("Downloading fresh FireHOL Level 2 blacklist...");
@@ -126,7 +124,6 @@ namespace ProxyCollector.Collector
                 Console.WriteLine($"⚠️ FireHOL download failed: {ex.Message}. Keeping previous if exists.");
             }
         }
-
         private static async Task DownloadFreshBogons(HttpClient http)
         {
             Console.WriteLine("Downloading fresh Bogons list...");
@@ -145,7 +142,6 @@ namespace ProxyCollector.Collector
                 Console.WriteLine($"⚠️ Bogons download failed: {ex.Message}. Keeping previous if exists.");
             }
         }
-
         private static void LoadAllBlacklists()
         {
             BlacklistCidrs.Clear();
@@ -190,7 +186,6 @@ namespace ProxyCollector.Collector
                 Console.WriteLine($"Loaded {loaded} CIDRs from Bogons.");
             }
         }
-
         private static bool IsBlacklisted(string ipStr)
         {
             if (!IPAddress.TryParse(ipStr, out var ip)) return true;
@@ -200,7 +195,6 @@ namespace ProxyCollector.Collector
             }
             return false;
         }
-
         private static bool IsIpInCidr(IPAddress ip, IPAddress net, int mask)
         {
             byte[] ipB = ip.GetAddressBytes();
@@ -215,7 +209,6 @@ namespace ProxyCollector.Collector
             }
             return true;
         }
-
         public async Task StartAsync()
         {
             await DownloadFreshGeoIP(_http);
@@ -226,7 +219,6 @@ namespace ProxyCollector.Collector
             Console.WriteLine("----------------------------------------");
             await RunFullCollectionMode();
         }
-
         private async Task RunFullCollectionMode()
         {
             var urls = CollectorConfig.Instance.Sources;
@@ -395,7 +387,6 @@ namespace ProxyCollector.Collector
             await GenerateBestResultsAsync(renamedProxies);
             Console.WriteLine("\n🎉 Done!");
         }
-
         private string GetCountryNameFromCode(string code)
         {
             return code switch
@@ -424,39 +415,25 @@ namespace ProxyCollector.Collector
                 _ => "Unknown"
             };
         }
-
         private async Task GenerateBestResultsAsync(List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)> proxies)
         {
-            Console.WriteLine($"\n🏆 Testing {proxies.Count} proxies with TCP connectivity...");
+            Console.WriteLine($"\n🏆 Testing {proxies.Count} proxies...");
             var tested = new ConcurrentBag<(string Link, int Latency, object ClashProxy)>();
             int processed = 0;
-
             await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 20 }, async (p, ct) =>
             {
                 Interlocked.Increment(ref processed);
                 if (processed % 500 == 0)
                     Console.WriteLine($" Tested {processed}/{proxies.Count} ({Math.Round((double)processed / proxies.Count * 100, 1)}%)");
-
                 if (p.Proto.ToLowerInvariant() == "vmess") return;
-
-                int bestLatency = 9999;
-                foreach (var endpoint in TestEndpoints)
-                {
-                    var result = await TestTcpConnectionAsync(p.Link, endpoint);
-                    if (result.Success && result.LatencyMs < bestLatency)
-                    {
-                        bestLatency = result.LatencyMs;
-                    }
-                }
-
-                if (bestLatency > 0 && bestLatency < 1500)
-                    tested.Add((p.Link, bestLatency, p.ClashProxy));
+                if (!await IsProxyAliveAsync(p.Link)) return;
+                int latency = await TestProxyLatencyAsync(p.Link);
+                if (latency > 0 && latency < 1500)
+                    tested.Add((p.Link, latency, p.ClashProxy));
             });
-
             var sorted = tested.OrderBy(t => t.Latency).ToList();
             var bestDir = Path.Combine(Directory.GetCurrentDirectory(), "sub", "Best-Results");
             Directory.CreateDirectory(bestDir);
-
             var limits = new[] { 100, 200, 300, 400, 500 };
             foreach (var limit in limits)
             {
@@ -464,7 +441,6 @@ namespace ProxyCollector.Collector
                 var txtPath = Path.Combine(bestDir, $"top{limit}.txt");
                 await File.WriteAllLinesAsync(txtPath, topN.Select(t => $"{t.Link} # latency={t.Latency}ms"));
                 Console.WriteLine($"Saved sub/Best-Results/top{limit}.txt ({topN.Count})");
-
                 var jsonProxies = topN.Select(t => t.ClashProxy).Where(p => p != null).ToList();
                 var jsonConfig = new
                 {
@@ -489,40 +465,12 @@ namespace ProxyCollector.Collector
                 Console.WriteLine($"Saved sub/Best-Results/top{limit}.json ({topN.Count})");
             }
         }
-
-        private async Task<(bool Success, int LatencyMs)> TestTcpConnectionAsync(string proxyLink, string endpoint)
-        {
-            try
-            {
-                // Very basic TCP connect test - no real proxy usage here, just connectivity simulation
-                // In real production you'd inject proxy settings, but for speed we keep it simple
-                var parts = endpoint.Split(':');
-                var ip = IPAddress.Parse(parts[0]);
-                var port = int.Parse(parts[1]);
-
-                using var socket = new TcpClient();
-                var connectTask = socket.ConnectAsync(ip, port);
-                if (await Task.WhenAny(connectTask, Task.Delay(TestTimeoutMs)) != connectTask)
-                    return (false, 9999);
-
-                var start = DateTime.UtcNow;
-                await connectTask;
-                var elapsed = (int)(DateTime.UtcNow - start).TotalMilliseconds;
-                socket.Close();
-                return (true, elapsed);
-            }
-            catch
-            {
-                return (false, 9999);
-            }
-        }
-
         private async Task<bool> IsProxyAliveAsync(string link)
         {
             try
             {
                 using var client = new HttpClient { Timeout = TimeSpan.FromMilliseconds(AliveCheckTimeoutMs) };
-                var request = new HttpRequestMessage(HttpMethod.Head, "http://cp.cloudflare.com/generate_204");
+                var request = new HttpRequestMessage(HttpMethod.Head, TestUrl);
                 var resp = await client.SendAsync(request);
                 return resp.IsSuccessStatusCode;
             }
@@ -531,7 +479,34 @@ namespace ProxyCollector.Collector
                 return false;
             }
         }
+        private async Task<int> TestProxyLatencyAsync(string link)
+        {
+            int bestLatency = 9999;
+            foreach (var endpoint in TestEndpoints)
+            {
+                try
+                {
+                    var parts = endpoint.Split(':');
+                    var ip = IPAddress.Parse(parts[0]);
+                    var port = int.Parse(parts[1]);
 
+                    using var socket = new TcpClient();
+                    var connectTask = socket.ConnectAsync(ip, port);
+                    if (await Task.WhenAny(connectTask, Task.Delay(TestTimeoutMs)) != connectTask)
+                        continue;
+
+                    var start = DateTime.UtcNow;
+                    await connectTask;
+                    var elapsed = (int)(DateTime.UtcNow - start).TotalMilliseconds;
+                    socket.Close();
+
+                    if (elapsed < bestLatency)
+                        bestLatency = elapsed;
+                }
+                catch { }
+            }
+            return bestLatency < 9999 ? bestLatency : -1;
+        }
         private string NormalizeProto(string proto)
         {
             if (string.IsNullOrEmpty(proto)) return "unknown";
@@ -545,7 +520,6 @@ namespace ProxyCollector.Collector
             if (proto == "tuic") return "tuic";
             return proto;
         }
-
         private async Task SaveClashJson(string filePath, List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)> proxies, string configName)
         {
             var clashProxies = proxies.Select(x => x.ClashProxy).Where(p => p != null).ToList();
@@ -570,7 +544,6 @@ namespace ProxyCollector.Collector
             var options = new JsonSerializerOptions { WriteIndented = true };
             await File.WriteAllTextAsync(filePath, JsonSerializer.Serialize(clashConfig, options));
         }
-
         private object GenerateClashProxy(string proto, string serverPort, string originalLine, string name)
         {
             string server = "unknown";
@@ -635,7 +608,6 @@ namespace ProxyCollector.Collector
                     return new { name, type = proto, server, port };
             }
         }
-
         private string RenameRemarkInLink(string original, string newRemark, string proto)
         {
             string baseLink = original.Split('#')[0].TrimEnd();
@@ -675,7 +647,6 @@ namespace ProxyCollector.Collector
             string escaped = Uri.EscapeDataString(newRemark);
             return baseLink + "#" + escaped;
         }
-
         private (string protocol, string serverPort, string remark) ParseProxyLine(string line)
         {
             line = line.Trim();
@@ -732,7 +703,6 @@ namespace ProxyCollector.Collector
                 return (guessedProto, ipPortMatch.Value, remark);
             return ("unknown", "", "");
         }
-
         private string DecodeBase64(string b64)
         {
             try

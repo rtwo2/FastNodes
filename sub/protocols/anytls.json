@@ -1,0 +1,130 @@
+{
+  "name": "FastNodes ANYTLS",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDF7\uD83C\uDDFA Russia - ANYTLS - ru.pddwdf.store:25741",
+      "type": "anytls",
+      "server": "ru.pddwdf.store",
+      "port": 25741
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - 96078085-t9l0g0-tcj7b6-d70y.hkt.east.wctype.com:8300",
+      "type": "anytls",
+      "server": "96078085-t9l0g0-tcj7b6-d70y.hkt.east.wctype.com",
+      "port": 8300
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - ANYTLS - 198.46.146.221:23489",
+      "type": "anytls",
+      "server": "198.46.146.221",
+      "port": 23489
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - ANYTLS - 160.16.137.82:52041",
+      "type": "anytls",
+      "server": "160.16.137.82",
+      "port": 52041
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - ec1c1972-t9lmo0-ta37qp-b4pt.hkt.east.wctype.com:8300",
+      "type": "anytls",
+      "server": "ec1c1972-t9lmo0-ta37qp-b4pt.hkt.east.wctype.com",
+      "port": 8300
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - ANYTLS - 198.46.146.220:23466",
+      "type": "anytls",
+      "server": "198.46.146.220",
+      "port": 23466
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - ef212de6-t9lmo0-t9lxaa-1glq.hkt.east.wctype.com:8300",
+      "type": "anytls",
+      "server": "ef212de6-t9lmo0-t9lxaa-1glq.hkt.east.wctype.com",
+      "port": 8300
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - ANYTLS - 160.16.104.223:52096",
+      "type": "anytls",
+      "server": "160.16.104.223",
+      "port": 52096
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - 78fb080c-t9lmo0-tbomae-4mce.hkt.east.wctype.com:8300",
+      "type": "anytls",
+      "server": "78fb080c-t9lmo0-tbomae-4mce.hkt.east.wctype.com",
+      "port": 8300
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - b7fd6a5e-t9lmo0-t9izwa-64gc.hkt.east.wctype.com:8300",
+      "type": "anytls",
+      "server": "b7fd6a5e-t9lmo0-t9izwa-64gc.hkt.east.wctype.com",
+      "port": 8300
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - 90b96b82-t9l0g0-tclkqs-deip.hkt.east.wctype.com:8300",
+      "type": "anytls",
+      "server": "90b96b82-t9l0g0-tclkqs-deip.hkt.east.wctype.com",
+      "port": 8300
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - 1b5a3305-t9nhc0-tbomae-4mce.hkt.east.wctype.com:8300",
+      "type": "anytls",
+      "server": "1b5a3305-t9nhc0-tbomae-4mce.hkt.east.wctype.com",
+      "port": 8300
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - cb6e9e1b-t9lmo0-tcjtj6-d70y.hkt.east.wctype.com:8300",
+      "type": "anytls",
+      "server": "cb6e9e1b-t9lmo0-tcjtj6-d70y.hkt.east.wctype.com",
+      "port": 8300
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - f2bf4378-t9l0g0-t9idoa-64gc.hkt.east.wctype.com:8300",
+      "type": "anytls",
+      "server": "f2bf4378-t9l0g0-t9idoa-64gc.hkt.east.wctype.com",
+      "port": 8300
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - ANYTLS - 160.16.137.82:12344",
+      "type": "anytls",
+      "server": "160.16.137.82",
+      "port": 12344
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - ANYTLS - 160.16.104.223:12466",
+      "type": "anytls",
+      "server": "160.16.104.223",
+      "port": 12466
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDF7\uD83C\uDDFA Russia - ANYTLS - ru.pddwdf.store:25741",
+        "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - 96078085-t9l0g0-tcj7b6-d70y.hkt.east.wctype.com:8300",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - ANYTLS - 198.46.146.221:23489",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - ANYTLS - 160.16.137.82:52041",
+        "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - ec1c1972-t9lmo0-ta37qp-b4pt.hkt.east.wctype.com:8300",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - ANYTLS - 198.46.146.220:23466",
+        "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - ef212de6-t9lmo0-t9lxaa-1glq.hkt.east.wctype.com:8300",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - ANYTLS - 160.16.104.223:52096",
+        "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - 78fb080c-t9lmo0-tbomae-4mce.hkt.east.wctype.com:8300",
+        "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - b7fd6a5e-t9lmo0-t9izwa-64gc.hkt.east.wctype.com:8300",
+        "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - 90b96b82-t9l0g0-tclkqs-deip.hkt.east.wctype.com:8300",
+        "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - 1b5a3305-t9nhc0-tbomae-4mce.hkt.east.wctype.com:8300",
+        "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - cb6e9e1b-t9lmo0-tcjtj6-d70y.hkt.east.wctype.com:8300",
+        "\uD83C\uDDED\uD83C\uDDF0 Hong Kong - ANYTLS - f2bf4378-t9l0g0-t9idoa-64gc.hkt.east.wctype.com:8300",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - ANYTLS - 160.16.137.82:12344",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - ANYTLS - 160.16.104.223:12466"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

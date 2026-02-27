@@ -1,0 +1,25 @@
+{
+  "name": "FastNodes SOCKS5",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SOCKS5 - 121.169.46.116:1090",
+      "type": "socks5",
+      "server": "121.169.46.116",
+      "port": 1090
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDF0\uD83C\uDDF7 South Korea - SOCKS5 - 121.169.46.116:1090"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

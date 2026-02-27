@@ -1,0 +1,25 @@
+{
+  "name": "FastNodes FROMAT",
+  "proxies": [
+    {
+      "name": "\uD83C\uDF0D Unknown - FROMAT - :443",
+      "type": "fromat",
+      "server": "",
+      "port": 443
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDF0D Unknown - FROMAT - :443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

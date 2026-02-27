@@ -1,0 +1,25 @@
+{
+  "name": "FastNodes VPN",
+  "proxies": [
+    {
+      "name": "\uD83C\uDF0D Unknown - VPN - :443",
+      "type": "vpn",
+      "server": "",
+      "port": 443
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDF0D Unknown - VPN - :443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

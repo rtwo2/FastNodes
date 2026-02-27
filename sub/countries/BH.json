@@ -1,0 +1,136 @@
+{
+  "name": "FastNodes BH",
+  "proxies": [
+    {
+      "name": "\uD83C\uDF0D Bahrain - TROJAN - blaab.wsone.icu:443",
+      "type": "trojan",
+      "server": "blaab.wsone.icu",
+      "port": 443,
+      "password": "M7v%25w11Se%2A",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDF0D Bahrain - SS - 38.54.2.182:990",
+      "type": "ss",
+      "server": "38.54.2.182",
+      "port": 990,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Bahrain - SS - 154.205.146.153:990",
+      "type": "ss",
+      "server": "154.205.146.153",
+      "port": 990,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Bahrain - VLESS - 104.22.68.66:2053",
+      "type": "vless",
+      "server": "104.22.68.66",
+      "port": 2053,
+      "uuid": "d342d11e-d424-4583-b36e-524ab1f0afa4",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Bahrain - SS - 15.184.179.92:443",
+      "type": "ss",
+      "server": "15.184.179.92",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Bahrain - SS - 15.184.240.29:443",
+      "type": "ss",
+      "server": "15.184.240.29",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Bahrain - SS - 15.184.243.117:443",
+      "type": "ss",
+      "server": "15.184.243.117",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Bahrain - SS - 15.184.66.251:443",
+      "type": "ss",
+      "server": "15.184.66.251",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Bahrain - SS - 15.185.92.149:443",
+      "type": "ss",
+      "server": "15.185.92.149",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Bahrain - SS - 157.175.135.28:443",
+      "type": "ss",
+      "server": "157.175.135.28",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Bahrain - SS - 157.241.18.103:443",
+      "type": "ss",
+      "server": "157.241.18.103",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Bahrain - SS - 16.24.119.55:443",
+      "type": "ss",
+      "server": "16.24.119.55",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Bahrain - SS - 16.24.166.103:443",
+      "type": "ss",
+      "server": "16.24.166.103",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDF0D Bahrain - TROJAN - blaab.wsone.icu:443",
+        "\uD83C\uDF0D Bahrain - SS - 38.54.2.182:990",
+        "\uD83C\uDF0D Bahrain - SS - 154.205.146.153:990",
+        "\uD83C\uDF0D Bahrain - VLESS - 104.22.68.66:2053",
+        "\uD83C\uDF0D Bahrain - SS - 15.184.179.92:443",
+        "\uD83C\uDF0D Bahrain - SS - 15.184.240.29:443",
+        "\uD83C\uDF0D Bahrain - SS - 15.184.243.117:443",
+        "\uD83C\uDF0D Bahrain - SS - 15.184.66.251:443",
+        "\uD83C\uDF0D Bahrain - SS - 15.185.92.149:443",
+        "\uD83C\uDF0D Bahrain - SS - 157.175.135.28:443",
+        "\uD83C\uDF0D Bahrain - SS - 157.241.18.103:443",
+        "\uD83C\uDF0D Bahrain - SS - 16.24.119.55:443",
+        "\uD83C\uDF0D Bahrain - SS - 16.24.166.103:443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

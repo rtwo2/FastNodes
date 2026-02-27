@@ -1,0 +1,25 @@
+{
+  "name": "FastNodes DOGE",
+  "proxies": [
+    {
+      "name": "\uD83C\uDF0D Unknown - DOGE - :443",
+      "type": "doge",
+      "server": "",
+      "port": 443
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDF0D Unknown - DOGE - :443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "name": "FastNodes OM",
+  "proxies": [
+    {
+      "name": "\uD83C\uDF0D Oman - SS - 38.54.116.156:443",
+      "type": "ss",
+      "server": "38.54.116.156",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Oman - SS - 38.54.116.73:443",
+      "type": "ss",
+      "server": "38.54.116.73",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Oman - SS - 38.54.116.96:443",
+      "type": "ss",
+      "server": "38.54.116.96",
+      "port": 443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Oman - SS - 154.205.147.68:8443",
+      "type": "ss",
+      "server": "154.205.147.68",
+      "port": 8443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Oman - VLESS - 154.205.147.177:443",
+      "type": "vless",
+      "server": "154.205.147.177",
+      "port": 443,
+      "uuid": "16e55e1a-6152-4d92-a422-31490e8ef563",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Oman - VLESS - 38.54.116.105:443",
+      "type": "vless",
+      "server": "38.54.116.105",
+      "port": 443,
+      "uuid": "16e55e1a-6152-4d92-a422-31490e8ef563",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Oman - VLESS - 38.54.116.156:443",
+      "type": "vless",
+      "server": "38.54.116.156",
+      "port": 443,
+      "uuid": "16e55e1a-6152-4d92-a422-31490e8ef563",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Oman - VLESS - 38.54.116.73:443",
+      "type": "vless",
+      "server": "38.54.116.73",
+      "port": 443,
+      "uuid": "16e55e1a-6152-4d92-a422-31490e8ef563",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Oman - VLESS - 38.54.116.96:443",
+      "type": "vless",
+      "server": "38.54.116.96",
+      "port": 443,
+      "uuid": "16e55e1a-6152-4d92-a422-31490e8ef563",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Oman - VLESS - 154.205.147.125:443",
+      "type": "vless",
+      "server": "154.205.147.125",
+      "port": 443,
+      "uuid": "abd41c73-7c74-44d2-b64a-24e7649fce57",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDF0D Oman - SS - 38.54.116.156:443",
+        "\uD83C\uDF0D Oman - SS - 38.54.116.73:443",
+        "\uD83C\uDF0D Oman - SS - 38.54.116.96:443",
+        "\uD83C\uDF0D Oman - SS - 154.205.147.68:8443",
+        "\uD83C\uDF0D Oman - VLESS - 154.205.147.177:443",
+        "\uD83C\uDF0D Oman - VLESS - 38.54.116.105:443",
+        "\uD83C\uDF0D Oman - VLESS - 38.54.116.156:443",
+        "\uD83C\uDF0D Oman - VLESS - 38.54.116.73:443",
+        "\uD83C\uDF0D Oman - VLESS - 38.54.116.96:443",
+        "\uD83C\uDF0D Oman - VLESS - 154.205.147.125:443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

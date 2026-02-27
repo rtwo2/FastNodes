@@ -1,0 +1,66 @@
+{
+  "name": "FastNodes NZ",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS - 172.64.197.116:8080",
+      "type": "vless",
+      "server": "172.64.197.116",
+      "port": 8080,
+      "uuid": "79978027-ef16-4137-b18e-905f8c18f845",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - SS - 172.64.197.116:8080",
+      "type": "ss",
+      "server": "172.64.197.116",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - TROJAN - 45.15.140.107:19106",
+      "type": "trojan",
+      "server": "45.15.140.107",
+      "port": 19106,
+      "password": "tSk5LQoJr7F.WnRsUM4hT",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS - 114.129.43.251:8880",
+      "type": "vless",
+      "server": "114.129.43.251",
+      "port": 8880,
+      "uuid": "0132166f-e702-48ed-a9e7-b07af768faf8",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS - 114.129.43.168:8880",
+      "type": "vless",
+      "server": "114.129.43.168",
+      "port": 8880,
+      "uuid": "fab7bf9c-ddb9-4563-8a04-fb01ce6c0fbf",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS - 172.64.197.116:8080",
+        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - SS - 172.64.197.116:8080",
+        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - TROJAN - 45.15.140.107:19106",
+        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS - 114.129.43.251:8880",
+        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS - 114.129.43.168:8880"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

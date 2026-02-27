@@ -1,0 +1,159 @@
+{
+  "name": "FastNodes DK",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - 45.148.31.0:15855",
+      "type": "vless",
+      "server": "45.148.31.0",
+      "port": 15855,
+      "uuid": "e4fc4761-154f-490e-bbaa-b4fa193f1073",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - f126.fast199.hosting-ip.com:80",
+      "type": "vless",
+      "server": "f126.fast199.hosting-ip.com",
+      "port": 80,
+      "uuid": "306398b1-e333-4ad0-8763-8d6b3f73c3ff",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - hajimamadvpnjoinsho.fast199.hosting-ip.com:80",
+      "type": "vless",
+      "server": "hajimamadvpnjoinsho.fast199.hosting-ip.com",
+      "port": 80,
+      "uuid": "832a3784-7ae1-4ff2-ab13-5fb4bf8abd28",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - cd3c98d663ea5f03.freestly.sapienza-mahan.ir:443",
+      "type": "vless",
+      "server": "cd3c98d663ea5f03.freestly.sapienza-mahan.ir",
+      "port": 443,
+      "uuid": "31351ae7-e506-43d3-9fcf-246c5248d336",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - 04cc4ef1beb1b536.freestly.sapienza-mahan.ir:443",
+      "type": "vless",
+      "server": "04cc4ef1beb1b536.freestly.sapienza-mahan.ir",
+      "port": 443,
+      "uuid": "983da2df-bc52-4226-84c1-bbfef0704427",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 193.29.107.211:43963",
+      "type": "ss",
+      "server": "193.29.107.211",
+      "port": 43963,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 193.29.107.179:40282",
+      "type": "ss",
+      "server": "193.29.107.179",
+      "port": 40282,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 193.29.107.197:38742",
+      "type": "ss",
+      "server": "193.29.107.197",
+      "port": 38742,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 192.36.27.79:989",
+      "type": "ss",
+      "server": "192.36.27.79",
+      "port": 989,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 192.36.27.116:989",
+      "type": "ss",
+      "server": "192.36.27.116",
+      "port": 989,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 192.36.27.94:989",
+      "type": "ss",
+      "server": "192.36.27.94",
+      "port": 989,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 45.148.31.0:15855",
+      "type": "ss",
+      "server": "45.148.31.0",
+      "port": 15855,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 91.210.57.117:8443",
+      "type": "ss",
+      "server": "91.210.57.117",
+      "port": 8443,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - TROJAN - 46.29.235.31:2053",
+      "type": "trojan",
+      "server": "46.29.235.31",
+      "port": 2053,
+      "password": "Aimer",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - 199.232.40.117:80",
+      "type": "vless",
+      "server": "199.232.40.117",
+      "port": 80,
+      "uuid": "576a1db6-81cc-458e-97aa-b4f55f1dbdaf",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - 45.148.31.0:15855",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - f126.fast199.hosting-ip.com:80",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - hajimamadvpnjoinsho.fast199.hosting-ip.com:80",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - cd3c98d663ea5f03.freestly.sapienza-mahan.ir:443",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - 04cc4ef1beb1b536.freestly.sapienza-mahan.ir:443",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 193.29.107.211:43963",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 193.29.107.179:40282",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 193.29.107.197:38742",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 192.36.27.79:989",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 192.36.27.116:989",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 192.36.27.94:989",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 45.148.31.0:15855",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS - 91.210.57.117:8443",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - TROJAN - 46.29.235.31:2053",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS - 199.232.40.117:80"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

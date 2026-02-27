@@ -1,0 +1,49 @@
+# .NET Build / Output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Ll]og/
+[Ll]ogs/
+.vs/
+.vscode/
+.idea/
+
+# User-specific files
+*.user
+*.suo
+*.userprefs
+*.sln.docstates
+*.rsuser
+
+# Packages
+**/packages/*
+*.nupkg
+*.snupkg
+
+# Launch settings
+Properties/launchSettings.json
+
+# Binary / Generated
+*.dll
+*.pdb
+*.exe
+*.cache
+*.meta
+*.tmp
+*.log
+
+# Others
+~$*
+*~
+*.dbmdl
+*.jfm
+*.pfx
+*.publishsettings
+*.snk
+node_modules/

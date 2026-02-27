@@ -2,7 +2,7 @@ name: FastNodes - Main Collector (Fast & Smart)
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # every 6 hours
+    - cron: '0 */6 * * *'          # every 6 hours
   workflow_dispatch:
 
 jobs:
@@ -60,7 +60,7 @@ jobs:
             ls -la ProxyCollector/Country.mmdb || echo "No GeoIP file yet"
           fi
 
-      - name: Download fresh IP blacklist (FireHOL Level 2) 🔒
+      - name: Download fresh FireHOL Level 2 blacklist 🔒
         run: |
           echo "Downloading fresh FireHOL Level 2 blacklist..."
           BLACKLIST_URL="https://iplists.firehol.org/files/firehol_level2.netset"
@@ -108,7 +108,7 @@ jobs:
         run: |
           echo "Quick stats:"
           wc -l sub/everything.txt | awk '{print "everything.txt lines: " $1}'
-          wc -l Best-Results/top500.txt | awk '{print "top500.txt lines: " $1}'
+          wc -l sub/Best-Results/top500.txt | awk '{print "top500.txt lines: " $1}'
           ls -lh sub/protocols/ | grep ".txt" || echo "No protocol txt files"
           ls -lh sub/temp/ || echo "Temp folder empty?"
 
@@ -116,16 +116,16 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-         
+          
           git stash push -u -m "Stash before pull" || true
-         
+          
           git fetch origin
-          git pull --rebase origin master || true
-         
+          git pull --rebase origin main || true   # ← changed to main (your default branch)
+          
           git stash pop || true
-         
-          git add ProxyCollector/Country.mmdb ProxyCollector/blacklist.netset sub/ Best-Results/ || true
-         
+          
+          git add ProxyCollector/Country.mmdb ProxyCollector/blacklist.netset sub/ || true
+          
           git commit -m "Fresh proxies + GeoIP + blacklist + Best Results (top 500) - $(date +'%Y-%m-%d %H:%M UTC') - $(wc -l < sub/everything.txt) proxies - temp backup included" --allow-empty || echo "Nothing new to commit"
-         
+          
           git push || echo "Push failed or no changes"

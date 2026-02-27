@@ -1,0 +1,108 @@
+{
+  "name": "FastNodes EE",
+  "proxies": [
+    {
+      "name": "\uD83C\uDF0D Estonia - VLESS - s348.ccgfw.top:443",
+      "type": "vless",
+      "server": "s348.ccgfw.top",
+      "port": 443,
+      "uuid": "8c6118b9-78a8-3b3b-a49a-6aa9cb5b1d4e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Estonia - VLESS - s481.ccgfw.top:443",
+      "type": "vless",
+      "server": "s481.ccgfw.top",
+      "port": 443,
+      "uuid": "8c6118b9-78a8-3b3b-a49a-6aa9cb5b1d4e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Estonia - VLESS - s501.ccgfw.top:443",
+      "type": "vless",
+      "server": "s501.ccgfw.top",
+      "port": 443,
+      "uuid": "8c6118b9-78a8-3b3b-a49a-6aa9cb5b1d4e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Estonia - VLESS - 185.223.168.238:8448",
+      "type": "vless",
+      "server": "185.223.168.238",
+      "port": 8448,
+      "uuid": "6d490cef-0b49-459d-a72c-0bb0210f3dd0",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Estonia - VLESS - ee.connectv.net:443",
+      "type": "vless",
+      "server": "ee.connectv.net",
+      "port": 443,
+      "uuid": "7902dc25-ff8b-4fa4-83ff-ecef5ab3414e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Estonia - VLESS - 185.252.177.163:8443",
+      "type": "vless",
+      "server": "185.252.177.163",
+      "port": 8443,
+      "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Estonia - VLESS - 95.85.224.28:443",
+      "type": "vless",
+      "server": "95.85.224.28",
+      "port": 443,
+      "uuid": "43d181ff-e74a-47e0-916e-1f65f1cce649",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Estonia - VLESS - 109.172.9.60:443",
+      "type": "vless",
+      "server": "109.172.9.60",
+      "port": 443,
+      "uuid": "b38bb47c-8e08-46d0-ab5b-6b065de54098",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Estonia - VLESS - 91.184.250.227:443",
+      "type": "vless",
+      "server": "91.184.250.227",
+      "port": 443,
+      "uuid": "ff9035ba-4052-4fa5-8ccf-f9a6ca57407d",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDF0D Estonia - VLESS - s348.ccgfw.top:443",
+        "\uD83C\uDF0D Estonia - VLESS - s481.ccgfw.top:443",
+        "\uD83C\uDF0D Estonia - VLESS - s501.ccgfw.top:443",
+        "\uD83C\uDF0D Estonia - VLESS - 185.223.168.238:8448",
+        "\uD83C\uDF0D Estonia - VLESS - ee.connectv.net:443",
+        "\uD83C\uDF0D Estonia - VLESS - 185.252.177.163:8443",
+        "\uD83C\uDF0D Estonia - VLESS - 95.85.224.28:443",
+        "\uD83C\uDF0D Estonia - VLESS - 109.172.9.60:443",
+        "\uD83C\uDF0D Estonia - VLESS - 91.184.250.227:443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

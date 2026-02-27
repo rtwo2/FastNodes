@@ -1,0 +1,158 @@
+{
+  "name": "FastNodes KZ",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - kz01-vlr01.tcp-reset-club.net:443",
+      "type": "vless",
+      "server": "kz01-vlr01.tcp-reset-club.net",
+      "port": 443,
+      "uuid": "1c4aceb6-bff7-4737-8c5d-43afb3dc350b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - kz.connect-opengate.cv:443",
+      "type": "vless",
+      "server": "kz.connect-opengate.cv",
+      "port": 443,
+      "uuid": "05f0c31f-d127-4a4e-a43c-b040ba8e42d0",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 83.222.23.81:38065",
+      "type": "vless",
+      "server": "83.222.23.81",
+      "port": 38065,
+      "uuid": "4b9063e0-3288-44e9-9aac-80fbfce323a0",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 178.236.16.98:35728",
+      "type": "vless",
+      "server": "178.236.16.98",
+      "port": 35728,
+      "uuid": "a00d89f6-ab7e-4e30-a5e5-54c701d62c93",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 77.73.232.61:19747",
+      "type": "vless",
+      "server": "77.73.232.61",
+      "port": 19747,
+      "uuid": "2a9ed01e-5455-44b4-a66a-76ee8165f0ac",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 109.248.170.119:13447",
+      "type": "vless",
+      "server": "109.248.170.119",
+      "port": 13447,
+      "uuid": "b573cefb-7bc7-4a42-b407-b8b534e66773",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VMESS - 38.107.234.57:80",
+      "type": "vmess",
+      "server": "38.107.234.57",
+      "port": 80,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VMESS - 3h-kazakhstan1.09vpn.com:80",
+      "type": "vmess",
+      "server": "3h-kazakhstan1.09vpn.com",
+      "port": 80,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - SS - 213.156.137.142:43659",
+      "type": "ss",
+      "server": "213.156.137.142",
+      "port": 43659,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - SS - 213.156.137.142:43660",
+      "type": "ss",
+      "server": "213.156.137.142",
+      "port": 43660,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 91.147.92.76:443",
+      "type": "vless",
+      "server": "91.147.92.76",
+      "port": 443,
+      "uuid": "1c4aceb6-bff7-4737-8c5d-43afb3dc350b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 91.147.92.14:443",
+      "type": "vless",
+      "server": "91.147.92.14",
+      "port": 443,
+      "uuid": "1c4aceb6-bff7-4737-8c5d-43afb3dc350b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 185.5.74.245:443",
+      "type": "vless",
+      "server": "185.5.74.245",
+      "port": 443,
+      "uuid": "aa0cdb77-f1a7-42b8-a6e9-f814e3455137",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 151.236.93.248:7443",
+      "type": "vless",
+      "server": "151.236.93.248",
+      "port": 7443,
+      "uuid": "7f5b1fbe-e785-496f-91ab-8dce656edffe",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - kz01-vlr01.tcp-reset-club.net:443",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - kz.connect-opengate.cv:443",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 83.222.23.81:38065",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 178.236.16.98:35728",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 77.73.232.61:19747",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 109.248.170.119:13447",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VMESS - 38.107.234.57:80",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VMESS - 3h-kazakhstan1.09vpn.com:80",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - SS - 213.156.137.142:43659",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - SS - 213.156.137.142:43660",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 91.147.92.76:443",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 91.147.92.14:443",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 185.5.74.245:443",
+        "\uD83C\uDDF0\uD83C\uDDFF Kazakhstan - VLESS - 151.236.93.248:7443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

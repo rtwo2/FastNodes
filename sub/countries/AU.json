@@ -1,0 +1,69 @@
+{
+  "name": "FastNodes AU",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Unknown - VLESS - china.embassy.gov.au:2053",
+      "type": "vless",
+      "server": "china.embassy.gov.au",
+      "port": 2053,
+      "uuid": "26524cce-d514-4014-a426-365fb266a14d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS - 192.9.162.122:1443",
+      "type": "vless",
+      "server": "192.9.162.122",
+      "port": 1443,
+      "uuid": "7a169e43-ff85-4572-9843-ba7207d07319",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS - 45.15.185.69:8443",
+      "type": "vless",
+      "server": "45.15.185.69",
+      "port": 8443,
+      "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VMESS - 45.15.185.17:80",
+      "type": "vmess",
+      "server": "45.15.185.17",
+      "port": 80,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS - 38.48.124.146:443",
+      "type": "vless",
+      "server": "38.48.124.146",
+      "port": 443,
+      "uuid": "e4598260-fb5e-4d0a-f0c2-64259f5c38e7",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDE6\uD83C\uDDFA Unknown - VLESS - china.embassy.gov.au:2053",
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS - 192.9.162.122:1443",
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS - 45.15.185.69:8443",
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - VMESS - 45.15.185.17:80",
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS - 38.48.124.146:443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

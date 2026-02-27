@@ -1,0 +1,68 @@
+{
+  "name": "FastNodes CH",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS - 208.69.78.5:443",
+      "type": "vless",
+      "server": "208.69.78.5",
+      "port": 443,
+      "uuid": "0a21d713-6e6f-4274-8b84-464019325513",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS - 213.176.18.99:443",
+      "type": "vless",
+      "server": "213.176.18.99",
+      "port": 443,
+      "uuid": "c31a4b10-bff2-4fc1-b379-5954aaa8940b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS - 45.141.119.180:8443",
+      "type": "vless",
+      "server": "45.141.119.180",
+      "port": 8443,
+      "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS - 37.156.45.227:36261",
+      "type": "vless",
+      "server": "37.156.45.227",
+      "port": 36261,
+      "uuid": "cb57b920-cd95-4bbf-bd8c-9e58833fcc5c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS - shop.asperwild.com:443",
+      "type": "vless",
+      "server": "shop.asperwild.com",
+      "port": 443,
+      "uuid": "2bd568b3-19ee-488e-a1c4-b1b601326f41",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS - 208.69.78.5:443",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS - 213.176.18.99:443",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS - 45.141.119.180:8443",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS - 37.156.45.227:36261",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS - shop.asperwild.com:443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

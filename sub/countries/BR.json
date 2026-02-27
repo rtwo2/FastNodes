@@ -1,0 +1,133 @@
+{
+  "name": "FastNodes BR",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VMESS - 95.164.4.88:80",
+      "type": "vmess",
+      "server": "95.164.4.88",
+      "port": 80,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS - 95.164.4.88:8443",
+      "type": "vless",
+      "server": "95.164.4.88",
+      "port": 8443,
+      "uuid": "1a7a39e4-8c9b-4052-b8b2-c0929536bba5",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS - 167.234.255.2:34045",
+      "type": "vless",
+      "server": "167.234.255.2",
+      "port": 34045,
+      "uuid": "d8dd94fd-540e-461d-b5d4-acebef02c22a",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS - pq-brazil1.09vpn.com:8443",
+      "type": "vless",
+      "server": "pq-brazil1.09vpn.com",
+      "port": 8443,
+      "uuid": "e1628f52-dcbd-417c-90cc-e9266b28ea38",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS - 38.54.57.90:990",
+      "type": "ss",
+      "server": "38.54.57.90",
+      "port": 990,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS - 5.188.4.103:11201",
+      "type": "ss",
+      "server": "5.188.4.103",
+      "port": 11201,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS - 5.188.4.103:11202",
+      "type": "ss",
+      "server": "5.188.4.103",
+      "port": 11202,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS - 5.188.4.103:11203",
+      "type": "ss",
+      "server": "5.188.4.103",
+      "port": 11203,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS - 5.188.4.103:11204",
+      "type": "ss",
+      "server": "5.188.4.103",
+      "port": 11204,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS - 5.188.4.103:11205",
+      "type": "ss",
+      "server": "5.188.4.103",
+      "port": 11205,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS - br.pineappled.org:443",
+      "type": "vless",
+      "server": "br.pineappled.org",
+      "port": 443,
+      "uuid": "8a77b19a-36be-43ff-ace0-bc322aa4f1e3",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS - 77.111.101.80:443",
+      "type": "vless",
+      "server": "77.111.101.80",
+      "port": 443,
+      "uuid": "8a77b19a-36be-43ff-ace0-bc322aa4f1e3",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VMESS - 95.164.4.88:80",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS - 95.164.4.88:8443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS - 167.234.255.2:34045",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS - pq-brazil1.09vpn.com:8443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS - 38.54.57.90:990",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS - 5.188.4.103:11201",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS - 5.188.4.103:11202",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS - 5.188.4.103:11203",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS - 5.188.4.103:11204",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS - 5.188.4.103:11205",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS - br.pineappled.org:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS - 77.111.101.80:443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

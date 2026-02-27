@@ -1,0 +1,78 @@
+{
+  "name": "FastNodes RO",
+  "proxies": [
+    {
+      "name": "\uD83C\uDF0D Romania - VLESS - 188.241.241.33:2053",
+      "type": "vless",
+      "server": "188.241.241.33",
+      "port": 2053,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Romania - VLESS - 188.241.241.123:2053",
+      "type": "vless",
+      "server": "188.241.241.123",
+      "port": 2053,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Romania - VLESS - 188.241.241.28:2053",
+      "type": "vless",
+      "server": "188.241.241.28",
+      "port": 2053,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Romania - VLESS - 188.241.241.3:2053",
+      "type": "vless",
+      "server": "188.241.241.3",
+      "port": 2053,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Romania - VLESS - 188.241.241.32:2053",
+      "type": "vless",
+      "server": "188.241.241.32",
+      "port": 2053,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Romania - VLESS - 188.241.241.29:2053",
+      "type": "vless",
+      "server": "188.241.241.29",
+      "port": 2053,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDF0D Romania - VLESS - 188.241.241.33:2053",
+        "\uD83C\uDF0D Romania - VLESS - 188.241.241.123:2053",
+        "\uD83C\uDF0D Romania - VLESS - 188.241.241.28:2053",
+        "\uD83C\uDF0D Romania - VLESS - 188.241.241.3:2053",
+        "\uD83C\uDF0D Romania - VLESS - 188.241.241.32:2053",
+        "\uD83C\uDF0D Romania - VLESS - 188.241.241.29:2053"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

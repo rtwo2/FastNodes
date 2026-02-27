@@ -1,0 +1,89 @@
+{
+  "name": "FastNodes AL",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS - pq-albania1.09vpn.com:80",
+      "type": "vless",
+      "server": "pq-albania1.09vpn.com",
+      "port": 80,
+      "uuid": "8910cbb3-33b1-4266-a243-ac780ac63394",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS - 45.15.170.237:80",
+      "type": "vless",
+      "server": "45.15.170.237",
+      "port": 80,
+      "uuid": "8910cbb3-33b1-4266-a243-ac780ac63394",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VMESS - 45.15.170.237:80",
+      "type": "vmess",
+      "server": "45.15.170.237",
+      "port": 80,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS - 78.159.131.90:443",
+      "type": "vless",
+      "server": "78.159.131.90",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS - 185.177.238.3:443",
+      "type": "vless",
+      "server": "185.177.238.3",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS - 45.15.170.218:8443",
+      "type": "vless",
+      "server": "45.15.170.218",
+      "port": 8443,
+      "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS - 45.15.170.239:8443",
+      "type": "vless",
+      "server": "45.15.170.239",
+      "port": 8443,
+      "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS - pq-albania1.09vpn.com:80",
+        "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS - 45.15.170.237:80",
+        "\uD83C\uDDE6\uD83C\uDDF1 Albania - VMESS - 45.15.170.237:80",
+        "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS - 78.159.131.90:443",
+        "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS - 185.177.238.3:443",
+        "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS - 45.15.170.218:8443",
+        "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS - 45.15.170.239:8443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

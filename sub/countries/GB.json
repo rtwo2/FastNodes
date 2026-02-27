@@ -1,0 +1,820 @@
+{
+  "name": "FastNodes GB",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 Unknown - VLESS - ovhwuxian.pai50288.uk:8443",
+      "type": "vless",
+      "server": "ovhwuxian.pai50288.uk",
+      "port": 8443,
+      "uuid": "57ba2ab1-a283-42eb-82ee-dc3561a805b8",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 Unknown - TROJAN - ilop.uk2033.ccwu.cc:443",
+      "type": "trojan",
+      "server": "ilop.uk2033.ccwu.cc",
+      "port": 443,
+      "password": "1338f666-2fcc-4538-bc29-1ebf89624383",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 Unknown - VMESS - nmmjuki.0sm.ccwu.cc:80",
+      "type": "vmess",
+      "server": "nmmjuki.0sm.ccwu.cc",
+      "port": 80,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 Unknown - VMESS - nmmjuki.0sm.ccwu.cc:443",
+      "type": "vmess",
+      "server": "nmmjuki.0sm.ccwu.cc",
+      "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 45.14.247.67:443",
+      "type": "vless",
+      "server": "45.14.247.67",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 5.180.97.139:443",
+      "type": "vless",
+      "server": "5.180.97.139",
+      "port": 443,
+      "uuid": "a384c715-aeb5-45e8-859b-f687ca6c083f",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.176:8080",
+      "type": "ss",
+      "server": "82.38.31.176",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.179:8080",
+      "type": "ss",
+      "server": "82.38.31.179",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.214:8080",
+      "type": "ss",
+      "server": "82.38.31.214",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.101:8080",
+      "type": "ss",
+      "server": "82.38.31.101",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.210:8080",
+      "type": "ss",
+      "server": "82.38.31.210",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.187:8080",
+      "type": "ss",
+      "server": "82.38.31.187",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.205:8080",
+      "type": "ss",
+      "server": "82.38.31.205",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.218:8080",
+      "type": "ss",
+      "server": "82.38.31.218",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.190:8080",
+      "type": "ss",
+      "server": "82.38.31.190",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.191:8080",
+      "type": "ss",
+      "server": "82.38.31.191",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.199:8080",
+      "type": "ss",
+      "server": "82.38.31.199",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.202:8080",
+      "type": "ss",
+      "server": "82.38.31.202",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.217:8080",
+      "type": "ss",
+      "server": "82.38.31.217",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.186:8080",
+      "type": "ss",
+      "server": "82.38.31.186",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.124:8080",
+      "type": "ss",
+      "server": "82.38.31.124",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.208:8080",
+      "type": "ss",
+      "server": "82.38.31.208",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.184:8080",
+      "type": "ss",
+      "server": "82.38.31.184",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.194:8080",
+      "type": "ss",
+      "server": "82.38.31.194",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.122:8080",
+      "type": "ss",
+      "server": "82.38.31.122",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.146:8080",
+      "type": "ss",
+      "server": "82.38.31.146",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.103:8080",
+      "type": "ss",
+      "server": "82.38.31.103",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.189:8080",
+      "type": "ss",
+      "server": "82.38.31.189",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.148:8080",
+      "type": "ss",
+      "server": "82.38.31.148",
+      "port": 8080,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - email.swiftraci.org:443",
+      "type": "vless",
+      "server": "email.swiftraci.org",
+      "port": 443,
+      "uuid": "f9830277-753f-481b-bb35-15e15a92acb0",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 185.5.38.111:55988",
+      "type": "ss",
+      "server": "185.5.38.111",
+      "port": 55988,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - staging.lastilhame.monster:443",
+      "type": "vless",
+      "server": "staging.lastilhame.monster",
+      "port": 443,
+      "uuid": "2f6e2b17-4d5e-4a12-8979-f53fdd347580",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - portal.ninemakeda.cfd:43669",
+      "type": "ss",
+      "server": "portal.ninemakeda.cfd",
+      "port": 43669,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - server.slavkiti.monster:443",
+      "type": "vless",
+      "server": "server.slavkiti.monster",
+      "port": 443,
+      "uuid": "4d017db2-7655-4276-9557-e2ec25b04ee7",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 178.32.58.147:443",
+      "type": "vless",
+      "server": "178.32.58.147",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 Unknown - SS - ywvzlteyoc1ny206sgmyew42vwpwq2jhue8zm1rrotnnvxrvzk9mukhtn0famtk1lje1nc4ymdiumteyoje4mjky:443",
+      "type": "ss",
+      "server": "ywvzlteyoc1ny206sgmyew42vwpwq2jhue8zm1rrotnnvxrvzk9mukhtn0famtk1lje1nc4ymdiumteyoje4mjky",
+      "port": 443,
+      "cipher": "aes-128-gcm",
+      "password": "Hc2yn6UjVCbaPO33TQ93MUtofOLRHm7A"
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 140.238.100.35:40721",
+      "type": "vless",
+      "server": "140.238.100.35",
+      "port": 40721,
+      "uuid": "bf3e8944-8d26-47de-8748-b9aa74cce974",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - TROJAN - hl-freedom-0.undef.network:443",
+      "type": "trojan",
+      "server": "hl-freedom-0.undef.network",
+      "port": 443,
+      "password": "76yTlnTIsjCTlmqnUJ5Tzc1rM",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 57.129.140.88:8388",
+      "type": "ss",
+      "server": "57.129.140.88",
+      "port": 8388,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VMESS - 57.129.132.223:80",
+      "type": "vmess",
+      "server": "57.129.132.223",
+      "port": 80,
+      "uuid": "a25cbf11-2908-4a1b-a3a8-9a571777dca3",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": false
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 57.129.132.223:80",
+      "type": "vless",
+      "server": "57.129.132.223",
+      "port": 80,
+      "uuid": "dbb78c94-9f87-4d7d-b945-2000b60352fd",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 109.169.76.23:443",
+      "type": "vless",
+      "server": "109.169.76.23",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 158.220.88.180:8443",
+      "type": "vless",
+      "server": "158.220.88.180",
+      "port": 8443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 2.56.179.89:443",
+      "type": "vless",
+      "server": "2.56.179.89",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 159.65.30.136:443",
+      "type": "vless",
+      "server": "159.65.30.136",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 178.62.25.163:443",
+      "type": "vless",
+      "server": "178.62.25.163",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 159.65.60.61:443",
+      "type": "vless",
+      "server": "159.65.60.61",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 165.232.104.116:443",
+      "type": "vless",
+      "server": "165.232.104.116",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 178.128.45.156:443",
+      "type": "vless",
+      "server": "178.128.45.156",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 134.209.30.166:443",
+      "type": "vless",
+      "server": "134.209.30.166",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 138.68.169.120:443",
+      "type": "vless",
+      "server": "138.68.169.120",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 139.59.161.217:443",
+      "type": "vless",
+      "server": "139.59.161.217",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 167.71.131.232:443",
+      "type": "vless",
+      "server": "167.71.131.232",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 167.71.136.139:443",
+      "type": "vless",
+      "server": "167.71.136.139",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 167.99.80.91:443",
+      "type": "vless",
+      "server": "167.99.80.91",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 188.166.151.33:443",
+      "type": "vless",
+      "server": "188.166.151.33",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 209.97.183.113:443",
+      "type": "vless",
+      "server": "209.97.183.113",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 87.106.65.110:443",
+      "type": "vless",
+      "server": "87.106.65.110",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 5.144.182.248:2053",
+      "type": "vless",
+      "server": "5.144.182.248",
+      "port": 2053,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 217.154.53.220:443",
+      "type": "vless",
+      "server": "217.154.53.220",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 165.227.237.209:443",
+      "type": "vless",
+      "server": "165.227.237.209",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - TROJAN - 45.89.111.112:443",
+      "type": "trojan",
+      "server": "45.89.111.112",
+      "port": 443,
+      "password": "76yTlnTIsjCTlmqnUJ5Tzc1rM",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - TROJAN - 194.150.166.151:52047",
+      "type": "trojan",
+      "server": "194.150.166.151",
+      "port": 52047,
+      "password": "zp630tdUuD",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 2.56.179.207:443",
+      "type": "vless",
+      "server": "2.56.179.207",
+      "port": 443,
+      "uuid": "395b4d7b-0abf-4b48-b9da-7432d800ef65",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 217.154.38.156:443",
+      "type": "vless",
+      "server": "217.154.38.156",
+      "port": 443,
+      "uuid": "2a8391ef-383c-4321-ac25-89b50973ab73",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - vb04.homianco.ir:2096",
+      "type": "vless",
+      "server": "vb04.homianco.ir",
+      "port": 2096,
+      "uuid": "d5f2b8ad-5ee4-41fe-95e9-7adc1acb0549",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - uk.connectv.net:443",
+      "type": "vless",
+      "server": "uk.connectv.net",
+      "port": 443,
+      "uuid": "8b70357d-b654-4a29-85de-e5fef1afefbd",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 5.144.182.158:2053",
+      "type": "vless",
+      "server": "5.144.182.158",
+      "port": 2053,
+      "uuid": "Telegram%F0%9F%87%A8%F0%9F%87%B3%20%40WangCai2",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 87.120.219.99:55057",
+      "type": "vless",
+      "server": "87.120.219.99",
+      "port": 55057,
+      "uuid": "5d837e94-967d-43a8-8e36-440ddfa4fd15",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 212.74.39.222:10107",
+      "type": "vless",
+      "server": "212.74.39.222",
+      "port": 10107,
+      "uuid": "b5271d9d-1bdf-416b-8ae9-4e55b77fea4a",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 194.61.3.29:38257",
+      "type": "vless",
+      "server": "194.61.3.29",
+      "port": 38257,
+      "uuid": "9d8a065f-acb6-4ca1-896b-74b10f1fab42",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 51.89.165.128:2096",
+      "type": "vless",
+      "server": "51.89.165.128",
+      "port": 2096,
+      "uuid": "d5f2b8ad-5ee4-41fe-95e9-7adc1acb0549",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 138.68.170.219:443",
+      "type": "vless",
+      "server": "138.68.170.219",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - meow.mahi-yar.com:2052",
+      "type": "vless",
+      "server": "meow.mahi-yar.com",
+      "port": 2052,
+      "uuid": "d9bf58f0-74a1-4e40-bd09-12cab94636cb",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 146.185.211.9:443",
+      "type": "vless",
+      "server": "146.185.211.9",
+      "port": 443,
+      "uuid": "7e7f7674-51a7-4cd6-813d-f025116e4b93",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - vb25.homianco.ir:2096",
+      "type": "vless",
+      "server": "vb25.homianco.ir",
+      "port": 2096,
+      "uuid": "d5f2b8ad-5ee4-41fe-95e9-7adc1acb0549",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - club.asperwild.com:443",
+      "type": "vless",
+      "server": "club.asperwild.com",
+      "port": 443,
+      "uuid": "2bd568b3-19ee-488e-a1c4-b1b601326f41",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - vb05.homianco.ir:2096",
+      "type": "vless",
+      "server": "vb05.homianco.ir",
+      "port": 2096,
+      "uuid": "d5f2b8ad-5ee4-41fe-95e9-7adc1acb0549",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - cptx15g12.azangooo.ir:2053",
+      "type": "vless",
+      "server": "cptx15g12.azangooo.ir",
+      "port": 2053,
+      "uuid": "c457426a-b74d-4f67-90f5-9e2fde31411b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 169.150.210.121:443",
+      "type": "vless",
+      "server": "169.150.210.121",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 169.150.210.199:443",
+      "type": "vless",
+      "server": "169.150.210.199",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 5.180.97.105:7443",
+      "type": "vless",
+      "server": "5.180.97.105",
+      "port": 7443,
+      "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 5.180.97.105:8443",
+      "type": "vless",
+      "server": "5.180.97.105",
+      "port": 8443,
+      "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDEC\uD83C\uDDE7 Unknown - VLESS - ovhwuxian.pai50288.uk:8443",
+        "\uD83C\uDDEC\uD83C\uDDE7 Unknown - TROJAN - ilop.uk2033.ccwu.cc:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 Unknown - VMESS - nmmjuki.0sm.ccwu.cc:80",
+        "\uD83C\uDDEC\uD83C\uDDE7 Unknown - VMESS - nmmjuki.0sm.ccwu.cc:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 45.14.247.67:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 5.180.97.139:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.176:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.179:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.214:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.101:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.210:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.187:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.205:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.218:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.190:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.191:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.199:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.202:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.217:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.186:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.124:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.208:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.184:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.194:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.122:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.146:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.103:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.189:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 82.38.31.148:8080",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - email.swiftraci.org:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 185.5.38.111:55988",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - staging.lastilhame.monster:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - portal.ninemakeda.cfd:43669",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - server.slavkiti.monster:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 178.32.58.147:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 Unknown - SS - ywvzlteyoc1ny206sgmyew42vwpwq2jhue8zm1rrotnnvxrvzk9mukhtn0famtk1lje1nc4ymdiumteyoje4mjky:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 140.238.100.35:40721",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - TROJAN - hl-freedom-0.undef.network:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - SS - 57.129.140.88:8388",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VMESS - 57.129.132.223:80",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 57.129.132.223:80",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 109.169.76.23:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 158.220.88.180:8443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 2.56.179.89:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 159.65.30.136:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 178.62.25.163:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 159.65.60.61:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 165.232.104.116:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 178.128.45.156:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 134.209.30.166:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 138.68.169.120:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 139.59.161.217:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 167.71.131.232:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 167.71.136.139:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 167.99.80.91:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 188.166.151.33:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 209.97.183.113:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 87.106.65.110:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 5.144.182.248:2053",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 217.154.53.220:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 165.227.237.209:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - TROJAN - 45.89.111.112:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - TROJAN - 194.150.166.151:52047",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 2.56.179.207:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 217.154.38.156:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - vb04.homianco.ir:2096",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - uk.connectv.net:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 5.144.182.158:2053",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 87.120.219.99:55057",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 212.74.39.222:10107",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 194.61.3.29:38257",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 51.89.165.128:2096",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 138.68.170.219:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - meow.mahi-yar.com:2052",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 146.185.211.9:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - vb25.homianco.ir:2096",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - club.asperwild.com:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - vb05.homianco.ir:2096",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - cptx15g12.azangooo.ir:2053",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 169.150.210.121:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 169.150.210.199:443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 5.180.97.105:7443",
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - VLESS - 5.180.97.105:8443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "name": "FastNodes AE",
+  "proxies": [
+    {
+      "name": "\uD83C\uDF0D United Arab Emirates - VLESS - 93.115.175.140:2053",
+      "type": "vless",
+      "server": "93.115.175.140",
+      "port": 2053,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D United Arab Emirates - VLESS - 78.40.197.85:443",
+      "type": "vless",
+      "server": "78.40.197.85",
+      "port": 443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D United Arab Emirates - VLESS - 104.128.134.181:34816",
+      "type": "vless",
+      "server": "104.128.134.181",
+      "port": 34816,
+      "uuid": "fd058cd3-55fa-43ce-a634-1920b7d12c45",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D United Arab Emirates - VLESS - 151.247.197.188:443",
+      "type": "vless",
+      "server": "151.247.197.188",
+      "port": 443,
+      "uuid": "7a31d541-e885-43d4-81f2-62ac29ecd387",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D United Arab Emirates - VLESS - 31.57.155.35:443",
+      "type": "vless",
+      "server": "31.57.155.35",
+      "port": 443,
+      "uuid": "Telegram%F0%9F%87%A8%F0%9F%87%B3%20%40WangCai2",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D United Arab Emirates - VLESS - 31.57.155.115:443",
+      "type": "vless",
+      "server": "31.57.155.115",
+      "port": 443,
+      "uuid": "Telegram%F0%9F%87%A8%F0%9F%87%B3%20%40WangCai2",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D United Arab Emirates - VLESS - dlbazi1.ketakhan.sbs:8443",
+      "type": "vless",
+      "server": "dlbazi1.ketakhan.sbs",
+      "port": 8443,
+      "uuid": "75851373-9166-4413-bcb4-e995135ca3ce",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDF0D United Arab Emirates - VLESS - 93.115.175.140:2053",
+        "\uD83C\uDF0D United Arab Emirates - VLESS - 78.40.197.85:443",
+        "\uD83C\uDF0D United Arab Emirates - VLESS - 104.128.134.181:34816",
+        "\uD83C\uDF0D United Arab Emirates - VLESS - 151.247.197.188:443",
+        "\uD83C\uDF0D United Arab Emirates - VLESS - 31.57.155.35:443",
+        "\uD83C\uDF0D United Arab Emirates - VLESS - 31.57.155.115:443",
+        "\uD83C\uDF0D United Arab Emirates - VLESS - dlbazi1.ketakhan.sbs:8443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

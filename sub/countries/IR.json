@@ -1,0 +1,98 @@
+{
+  "name": "FastNodes IR",
+  "proxies": [
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - 94.184.24.235:56001",
+      "type": "vless",
+      "server": "94.184.24.235",
+      "port": 56001,
+      "uuid": "48e3ec8d-44ce-4542-aa4d-a48573e0d423",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - 94.184.10.119:1010",
+      "type": "vless",
+      "server": "94.184.10.119",
+      "port": 1010,
+      "uuid": "8d4b9b9b-a20f-4ae0-b5fb-1651201a0620",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - shaparak.ultrrasound.com:14557",
+      "type": "vless",
+      "server": "shaparak.ultrrasound.com",
+      "port": 14557,
+      "uuid": "94ff07df-0a69-4720-86fe-804f4ee599ec",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - u11-unlim.standalonemsnew.cam:88",
+      "type": "vless",
+      "server": "u11-unlim.standalonemsnew.cam",
+      "port": 88,
+      "uuid": "16ca4f6f-b540-691b-579a-ceb710a5eb7d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - shaparak.ultrrasound.com:19949",
+      "type": "vless",
+      "server": "shaparak.ultrrasound.com",
+      "port": 19949,
+      "uuid": "fb098fc0-b41d-430d-9b92-49705687904e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - 1fr.trmas-ps.ir:5369",
+      "type": "vless",
+      "server": "1fr.trmas-ps.ir",
+      "port": 5369,
+      "uuid": "0288e62d-5118-420b-b293-650d38235267",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - 1sw.trmas-ps.ir:5367",
+      "type": "vless",
+      "server": "1sw.trmas-ps.ir",
+      "port": 5367,
+      "uuid": "0288e62d-5118-420b-b293-650d38235267",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - part3.lezzattimel.ir:5361",
+      "type": "vless",
+      "server": "part3.lezzattimel.ir",
+      "port": 5361,
+      "uuid": "0288e62d-5118-420b-b293-650d38235267",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - 94.184.24.235:56001",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - 94.184.10.119:1010",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - shaparak.ultrrasound.com:14557",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - u11-unlim.standalonemsnew.cam:88",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - shaparak.ultrrasound.com:19949",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - 1fr.trmas-ps.ir:5369",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - 1sw.trmas-ps.ir:5367",
+        "\uD83C\uDDEE\uD83C\uDDF7 Iran - VLESS - part3.lezzattimel.ir:5361"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

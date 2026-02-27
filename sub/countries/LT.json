@@ -1,0 +1,67 @@
+{
+  "name": "FastNodes LT",
+  "proxies": [
+    {
+      "name": "\uD83C\uDF0D Lithuania - VLESS - lt2.ultima.foundation:22230",
+      "type": "vless",
+      "server": "lt2.ultima.foundation",
+      "port": 22230,
+      "uuid": "ed9a0afe-1f54-40af-8821-0995cef0225a",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Lithuania - SS - 193.135.174.135:990",
+      "type": "ss",
+      "server": "193.135.174.135",
+      "port": 990,
+      "cipher": "aes-256-gcm",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Lithuania - VLESS - 93.115.25.177:443",
+      "type": "vless",
+      "server": "93.115.25.177",
+      "port": 443,
+      "uuid": "7c3f08c8-7b3b-4028-91d8-378a18c2b62a",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Lithuania - VLESS - 181.214.147.49:8443",
+      "type": "vless",
+      "server": "181.214.147.49",
+      "port": 8443,
+      "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDF0D Lithuania - VLESS - 181.214.147.3:8443",
+      "type": "vless",
+      "server": "181.214.147.3",
+      "port": 8443,
+      "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
+      "tls": true,
+      "flow": ""
+    }
+  ],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDF0D Lithuania - VLESS - lt2.ultima.foundation:22230",
+        "\uD83C\uDF0D Lithuania - SS - 193.135.174.135:990",
+        "\uD83C\uDF0D Lithuania - VLESS - 93.115.25.177:443",
+        "\uD83C\uDF0D Lithuania - VLESS - 181.214.147.49:8443",
+        "\uD83C\uDF0D Lithuania - VLESS - 181.214.147.3:8443"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

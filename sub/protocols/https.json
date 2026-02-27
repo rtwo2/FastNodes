@@ -2,15 +2,15 @@
   "name": "FastNodes HTTPS",
   "proxies": [
     {
-      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - HTTPS 140.82.113.4:443",
-      "type": "https",
-      "server": "140.82.113.4",
-      "port": 443
-    },
-    {
       "name": "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - HTTPS 149.154.167.99:443",
       "type": "https",
       "server": "149.154.167.99",
+      "port": 443
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDF8 United States - HTTPS 140.82.114.4:443",
+      "type": "https",
+      "server": "140.82.114.4",
       "port": 443
     }
   ],
@@ -19,8 +19,8 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDFA\uD83C\uDDF8 United States - HTTPS 140.82.113.4:443",
-        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - HTTPS 149.154.167.99:443"
+        "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom - HTTPS 149.154.167.99:443",
+        "\uD83C\uDDFA\uD83C\uDDF8 United States - HTTPS 140.82.114.4:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

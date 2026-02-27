@@ -415,6 +415,16 @@
       "uuid": "d342d11e-d424-4583-b36e-524ab1f0afa4",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEA\uD83C\uDDF8 Spain - VMESS 212.227.95.106:443",
+      "type": "vmess",
+      "server": "212.227.95.106",
+      "port": 443,
+      "uuid": "",
+      "alterId": 0,
+      "cipher": "auto",
+      "tls": true
     }
   ],
   "proxy_groups": [
@@ -468,7 +478,8 @@
         "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 185.251.82.177:8880",
         "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 185.251.80.3:8880",
         "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 185.251.81.3:8880",
-        "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 94.250.246.200:8080"
+        "\uD83C\uDDEA\uD83C\uDDF8 Spain - VLESS 94.250.246.200:8080",
+        "\uD83C\uDDEA\uD83C\uDDF8 Spain - VMESS 212.227.95.106:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

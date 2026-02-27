@@ -713,84 +713,64 @@ namespace ProxyCollector.Collector
             line = line.Trim();
             if (string.IsNullOrEmpty(line) || line.Length < 20) return ("unknown", "", "");
 
-            string basePart = line.Split('#')[0].Trim();
-            string remark = line.Contains('#') ? Uri.UnescapeDataString(line.Split('#')[1].Trim()) : "";
+            // Step 1: Aggressive prefix cleanup (Telegram junk: flags, emojis, Persian, new/server text, etc.)
+            string cleanedLine = Regex.Replace(line,
+                @"^(?:[\uD83C-\uDBFF][\uDC00-\uDFFF]?|\p{IsArabic}|\p{IsPersian}|\p{IsHebrew}|[\u2700-\u27BF]|[\u2600-\u26FF]|🆕|📱|📶|🇦🇿|🇮🇷|🇩🇪|new|کانفیگ|سرور|ایر|ایرانسل|📡|⚡|🔥|✅|➡️|\s*-\s*)+",
+                "", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Trim();
 
+            string basePart = cleanedLine.Split('#')[0].Trim();
+            string remark = cleanedLine.Contains('#') ? Uri.UnescapeDataString(cleanedLine.Split('#')[1].Trim()) : "";
+
+            // Step 2: Try standard URI parse on cleaned base part
             try
             {
                 var uri = new Uri(basePart);
                 string scheme = uri.Scheme.ToLowerInvariant();
-                string server = uri.Host;
-                int port = uri.Port > 0 ? uri.Port : 443;
-                string serverPort = $"{server}:{port}";
-                return (scheme, serverPort, remark);
+                if (ValidProtocols.Contains(scheme))
+                {
+                    string server = uri.Host;
+                    int port = uri.Port > 0 ? uri.Port : 443;
+                    return (scheme, $"{server}:{port}", remark);
+                }
             }
             catch { }
 
-            if (basePart.StartsWith("vmess://"))
+            // Step 3: Look for scheme ANYWHERE in the cleaned line
+            string lowerClean = cleanedLine.ToLowerInvariant();
+            string guessedProto = "unknown";
+
+            if (lowerClean.Contains("vless://")) guessedProto = "vless";
+            else if (lowerClean.Contains("vmess://")) guessedProto = "vmess";
+            else if (lowerClean.Contains("ss://")) guessedProto = "ss";
+            else if (lowerClean.Contains("trojan://")) guessedProto = "trojan";
+            else if (lowerClean.Contains("hysteria2://") || lowerClean.Contains("hy2://")) guessedProto = "hysteria2";
+
+            // Step 4: Base64-first detection (very common in Telegram channels)
+            if (guessedProto == "unknown" && (cleanedLine.Contains("eyJhZGQiOi") || cleanedLine.Contains("\"add\":") || cleanedLine.Contains("id") && cleanedLine.Contains("port")))
             {
-                try
-                {
-                    string b64 = basePart.Substring(8).Split('#')[0].Trim();
-                    string decoded = DecodeBase64(b64);
-                    if (!string.IsNullOrEmpty(decoded))
-                    {
-                        var obj = JsonDocument.Parse(decoded).RootElement;
-                        string? add = obj.TryGetProperty("add", out var a) ? a.GetString() : null;
-                        string? portStr = obj.TryGetProperty("port", out var p) ? p.GetString() : null;
-                        if (!string.IsNullOrEmpty(add) && !string.IsNullOrEmpty(portStr) && int.TryParse(portStr, out _))
-                            return ("vmess", $"{add}:{portStr}", remark);
-                    }
-                }
-                catch { }
+                if (cleanedLine.Contains("reality") || cleanedLine.Contains("pbk=") || cleanedLine.Contains("flow=") || cleanedLine.Contains("xtls") || cleanedLine.Contains("grpc") || cleanedLine.Contains("kcp"))
+                    guessedProto = "vless";
+                else if (cleanedLine.Contains("net") || cleanedLine.Contains("scy") || cleanedLine.Contains("aid") || cleanedLine.Contains("ps"))
+                    guessedProto = "vmess";
             }
 
-            if (basePart.StartsWith("hysteria2://") || basePart.StartsWith("hy2://") || basePart.StartsWith("hysteria://"))
-            {
-                try
-                {
-                    var uri = new Uri(basePart);
-                    string server = uri.Host;
-                    int port = uri.Port > 0 ? uri.Port : 443;
-                    return ("hysteria2", $"{server}:{port}", remark);
-                }
-                catch { }
-            }
-
-            var ipPortMatch = Regex.Match(line, @"(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(?::\d{1,5})?");
-            if (ipPortMatch.Success)
+            // Step 5: IP:port fallback (only if still unknown)
+            var ipPortMatch = Regex.Match(cleanedLine, @"(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(?::\d{1,5})?");
+            if (ipPortMatch.Success && guessedProto == "unknown")
             {
                 string found = ipPortMatch.Value;
-                string guessedProto = "unknown";
                 string port = found.Contains(":") ? found.Split(':')[1] : "443";
 
-                string lowerLine = line.ToLowerInvariant();
-                if (lowerLine.StartsWith("vless://")) guessedProto = "vless";
-                else if (lowerLine.StartsWith("vmess://")) guessedProto = "vmess";
-                else if (lowerLine.StartsWith("ss://")) guessedProto = "ss";
-                else if (lowerLine.StartsWith("trojan://")) guessedProto = "trojan";
-                else if (lowerLine.StartsWith("hysteria2://") || lowerLine.StartsWith("hy2://")) guessedProto = "hysteria2";
-                else
-                {
-                    // Fallback: look for base64-like patterns or typical fields inside the line/remark
-                    if (line.Contains("eyJhZGQiOi") || line.Contains("\"add\":") || line.Contains("vmess://") || line.Contains("vless://"))
-                    {
-                        if (line.Contains("\"net\":\"ws\"") || line.Contains("\"net\":\"tcp\"") || line.Contains("path") || line.Contains("sni") || line.Contains("host"))
-                            guessedProto = "vmess";  // most common for base64 vmess
-                        else if (line.Contains("reality") || line.Contains("xtls") || line.Contains("flow") || line.Contains("pbk=") || line.Contains("sid="))
-                            guessedProto = "vless";
-                    }
-                    else
-                    {
-                        // port-based fallback only if no scheme or base64 pattern found
-                        if (port == "443" || port == "8443" || port == "2053" || port == "2096" || port == "2010") guessedProto = "vless";
-                        else if (port == "80" || port == "8080" || port == "8888") guessedProto = "ss";
-                        else if (port == "1080" || port == "7890") guessedProto = "socks";
-                    }
-                }
-
-                return (guessedProto, found, remark);
+                if (port == "443" || port == "8443" || port == "2053" || port == "2096" || port == "2083" || port == "2086")
+                    guessedProto = "vless";
+                else if (port == "80" || port == "8080" || port == "8888")
+                    guessedProto = "ss";
+                else if (port == "1080" || port == "7890")
+                    guessedProto = "socks";
             }
+
+            if (guessedProto != "unknown" && ipPortMatch.Success)
+                return (guessedProto, ipPortMatch.Value, remark);
 
             return ("unknown", "", "");
         }

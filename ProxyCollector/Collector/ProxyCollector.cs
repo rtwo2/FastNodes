@@ -11,7 +11,7 @@ using System.Collections.Concurrent;
 using ProxyCollector.Configuration;
 using ProxyCollector.Services;
 using ProxyCollector.Models;
-using System.Net; // for IPAddress & CIDR check
+using System.Net;
 
 namespace ProxyCollector.Collector
 {
@@ -43,9 +43,7 @@ namespace ProxyCollector.Collector
         private const int AliveCheckTimeoutMs = 2000;
         private const int MaxFilenameRemarkLength = 150;
 
-        // ────────────────────────────────────────────────
         // Blacklist: loaded once at startup
-        // ────────────────────────────────────────────────
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
 
         private static void LoadBlacklist()
@@ -56,13 +54,11 @@ namespace ProxyCollector.Collector
                 Console.WriteLine("⚠️ No blacklist.netset found - skipping IP blacklist check");
                 return;
             }
-
             var lines = File.ReadAllLines(blacklistPath);
             int loaded = 0;
             foreach (var line in lines)
             {
                 if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line)) continue;
-
                 try
                 {
                     var parts = line.Split('/');
@@ -80,7 +76,6 @@ namespace ProxyCollector.Collector
         private static bool IsBlacklisted(string ipStr)
         {
             if (!IPAddress.TryParse(ipStr, out var ip)) return false;
-
             foreach (var (network, mask) in BlacklistCidrs)
             {
                 if (IsIpInCidr(ip, network, mask)) return true;
@@ -90,11 +85,19 @@ namespace ProxyCollector.Collector
 
         private static bool IsIpInCidr(IPAddress ip, IPAddress network, int mask)
         {
-            uint ipInt = BitConverter.ToUInt32(ip.GetAddressBytes().Reverse().ToArray(), 0);
-            uint networkInt = BitConverter.ToUInt32(network.GetAddressBytes().Reverse().ToArray(), 0);
-            uint subnetMask = ~((uint)0 >> mask);
+            byte[] ipBytes = ip.GetAddressBytes();
+            byte[] networkBytes = network.GetAddressBytes();
+            if (ipBytes.Length != networkBytes.Length) return false;
 
-            return (ipInt & subnetMask) == (networkInt & subnetMask);
+            int bits = mask;
+            for (int i = 0; i < ipBytes.Length && bits > 0; i++)
+            {
+                byte maskByte = (byte)(0xFF << (8 - Math.Min(bits, 8)));
+                if ((ipBytes[i] & maskByte) != (networkBytes[i] & maskByte))
+                    return false;
+                bits -= 8;
+            }
+            return true;
         }
 
         public async Task StartAsync()
@@ -142,7 +145,7 @@ namespace ProxyCollector.Collector
             int skippedNumbered = 0;
             int parseFail = 0;
             int skippedLongFilename = 0;
-            int skippedBlacklisted = 0; // NEW: counter for blacklisted IPs
+            int skippedBlacklisted = 0;
 
             Console.WriteLine("\n🧹 Parsing + strict deduplicating + renaming...");
             int processed = 0;
@@ -150,7 +153,7 @@ namespace ProxyCollector.Collector
             {
                 processed++;
                 if (processed % 1000 == 0)
-                    Console.WriteLine($"  {processed}/{rawLines.Count} ({Math.Round((double)processed / rawLines.Count * 100, 1)}%)");
+                    Console.WriteLine($" {processed}/{rawLines.Count} ({Math.Round((double)processed / rawLines.Count * 100, 1)}%)");
 
                 var trimmed = line.Trim();
                 if (string.IsNullOrWhiteSpace(trimmed)) continue;
@@ -162,14 +165,13 @@ namespace ProxyCollector.Collector
                 }
 
                 var (proto, serverPort, originalRemark) = ParseProxyLine(line);
-
                 if (string.IsNullOrEmpty(serverPort) || !serverPort.Contains(":")) continue;
 
                 var parts = serverPort.Split(':');
                 string ipOrHost = parts[0];
                 string portStr = parts.Length > 1 ? parts[1] : "443";
 
-                // NEW: Block dangerous/blacklisted IPs
+                // Block dangerous/blacklisted IPs
                 if (IsBlacklisted(ipOrHost))
                 {
                     skippedBlacklisted++;
@@ -178,7 +180,6 @@ namespace ProxyCollector.Collector
 
                 string cleanRemark;
                 string countryCode = "XX";
-
                 var info = _resolver.GetCountry(ipOrHost);
                 countryCode = info.CountryCode?.ToUpperInvariant() ?? "XX";
 
@@ -204,7 +205,6 @@ namespace ProxyCollector.Collector
 
                 var flag = Flags.TryGetValue(countryCode, out var f) ? f : "🌍";
                 string countryName = info.CountryName ?? GetCountryNameFromCode(countryCode);
-
                 cleanRemark = $"{flag} {countryName} - {proto.ToUpper()} - {ipOrHost}:{portStr}";
 
                 if (proto.ToLowerInvariant() == "ss" &&
@@ -216,7 +216,6 @@ namespace ProxyCollector.Collector
                 }
 
                 var renamedLink = RenameRemarkInLink(line, cleanRemark, proto);
-
                 string dedupKey = $"{proto.ToLowerInvariant()}:{serverPort}#{cleanRemark.Replace(" ", "").ToLowerInvariant()}";
 
                 if (seenNormalized.Add(dedupKey))
@@ -235,9 +234,12 @@ namespace ProxyCollector.Collector
             var sub = Path.Combine(Directory.GetCurrentDirectory(), "sub");
             var protocolsDir = Path.Combine(sub, "protocols");
             var countriesDir = Path.Combine(sub, "countries");
+            var bestDir = Path.Combine(sub, "Best-Results");  // ← MOVED INSIDE sub/
+
             Directory.CreateDirectory(sub);
             Directory.CreateDirectory(protocolsDir);
             Directory.CreateDirectory(countriesDir);
+            Directory.CreateDirectory(bestDir);
 
             var allPath = Path.Combine(sub, "everything.txt");
             await File.WriteAllLinesAsync(allPath, renamedProxies.Select(x => x.Link));
@@ -252,11 +254,17 @@ namespace ProxyCollector.Collector
                 var key = g.Key.ToLowerInvariant();
                 if (key == "unknown" && g.Count() < 10) continue;
 
-                string safeKey = key.Length > MaxFilenameRemarkLength
-                    ? key.Substring(0, MaxFilenameRemarkLength - 10) + "-" + key.GetHashCode().ToString("x8")
-                    : key;
-
-                safeKey = Regex.Replace(safeKey, @"[^a-zA-Z0-9-]", "-");
+                // Clean, short protocol folder name
+                string safeKey = key switch
+                {
+                    var k when k.Contains("vmess") => "vmess",
+                    var k when k.Contains("vless") => "vless",
+                    var k when k.Contains("trojan") => "trojan",
+                    var k when k.Contains("ss") => "ss",
+                    var k when k.Contains("hysteria") => "hysteria2",
+                    var k when k.Contains("tuic") => "tuic",
+                    _ => key.Length > 20 ? key.Substring(0, 20) : key
+                };
 
                 var txt = Path.Combine(protocolsDir, $"{safeKey}.txt");
                 try
@@ -273,7 +281,7 @@ namespace ProxyCollector.Collector
                 var json = Path.Combine(protocolsDir, $"{safeKey}.json");
                 try
                 {
-                    await SaveClashJson(json, g.ToList(), $"FastNodes {g.Key.ToUpper()}");
+                    await SaveClashJson(json, g.ToList(), $"FastNodes {safeKey.ToUpper()}");
                 }
                 catch { /* silent */ }
             }
@@ -327,11 +335,11 @@ namespace ProxyCollector.Collector
 
             await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 20 }, async (p, ct) =>
             {
-                if (p.Proto.ToLowerInvariant() == "vmess") return;
-
                 Interlocked.Increment(ref processed);
                 if (processed % 500 == 0)
-                    Console.WriteLine($"  Tested {processed}/{proxies.Count} ({Math.Round((double)processed / proxies.Count * 100, 1)}%)");
+                    Console.WriteLine($" Tested {processed}/{proxies.Count} ({Math.Round((double)processed / proxies.Count * 100, 1)}%)");
+
+                if (p.Proto.ToLowerInvariant() == "vmess") return; // skip vmess for now (slow)
 
                 if (!await IsProxyAliveAsync(p.Link)) return;
 
@@ -342,19 +350,21 @@ namespace ProxyCollector.Collector
 
             var sorted = tested.OrderBy(t => t.Latency).ToList();
 
-            var bestDir = Path.Combine(Directory.GetCurrentDirectory(), "Best-Results");
+            var bestDir = Path.Combine(Directory.GetCurrentDirectory(), "sub", "Best-Results");  // ← MOVED INSIDE sub/
             Directory.CreateDirectory(bestDir);
 
             var limits = new[] { 100, 200, 300, 400, 500 };
+
             foreach (var limit in limits)
             {
                 var topN = sorted.Take(limit).ToList();
 
                 var txtPath = Path.Combine(bestDir, $"top{limit}.txt");
                 await File.WriteAllLinesAsync(txtPath, topN.Select(t => $"{t.Link} # latency={t.Latency}ms"));
-                Console.WriteLine($"Saved Best-Results/top{limit}.txt ({topN.Count})");
+                Console.WriteLine($"Saved sub/Best-Results/top{limit}.txt ({topN.Count})");
 
                 var jsonProxies = topN.Select(t => t.ClashProxy).Where(p => p != null).ToList();
+
                 var jsonConfig = new
                 {
                     name = $"FastNodes Top {limit}",
@@ -372,10 +382,11 @@ namespace ProxyCollector.Collector
                     },
                     rules = new[] { "MATCH,AUTO" }
                 };
+
                 var jsonPath = Path.Combine(bestDir, $"top{limit}.json");
                 var options = new JsonSerializerOptions { WriteIndented = true };
                 await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(jsonConfig, options));
-                Console.WriteLine($"Saved Best-Results/top{limit}.json ({topN.Count})");
+                Console.WriteLine($"Saved sub/Best-Results/top{limit}.json ({topN.Count})");
             }
         }
 
@@ -417,6 +428,10 @@ namespace ProxyCollector.Collector
             if (proto.Contains("hysteria") || proto == "hy2" || proto == "hy") return "hysteria2";
             if (proto == "ssr") return "ssr";
             if (proto == "ss") return "ss";
+            if (proto == "vmess") return "vmess";
+            if (proto == "vless") return "vless";
+            if (proto == "trojan") return "trojan";
+            if (proto == "tuic") return "tuic";
             return proto;
         }
 
@@ -424,6 +439,7 @@ namespace ProxyCollector.Collector
         {
             var clashProxies = proxies.Select(x => x.ClashProxy).Where(p => p != null).ToList();
             var remarkList = proxies.Select(x => x.Remark).ToList();
+
             var clashConfig = new
             {
                 name = configName,
@@ -441,6 +457,7 @@ namespace ProxyCollector.Collector
                 },
                 rules = new[] { "MATCH,AUTO" }
             };
+
             var options = new JsonSerializerOptions { WriteIndented = true };
             await File.WriteAllTextAsync(filePath, JsonSerializer.Serialize(clashConfig, options));
         }
@@ -449,7 +466,6 @@ namespace ProxyCollector.Collector
         {
             string server = "unknown";
             int port = 443;
-
             if (!string.IsNullOrEmpty(serverPort) && serverPort.Contains(":"))
             {
                 var parts = serverPort.Split(':');
@@ -526,7 +542,6 @@ namespace ProxyCollector.Collector
         private string RenameRemarkInLink(string original, string newRemark, string proto)
         {
             string baseLink = original.Split('#')[0].TrimEnd();
-
             baseLink = Regex.Replace(baseLink,
                 @"\[.*?\]|\(.*?\)|Dynamic-\d+|-\d{4,}|ok\d{5,}|sg\.ok|mgjhju|fvb|7no|10o|ccwu\.cc|indevs\.in|zem\.in|bffv|fbvb|mghjju|ggff|ffffvbbgh|mmmv\.kr|yhjt\.tc1|ns\.cloudflare\.com|\d{4,}$|\s*:\d+$",
                 "", RegexOptions.IgnoreCase | RegexOptions.Multiline).Trim();
@@ -537,9 +552,7 @@ namespace ProxyCollector.Collector
                 {
                     string b64 = baseLink.Substring(8).Trim();
                     string decoded = DecodeBase64(b64);
-
-                    if (string.IsNullOrWhiteSpace(decoded))
-                        return baseLink + "#" + Uri.EscapeDataString(newRemark);
+                    if (string.IsNullOrEmpty(decoded)) return baseLink + "#" + Uri.EscapeDataString(newRemark);
 
                     string trimmedDecoded = decoded.TrimStart();
                     if (!trimmedDecoded.StartsWith("{") ||
@@ -551,26 +564,20 @@ namespace ProxyCollector.Collector
                     var jsonDoc = JsonDocument.Parse(decoded);
                     var root = jsonDoc.RootElement;
                     var props = new Dictionary<string, object?>();
-
                     foreach (var prop in root.EnumerateObject())
                     {
                         props[prop.Name] = prop.Value.ValueKind == JsonValueKind.Null
                             ? null
                             : JsonSerializer.Deserialize<object>(prop.Value.GetRawText());
                     }
-
                     props["ps"] = newRemark;
 
                     string newJson = JsonSerializer.Serialize(props);
                     string newB64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(newJson))
                         .Replace("+", "-").Replace("/", "_").TrimEnd('=');
-
                     baseLink = "vmess://" + newB64;
                 }
-                catch
-                {
-                    // Silent - no spam
-                }
+                catch { /* silent */ }
             }
 
             string escaped = Uri.EscapeDataString(newRemark);

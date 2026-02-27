@@ -713,9 +713,10 @@ namespace ProxyCollector.Collector
             line = line.Trim();
             if (string.IsNullOrEmpty(line) || line.Length < 20) return ("unknown", "", "");
 
-            // Step 1: Aggressive prefix cleanup (Telegram junk: flags, emojis, Persian, new/server text, etc.)
+            // Step 1: Aggressive prefix cleanup (Telegram junk: flags, emojis, common words)
+            // Removed \p{IsPersian} etc. — using broad Unicode ranges + explicit patterns instead
             string cleanedLine = Regex.Replace(line,
-                @"^(?:[\uD83C-\uDBFF][\uDC00-\uDFFF]?|\p{IsArabic}|\p{IsPersian}|\p{IsHebrew}|[\u2700-\u27BF]|[\u2600-\u26FF]|🆕|📱|📶|🇦🇿|🇮🇷|🇩🇪|new|کانفیگ|سرور|ایر|ایرانسل|📡|⚡|🔥|✅|➡️|\s*-\s*)+",
+                @"^(?:[\uD83C-\uDBFF][\uDC00-\uDFFF]?|[\u0600-\u06FF]|[\u0750-\u077F]|[\u08A0-\u08FF]|[\uFB50-\uFDFF]|[\uFE70-\uFEFF]|[\u2700-\u27BF]|[\u2600-\u26FF]|🆕|📱|📶|new|کانفیگ|سرور|ایر|ایرانسل|📡|⚡|🔥|✅|➡️|\s*-\s*)+",
                 "", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant).Trim();
 
             string basePart = cleanedLine.Split('#')[0].Trim();
@@ -745,10 +746,10 @@ namespace ProxyCollector.Collector
             else if (lowerClean.Contains("trojan://")) guessedProto = "trojan";
             else if (lowerClean.Contains("hysteria2://") || lowerClean.Contains("hy2://")) guessedProto = "hysteria2";
 
-            // Step 4: Base64-first detection (very common in Telegram channels)
-            if (guessedProto == "unknown" && (cleanedLine.Contains("eyJhZGQiOi") || cleanedLine.Contains("\"add\":") || cleanedLine.Contains("id") && cleanedLine.Contains("port")))
+            // Step 4: Base64-first detection (Telegram channels often start with base64)
+            if (guessedProto == "unknown" && (cleanedLine.Contains("eyJhZGQiOi") || cleanedLine.Contains("\"add\":") || (cleanedLine.Contains("id") && cleanedLine.Contains("port"))))
             {
-                if (cleanedLine.Contains("reality") || cleanedLine.Contains("pbk=") || cleanedLine.Contains("flow=") || cleanedLine.Contains("xtls") || cleanedLine.Contains("grpc") || cleanedLine.Contains("kcp"))
+                if (cleanedLine.Contains("reality") || cleanedLine.Contains("pbk=") || cleanedLine.Contains("flow=") || cleanedLine.Contains("xtls") || cleanedLine.Contains("grpc") || cleanedLine.Contains("kcp") || cleanedLine.Contains("sid="))
                     guessedProto = "vless";
                 else if (cleanedLine.Contains("net") || cleanedLine.Contains("scy") || cleanedLine.Contains("aid") || cleanedLine.Contains("ps"))
                     guessedProto = "vmess";

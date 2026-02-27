@@ -1,5 +1,10 @@
 {
-  "name": "FastNodes IL",
+  "port": 7890,
+  "socks_port": 7891,
+  "allow_lan": true,
+  "mode": "Rule",
+  "log_level": "info",
+  "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF1 Israel - VLESS 77.91.74.179:8443",
@@ -38,55 +43,13 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF1 Israel - VLESS 185.239.48.109:8443",
+      "name": "\uD83C\uDDEE\uD83C\uDDF1 Israel - VLESS 77.91.74.84:44148",
       "type": "vless",
-      "server": "185.239.48.109",
-      "port": 8443,
-      "uuid": "ba2ac75f-0a9b-4483-9155-c00c8814d7c9",
+      "server": "77.91.74.84",
+      "port": 44148,
+      "uuid": "c0d4ebce-a832-4fe6-94b3-de3ba1203de0",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF1 Israel - VLESS 20.217.216.51:2053",
-      "type": "vless",
-      "server": "20.217.216.51",
-      "port": 2053,
-      "uuid": "de44b044-8f90-4e18-b742-16591667ff96",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF1 Israel - SS 89.221.225.15:443",
-      "type": "ss",
-      "server": "89.221.225.15",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF1 Israel - SS 195.20.17.182:443",
-      "type": "ss",
-      "server": "195.20.17.182",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF1 Israel - VLESS 185.239.48.109:443",
-      "type": "vless",
-      "server": "185.239.48.109",
-      "port": 443,
-      "uuid": "4db2d7bf-c88d-4fdf-85f8-154c05202dc9",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF1 Israel - SS 77.91.74.179:8443",
-      "type": "ss",
-      "server": "77.91.74.179",
-      "port": 8443,
-      "cipher": "aes-256-gcm",
-      "password": ""
     }
   ],
   "proxy_groups": [
@@ -98,12 +61,7 @@
         "\uD83C\uDDEE\uD83C\uDDF1 Israel - VLESS 195.20.17.182:443",
         "\uD83C\uDDEE\uD83C\uDDF1 Israel - VLESS 77.91.69.51:2053",
         "\uD83C\uDDEE\uD83C\uDDF1 Israel - VLESS 77.91.69.51:8443",
-        "\uD83C\uDDEE\uD83C\uDDF1 Israel - VLESS 185.239.48.109:8443",
-        "\uD83C\uDDEE\uD83C\uDDF1 Israel - VLESS 20.217.216.51:2053",
-        "\uD83C\uDDEE\uD83C\uDDF1 Israel - SS 89.221.225.15:443",
-        "\uD83C\uDDEE\uD83C\uDDF1 Israel - SS 195.20.17.182:443",
-        "\uD83C\uDDEE\uD83C\uDDF1 Israel - VLESS 185.239.48.109:443",
-        "\uD83C\uDDEE\uD83C\uDDF1 Israel - SS 77.91.74.179:8443"
+        "\uD83C\uDDEE\uD83C\uDDF1 Israel - VLESS 77.91.74.84:44148"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

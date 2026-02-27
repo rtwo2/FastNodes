@@ -1,5 +1,10 @@
 {
-  "name": "FastNodes HU",
+  "port": 7890,
+  "socks_port": 7891,
+  "allow_lan": true,
+  "mode": "Rule",
+  "log_level": "info",
+  "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
       "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.97.154:443",
@@ -7,6 +12,15 @@
       "server": "87.229.97.154",
       "port": 443,
       "uuid": "d65cc14c-f53f-4fe2-b262-97856601319c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 5.182.38.91:17267",
+      "type": "vless",
+      "server": "5.182.38.91",
+      "port": 17267,
+      "uuid": "1c7fcc38-e6be-43c5-875f-b8de2516b9f2",
       "tls": true,
       "flow": ""
     },
@@ -24,6 +38,15 @@
       "type": "vless",
       "server": "217.13.104.121",
       "port": 443,
+      "uuid": "6bc98441-e1e0-4304-8174-a41a91e0cc11",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.121:5443",
+      "type": "vless",
+      "server": "217.13.104.121",
+      "port": 5443,
       "uuid": "6bc98441-e1e0-4304-8174-a41a91e0cc11",
       "tls": true,
       "flow": ""
@@ -51,6 +74,24 @@
       "type": "vless",
       "server": "217.13.111.32",
       "port": 10443,
+      "uuid": "6bc98441-e1e0-4304-8174-a41a91e0cc11",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.32:3443",
+      "type": "vless",
+      "server": "217.13.111.32",
+      "port": 3443,
+      "uuid": "6bc98441-e1e0-4304-8174-a41a91e0cc11",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.32:5443",
+      "type": "vless",
+      "server": "217.13.111.32",
+      "port": 5443,
       "uuid": "6bc98441-e1e0-4304-8174-a41a91e0cc11",
       "tls": true,
       "flow": ""
@@ -92,10 +133,37 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.32:7443",
+      "type": "vless",
+      "server": "217.13.111.32",
+      "port": 7443,
+      "uuid": "fb4cdb25-97f7-4359-b486-c60a60d0c0c2",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.121:7443",
+      "type": "vless",
+      "server": "217.13.104.121",
+      "port": 7443,
+      "uuid": "fb4cdb25-97f7-4359-b486-c60a60d0c0c2",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.188:1443",
       "type": "vless",
       "server": "217.13.104.188",
       "port": 1443,
+      "uuid": "fb4cdb25-97f7-4359-b486-c60a60d0c0c2",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.188:7443",
+      "type": "vless",
+      "server": "217.13.104.188",
+      "port": 7443,
       "uuid": "fb4cdb25-97f7-4359-b486-c60a60d0c0c2",
       "tls": true,
       "flow": ""
@@ -110,6 +178,24 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.188:5443",
+      "type": "vless",
+      "server": "217.13.104.188",
+      "port": 5443,
+      "uuid": "fb4cdb25-97f7-4359-b486-c60a60d0c0c2",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.116:7443",
+      "type": "vless",
+      "server": "217.13.111.116",
+      "port": 7443,
+      "uuid": "fb4cdb25-97f7-4359-b486-c60a60d0c0c2",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.116:443",
       "type": "vless",
       "server": "217.13.111.116",
@@ -119,109 +205,29 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 92.61.70.38:443",
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.116:5443",
       "type": "vless",
-      "server": "92.61.70.38",
-      "port": 443,
-      "uuid": "bb0f3b3d-a3d1-429a-9b75-263bd9200b6f",
+      "server": "217.13.111.116",
+      "port": 5443,
+      "uuid": "fb4cdb25-97f7-4359-b486-c60a60d0c0c2",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.134:443",
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.198:7443",
       "type": "vless",
-      "server": "217.13.104.134",
-      "port": 443,
-      "uuid": "4371ad14-b981-4699-bedf-83fb79bde3e6",
+      "server": "217.13.104.198",
+      "port": 7443,
+      "uuid": "7837d5c4-b23f-44fc-b2e7-3bd478bbce41",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.148:443",
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.198:5443",
       "type": "vless",
-      "server": "217.13.104.148",
-      "port": 443,
-      "uuid": "b5c74983-8400-4fb3-81a7-d5b3ab559537",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - SS 87.229.97.154:443",
-      "type": "ss",
-      "server": "87.229.97.154",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 79.127.133.77:8443",
-      "type": "vless",
-      "server": "79.127.133.77",
-      "port": 8443,
-      "uuid": "1dcea73b-a19f-4c6f-8878-ba4f4b9bd49a",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 79.127.133.79:8443",
-      "type": "vless",
-      "server": "79.127.133.79",
-      "port": 8443,
-      "uuid": "1dcea73b-a19f-4c6f-8878-ba4f4b9bd49a",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 79.127.133.70:8443",
-      "type": "vless",
-      "server": "79.127.133.70",
-      "port": 8443,
-      "uuid": "1dcea73b-a19f-4c6f-8878-ba4f4b9bd49a",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.115:443",
-      "type": "vless",
-      "server": "217.13.104.115",
-      "port": 443,
-      "uuid": "87d58e85-a4b3-4187-9fb7-6f0a73b21a6b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.130:8443",
-      "type": "vless",
-      "server": "217.13.104.130",
-      "port": 8443,
-      "uuid": "87d58e85-a4b3-4187-9fb7-6f0a73b21a6b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.149:443",
-      "type": "vless",
-      "server": "217.13.104.149",
-      "port": 443,
-      "uuid": "f22c9b63-f93b-4650-80d7-937c5422c471",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.154:443",
-      "type": "vless",
-      "server": "217.13.104.154",
-      "port": 443,
-      "uuid": "f22c9b63-f93b-4650-80d7-937c5422c471",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.130:443",
-      "type": "vless",
-      "server": "217.13.104.130",
-      "port": 443,
-      "uuid": "4fe214fb-048e-431f-b939-4518dc9df6a2",
+      "server": "217.13.104.198",
+      "port": 5443,
+      "uuid": "7837d5c4-b23f-44fc-b2e7-3bd478bbce41",
       "tls": true,
       "flow": ""
     },
@@ -233,50 +239,6 @@
       "uuid": "7837d5c4-b23f-44fc-b2e7-3bd478bbce41",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.15:443",
-      "type": "vless",
-      "server": "217.13.104.15",
-      "port": 443,
-      "uuid": "49aabf68-e986-4722-8fd1-1702ce996bb6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.128:443",
-      "type": "vless",
-      "server": "217.13.104.128",
-      "port": 443,
-      "uuid": "49aabf68-e986-4722-8fd1-1702ce996bb6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.100.155:80",
-      "type": "vless",
-      "server": "87.229.100.155",
-      "port": 80,
-      "uuid": "a8cc4860-2daa-a943-a2ba-d2ea31251d11",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.97.198:8443",
-      "type": "vless",
-      "server": "87.229.97.198",
-      "port": 8443,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - SS 79.127.133.79:8443",
-      "type": "ss",
-      "server": "79.127.133.79",
-      "port": 8443,
-      "cipher": "aes-256-gcm",
-      "password": ""
     }
   ],
   "proxy_groups": [
@@ -285,36 +247,31 @@
       "type": "url-test",
       "proxies": [
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.97.154:443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 5.182.38.91:17267",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.121:1443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.121:443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.121:5443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.32:443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.32:1443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.32:10443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.32:3443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.32:5443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.198:443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.198:1443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.95:443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.177:443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.32:7443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.121:7443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.188:1443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.188:7443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.188:443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.188:5443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.116:7443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.116:443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 92.61.70.38:443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.134:443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.148:443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - SS 87.229.97.154:443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 79.127.133.77:8443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 79.127.133.79:8443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 79.127.133.70:8443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.115:443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.130:8443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.149:443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.154:443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.130:443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.116:1443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.15:443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.128:443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.100.155:80",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 87.229.97.198:8443",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - SS 79.127.133.79:8443"
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.116:5443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.198:7443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.198:5443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.116:1443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

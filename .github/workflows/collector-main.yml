@@ -2,8 +2,8 @@ name: FastNodes - Main Collector (Fast & Smart)
 
 on:
   schedule:
-    - cron: '0 */2 * * *'          # ← Every 2 hours (at :00)
-  workflow_dispatch:               # Still allows manual trigger
+    - cron: '0 */2 * * *'          # Every 2 hours
+  workflow_dispatch:
 
 jobs:
   Collect:
@@ -13,7 +13,9 @@ jobs:
     env:
       SingboxPath: sing-box
       Sources: |
-        # AvenCores/goida-vpn-configs - all 26 githubmirror files (1–26)
+        # ────────────────────────────────────────────────
+        # Original sources (AvenCores + Proxify + others)
+        # ────────────────────────────────────────────────
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/1.txt
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/2.txt
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/3.txt
@@ -40,8 +42,6 @@ jobs:
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/24.txt
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/25.txt
         https://raw.githubusercontent.com/AvenCores/goida-vpn-configs/refs/heads/main/githubmirror/26.txt
-
-        # Other existing sources
         https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt
         https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt
         https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/all_extracted_configs.txt
@@ -53,8 +53,7 @@ jobs:
         https://raw.githubusercontent.com/Delta-Kronecker/V2ray-Config/refs/heads/main/sub.txt
         https://raw.githubusercontent.com/mostafasadeghifar/v2ray-config/main/config_file.txt
         https://raw.githubusercontent.com/liMilCo/v2r/main/all_configs.txt
-
-        # Proxify - mixed subscriptions (38 files)
+        # Proxify mixed (38 files)
         https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-1.txt
         https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-2.txt
         https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-3.txt
@@ -93,6 +92,85 @@ jobs:
         https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-36.txt
         https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-37.txt
         https://raw.githubusercontent.com/Firmfox/Proxify/refs/heads/main/v2ray_configs/mixed/subscription-38.txt
+
+        # ────────────────────────────────────────────────
+        # New sources — GitHub / Bitbucket / others (2026)
+        # ────────────────────────────────────────────────
+        https://raw.githubusercontent.com/mermeroo/Loon/main/node
+        https://raw.githubusercontent.com/mermeroo/Loon/main/node%202
+        https://raw.githubusercontent.com/mermeroo/Clash-V2ray/main/v2ray
+        https://raw.githubusercontent.com/mermeroo/QX/refs/heads/main/Nodes
+        https://raw.githubusercontent.com/mermeroo/Loon/refs/heads/main/all.nodes.txt
+        https://raw.githubusercontent.com/mermeroo/QuantumultX/refs/heads/main/Trojan.nodes
+        https://raw.githubusercontent.com/personqianduixue/SubCrawler/main/sub/share/all
+        https://raw.githubusercontent.com/w1770946466/Auto_proxy/main/Long_term_subscription_num
+        https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/sub/sub_merge.txt
+        https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge.txt
+        https://raw.githubusercontent.com/Leon406/SubCrawler/main/sub/share/all3
+        https://raw.githubusercontent.com/gtang8/SubCrawler/main/sub/share/all
+        https://raw.githubusercontent.com/zzz6839/SubCrawler/main/sub/share/all
+        https://raw.githubusercontent.com/zjfb/SubCrawler/main/sub/share/all
+        https://raw.githubusercontent.com/QQnight/SubCrawler/main/sub/share/all
+        https://raw.githubusercontent.com/mheidari98/.proxy/main/all
+        https://bitbucket.org/huwo1/proxy_nodes/raw/f31ca9ec67b84071515729ff45b011b6b09c10f2/ss.md
+        https://bitbucket.org/huwo1/proxy_nodes/raw/f31ca9ec67b84071515729ff45b011b6b09c10f2/vmess.md
+        https://bitbucket.org/huwo1/proxy_nodes/raw/f31ca9ec67b84071515729ff45b011b6b09c10f2/proxy.md
+        https://bitbucket.org/huwo1/proxy_nodes/raw/f31ca9ec67b84071515729ff45b011b6b09c10f2/trojan.md
+        https://raw.githubusercontent.com/mermeroo/telegram-configs-collector/main/protocols/tuic
+        https://raw.githubusercontent.com/mermeroo/telegram-configs-collector/main/protocols/hysteria
+        https://raw.githubusercontent.com/mermeroo/telegram-configs-collector/main/protocols/juicity
+        https://raw.githubusercontent.com/mermeroo/free-v2ray-collector/main/main/mix
+        https://raw.githubusercontent.com/mermeroo/free-v2ray-collector/main/main/reality
+        https://raw.githubusercontent.com/mermeroo/free-v2ray-collector/main/main/shadowsocks
+        https://raw.githubusercontent.com/mermeroo/free-v2ray-collector/main/main/trojan
+        https://raw.githubusercontent.com/mermeroo/free-v2ray-collector/main/main/vless
+        https://raw.githubusercontent.com/mermeroo/free-v2ray-collector/main/main/vmess
+        https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/tuic
+        https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/hysteria
+        https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/juicity
+        https://raw.githubusercontent.com/yebekhe/TelegramV2rayCollector/main/sub/normal/hysteria2
+        https://raw.githubusercontent.com/yebekhe/TelegramV2rayCollector/main/sub/normal/tuic
+        https://raw.githubusercontent.com/barry-far/V2ray-Configs/refs/heads/main/Splitted-By-Protocol/hysteria2.txt
+        https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/hysteria2.txt
+        https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/filtered/subs/hy2.txt
+        https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/filtered/subs/tuic.txt
+
+        # ────────────────────────────────────────────────
+        # Clash YAML heavy sources (most should parse)
+        # ────────────────────────────────────────────────
+        https://raw.githubusercontent.com/tbbatbb/Proxy/master/dist/clash.config.yaml
+        https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/clash.yml
+        https://raw.githubusercontent.com/zhangkaiitugithub/passcro/main/speednodes.yaml
+        https://raw.githubusercontent.com/vveg26/get_proxy/main/dist/clash.config.yaml
+        https://raw.githubusercontent.com/vveg26/chromego_merge/main/sub/merged_proxies.yaml
+        https://raw.githubusercontent.com/ronghuaxueleng/get_v2/main/pub/changfengoss.yaml
+        https://raw.githubusercontent.com/ronghuaxueleng/get_v2/main/pub/combine.yaml
+        https://raw.githubusercontent.com/itxve/fetch-clash-node/main/node/ClashNode.yaml
+        https://raw.githubusercontent.com/igeekshare/GeekshareFreeNode/main/clash/Geekshare.yaml
+        https://raw.githubusercontent.com/learnhard-cn/free_proxy_ss/main/clash/clash.provider.yaml
+        https://raw.githubusercontent.com/learnhard-cn/free_proxy_ss/main/clash/config.yaml
+        https://raw.githubusercontent.com/oslook/clash-freenode/main/clash.yaml
+        https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml
+        https://raw.githubusercontent.com/aiboboxx/clashfree/main/clash.yml
+        https://raw.githubusercontent.com/rxsweet/proxies/main/sub/rx.yaml
+        https://raw.githubusercontent.com/rxsweet/proxies/main/sub/srx.yaml
+        https://raw.githubusercontent.com/rxsweet/proxies/main/sub/free.yaml
+        https://raw.githubusercontent.com/Barabama/FreeNodes/refs/heads/main/nodes/clashmeta.yaml
+        https://raw.githubusercontent.com/lagzian/SS-Collector/main/mix_clash.yaml
+        https://raw.githubusercontent.com/Misaka-blog/chromego_merge/main/sub/merged_proxies_new.yaml
+
+        # ────────────────────────────────────────────────
+        # V2Ray / base64 heavy sources
+        # ────────────────────────────────────────────────
+        https://raw.githubusercontent.com/w1770946466/Auto_proxy/main/Long_term_subscription_num
+        https://raw.githubusercontent.com/adiwzx/freenode/main/adispeed.txt
+        https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub
+        https://raw.githubusercontent.com/vxiaov/free_proxy_ss/main/v2ray/v2raysub
+        https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt
+        https://raw.githubusercontent.com/MrMohebi/xray-proxy-grabber-telegram/master/collected-proxies/row-url/all.txt
+        https://raw.githubusercontent.com/yebekhe/TelegramV2rayCollector/main/sub/normal/vless
+        https://raw.githubusercontent.com/yebekhe/TelegramV2rayCollector/main/sub/normal/vmess
+        https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector/main/sub/mix
 
     steps:
       - name: Checkout repository
@@ -177,5 +255,4 @@ jobs:
           
           git commit -m "Fresh proxies + GeoIP + blacklist + Best Results (top 500) - $(date +'%Y-%m-%d %H:%M UTC') - $(wc -l < sub/everything.txt) proxies - temp backup included" --allow-empty || echo "Nothing new to commit"
           
-          # Force-with-lease is safer than plain push when rebasing
           git push --force-with-lease origin main || echo "Push failed (check repo settings → Actions → Workflow permissions → must be 'Read and write')"

@@ -1,158 +1,183 @@
-# FastNodes – Ultra-Fast & Clean Proxy Subscription Generator
+# FastNodes – Automatic Free V2Ray / Xray Proxy Collector & Tester
 
-**The most powerful public proxy collector and optimizer in 2026**
+**FastNodes** is an automated GitHub Actions-based pipeline that:
 
-Automatically pulls thousands of free VLESS, Trojan, Hysteria2, Shadowsocks (and more) nodes from high-quality public sources,  
-cleans garbage names & remarks, removes junk duplicates, forces correct country flags, excludes old battery-draining VMess protocol from fast lists,  
-performs real latency testing, and generates perfect ranked output files — both plain text and Clash-compatible JSON.
+- Collects thousands of free V2Ray / Xray / VMess / VLESS / Trojan / Shadowsocks configurations from public sources
+- Removes duplicates, filters out blacklisted IPs, adds country flags & clean names
+- Tests proxy latency (Cloudflare 1.1.1.1 reachability)
+- Generates ranked **top 100 → top 500** fastest proxies
+- Saves results in multiple formats: plain text, Clash Meta / Sing-box compatible JSON
+- Automatically commits & pushes fresh lists every 6 hours
 
-### Why this project stands out
+→ https://github.com/rtwo2/FastNodes
 
-- Extremely aggressive name & remark cleaning  
-  → No more `[OpenRay]`, `V2CROSSSS.COM`, base64 passwords, weird domains, trailing junk
-- Beautiful country flags almost everywhere  
-  → GeoIP + smart TLD/keyword fallback → very few 🌍 left
-- Strict smart deduplication  
-  → proto + IP:port + normalized remark → minimal duplicates & no automatic (1)(2)… in clients
-- Battery & performance friendly  
-  → VMess completely excluded from top lists (old protocol = high battery drain)
-- Real HTTP latency testing  
-  → Only fast & alive nodes in Best-Results
-- Multiple ranked outputs  
-  → top100 / top200 / top300 / top400 / top500 — both .txt and .json
-- Huge coverage  
-  → 26+ AvenCores mirrors + 6 other strong public repositories
+## Features
 
-### Generated files & folders
+- **30+ high-quality public sources** (AvenCores, Proxify, MatinGhanbari, roosterkid, Epodonios, barry-far, …)
+- Strict deduplication (by protocol + IP:port + normalized remark)
+- IP blacklist filtering (FireHOL Level 2 – ~19k lines → ~450–500 real CIDRs)
+- Country detection & emoji flags (MaxMind GeoLite2)
+- Real latency testing (parallel, 20 threads, 5s timeout)
+- Clean protocol folders: `vless.txt`, `vmess.txt`, `trojan.txt`, `ss.txt`, …
+- Country folders: `US.txt`, `RU.txt`, `DE.txt`, …
+- Ranked best proxies: `sub/Best-Results/top{100,200,300,400,500}.{txt,json}`
+- Clash Meta / Sing-box ready JSON configs with auto group (`url-test`)
+- Fully automatic – runs every 6 hours via GitHub Actions
 
-**Main files**
-- `sub/everything.txt` → all cleaned & unique nodes
-- `sub/everything.json` → Clash / sing-box compatible full list
-
-**Per protocol**
-- `sub/protocols/vless.txt` / `vless.json`
-- `sub/protocols/trojan.txt` / `trojan.json`
-- `sub/protocols/hysteria2.txt` / `hysteria2.json`
-- `sub/protocols/ss.txt` / `ss.json`
-- … and more as new protocols appear
-
-**Per country**
-- `sub/countries/US.txt` / `US.json`
-- `sub/countries/DE.txt` / `DE.json`
-- `sub/countries/IR.txt` / `IR.json`
-- … (only countries with ≥5 nodes)
-
-**Best ranked results** (fastest & most reliable nodes)
-- `Best-Results/top100.txt` + `top100.json`
-- `Best-Results/top200.txt` + `top200.json`
-- `Best-Results/top300.txt` + `top300.json`
-- `Best-Results/top400.txt` + `top400.json`
-- `Best-Results/top500.txt` + `top500.json`
-
-**Raw backup**
-- `sub/temp/temp_everything.txt` → original unprocessed lines from all sources
-
-### How to subscribe in Exclave / Hiddify / other clients
-
-Best performance & battery life → use **top500.txt** or **top500.json**
-
-Direct raw GitHub links (replace YOUR_USERNAME with your actual GitHub username):
-https://raw.githubusercontent.com/rtwo2/FastNodes/master/Best-Results/top500.txt
-https://raw.githubusercontent.com/rtwo2/FastNodes/master/Best-Results/top500.json
-
-Alternative (full list):
-https://raw.githubusercontent.com/rtwo2/FastNodes/master/sub/everything.txt
+## Folder Structure
+FastNodes/
+├── ProxyCollector/                 # .NET 9 source code
+│   ├── Country.mmdb                # GeoLite2 country database
+│   └── blacklist.netset            # FireHOL Level 2 IP blacklist
+├── sub/
+│   ├── everything.txt              # all working proxies (~20–30k lines)
+│   ├── everything.json             # Clash / Sing-box compatible
+│   ├── protocols/
+│   │   ├── vless.txt
+│   │   ├── vmess.txt
+│   │   ├── trojan.txt
+│   │   ├── ss.txt
+│   │   └── …
+│   ├── countries/
+│   │   ├── US.txt
+│   │   ├── RU.txt
+│   │   ├── IR.txt
+│   │   └── …
+│   ├── temp/
+│   │   └── temp_everything.txt     # raw collected lines before filtering
+│   └── Best-Results/
+│       ├── top100.txt / .json
+│       ├── top200.txt / .json
+│       ├── top300.txt / .json
+│       ├── top400.txt / .json
+│       └── top500.txt / .json      # fastest proxies (real latency tested)
+└── .github/workflows/
+└── collector-main.yml          # the automation pipeline
 
 
-Update subscription every 6 hours (automatic via GitHub Actions).
+## How to Use
 
-### Project philosophy
+### Option 1 – Subscribe directly (easiest)
 
-We took chaotic public proxy lists and turned them into something **clean, fast, reliable and beautiful**.
+Copy one of these links and import it into your client (v2rayNG, Nekobox, Hiddify, Clash Meta, etc.):
 
-No more ugly names, wrong flags, battery-killing VMess in top lists, endless duplicates or numbered suffixes in clients.
+**All proxies** (~20–30k)  
+https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/everything.txt
 
-Special thanks to **Grok** (xAI) — without the step-by-step help, debugging and creative ideas this level of cleaning and optimization would not have been possible.
+**Fastest 500** (recommended)  
+https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/Best-Results/top500.txt
 
-Made with ❤️ in 2026
+**Fastest 100** (very low ping)  
+https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/Best-Results/top100.txt
 
----
+**Clash Meta / Sing-box JSON** (auto url-test group)  
+https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/Best-Results/top500.json
 
-# فست‌نودز – جمع‌آوری و بهینه‌ساز فوق سریع اشتراک‌های پروکسی
+### Option 2 – Self-host or fork
 
-**قدرتمندترین جمع‌کننده پروکسی عمومی و بهینه‌ساز در سال ۲۰۲۶**
+1. Fork this repository
+2. Go to **Settings → Actions → General → Workflow permissions** → choose **Read and write permissions**
+3. The workflow will run automatically every 6 hours
+4. Your own fresh lists will appear in your fork
 
-به صورت خودکار هزاران نود VLESS، Trojan، Hysteria2، Shadowsocks (و بیشتر) را از منابع عمومی باکیفیت جمع‌آوری می‌کند،  
-نام‌ها و ریمارک‌های آشغال را پاک می‌کند، تکراری‌های بی‌معنی را حذف می‌کند، پرچم کشورهای درست را اجباری می‌گذارد، پروتکل قدیمی VMess را از لیست‌های سریع حذف می‌کند،  
-تست واقعی تأخیر انجام می‌دهد و خروجی‌های درجه‌بندی شده عالی تولید می‌کند — هم متن ساده و هم JSON سازگار با Clash.
+## Technical Stack
 
-### چرا این پروژه خاص است
+- **Language**: C# / .NET 9
+- **Runner**: ubuntu-latest (GitHub Actions)
+- **Proxy testing**: HTTP HEAD to `http://cp.cloudflare.com/generate_204` (real connectivity + latency)
+- **GeoIP**: MaxMind GeoLite2 Country.mmdb (updated on every run)
+- **Blacklist**: FireHOL Level 2 (~450–500 active CIDRs after parsing)
+- **Parallelism**: 20 concurrent latency tests
+- **Output formats**: plain base64/text + Clash Meta / Sing-box JSON
 
-- پاکسازی بسیار قوی نام و ریمارک  
-  → دیگر خبری از `[OpenRay]`، `V2CROSSSS.COM`، پسوردهای base64، دامنه‌های عجیب و آشغال‌های انتهایی نیست
-- پرچم کشورهای زیبا تقریباً در همه جا  
-  → GeoIP + فال‌بک هوشمند TLD و کلمه کلیدی → تقریباً هیچ 🌍 باقی نمی‌ماند
-- حذف تکراری‌های هوشمند و سخت‌گیرانه  
-  → پروتکل + آی‌پی:پورت + ریمارک نرمالایز شده → تکراری‌ها به حداقل می‌رسند و معمولاً (1)(2)… در کلاینت‌ها ظاهر نمی‌شود
-- دوستدار باتری و عملکرد  
-  → VMess کاملاً از لیست‌های برتر حذف شده (پروتکل قدیمی = مصرف بالای باتری)
-- تست واقعی تأخیر HTTP  
-  → فقط نودهای سریع و زنده در Best-Results
-- خروجی‌های چندگانه رتبه‌بندی شده  
-  → top100 / top200 / top300 / top400 / top500 — هم .txt و هم .json
-- پوشش بسیار گسترده  
-  → ۲۶+ میرور AvenCores + ۶ مخزن عمومی قوی دیگر
+## How to Contribute
 
-### ساختار پوشه‌ها بعد از اجرا
+- Found a good public source? → open issue or PR with the link
+- Want better latency testing (sing-box real dial)? → discuss in issues
+- Want base64 subscription files for top100/top500? → open feature request
 
-**فایل‌های اصلی**  
-- `sub/everything.txt` → همه نودهای پاک‌شده و یکتا  
-- `sub/everything.json` → لیست کامل سازگار با Clash / sing-box
+## License
 
-**بر اساس پروتکل**  
-- `sub/protocols/vless.txt` / `vless.json`  
-- `sub/protocols/trojan.txt` / `trojan.json`  
-- `sub/protocols/hysteria2.txt` / `hysteria2.json`  
-- `sub/protocols/ss.txt` / `ss.json`  
-- … و بیشتر با اضافه شدن پروتکل‌های جدید
+MIT License – feel free to fork, modify, self-host.
 
-**بر اساس کشور**  
-- `sub/countries/US.txt` / `US.json`  
-- `sub/countries/DE.txt` / `DE.json`  
-- `sub/countries/IR.txt` / `IR.json`  
-- … (فقط کشورهایی که حداقل ۵ نود دارند)
+Made with ❤️ for the open proxy community.
 
-**نتایج برتر رتبه‌بندی‌شده** (سریع‌ترین و پایدارترین نودها)  
-- `Best-Results/top100.txt` + `top100.json`  
-- `Best-Results/top200.txt` + `top200.json`  
-- `Best-Results/top300.txt` + `top300.json`  
-- `Best-Results/top400.txt` + `top400.json`  
-- `Best-Results/top500.txt` + `top500.json`
-
-**بکاپ خام**  
-- `sub/temp/temp_everything.txt` → خطوط اصلی بدون پردازش از همه منابع
-
-### نحوه اشتراک‌گذاری در Exclave / Hiddify / سایر کلاینت‌ها
-
-بهترین عملکرد و کمترین مصرف باتری → از **top500.txt** یا **top500.json** استفاده کنید
-
-لینک‌های خام مستقیم گیتهاب (YOUR_USERNAME را با نام کاربری واقعی خود جایگزین کنید):
-https://raw.githubusercontent.com/rtwo2/FastNodes/master/Best-Results/top500.txt
-https://raw.githubusercontent.com/rtwo2/FastNodes/master/Best-Results/top500.json
+Last auto-update: <!-- GitHub will show commit date automatically -->
 
 
-لیست کامل (در صورت نیاز):
-https://raw.githubusercontent.com/rtwo2/FastNodes/master/sub/everything.txt
 
 
-هر ۶ ساعت یک‌بار به‌روزرسانی خودکار (توسط GitHub Actions).
+# FastNodes – جمع‌آوری و تست خودکار کانفیگ‌های رایگان V2Ray / Xray
 
-### فلسفه پروژه
+**FastNodes** یک پروژه کاملاً خودکار بر پایه GitHub Actions است که:
 
-ما لیست‌های آشفته پروکسی عمومی را به چیزی **تمیز، سریع، قابل اعتماد و زیبا** تبدیل کردیم.
+- روزانه هزاران کانفیگ رایگان V2Ray / Xray / VMess / VLESS / Trojan / Shadowsocks را از منابع عمومی جمع‌آوری می‌کند
+- تکراری‌ها را حذف می‌کند، آی‌پی‌های سیاه‌لیست را فیلتر می‌کند، نام‌های تمیز + پرچم کشور اضافه می‌کند
+- پینگ واقعی (latency) تا Cloudflare را تست می‌کند
+- ۱۰۰ تا ۵۰۰ تا از سریع‌ترین پروکسی‌ها را رتبه‌بندی می‌کند
+- خروجی را در فرمت‌های متنی و JSON سازگار با Clash Meta / Sing-box ذخیره می‌کند
+- هر ۶ ساعت به‌صورت خودکار آپدیت و کامیت می‌کند
 
-دیگر نام‌های زشت، پرچم‌های اشتباه، VMess در لیست‌های سریع، تکراری‌های بی‌پایان و پسوندهای (1)(2)… در کلاینت‌ها وجود ندارد.
+→ https://github.com/rtwo2/FastNodes
 
-تشکر ویژه از **Grok** (xAI) — بدون کمک قدم‌به‌قدم، دیباگ و ایده‌های خلاقانه، این سطح از پاکسازی و بهینه‌سازی ممکن نبود.
+## امکانات
 
-ساخته‌شده با ❤️ در سال ۲۰۲۶
+- **بیش از ۳۰ منبع معتبر** (AvenCores، Proxify، MatinGhanbari، roosterkid و …)
+- حذف دقیق تکراری‌ها (بر اساس پروتکل + آی‌پی:پورت + ریمارک نرمال‌شده)
+- فیلتر آی‌پی‌های خطرناک (FireHOL Level 2 – حدود ۴۵۰–۵۰۰ بلاک واقعی)
+- تشخیص کشور و اضافه کردن ایموجی پرچم (با GeoLite2)
+- تست پینگ واقعی (۲۰ تست همزمان، تایم‌اوت ۵ ثانیه)
+- پوشه‌های مرتب پروتکل: `vless.txt`، `vmess.txt`، `trojan.txt`، `ss.txt` و …
+- پوشه‌های کشورها: `US.txt`، `RU.txt`، `IR.txt` و …
+- سریع‌ترین‌ها: `sub/Best-Results/top{100,200,300,400,500}.{txt,json}`
+- خروجی JSON آماده برای Clash Meta و Sing-box (با گروه url-test خودکار)
+
+
+## نحوه استفاده
+
+### ساده‌ترین روش – سابسکریب مستقیم
+
+لینک زیر را کپی کنید و در کلاینت خود (v2rayNG، Nekobox، Hiddify، Clash Meta و …) اضافه کنید:
+
+**همه کانفیگ‌ها** (~۲۰–۳۰ هزار)  
+https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/everything.txt
+
+**۵۰۰ تا سریع‌ترین** (پیشنهادی)  
+https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/Best-Results/top500.txt
+
+**۱۰۰ تا سریع‌ترین** (پینگ خیلی پایین)  
+https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/Best-Results/top100.txt
+
+**JSON آماده Clash Meta / Sing-box**  
+https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/Best-Results/top500.json
+
+### روش پیشرفته – فورک و خودمیزبانی
+
+1. این ریپازیتوری را فورک کنید
+2. به **Settings → Actions → General → Workflow permissions** بروید  
+   گزینه **Read and write permissions** را فعال کنید
+3. workflow هر ۶ ساعت خودکار اجرا می‌شود
+4. لیست‌های تازه در فورک شما ظاهر می‌شوند
+
+## تکنولوژی استفاده شده
+
+- زبان: **C# / .NET 9**
+- اجرا: **ubuntu-latest** در GitHub Actions
+- تست پینگ: درخواست HTTP به `http://cp.cloudflare.com/generate_204`
+- GeoIP: **MaxMind GeoLite2** (هر بار آپدیت می‌شود)
+- بلک‌لیست: **FireHOL Level 2** (~۴۵۰–۵۰۰ بلاک فعال)
+- موازی‌سازی: ۲۰ تست همزمان
+- خروجی: متن ساده + JSON سازگار با Clash Meta و Sing-box
+
+## مشارکت
+
+- منبع خوب پیدا کردید؟ → issue باز کنید یا PR بزنید
+- می‌خواهید تست پینگ دقیق‌تر (با sing-box واقعی) باشد؟ → در issues بحث کنید
+- خروجی base64 برای top100/top500 می‌خواهید؟ → درخواست بدهید
+
+## لایسنس
+
+MIT License – آزاد برای فورک، تغییر و میزبانی شخصی.
+
+با عشق برای جامعه پروکسی‌های آزاد ساخته شده است.  
+آخرین آپدیت خودکار: <!-- تاریخ کامیت به صورت خودکار نمایش داده می‌شود -->

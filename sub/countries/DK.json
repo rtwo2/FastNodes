@@ -27,6 +27,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS 199.232.40.47:80",
+      "type": "vless",
+      "server": "199.232.40.47",
+      "port": 80,
+      "uuid": "dea6986e-f445-48cc-be0b-a39b5296485f",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS 46.29.235.51:8443",
       "type": "vless",
       "server": "46.29.235.51",
@@ -42,15 +51,6 @@
       "port": 80,
       "cipher": "aes-256-gcm",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS 199.232.40.47:80",
-      "type": "vless",
-      "server": "199.232.40.47",
-      "port": 80,
-      "uuid": "dea6986e-f445-48cc-be0b-a39b5296485f",
-      "tls": true,
-      "flow": ""
     }
   ],
   "proxy_groups": [
@@ -61,9 +61,9 @@
         "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS 91.210.57.117:8443",
         "\uD83C\uDDE9\uD83C\uDDF0 Denmark - TROJAN 46.29.235.31:2053",
         "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS 199.232.40.117:80",
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS 199.232.40.47:80",
         "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS 46.29.235.51:8443",
-        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS 199.232.40.47:80",
-        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - VLESS 199.232.40.47:80"
+        "\uD83C\uDDE9\uD83C\uDDF0 Denmark - SS 199.232.40.47:80"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

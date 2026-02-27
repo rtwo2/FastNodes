@@ -2,15 +2,6 @@
   "name": "FastNodes VN",
   "proxies": [
     {
-      "name": "\uD83C\uDDFB\uD83C\uDDF3 Vietnam - VLESS 103.153.254.231:80",
-      "type": "vless",
-      "server": "103.153.254.231",
-      "port": 80,
-      "uuid": "3ba7797d-e4ed-4512-b186-330b1b9ae3bd",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDFB\uD83C\uDDF3 Vietnam - SS 160.19.78.75:443",
       "type": "ss",
       "server": "160.19.78.75",
@@ -88,7 +79,6 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDFB\uD83C\uDDF3 Vietnam - VLESS 103.153.254.231:80",
         "\uD83C\uDDFB\uD83C\uDDF3 Vietnam - SS 160.19.78.75:443",
         "\uD83C\uDDFB\uD83C\uDDF3 Vietnam - TROJAN 38.54.15.140:443",
         "\uD83C\uDDFB\uD83C\uDDF3 Vietnam - TROJAN 103.81.85.238:443",

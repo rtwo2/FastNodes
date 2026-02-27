@@ -2,11 +2,11 @@
   "name": "FastNodes BE",
   "proxies": [
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.80:80",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.10.79:443",
       "type": "vless",
-      "server": "151.101.9.80",
-      "port": 80,
-      "uuid": "bb798d4c-6c86-404d-b4de-0884fc48d54a",
+      "server": "151.101.10.79",
+      "port": 443,
+      "uuid": "ed76b56c-9009-46f0-9f97-c37bf2375815",
       "tls": true,
       "flow": ""
     },
@@ -20,11 +20,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.10.79:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.80:80",
       "type": "vless",
-      "server": "151.101.10.79",
-      "port": 443,
-      "uuid": "ed76b56c-9009-46f0-9f97-c37bf2375815",
+      "server": "151.101.9.80",
+      "port": 80,
+      "uuid": "bb798d4c-6c86-404d-b4de-0884fc48d54a",
       "tls": true,
       "flow": ""
     },
@@ -137,9 +137,9 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.80:80",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.81:80",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.10.79:443",
+        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.81:80",
+        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.80:80",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 34.22.142.117:443",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.8.79:80",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.80:80",

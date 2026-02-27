@@ -1621,6 +1621,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.64.105:8443",
+      "type": "vless",
+      "server": "162.19.64.105",
+      "port": 8443,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 185.16.110.238:2096",
       "type": "vless",
       "server": "185.16.110.238",
@@ -1639,20 +1648,20 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 79.137.102.79:8880",
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.243.92:2096",
       "type": "vless",
-      "server": "79.137.102.79",
-      "port": 8880,
-      "uuid": "4583d428-8ff9-4000-bcbd-953fe8c8df17",
+      "server": "162.19.243.92",
+      "port": 2096,
+      "uuid": "3f42b528-59ef-45f9-9ba3-6292ca46f909",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.254.52:2053",
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 157.173.127.224:443",
       "type": "vless",
-      "server": "162.19.254.52",
-      "port": 2053,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "server": "157.173.127.224",
+      "port": 443,
+      "uuid": "bec44ac3-a662-4179-a9dd-2aa881706dde",
       "tls": true,
       "flow": ""
     },
@@ -1666,20 +1675,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.64.105:8443",
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.10.99:443",
       "type": "vless",
-      "server": "162.19.64.105",
-      "port": 8443,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.243.92:2096",
-      "type": "vless",
-      "server": "162.19.243.92",
-      "port": 2096,
-      "uuid": "3f42b528-59ef-45f9-9ba3-6292ca46f909",
+      "server": "162.19.10.99",
+      "port": 443,
+      "uuid": "nasnet",
       "tls": true,
       "flow": ""
     },
@@ -1702,15 +1702,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.10.99:443",
-      "type": "vless",
-      "server": "162.19.10.99",
-      "port": 443,
-      "uuid": "nasnet",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.75.30.8:80",
       "type": "vless",
       "server": "51.75.30.8",
@@ -1720,11 +1711,20 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 157.173.127.224:443",
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 79.137.102.79:8880",
       "type": "vless",
-      "server": "157.173.127.224",
-      "port": 443,
-      "uuid": "bec44ac3-a662-4179-a9dd-2aa881706dde",
+      "server": "79.137.102.79",
+      "port": 8880,
+      "uuid": "4583d428-8ff9-4000-bcbd-953fe8c8df17",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.254.52:2053",
+      "type": "vless",
+      "server": "162.19.254.52",
+      "port": 2053,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
     },
@@ -2984,11 +2984,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 151.101.121.163:80",
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 141.11.203.238:2096",
       "type": "vless",
-      "server": "151.101.121.163",
-      "port": 80,
-      "uuid": "dea6986e-f445-48cc-be0b-a39b5296485f",
+      "server": "141.11.203.238",
+      "port": 2096,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
     },
@@ -3033,42 +3033,10 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 185.208.207.217:443",
-      "type": "trojan",
-      "server": "185.208.207.217",
-      "port": 443,
-      "password": "2ee85121-31de-4581-a492-eb00f606e392",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 54.36.191.211:443",
-      "type": "trojan",
-      "server": "54.36.191.211",
-      "port": 443,
-      "password": "364d3aa0-58fc-11ed-b738-225401db9d57",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 157.173.127.225:443",
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 51.75.246.193:2052",
       "type": "ss",
-      "server": "157.173.127.225",
-      "port": 443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 51.77.213.238:8443",
-      "type": "ss",
-      "server": "51.77.213.238",
-      "port": 8443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 141.95.127.132:2053",
-      "type": "ss",
-      "server": "141.95.127.132",
-      "port": 2053,
+      "server": "51.75.246.193",
+      "port": 2052,
       "cipher": "aes-256-gcm",
       "password": ""
     },
@@ -3081,26 +3049,26 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 51.75.246.193:2052",
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 162.19.243.92:2096",
       "type": "ss",
-      "server": "51.75.246.193",
-      "port": 2052,
+      "server": "162.19.243.92",
+      "port": 2096,
       "cipher": "aes-256-gcm",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 185.171.202.55:443",
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 157.173.127.225:443",
       "type": "ss",
-      "server": "185.171.202.55",
+      "server": "157.173.127.225",
       "port": 443,
       "cipher": "aes-256-gcm",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 162.19.243.92:2096",
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 141.95.127.132:2053",
       "type": "ss",
-      "server": "162.19.243.92",
-      "port": 2096,
+      "server": "141.95.127.132",
+      "port": 2053,
       "cipher": "aes-256-gcm",
       "password": ""
     },
@@ -3111,15 +3079,6 @@
       "port": 443,
       "cipher": "aes-256-gcm",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 141.11.203.238:2096",
-      "type": "vless",
-      "server": "141.11.203.238",
-      "port": 2096,
-      "uuid": "1a25f8ad-cad2-4e93-b5bf-34e42bcac02a",
-      "tls": true,
-      "flow": ""
     },
     {
       "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 141.11.202.61:2096",
@@ -3230,10 +3189,10 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.77.140.254:443",
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 152.228.135.96:8443",
       "type": "vless",
-      "server": "51.77.140.254",
-      "port": 443,
+      "server": "152.228.135.96",
+      "port": 8443,
       "uuid": "26524cce-d514-4014-a426-365fb266a14d",
       "tls": true,
       "flow": ""
@@ -3248,6 +3207,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.77.140.254:443",
+      "type": "vless",
+      "server": "51.77.140.254",
+      "port": 443,
+      "uuid": "26524cce-d514-4014-a426-365fb266a14d",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 152.228.134.60:443",
       "type": "vless",
       "server": "152.228.134.60",
@@ -3257,11 +3225,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 152.228.134.105:2053",
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 81.19.137.83:8443",
       "type": "vless",
-      "server": "152.228.134.105",
-      "port": 2053,
-      "uuid": "26524cce-d514-4014-a426-365fb266a14d",
+      "server": "81.19.137.83",
+      "port": 8443,
+      "uuid": "a001c9c4-ece2-4dc1-9658-cbad90fcd2e0",
       "tls": true,
       "flow": ""
     },
@@ -3270,15 +3238,6 @@
       "type": "vless",
       "server": "81.19.137.83",
       "port": 8080,
-      "uuid": "a001c9c4-ece2-4dc1-9658-cbad90fcd2e0",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 81.19.137.83:8443",
-      "type": "vless",
-      "server": "81.19.137.83",
-      "port": 8443,
       "uuid": "a001c9c4-ece2-4dc1-9658-cbad90fcd2e0",
       "tls": true,
       "flow": ""
@@ -3442,6 +3401,22 @@
       "port": 2095,
       "cipher": "aes-256-gcm",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 185.208.207.217:443",
+      "type": "trojan",
+      "server": "185.208.207.217",
+      "port": 443,
+      "password": "2ee85121-31de-4581-a492-eb00f606e392",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 54.36.191.211:443",
+      "type": "trojan",
+      "server": "54.36.191.211",
+      "port": 443,
+      "password": "364d3aa0-58fc-11ed-b738-225401db9d57",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 81.19.137.162:443",
@@ -4164,15 +4139,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 185.193.89.61:443",
-      "type": "vless",
-      "server": "185.193.89.61",
-      "port": 443,
-      "uuid": "c7150d62-8775-44ef-9bfa-d4755961427a",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 141.11.203.171:443",
       "type": "vless",
       "server": "141.11.203.171",
@@ -4261,6 +4227,14 @@
       "uuid": "0e90f352-e9bc-4834-8ff6-49ba887eded4",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 51.77.213.238:8443",
+      "type": "ss",
+      "server": "51.77.213.238",
+      "port": 8443,
+      "cipher": "aes-256-gcm",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 141.94.220.210:443",
@@ -4448,6 +4422,15 @@
       "tls": true
     },
     {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 152.228.134.105:2053",
+      "type": "vless",
+      "server": "152.228.134.105",
+      "port": 2053,
+      "uuid": "26524cce-d514-4014-a426-365fb266a14d",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDEB\uD83C\uDDF7 France - SS 213.167.242.23:443",
       "type": "ss",
       "server": "213.167.242.23",
@@ -4558,6 +4541,15 @@
       "server": "199.232.169.135",
       "port": 443,
       "uuid": "f408696c-cdbe-49a1-90e9-ab602003315c",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 62.60.156.205:443",
+      "type": "vless",
+      "server": "62.60.156.205",
+      "port": 443,
+      "uuid": "57a95e4e-0cce-4bf9-e205-18e91bf32871",
       "tls": true,
       "flow": ""
     },
@@ -6852,6 +6844,15 @@
       "port": 443,
       "password": "opentunnel.net-english30day",
       "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 151.101.121.163:80",
+      "type": "vless",
+      "server": "151.101.121.163",
+      "port": 80,
+      "uuid": "dea6986e-f445-48cc-be0b-a39b5296485f",
+      "tls": true,
+      "flow": ""
     }
   ],
   "proxy_groups": [
@@ -7039,18 +7040,18 @@
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 94.23.74.37:8443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.44.208.42:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.10.94:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.64.105:8443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 185.16.110.238:2096",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 109.172.55.122:443",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 79.137.102.79:8880",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.254.52:2053",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 185.171.202.55:443",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.64.105:8443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.243.92:2096",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 157.173.127.224:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 185.171.202.55:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.10.99:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 141.11.203.139:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 45.13.119.38:443",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.10.99:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.75.30.8:80",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 157.173.127.224:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 79.137.102.79:8880",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 162.19.254.52:2053",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.75.246.193:2052",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 185.171.202.58:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 152.228.191.232:80",
@@ -7201,23 +7202,18 @@
         "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 15.236.64.14:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.91.248.251:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 185.120.59.245:443",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 151.101.121.163:80",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 141.11.203.238:2096",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 162.19.10.94:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 79.137.102.79:8880",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 162.19.254.52:2053",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 185.16.110.238:2096",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 162.19.228.119:80",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 185.208.207.217:443",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 54.36.191.211:443",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - SS 157.173.127.225:443",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - SS 51.77.213.238:8443",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - SS 141.95.127.132:2053",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - SS 141.94.77.169:2053",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 51.75.246.193:2052",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - SS 185.171.202.55:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - SS 141.94.77.169:2053",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 162.19.243.92:2096",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - SS 157.173.127.225:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - SS 141.95.127.132:2053",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 64.31.63.92:443",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 141.11.203.238:2096",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 141.11.202.61:2096",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 163.5.159.201:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 196.196.35.26:443",
@@ -7230,12 +7226,12 @@
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 62.60.246.188:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 217.69.7.35:8880",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.75.161.60:80",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.77.140.254:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 152.228.135.96:8443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 57.128.178.63:8443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.77.140.254:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 152.228.134.60:443",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 152.228.134.105:2053",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 81.19.137.83:8080",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 81.19.137.83:8443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 81.19.137.83:8080",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 51.195.119.204:80",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 151.101.123.159:80",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 51.210.103.141:443",
@@ -7256,6 +7252,8 @@
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 54.37.18.75:8881",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 149.202.82.172:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 62.133.62.166:2095",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 185.208.207.217:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 54.36.191.211:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 81.19.137.162:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 141.11.203.168:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 217.182.61.115:80",
@@ -7337,7 +7335,6 @@
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.68.189.39:80",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 141.11.203.3:8880",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 146.59.15.81:443",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 185.193.89.61:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 141.11.203.171:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 141.11.203.254:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 141.11.203.4:443",
@@ -7348,6 +7345,7 @@
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 185.16.110.63:8880",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 199.232.170.228:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 77.221.152.183:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - SS 51.77.213.238:8443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 141.94.220.210:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 57.128.179.111:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 152.228.135.204:8443",
@@ -7373,6 +7371,7 @@
         "\uD83C\uDDEB\uD83C\uDDF7 France - HY2 51.68.169.215:4433",
         "\uD83C\uDDEB\uD83C\uDDF7 France - HY2 217.69.9.125:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VMESS 88.218.76.250:2053",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 152.228.134.105:2053",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 213.167.242.23:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 185.120.59.94:8443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 185.16.110.111:443",
@@ -7386,6 +7385,7 @@
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 178.32.99.228:80",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 199.232.169.135:80",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 199.232.169.135:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 62.60.156.205:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.38.99.96:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 89.117.57.4:2053",
         "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 51.68.123.200:8080",
@@ -7657,7 +7657,8 @@
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 45.13.119.38:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 95.182.97.115:443",
         "\uD83C\uDDEB\uD83C\uDDF7 France - SS 152.228.162.19:80",
-        "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 54.37.18.204:443"
+        "\uD83C\uDDEB\uD83C\uDDF7 France - TROJAN 54.37.18.204:443",
+        "\uD83C\uDDEB\uD83C\uDDF7 France - VLESS 151.101.121.163:80"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300

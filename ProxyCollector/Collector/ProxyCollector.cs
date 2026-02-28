@@ -94,11 +94,11 @@ namespace ProxyCollector.Collector
         private const int MaxBestResults = 500;
         private const int TestTimeoutMs = 15000;
         private const int AliveCheckTimeoutMs = 2000;
-        private const int QuickCandidatesLimit = 500;
         private const int SingBoxBatchSize = 10;
 
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
 
+        // Download methods (unchanged)
         private static async Task DownloadFreshGeoIP(HttpClient http)
         {
             Console.WriteLine("Downloading fresh GeoIP database...");
@@ -158,7 +158,6 @@ namespace ProxyCollector.Collector
         private static void LoadAllBlacklists()
         {
             BlacklistCidrs.Clear();
-
             var fireholPath = Path.Combine(Directory.GetCurrentDirectory(), "ProxyCollector", "blacklist.netset");
             if (File.Exists(fireholPath))
             {
@@ -249,6 +248,7 @@ namespace ProxyCollector.Collector
                 "IN" => "India",
                 "MD" => "Moldova",
                 "CY" => "Cyprus",
+                "IR" => "Iran",
                 _ => "Unknown"
             };
         }
@@ -292,6 +292,7 @@ namespace ProxyCollector.Collector
             var tempPath = Path.Combine(tempDir, "temp_everything.txt");
             await File.WriteAllLinesAsync(tempPath, rawLines);
             Console.WriteLine($"💾 Saved raw → {tempPath} ({rawLines.Count} lines)");
+
             var renamedProxies = new List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object? ClashProxy)>();
             var seenNormalized = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             int skippedNumbered = 0, parseFail = 0, skippedLongFilename = 0, skippedBlacklisted = 0;
@@ -329,14 +330,13 @@ namespace ProxyCollector.Collector
                     skippedBlacklisted++;
                     continue;
                 }
-                string countryCode = "XX";
-                var info = Resolver.GetCountry(ipOrHost);
-                countryCode = info?.CountryCode?.ToUpperInvariant() ?? "XX";
+                string countryCode = Resolver.GetCountry(ipOrHost)?.CountryCode?.ToUpperInvariant() ?? "XX";
                 string lowerHost = ipOrHost.ToLowerInvariant();
                 if (countryCode == "XX")
                 {
                     countryCode = lowerHost switch
                     {
+                        var h when h.EndsWith(".ir") || h.Contains("iran") => "IR",
                         var h when h.EndsWith(".tw") || h.Contains("taiwan") => "TW",
                         var h when h.EndsWith(".lv") || h.Contains("latvia") => "LV",
                         var h when h.EndsWith(".hk") || h.Contains("hongkong") => "HK",
@@ -358,7 +358,7 @@ namespace ProxyCollector.Collector
                     };
                 }
                 string flag = Flags.TryGetValue(countryCode, out var f) ? f : "🌍";
-                string countryDisplay = info?.CountryName ?? GetCountryNameFromCode(countryCode) ?? "Unknown";
+                string countryDisplay = GetCountryNameFromCode(countryCode);
                 string cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} {ipOrHost}:{portStr}";
                 var renamedLink = RenameRemarkInLink(trimmed, cleanRemark, proto);
                 string dedupKey = $"{proto.ToLowerInvariant()}:{serverPort}#{cleanRemark.Replace(" ", "").ToLowerInvariant()}";
@@ -369,6 +369,7 @@ namespace ProxyCollector.Collector
                 }
             }
             Console.WriteLine($"Finished → {renamedProxies.Count} unique (dupes: {parseFail}, numbered: {skippedNumbered}, blacklisted: {skippedBlacklisted}, long fn: {skippedLongFilename})");
+
             var sub = Path.Combine(Directory.GetCurrentDirectory(), "sub");
             var protocolsDir = Path.Combine(sub, "protocols");
             var countriesDir = Path.Combine(sub, "countries");
@@ -377,11 +378,13 @@ namespace ProxyCollector.Collector
             Directory.CreateDirectory(protocolsDir);
             Directory.CreateDirectory(countriesDir);
             Directory.CreateDirectory(bestDir);
+
             var allPath = Path.Combine(sub, "everything.txt");
             await File.WriteAllLinesAsync(allPath, renamedProxies.Select(x => x.Link));
             Console.WriteLine($"Saved everything.txt ({renamedProxies.Count})");
             await SaveClashJson(Path.Combine(sub, "everything.json"), renamedProxies, "FastNodes Everything");
             Console.WriteLine("Saved everything.json");
+
             Console.WriteLine("By protocol...");
             foreach (var g in renamedProxies.GroupBy(x => NormalizeProto(x.Proto)))
             {
@@ -411,6 +414,7 @@ namespace ProxyCollector.Collector
                 var json = Path.Combine(protocolsDir, $"{safeKey}.json");
                 await SaveClashJson(json, g.ToList(), $"FastNodes {safeKey.ToUpper()}");
             }
+
             Console.WriteLine("By country...");
             foreach (var g in renamedProxies.GroupBy(x => x.CountryCode))
             {
@@ -421,6 +425,7 @@ namespace ProxyCollector.Collector
                 var json = Path.Combine(countriesDir, $"{g.Key}.json");
                 await SaveClashJson(json, g.ToList(), $"FastNodes {g.Key}");
             }
+
             var unknowns = renamedProxies.Where(p => !ValidProtocols.Contains(p.Proto)).ToList();
             if (unknowns.Any())
             {
@@ -430,13 +435,21 @@ namespace ProxyCollector.Collector
                 var unknownJson = Path.Combine(protocolsDir, "unknown.json");
                 await SaveClashJson(unknownJson, unknowns, "FastNodes Unknown");
             }
+
             await GenerateBestResultsAsync(renamedProxies);
             Console.WriteLine("\n🎉 Done!");
         }
 
         private async Task GenerateBestResultsAsync(List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object? ClashProxy)> proxies)
         {
-            Console.WriteLine($"\n🏆 Quick raw latency testing all {proxies.Count} proxies (Iran-focused URLs)...");
+            if (proxies.Count == 0)
+            {
+                Console.WriteLine("No proxies to test.");
+                return;
+            }
+
+            Console.WriteLine($"\n🏆 Quick raw latency testing all {proxies.Count} proxies (aparat/varzesh3/google)...");
+
             var quickResults = new ConcurrentBag<(string Link, int Latency, string Proto, object? ClashProxy)>();
 
             await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 80 }, async (p, ct) =>
@@ -447,51 +460,58 @@ namespace ProxyCollector.Collector
             });
 
             var sortedByPing = quickResults.OrderBy(x => x.Latency).ToList();
-            Console.WriteLine($"Quick test finished → {sortedByPing.Count} nodes passed quick check");
+            Console.WriteLine($"Quick test finished → {sortedByPing.Count} nodes passed quick check (sorted by lowest ping)");
 
-            var candidates = sortedByPing.Take(QuickCandidatesLimit).ToList();
-            Console.WriteLine($" → Testing full tunnel on top {candidates.Count} lowest-ping nodes...");
+            Console.WriteLine($"\nStarting full tunnel test from lowest ping → stopping at 500 good nodes");
 
-            var fullResults = new ConcurrentBag<(string Link, int Latency, object? ClashProxy)>();
-            int tested = 0;
-            int good = 0;
+            var fullResults = new List<(string Link, int Latency, object? ClashProxy)>();
+            int goodCount = 0;
 
-            foreach (var item in candidates)
+            foreach (var candidate in sortedByPing)
             {
-                tested++;
-                if (good >= QuickCandidatesLimit) break;
+                if (goodCount >= MaxBestResults) break;
 
-                if (await IsProxyAliveFullAsync(item.Link, item.Proto))
+                Console.WriteLine($"Testing node #{goodCount + 1} (quick ping: {candidate.Latency}ms): {candidate.Link}");
+
+                bool alive = await IsProxyAliveFullAsync(candidate.Link, candidate.Proto);
+                if (alive)
                 {
-                    int fullLatency = await TestProxyLatencyFullAsync(item.Link, item.Proto);
+                    int fullLatency = await TestProxyLatencyFullAsync(candidate.Link, candidate.Proto);
                     if (fullLatency > 0)
                     {
-                        fullResults.Add((item.Link, fullLatency, item.ClashProxy));
-                        good++;
+                        fullResults.Add((candidate.Link, fullLatency, candidate.ClashProxy));
+                        goodCount++;
+                        Console.WriteLine($"  → Good! Full latency: {fullLatency}ms | Total good: {goodCount}/{MaxBestResults}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"  → Failed full latency test");
                     }
                 }
-
-                if (tested % 50 == 0)
-                    Console.WriteLine($"Full test progress: {tested}/{candidates.Count} | good so far: {good}");
+                else
+                {
+                    Console.WriteLine($"  → Failed alive check");
+                }
             }
 
-            var sorted = fullResults.OrderBy(x => x.Latency).ToList();
-            Console.WriteLine($"Full tunnel test complete: {sorted.Count} usable proxies");
+            var finalSorted = fullResults.OrderBy(x => x.Latency).ToList();
+            Console.WriteLine($"Full tunnel test stopped → {finalSorted.Count} usable proxies (target was {MaxBestResults})");
 
             var bestDir = Path.Combine(Directory.GetCurrentDirectory(), "sub", "Best-Results");
             Directory.CreateDirectory(bestDir);
+
             var limits = new[] { 100, 200, 300, 400, 500 };
             foreach (var limit in limits)
             {
-                var topN = sorted.Take(limit).ToList();
+                var topN = finalSorted.Take(limit).ToList();
                 var txtPath = Path.Combine(bestDir, $"top{limit}.txt");
                 await File.WriteAllLinesAsync(txtPath, topN.Select(t => $"{t.Link} # latency={t.Latency}ms"));
-                Console.WriteLine($"Saved sub/Best-Results/top{limit}.txt ({topN.Count})");
+                Console.WriteLine($"Saved top{limit}.txt ({topN.Count} nodes)");
 
                 var jsonProxies = topN.Select(t => t.ClashProxy).Where(p => p != null).ToList();
                 var jsonConfig = new
                 {
-                    name = $"FastNodes Top {limit} (Iran optimized)",
+                    name = $"FastNodes Top {limit} (Iran optimized - lowest ping first)",
                     proxies = jsonProxies,
                     proxy_groups = new[]
                     {
@@ -499,7 +519,7 @@ namespace ProxyCollector.Collector
                         {
                             name = "AUTO",
                             type = "url-test",
-                            proxies = topN.Select(t => ((dynamic)t.ClashProxy)?.name ?? "Unnamed").ToList(),
+                            proxies = topN.Select(t => ((dynamic?)t.ClashProxy)?.name ?? "Unnamed").ToList(),
                             url = "http://cp.cloudflare.com/generate_204",
                             interval = 300,
                             tolerance = 50
@@ -507,10 +527,11 @@ namespace ProxyCollector.Collector
                     },
                     rules = new[] { "MATCH,AUTO" }
                 };
+
                 var jsonPath = Path.Combine(bestDir, $"top{limit}.json");
                 var options = new JsonSerializerOptions { WriteIndented = true };
                 await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(jsonConfig, options));
-                Console.WriteLine($"Saved sub/Best-Results/top{limit}.json ({topN.Count})");
+                Console.WriteLine($"Saved top{limit}.json ({topN.Count} nodes)");
             }
         }
 
@@ -529,7 +550,7 @@ namespace ProxyCollector.Collector
                     {
                         total += (int)(DateTime.UtcNow - start).TotalMilliseconds;
                         success++;
-                        if (success >= 1) break; // early exit after 1 success
+                        if (success >= 1) break;
                     }
                 }
                 catch { }
@@ -683,6 +704,7 @@ namespace ProxyCollector.Collector
         {
             var clashProxies = proxies.Select(x => x.ClashProxy).Where(p => p != null).ToList();
             var proxyNames = proxies.Select(x => x.Remark).ToList();
+
             var clashConfig = new
             {
                 name = configName,
@@ -707,6 +729,7 @@ namespace ProxyCollector.Collector
                 },
                 rules = new[] { "MATCH,AUTO" }
             };
+
             var options = new JsonSerializerOptions { WriteIndented = true };
             await File.WriteAllTextAsync(filePath, JsonSerializer.Serialize(clashConfig, options));
         }
@@ -718,62 +741,61 @@ namespace ProxyCollector.Collector
             if (!string.IsNullOrEmpty(serverPort) && serverPort.Contains(":"))
             {
                 var parts = serverPort.Split(':');
-                server = parts[0];
-                if (parts.Length > 1 && int.TryParse(parts[1], out int p))
-                    port = p;
+                server = parts[0] ?? "unknown";
+                if (parts.Length > 1 && int.TryParse(parts[1], out int p)) port = p;
             }
-            switch (proto.ToLowerInvariant())
+
+            string? uuid = null;
+            string? password = null;
+            string? flow = null;
+            int alterId = 0;
+            string cipher = "auto";
+            bool tls = true;
+
+            try
             {
-                case "vmess":
-                    try
-                    {
+                switch (proto.ToLowerInvariant())
+                {
+                    case "vmess":
                         string b64 = originalLine?.Substring(8)?.Split('#')?[0]?.Trim() ?? "";
                         string decoded = DecodeBase64(b64);
                         if (!string.IsNullOrEmpty(decoded))
                         {
                             var obj = JsonDocument.Parse(decoded).RootElement;
-                            string uuid = obj.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
-                            int alterId = obj.TryGetProperty("aid", out var aidProp) ? aidProp.GetInt32() : 0;
-                            string cipher = obj.TryGetProperty("scy", out var scyProp) ? scyProp.GetString() ?? "auto" : "auto";
-                            bool tls = obj.TryGetProperty("tls", out var tlsProp) && tlsProp.GetString() == "tls";
-                            return new { name, type = "vmess", server, port, uuid, alterId, cipher, tls };
+                            uuid = obj.TryGetProperty("id", out var idProp) ? idProp.GetString() : null;
+                            alterId = obj.TryGetProperty("aid", out var aidProp) ? aidProp.GetInt32() : 0;
+                            cipher = obj.TryGetProperty("scy", out var scyProp) ? scyProp.GetString() ?? "auto" : "auto";
+                            tls = obj.TryGetProperty("tls", out var tlsProp) && tlsProp.GetString() == "tls";
                         }
-                    }
-                    catch { }
-                    return new { name, type = "vmess", server, port, uuid = "", alterId = 0, cipher = "auto", tls = true };
-                case "vless":
-                    try
-                    {
-                        string uuid = originalLine?.Split('@')?[0]?.Split("://")?[1] ?? "";
-                        return new { name, type = "vless", server, port, uuid, tls = true, flow = "" };
-                    }
-                    catch { }
-                    return new { name, type = "vless", server, port, uuid = "", tls = true, flow = "" };
-                case "trojan":
-                    try
-                    {
-                        string password = originalLine?.Split('@')?[0]?.Split("://")?[1] ?? "";
-                        return new { name, type = "trojan", server, port, password, tls = true };
-                    }
-                    catch { }
-                    return new { name, type = "trojan", server, port, password = "", tls = true };
-                case "ss":
-                    try
-                    {
-                        string decoded = DecodeBase64(originalLine?.Substring(5)?.Split('#')?[0] ?? "");
-                        if (decoded.Contains("@"))
+                        break;
+                    case "vless":
+                        uuid = originalLine?.Split('@')?[0]?.Split("://")?[1];
+                        flow = Regex.Match(originalLine ?? "", "flow=([^&]+)").Groups[1].Value;
+                        break;
+                    case "trojan":
+                        password = originalLine?.Split('@')?[0]?.Split("://")?[1];
+                        break;
+                    case "ss":
+                        string ssDecoded = DecodeBase64(originalLine?.Substring(5)?.Split('#')?[0] ?? "");
+                        if (ssDecoded.Contains("@"))
                         {
-                            var authParts = decoded.Split('@')[0].Split(':');
-                            string cipher = authParts.Length > 0 ? authParts[0] : "aes-256-gcm";
-                            string password = authParts.Length > 1 ? authParts[1] : "";
-                            return new { name, type = "ss", server, port, cipher, password };
+                            var authParts = ssDecoded.Split('@')[0].Split(':');
+                            cipher = authParts.Length > 0 ? authParts[0] : "aes-256-gcm";
+                            password = authParts.Length > 1 ? authParts[1] : null;
                         }
-                    }
-                    catch { }
-                    return new { name, type = "ss", server, port, cipher = "aes-256-gcm", password = "" };
-                default:
-                    return null;
+                        break;
+                }
             }
+            catch { }
+
+            return proto.ToLowerInvariant() switch
+            {
+                "vmess" => new { name, type = "vmess", server, port, uuid = uuid ?? "", alterId, cipher, tls },
+                "vless" => new { name, type = "vless", server, port, uuid = uuid ?? "", tls, flow = flow ?? "" },
+                "trojan" => new { name, type = "trojan", server, port, password = password ?? "", tls },
+                "ss" => new { name, type = "ss", server, port, cipher, password = password ?? "" },
+                _ => null
+            };
         }
 
         private string RenameRemarkInLink(string original, string newRemark, string proto)

@@ -91,10 +91,13 @@ namespace ProxyCollector.Collector
             "http://www.google.com/generate_204"
         };
 
-        private const int MaxBestResults = 500;
+        private const int TargetGoodNodes = 200;
+        private const int MaxFullAttempts = 2000; // safety cap
         private const int TestTimeoutMs = 15000;
         private const int AliveCheckTimeoutMs = 2000;
-        private const int SingBoxBatchSize = 10;
+        private const int FullTestTimeoutSeconds = 10;
+        private const int ParallelFullTests = 20;
+        private const int ProgressReportEvery = 20;
 
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
 
@@ -330,7 +333,9 @@ namespace ProxyCollector.Collector
                     skippedBlacklisted++;
                     continue;
                 }
-                string countryCode = Resolver.GetCountry(ipOrHost)?.CountryCode?.ToUpperInvariant() ?? "XX";
+                string countryCode = "XX";
+                var info = Resolver.GetCountry(ipOrHost);
+                countryCode = info?.CountryCode?.ToUpperInvariant() ?? "XX";
                 string lowerHost = ipOrHost.ToLowerInvariant();
                 if (countryCode == "XX")
                 {
@@ -358,7 +363,7 @@ namespace ProxyCollector.Collector
                     };
                 }
                 string flag = Flags.TryGetValue(countryCode, out var f) ? f : "🌍";
-                string countryDisplay = GetCountryNameFromCode(countryCode);
+                string countryDisplay = info?.CountryName ?? GetCountryNameFromCode(countryCode) ?? "Unknown";
                 string cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} {ipOrHost}:{portStr}";
                 var renamedLink = RenameRemarkInLink(trimmed, cleanRemark, proto);
                 string dedupKey = $"{proto.ToLowerInvariant()}:{serverPort}#{cleanRemark.Replace(" ", "").ToLowerInvariant()}";
@@ -448,8 +453,7 @@ namespace ProxyCollector.Collector
                 return;
             }
 
-            Console.WriteLine($"\n🏆 Quick raw latency testing all {proxies.Count} proxies (aparat/varzesh3/google)...");
-
+            Console.WriteLine($"\n🏆 Quick raw latency testing all {proxies.Count} proxies (require 2/3 success)...");
             var quickResults = new ConcurrentBag<(string Link, int Latency, string Proto, object? ClashProxy)>();
 
             await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 80 }, async (p, ct) =>
@@ -460,58 +464,86 @@ namespace ProxyCollector.Collector
             });
 
             var sortedByPing = quickResults.OrderBy(x => x.Latency).ToList();
-            Console.WriteLine($"Quick test finished → {sortedByPing.Count} nodes passed quick check (sorted by lowest ping)");
+            Console.WriteLine($"Quick test finished → {sortedByPing.Count} nodes passed (strict 2/3 success filter)");
 
-            Console.WriteLine($"\nStarting full tunnel test from lowest ping → stopping at 500 good nodes");
+            Console.WriteLine($"\nStarting parallel full tunnel test → goal: {TargetGoodNodes} good nodes (max {MaxFullAttempts} attempts, {ParallelFullTests} parallel, {FullTestTimeoutSeconds}s timeout each)");
 
-            var fullResults = new List<(string Link, int Latency, object? ClashProxy)>();
+            var fullResults = new ConcurrentBag<(string Link, int Latency, object? ClashProxy)>();
             int goodCount = 0;
+            int testedCount = 0;
 
-            foreach (var candidate in sortedByPing)
+            var semaphore = new SemaphoreSlim(ParallelFullTests);
+            var tasks = new List<Task>();
+
+            foreach (var candidate in sortedByPing.Take(MaxFullAttempts))
             {
-                if (goodCount >= MaxBestResults) break;
+                if (goodCount >= TargetGoodNodes) break;
 
-                Console.WriteLine($"Testing node #{goodCount + 1} (quick ping: {candidate.Latency}ms): {candidate.Link}");
+                await semaphore.WaitAsync();
+                testedCount++;
+                if (testedCount % ProgressReportEvery == 0)
+                {
+                    Console.WriteLine($"Progress: tested {testedCount}/{MaxFullAttempts} | good: {goodCount}/{TargetGoodNodes}");
+                }
 
-                bool alive = await IsProxyAliveFullAsync(candidate.Link, candidate.Proto);
-                if (alive)
+                tasks.Add(Task.Run(async () =>
                 {
-                    int fullLatency = await TestProxyLatencyFullAsync(candidate.Link, candidate.Proto);
-                    if (fullLatency > 0)
+                    try
                     {
-                        fullResults.Add((candidate.Link, fullLatency, candidate.ClashProxy));
-                        goodCount++;
-                        Console.WriteLine($"  → Good! Full latency: {fullLatency}ms | Total good: {goodCount}/{MaxBestResults}");
+                        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(FullTestTimeoutSeconds));
+
+                        bool alive = await IsProxyAliveFullAsync(candidate.Link, candidate.Proto, cts.Token);
+
+                        if (alive)
+                        {
+                            int fullLatency = await TestProxyLatencyFullAsync(candidate.Link, candidate.Proto, cts.Token);
+                            if (fullLatency > 0)
+                            {
+                                fullResults.Add((candidate.Link, fullLatency, candidate.ClashProxy));
+                                Interlocked.Increment(ref goodCount);
+                                Console.WriteLine($"Good #{goodCount}/{TargetGoodNodes} | {fullLatency}ms | {candidate.Link}");
+                            }
+                        }
                     }
-                    else
+                    catch (OperationCanceledException) { /* silent timeout */ }
+                    catch (Exception ex)
                     {
-                        Console.WriteLine($"  → Failed full latency test");
+                        Console.WriteLine($"Error on {candidate.Link}: {ex.Message}");
                     }
-                }
-                else
-                {
-                    Console.WriteLine($"  → Failed alive check");
-                }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }));
             }
 
+            await Task.WhenAll(tasks);
+
             var finalSorted = fullResults.OrderBy(x => x.Latency).ToList();
-            Console.WriteLine($"Full tunnel test stopped → {finalSorted.Count} usable proxies (target was {MaxBestResults})");
+            Console.WriteLine($"Full test finished → {finalSorted.Count} good proxies (target {TargetGoodNodes})");
+
+            // Fallback: if zero good, use quick-ping sorted
+            if (finalSorted.Count == 0)
+            {
+                Console.WriteLine("WARNING: 0 good proxies from full test → falling back to quick-ping ranking");
+                finalSorted = sortedByPing.Select(p => (p.Link, p.Latency, p.ClashProxy)).ToList();
+            }
 
             var bestDir = Path.Combine(Directory.GetCurrentDirectory(), "sub", "Best-Results");
             Directory.CreateDirectory(bestDir);
 
-            var limits = new[] { 100, 200, 300, 400, 500 };
+            var limits = new[] { 50, 100, 150, 200 };
             foreach (var limit in limits)
             {
                 var topN = finalSorted.Take(limit).ToList();
                 var txtPath = Path.Combine(bestDir, $"top{limit}.txt");
                 await File.WriteAllLinesAsync(txtPath, topN.Select(t => $"{t.Link} # latency={t.Latency}ms"));
-                Console.WriteLine($"Saved top{limit}.txt ({topN.Count} nodes)");
+                Console.WriteLine($"Saved top{limit}.txt ({topN.Count})");
 
                 var jsonProxies = topN.Select(t => t.ClashProxy).Where(p => p != null).ToList();
                 var jsonConfig = new
                 {
-                    name = $"FastNodes Top {limit} (Iran optimized - lowest ping first)",
+                    name = $"FastNodes Top {limit} (Iran optimized)",
                     proxies = jsonProxies,
                     proxy_groups = new[]
                     {
@@ -531,7 +563,7 @@ namespace ProxyCollector.Collector
                 var jsonPath = Path.Combine(bestDir, $"top{limit}.json");
                 var options = new JsonSerializerOptions { WriteIndented = true };
                 await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(jsonConfig, options));
-                Console.WriteLine($"Saved top{limit}.json ({topN.Count} nodes)");
+                Console.WriteLine($"Saved top{limit}.json ({topN.Count})");
             }
         }
 
@@ -550,31 +582,41 @@ namespace ProxyCollector.Collector
                     {
                         total += (int)(DateTime.UtcNow - start).TotalMilliseconds;
                         success++;
-                        if (success >= 1) break;
                     }
                 }
                 catch { }
             }
-            return success > 0 ? total / success : -1;
+            return (success >= 2 && success > 0) ? total / success : -1; // require 2/3 success
         }
 
-        private async Task<bool> IsProxyAliveFullAsync(string link, string proto)
+        private async Task<bool> IsProxyAliveFullAsync(string link, string proto, CancellationToken token)
         {
             string configPath = Path.GetTempFileName() + ".json";
             int port = Interlocked.Increment(ref _basePort) % SingBoxBatchSize + 10800;
             string socksAddr = $"127.0.0.1:{port}";
             var config = GenerateSingBoxConfig(link, proto, port);
             if (config == null) return false;
-            await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true }));
+            await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true }), token);
             using var process = StartSingBox(configPath);
-            await Task.Delay(800);
+            await Task.Delay(800, token);
             bool alive = false;
             try
             {
                 var proxy = new WebProxy(socksAddr);
                 using var client = new HttpClient(new HttpClientHandler { Proxy = proxy }) { Timeout = TimeSpan.FromMilliseconds(AliveCheckTimeoutMs) };
-                var resp = await client.GetAsync(TestUrls[0]);
-                alive = resp.IsSuccessStatusCode;
+                foreach (var url in TestUrls)
+                {
+                    try
+                    {
+                        var resp = await client.GetAsync(url, token);
+                        if (resp.IsSuccessStatusCode)
+                        {
+                            alive = true;
+                            break;
+                        }
+                    }
+                    catch { }
+                }
             }
             catch { }
             process.Kill(true);
@@ -582,34 +624,38 @@ namespace ProxyCollector.Collector
             return alive;
         }
 
-        private async Task<int> TestProxyLatencyFullAsync(string link, string proto)
+        private async Task<int> TestProxyLatencyFullAsync(string link, string proto, CancellationToken token)
         {
             string configPath = Path.GetTempFileName() + ".json";
             int port = Interlocked.Increment(ref _basePort) % SingBoxBatchSize + 10800;
             string socksAddr = $"127.0.0.1:{port}";
             var config = GenerateSingBoxConfig(link, proto, port);
             if (config == null) return -1;
-            await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true }));
+            await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true }), token);
             using var process = StartSingBox(configPath);
-            await Task.Delay(800);
+            await Task.Delay(800, token);
             int total = 0;
             int count = 0;
-            foreach (var url in TestUrls)
+            try
             {
-                try
+                var proxy = new WebProxy(socksAddr);
+                using var client = new HttpClient(new HttpClientHandler { Proxy = proxy }) { Timeout = TimeSpan.FromMilliseconds(TestTimeoutMs) };
+                foreach (var url in TestUrls)
                 {
-                    var proxy = new WebProxy(socksAddr);
-                    using var client = new HttpClient(new HttpClientHandler { Proxy = proxy }) { Timeout = TimeSpan.FromMilliseconds(TestTimeoutMs) };
-                    var start = DateTime.UtcNow;
-                    var resp = await client.GetAsync(url);
-                    if (resp.IsSuccessStatusCode)
+                    try
                     {
-                        total += (int)(DateTime.UtcNow - start).TotalMilliseconds;
-                        count++;
+                        var start = DateTime.UtcNow;
+                        var resp = await client.GetAsync(url, token);
+                        if (resp.IsSuccessStatusCode)
+                        {
+                            total += (int)(DateTime.UtcNow - start).TotalMilliseconds;
+                            count++;
+                        }
                     }
+                    catch { }
                 }
-                catch { }
             }
+            catch { }
             process.Kill(true);
             try { File.Delete(configPath); } catch { }
             return count > 0 ? total / count : -1;
@@ -899,6 +945,24 @@ namespace ProxyCollector.Collector
             catch
             {
                 return "";
+            }
+        }
+
+        // Add this extension at the bottom
+        public static class TaskCancellationExtensions
+        {
+            public static Task WithCancellation(this Task task, CancellationToken token)
+            {
+                var tcs = new TaskCompletionSource<bool>();
+                using (token.Register(s => ((TaskCompletionSource<bool>)s!).TrySetCanceled(), tcs))
+                    return Task.WhenAny(task, tcs.Task).Unwrap();
+            }
+
+            public static Task<T> WithCancellation<T>(this Task<T> task, CancellationToken token)
+            {
+                var tcs = new TaskCompletionSource<T>();
+                using (token.Register(s => ((TaskCompletionSource<T>)s!).TrySetCanceled(), tcs))
+                    return Task.WhenAny(task, tcs.Task).Unwrap();
             }
         }
     }

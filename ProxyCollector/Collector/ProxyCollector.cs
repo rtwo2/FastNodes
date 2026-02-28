@@ -84,18 +84,18 @@ namespace ProxyCollector.Collector
         };
 
         private static readonly string[] TestUrls = {
-            "http://aparat.com/generate_204",  
-            "http://varzesh3.com/generate_204",  
-            "http://www.google.com/generate_204",  
-            "http://cp.cloudflare.com/generate_204",  
-            "http://twitter.com/generate_204"  
+            "http://aparat.com/generate_204",
+            "http://varzesh3.com/generate_204",
+            "http://www.google.com/generate_204",
+            "http://cp.cloudflare.com/generate_204",
+            "http://twitter.com/generate_204"
         };
 
         private const int MaxBestResults = 500;
-        private const int TestTimeoutMs = 15000; 
-        private const int AliveCheckTimeoutMs = 4000; 
-        private const int QuickCandidatesLimit = 2000; 
-        private const int SingBoxBatchSize = 10; 
+        private const int TestTimeoutMs = 15000;
+        private const int AliveCheckTimeoutMs = 4000;
+        private const int QuickCandidatesLimit = 2000;
+        private const int SingBoxBatchSize = 10;
 
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
 
@@ -208,6 +208,31 @@ namespace ProxyCollector.Collector
                 }
                 Console.WriteLine($"Loaded {loaded} CIDRs from Bogons.");
             }
+        }
+
+        private static bool IsBlacklisted(string ipStr)
+        {
+            if (!IPAddress.TryParse(ipStr, out var ip)) return true;
+            foreach (var (net, mask) in BlacklistCidrs)
+            {
+                if (IsIpInCidr(ip, net, mask)) return true;
+            }
+            return false;
+        }
+
+        private static bool IsIpInCidr(IPAddress ip, IPAddress net, int mask)
+        {
+            byte[] ipB = ip.GetAddressBytes();
+            byte[] netB = net.GetAddressBytes();
+            if (ipB.Length != netB.Length) return false;
+            int bits = mask;
+            for (int i = 0; i < ipB.Length && bits > 0; i++)
+            {
+                byte m = (byte)(0xFF << (8 - Math.Min(bits, 8)));
+                if ((ipB[i] & m) != (netB[i] & m)) return false;
+                bits -= 8;
+            }
+            return true;
         }
 
         public async Task StartAsync()
@@ -389,41 +414,51 @@ namespace ProxyCollector.Collector
             Console.WriteLine("\n🎉 Done!");
         }
 
+        private string GetCountryNameFromCode(string code)
+        {
+            return code switch
+            {
+                "TW" => "Taiwan",
+                "LV" => "Latvia",
+                "HK" => "Hong Kong",
+                "SG" => "Singapore",
+                "JP" => "Japan",
+                "KR" => "South Korea",
+                "US" => "United States",
+                "GB" => "United Kingdom",
+                "DE" => "Germany",
+                "FR" => "France",
+                "RU" => "Russia",
+                "CA" => "Canada",
+                "NL" => "Netherlands",
+                "AU" => "Australia",
+                "IN" => "India",
+                "MD" => "Moldova",
+                "CY" => "Cyprus",
+                "AE" => "United Arab Emirates",
+                "SC" => "Seychelles",
+                "IM" => "Isle of Man",
+                "LU" => "Luxembourg",
+                _ => "Unknown"
+            };
+        }
+
         private async Task GenerateBestResultsAsync(List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)> proxies)
         {
-            Console.WriteLine($"\n🏆 Quick raw multi-URL testing {proxies.Count} proxies...");
-            var quickResults = new ConcurrentBag<(string Link, int Latency, string Proto, object ClashProxy)>();
-            await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 30 }, async (p, ct) =>
+            Console.WriteLine($"\n🏆 Quick raw testing {proxies.Count} proxies...");
+            var tested = new ConcurrentBag<(string Link, int Latency, object ClashProxy)>();
+            int processed = 0;
+            await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 20 }, async (p, ct) =>
             {
-                int latency = await QuickRawLatencyAsync(p.Link);
-                if (latency > 0 && latency < 2000)
-                    quickResults.Add((p.Link, latency, p.Proto, p.ClashProxy));
+                Interlocked.Increment(ref processed);
+                if (processed % 500 == 0)
+                    Console.WriteLine($" Tested {processed}/{proxies.Count} ({Math.Round((double)processed / proxies.Count * 100, 1)}%)");
+                if (!await IsProxyAliveAsync(p.Link)) return;
+                int latency = await TestProxyLatencyAsync(p.Link);
+                if (latency > 0 && latency < 1500)
+                    tested.Add((p.Link, latency, p.ClashProxy));
             });
-
-            var candidates = quickResults.OrderBy(x => x.Latency).Take(QuickCandidatesLimit).ToList();
-            Console.WriteLine($" → {candidates.Count} quick candidates passed → starting full sing-box tunnel test...");
-
-            var fullResults = new ConcurrentBag<(string Link, int Latency, object ClashProxy)>();
-
-            var batches = candidates.Chunk(SingBoxBatchSize);
-            foreach (var batch in batches)
-            {
-                var batchTasks = batch.Select(async item =>
-                {
-                    if (await IsProxyAliveFullAsync(item.Link, item.Proto))
-                    {
-                        int fullLatency = await TestProxyLatencyFullAsync(item.Link, item.Proto);
-                        if (fullLatency > 0)
-                            fullResults.Add((item.Link, fullLatency, item.ClashProxy));
-                    }
-                }).ToArray();
-
-                await Task.WhenAll(batchTasks);
-            }
-
-            var sorted = fullResults.OrderBy(x => x.Latency).ToList();
-            Console.WriteLine($"Full tunnel test complete: {sorted.Count} usable proxies");
-
+            var sorted = tested.OrderBy(t => t.Latency).ToList();
             var bestDir = Path.Combine(Directory.GetCurrentDirectory(), "sub", "Best-Results");
             Directory.CreateDirectory(bestDir);
             var limits = new[] { 100, 200, 300, 400, 500 };
@@ -445,7 +480,7 @@ namespace ProxyCollector.Collector
                             name = "AUTO",
                             type = "url-test",
                             proxies = topN.Select(t => ((dynamic)t.ClashProxy).name ?? "Unnamed").ToList(),
-                            url = TestUrls[0],
+                            url = "http://cp.cloudflare.com/generate_204",
                             interval = 300
                         }
                     },
@@ -458,7 +493,22 @@ namespace ProxyCollector.Collector
             }
         }
 
-        private async Task<int> QuickRawLatencyAsync(string link)
+        private async Task<bool> IsProxyAliveAsync(string link)
+        {
+            try
+            {
+                using var client = new HttpClient { Timeout = TimeSpan.FromMilliseconds(AliveCheckTimeoutMs) };
+                var request = new HttpRequestMessage(HttpMethod.Head, TestUrls[0]);
+                var resp = await client.SendAsync(request);
+                return resp.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task<int> TestProxyLatencyAsync(string link)
         {
             int total = 0;
             int count = 0;
@@ -466,16 +516,19 @@ namespace ProxyCollector.Collector
             {
                 try
                 {
-                    using var client = new HttpClient { Timeout = TimeSpan.FromMilliseconds(AliveCheckTimeoutMs) };
+                    using var client = new HttpClient { Timeout = TimeSpan.FromMilliseconds(TestTimeoutMs) };
                     var start = DateTime.UtcNow;
                     var resp = await client.GetAsync(url);
+                    var elapsed = (int)(DateTime.UtcNow - start).TotalMilliseconds;
                     if (resp.IsSuccessStatusCode)
                     {
-                        total += (int)(DateTime.UtcNow - start).TotalMilliseconds;
+                        total += elapsed;
                         count++;
                     }
                 }
-                catch { }
+                catch
+                {
+                }
             }
             return count > 0 ? total / count : -1;
         }
@@ -547,7 +600,7 @@ namespace ProxyCollector.Collector
 
         private Process StartSingBox(string configPath)
         {
-            return new Process
+            var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
@@ -559,6 +612,8 @@ namespace ProxyCollector.Collector
                     CreateNoWindow = true
                 }
             };
+            process.Start();
+            return process;
         }
 
         private object? GenerateSingBoxConfig(string link, string proto, int localPort)
@@ -571,32 +626,42 @@ namespace ProxyCollector.Collector
             string uuid = "";
             string password = "";
             string flow = "";
-            // Expanded parsing - adjust based on your ParseProxyLine logic
-            if (protocol == "vless" || protocol == "trojan")
+            // Expanded parsing
+            switch (protocol.ToLowerInvariant())
             {
-                uuid = link.Split('@')[0].Split("://")[1];
+                case "vless":
+                    var vlessParts = link.Split('@');
+                    if (vlessParts.Length > 1)
+                        uuid = vlessParts[0].Split("://")[1];
+                    flow = Regex.Match(link, "flow=([^&]+)").Groups[1].Value;
+                    break;
+                case "trojan":
+                    var trojanParts = link.Split('@');
+                    if (trojanParts.Length > 1)
+                        password = trojanParts[0].Split("://")[1];
+                    break;
+                case "ss":
+                    string ssDecoded = DecodeBase64(link.Substring(5).Split('#')[0]);
+                    var ssAuth = ssDecoded.Split('@')[0].Split(':');
+                    if (ssAuth.Length > 1) password = ssAuth[1];
+                    break;
+                case "vmess":
+                    string vmB64 = link.Substring(8).Split('#')[0];
+                    string vmDecoded = DecodeBase64(vmB64);
+                    var vmObj = JsonDocument.Parse(vmDecoded).RootElement;
+                    uuid = vmObj.GetProperty("id").GetString();
+                    break;
+                default:
+                    return null;
             }
-            else if (protocol == "ss")
-            {
-                string decoded = DecodeBase64(link.Substring(5).Split('#')[0]);
-                var auth = decoded.Split('@')[0].Split(':');
-                if (auth.Length > 1) password = auth[1];
-            }
-            else if (protocol == "vmess")
-            {
-                string b64 = link.Substring(8).Split('#')[0];
-                string decoded = DecodeBase64(b64);
-                var obj = JsonDocument.Parse(decoded).RootElement;
-                uuid = obj.GetProperty("id").GetString();
-            }
-            else return null;
 
             var outbound = new
             {
                 type = protocol,
                 server,
                 server_port = port,
-                uuid = uuid ?? password, // fallback
+                uuid = uuid,
+                password = password,
                 tls = new { enabled = true },
                 flow = flow
             };
@@ -644,7 +709,7 @@ namespace ProxyCollector.Collector
                         name = "AUTO",
                         type = "url-test",
                         proxies = remarkList,
-                        url = TestUrls[0],
+                        url = "http://cp.cloudflare.com/generate_204",
                         interval = 300
                     }
                 },
@@ -723,8 +788,8 @@ namespace ProxyCollector.Collector
         {
             string baseLink = original.Split('#')[0].TrimEnd();
             baseLink = Regex.Replace(baseLink,
-                @"Dynamic-\d+|-ok\d{5,}|-\d{4,}$",  
-                "", RegexOptions.IgnoreCase).Trim();
+                @"Dynamic-\d+|-ok\d{5,}|-\d{4,}$",
+                "", RegexOptions.IgnoreCase | RegexOptions.Multiline).Trim();
             if (proto.ToLowerInvariant() == "vmess" && baseLink.StartsWith("vmess://"))
             {
                 try

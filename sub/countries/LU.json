@@ -17,20 +17,20 @@
       "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.89.222:8443",
-      "type": "vless",
-      "server": "188.42.89.222",
-      "port": 8443,
-      "uuid": "96a1b724-68d2-4f4d-ab25-38ecd83577bc",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.88.244:443",
       "type": "vless",
       "server": "188.42.88.244",
       "port": 443,
       "uuid": "6e34f2c5-6c71-4010-c292-10d05ef4a9a2",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.89.222:8443",
+      "type": "vless",
+      "server": "188.42.89.222",
+      "port": 8443,
+      "uuid": "96a1b724-68d2-4f4d-ab25-38ecd83577bc",
       "tls": true,
       "flow": ""
     },
@@ -281,15 +281,6 @@
       "port": 2087,
       "password": "Go5e2nKM9U",
       "tls": true
-    },
-    {
-      "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.88.238:2096",
-      "type": "vless",
-      "server": "188.42.88.238",
-      "port": 2096,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
     },
     {
       "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - SS 185.153.151.164:40093",
@@ -687,6 +678,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.88.238:2096",
+      "type": "vless",
+      "server": "188.42.88.238",
+      "port": 2096,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.89.138:2096",
       "type": "vless",
       "server": "188.42.89.138",
@@ -759,8 +759,8 @@
       "type": "url-test",
       "proxies": [
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 45.12.144.89:443",
-        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.89.222:8443",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.88.244:443",
+        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.89.222:8443",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 2.56.220.2:443",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 95.85.95.85:443",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.145.142:443",
@@ -789,7 +789,6 @@
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 188.42.88.144:2053",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 188.42.88.252:2083",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 188.42.88.252:2087",
-        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.88.238:2096",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - SS 185.153.151.164:40093",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - SS 92.223.105.40:50006",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - SS 45.12.144.18:443",
@@ -836,6 +835,7 @@
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.88.63:8880",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.89.156:8880",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.89.63:8880",
+        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.88.238:2096",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 188.42.89.138:2096",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - SS 109.61.46.43:990",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 188.42.88.144:8443",

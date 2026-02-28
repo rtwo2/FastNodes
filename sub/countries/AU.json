@@ -134,15 +134,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 45.135.195.3:80",
-      "type": "vless",
-      "server": "45.135.195.3",
-      "port": 80,
-      "uuid": "Free_HTTPCustom",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 82.115.17.71:37463",
       "type": "vless",
       "server": "82.115.17.71",
@@ -249,6 +240,14 @@
       "password": ""
     },
     {
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 45.15.185.70:990",
+      "type": "ss",
+      "server": "45.15.185.70",
+      "port": 990,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 170.64.170.168:55531",
       "type": "ss",
       "server": "170.64.170.168",
@@ -293,14 +292,6 @@
       "type": "ss",
       "server": "185.167.116.24",
       "port": 9097,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 154.26.155.172:443",
-      "type": "ss",
-      "server": "154.26.155.172",
-      "port": 443,
       "cipher": "auto",
       "password": ""
     },
@@ -353,6 +344,15 @@
       "tls": true
     },
     {
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 45.135.195.3:80",
+      "type": "vless",
+      "server": "45.135.195.3",
+      "port": 80,
+      "uuid": "Free_HTTPCustom",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 20.42.228.160:443",
       "type": "vless",
       "server": "20.42.228.160",
@@ -360,14 +360,6 @@
       "uuid": "6f995056-7802-4a1d-bff7-61678e626c3f",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.238:443",
-      "type": "ss",
-      "server": "103.169.142.238",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.75.119.38:990",
@@ -378,18 +370,18 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 154.26.155.172:80",
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 154.26.155.172:443",
       "type": "ss",
       "server": "154.26.155.172",
-      "port": 80,
+      "port": 443,
       "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 45.15.185.70:990",
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 154.26.155.172:80",
       "type": "ss",
-      "server": "45.15.185.70",
-      "port": 990,
+      "server": "154.26.155.172",
+      "port": 80,
       "cipher": "auto",
       "password": ""
     },
@@ -625,14 +617,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 192.65.217.53:8443",
-      "type": "trojan",
-      "server": "192.65.217.53",
-      "port": 8443,
-      "password": "123456",
-      "tls": true
-    },
-    {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 185.113.10.132:8650",
       "type": "vless",
       "server": "185.113.10.132",
@@ -640,15 +624,6 @@
       "uuid": "ae9f99cf-bfbf-4ed0-9504-64da0f724669",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 91.247.177.207:443",
-      "type": "vless",
-      "server": "91.247.177.207",
-      "port": 443,
-      "uuid": "5a9a33eb-546c-4ffa-aadc-1c75b3ac084b",
-      "tls": true,
-      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 103.224.212.213:443",
@@ -666,6 +641,14 @@
       "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.238:443",
+      "type": "ss",
+      "server": "103.169.142.238",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.6:443",
@@ -719,7 +702,6 @@
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 37.9.54.98:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 192.65.217.61:2096",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 46.249.110.173:80",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 45.135.195.3:80",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 82.115.17.71:37463",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 158.179.22.94:14043",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 46.250.241.55:45720",
@@ -733,24 +715,24 @@
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 154.26.156.99:47386",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 154.26.156.99:47387",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 154.26.156.99:47388",
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 45.15.185.70:990",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 170.64.170.168:55531",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 45.79.238.129:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 154.26.156.99:22881",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 185.167.116.253:9050",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 185.167.116.253:9014",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 185.167.116.24:9097",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 154.26.155.172:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 170.64.130.150:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 103.11.214.137:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 103.11.214.214:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 152.67.98.30:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 13.210.76.227:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 3.27.95.146:443",
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 45.135.195.3:80",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 20.42.228.160:443",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.238:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.75.119.38:990",
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 154.26.155.172:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 154.26.155.172:80",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 45.15.185.70:990",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 149.28.164.55:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 149.28.164.55:80",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 95.111.222.113:443",
@@ -778,7 +760,6 @@
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 103.65.140.216:34045",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 103.169.142.239:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 103.169.142.64:443",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 192.65.217.53:8443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 185.113.10.132:8650",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 159.13.34.59:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 170.64.217.182:10001",
@@ -787,10 +768,10 @@
         "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 170.64.183.54:33939",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 192.9.165.40:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 192.9.179.140:443",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 91.247.177.207:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SOCKS5 134.199.159.23:1080",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 103.224.212.213:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 192.65.217.138:2096",
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.238:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.6:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.64:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 192.65.217.138:2096",

@@ -94,7 +94,6 @@ namespace ProxyCollector.Collector
         private const int MaxBestResults = 500;
         private const int TestTimeoutMs = 15000;
         private const int AliveCheckTimeoutMs = 2000;
-        private const int MaxQuickTestProxies = 15000;
         private const int QuickCandidatesLimit = 500;
         private const int SingBoxBatchSize = 10;
 
@@ -437,37 +436,43 @@ namespace ProxyCollector.Collector
 
         private async Task GenerateBestResultsAsync(List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object? ClashProxy)> proxies)
         {
-            Console.WriteLine($"\n🏆 Quick raw testing up to {MaxQuickTestProxies} proxies...");
+            Console.WriteLine($"\n🏆 Quick raw latency testing all {proxies.Count} proxies (Iran-focused URLs)...");
             var quickResults = new ConcurrentBag<(string Link, int Latency, string Proto, object? ClashProxy)>();
 
-            var toTest = proxies.Take(MaxQuickTestProxies).ToList();
-
-            await Parallel.ForEachAsync(toTest, new ParallelOptions { MaxDegreeOfParallelism = 80 }, async (p, ct) =>
+            await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 80 }, async (p, ct) =>
             {
                 int latency = await QuickRawLatencyAsync(p.Link);
                 if (latency > 0 && latency < 1500)
                     quickResults.Add((p.Link, latency, p.Proto, p.ClashProxy));
             });
 
-            var candidates = quickResults.OrderBy(x => x.Latency).Take(QuickCandidatesLimit).ToList();
-            Console.WriteLine($" → {candidates.Count} quick candidates passed → starting full sing-box tunnel test...");
+            var sortedByPing = quickResults.OrderBy(x => x.Latency).ToList();
+            Console.WriteLine($"Quick test finished → {sortedByPing.Count} nodes passed quick check");
+
+            var candidates = sortedByPing.Take(QuickCandidatesLimit).ToList();
+            Console.WriteLine($" → Testing full tunnel on top {candidates.Count} lowest-ping nodes...");
 
             var fullResults = new ConcurrentBag<(string Link, int Latency, object? ClashProxy)>();
+            int tested = 0;
+            int good = 0;
 
-            var batches = candidates.Chunk(SingBoxBatchSize);
-            foreach (var batch in batches)
+            foreach (var item in candidates)
             {
-                var batchTasks = batch.Select(async item =>
-                {
-                    if (await IsProxyAliveFullAsync(item.Link, item.Proto))
-                    {
-                        int fullLatency = await TestProxyLatencyFullAsync(item.Link, item.Proto);
-                        if (fullLatency > 0)
-                            fullResults.Add((item.Link, fullLatency, item.ClashProxy));
-                    }
-                }).ToArray();
+                tested++;
+                if (good >= QuickCandidatesLimit) break;
 
-                await Task.WhenAll(batchTasks);
+                if (await IsProxyAliveFullAsync(item.Link, item.Proto))
+                {
+                    int fullLatency = await TestProxyLatencyFullAsync(item.Link, item.Proto);
+                    if (fullLatency > 0)
+                    {
+                        fullResults.Add((item.Link, fullLatency, item.ClashProxy));
+                        good++;
+                    }
+                }
+
+                if (tested % 50 == 0)
+                    Console.WriteLine($"Full test progress: {tested}/{candidates.Count} | good so far: {good}");
             }
 
             var sorted = fullResults.OrderBy(x => x.Latency).ToList();
@@ -486,7 +491,7 @@ namespace ProxyCollector.Collector
                 var jsonProxies = topN.Select(t => t.ClashProxy).Where(p => p != null).ToList();
                 var jsonConfig = new
                 {
-                    name = $"FastNodes Top {limit}",
+                    name = $"FastNodes Top {limit} (Iran optimized)",
                     proxies = jsonProxies,
                     proxy_groups = new[]
                     {
@@ -494,7 +499,7 @@ namespace ProxyCollector.Collector
                         {
                             name = "AUTO",
                             type = "url-test",
-                            proxies = topN.Select(t => ((dynamic)t.ClashProxy).name ?? "Unnamed").ToList(),
+                            proxies = topN.Select(t => ((dynamic)t.ClashProxy)?.name ?? "Unnamed").ToList(),
                             url = "http://cp.cloudflare.com/generate_204",
                             interval = 300,
                             tolerance = 50
@@ -524,7 +529,7 @@ namespace ProxyCollector.Collector
                     {
                         total += (int)(DateTime.UtcNow - start).TotalMilliseconds;
                         success++;
-                        if (success >= 1) break;
+                        if (success >= 1) break; // early exit after 1 success
                     }
                 }
                 catch { }
@@ -644,7 +649,7 @@ namespace ProxyCollector.Collector
             }
             object outbound = protocol.ToLowerInvariant() switch
             {
-                "vless" => new { type = "vless", server, server_port = port, uuid, tls = new { enabled = true }, flow },
+                "vless" => new { type = "vless", server, server_port = port, uuid, tls = new { enabled = true }, flow = flow ?? "" },
                 "trojan" => new { type = "trojan", server, server_port = port, password, tls = new { enabled = true } },
                 "ss" => new { type = "shadowsocks", server, server_port = port, method = "aes-256-gcm", password },
                 "vmess" => new { type = "vmess", server, server_port = port, uuid, alter_id = 0, security = "auto", tls = new { enabled = true } },

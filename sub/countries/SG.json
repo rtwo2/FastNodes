@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes SG",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -241,22 +242,13 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 20.191.143.151:8080",
-      "type": "vless",
-      "server": "20.191.143.151",
-      "port": 8080,
-      "uuid": "699fca60-533f-4436-38db-7881c2150fe2",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 209.17.118.131:26403",
       "type": "vless",
       "server": "209.17.118.131",
       "port": 26403,
       "uuid": "2ab6258a-6670-4875-ab65-60999b764f87",
       "tls": true,
-      "flow": ""
+      "flow": "#%5BOpenRay%5D%20%F0%9F%87%B8%F0%9F%87%AC%20SG-285"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 209.17.118.131:12639",
@@ -265,7 +257,7 @@
       "port": 12639,
       "uuid": "82e457f4-43ff-4f83-9345-407da3da57f4",
       "tls": true,
-      "flow": ""
+      "flow": "#%5BOpenRay%5D%20%F0%9F%87%B8%F0%9F%87%AC%20SG-288"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.189.147.22:80",
@@ -301,7 +293,7 @@
       "port": 8443,
       "uuid": "0deb6f9d-9ad9-4b73-ac33-f3176e7ec1f2",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 154.194.12.238:2096",
@@ -328,7 +320,7 @@
       "port": 443,
       "uuid": "ec5796b3-678b-4b11-9c1d-a53171dfd897",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision-udp443"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.165.25:2083",
@@ -943,13 +935,31 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.10.182:2087",
+      "type": "vless",
+      "server": "47.236.10.182",
+      "port": 2087,
+      "uuid": "a13df940-020c-465f-bc89-ee5279b5cd6a",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.94:443",
+      "type": "vless",
+      "server": "206.238.237.94",
+      "port": 443,
+      "uuid": "a13df940-020c-465f-bc89-ee5279b5cd6a",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 139.180.218.244:21746",
       "type": "vless",
       "server": "139.180.218.244",
       "port": 21746,
       "uuid": "84b3b0a5-f2e2-4ce7-9c6a-0133f7296a7b",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision#|GithubTrojanLinks"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 178.239.123.216:24443",
@@ -997,29 +1007,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.10.182:2087",
-      "type": "vless",
-      "server": "47.236.10.182",
-      "port": 2087,
-      "uuid": "a13df940-020c-465f-bc89-ee5279b5cd6a",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.94:443",
-      "type": "vless",
-      "server": "206.238.237.94",
-      "port": 443,
-      "uuid": "a13df940-020c-465f-bc89-ee5279b5cd6a",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 194.233.94.119:80",
       "type": "ss",
       "server": "194.233.94.119",
       "port": 80,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1027,7 +1019,7 @@
       "type": "ss",
       "server": "3.1.195.148",
       "port": 8319,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1134,7 +1126,15 @@
       "type": "ss",
       "server": "3.1.195.148",
       "port": 8313,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:16922",
+      "type": "ss",
+      "server": "154.26.132.38",
+      "port": 16922,
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1142,7 +1142,7 @@
       "type": "ss",
       "server": "194.233.94.119",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1152,7 +1152,7 @@
       "port": 2020,
       "uuid": "73bf4bac-98cf-4423-b728-3cc8a0e56424",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision#@QeshmServer-Join Free @QeshmServer"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 20.191.138.47:443",
@@ -1177,7 +1177,7 @@
       "port": 59967,
       "uuid": "a19fd311-c343-4b54-9ca3-fe6dcd84c0fc",
       "tls": true,
-      "flow": ""
+      "flow": "#\uD83D\uDCDF77@oneclickvpnkeys"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 139.180.143.191:10293",
@@ -1192,7 +1192,7 @@
       "type": "ss",
       "server": "45.130.165.90",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1200,7 +1200,7 @@
       "type": "ss",
       "server": "188.166.220.70",
       "port": 37708,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1210,7 +1210,7 @@
       "port": 443,
       "uuid": "d9122823-b0cc-432c-ba4a-84129193fe94",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 13.213.7.239:443",
@@ -1219,7 +1219,7 @@
       "port": 443,
       "uuid": "d9122823-b0cc-432c-ba4a-84129193fe94",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 146.190.85.213:45989",
@@ -1235,7 +1235,7 @@
       "type": "ss",
       "server": "47.129.9.69",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1243,7 +1243,7 @@
       "type": "ss",
       "server": "52.221.231.138",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1251,7 +1251,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9024,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1259,7 +1259,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9056,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1267,7 +1267,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1275,7 +1275,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9037,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1283,7 +1283,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1291,7 +1291,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9045,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1299,7 +1299,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9084,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1307,7 +1307,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9038,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1315,7 +1315,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9003,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1323,7 +1323,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9059,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1331,7 +1331,7 @@
       "type": "ss",
       "server": "13.215.156.208",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1339,7 +1339,7 @@
       "type": "ss",
       "server": "18.141.207.80",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1347,7 +1347,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9020,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1355,7 +1355,7 @@
       "type": "ss",
       "server": "47.128.77.190",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1363,7 +1363,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9007,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1371,7 +1371,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9027,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1379,7 +1379,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9061,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1387,7 +1387,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9000,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1395,7 +1395,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9015,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1403,7 +1403,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9058,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1411,7 +1411,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9050,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1419,7 +1419,7 @@
       "type": "ss",
       "server": "13.214.212.171",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1427,7 +1427,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9037,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1435,7 +1435,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9097,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1443,7 +1443,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9011,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1451,7 +1451,7 @@
       "type": "ss",
       "server": "47.128.64.71",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1477,7 +1477,7 @@
       "type": "ss",
       "server": "156.146.56.137",
       "port": 40093,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1485,7 +1485,7 @@
       "type": "ss",
       "server": "139.162.58.13",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1493,7 +1493,7 @@
       "type": "ss",
       "server": "139.162.58.13",
       "port": 8119,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1501,7 +1501,7 @@
       "type": "ss",
       "server": "51.79.178.63",
       "port": 3306,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1509,7 +1509,7 @@
       "type": "ss",
       "server": "139.99.9.51",
       "port": 5000,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1517,7 +1517,7 @@
       "type": "ss",
       "server": "139.162.58.13",
       "port": 3389,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1525,7 +1525,7 @@
       "type": "ss",
       "server": "139.162.24.50",
       "port": 8888,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1533,7 +1533,7 @@
       "type": "ss",
       "server": "172.104.50.106",
       "port": 8009,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1541,7 +1541,7 @@
       "type": "ss",
       "server": "172.104.44.88",
       "port": 8009,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1549,7 +1549,7 @@
       "type": "ss",
       "server": "172.104.44.88",
       "port": 6679,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1557,7 +1557,7 @@
       "type": "ss",
       "server": "45.153.229.146",
       "port": 3030,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1565,7 +1565,7 @@
       "type": "ss",
       "server": "194.233.65.67",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1573,7 +1573,7 @@
       "type": "ss",
       "server": "51.79.166.171",
       "port": 50004,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1581,7 +1581,7 @@
       "type": "ss",
       "server": "51.79.157.58",
       "port": 50004,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1589,7 +1589,7 @@
       "type": "ss",
       "server": "84.17.38.144",
       "port": 8389,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1597,15 +1597,7 @@
       "type": "ss",
       "server": "81.90.189.57",
       "port": 810,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:16922",
-      "type": "ss",
-      "server": "154.26.132.38",
-      "port": 16922,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1613,7 +1605,7 @@
       "type": "ss",
       "server": "51.79.161.232",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1621,7 +1613,7 @@
       "type": "ss",
       "server": "84.247.147.61",
       "port": 24914,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1629,7 +1621,7 @@
       "type": "ss",
       "server": "194.233.73.51",
       "port": 14453,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1637,7 +1629,7 @@
       "type": "ss",
       "server": "194.233.73.51",
       "port": 48801,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1645,7 +1637,7 @@
       "type": "ss",
       "server": "194.233.73.51",
       "port": 48802,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1653,7 +1645,7 @@
       "type": "ss",
       "server": "194.233.73.51",
       "port": 48803,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1661,7 +1653,7 @@
       "type": "ss",
       "server": "194.233.73.51",
       "port": 48804,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1669,7 +1661,7 @@
       "type": "ss",
       "server": "38.247.64.176",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1677,7 +1669,7 @@
       "type": "ss",
       "server": "38.89.142.56",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1685,7 +1677,7 @@
       "type": "ss",
       "server": "217.197.161.136",
       "port": 801,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1693,7 +1685,7 @@
       "type": "ss",
       "server": "217.197.161.136",
       "port": 803,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1701,7 +1693,7 @@
       "type": "ss",
       "server": "217.197.161.136",
       "port": 805,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1709,7 +1701,7 @@
       "type": "ss",
       "server": "217.197.161.136",
       "port": 806,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1717,7 +1709,7 @@
       "type": "ss",
       "server": "217.197.161.136",
       "port": 807,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1725,7 +1717,7 @@
       "type": "ss",
       "server": "217.197.161.136",
       "port": 808,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1733,7 +1725,7 @@
       "type": "ss",
       "server": "217.197.161.136",
       "port": 809,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1741,7 +1733,7 @@
       "type": "ss",
       "server": "217.197.161.136",
       "port": 810,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1749,7 +1741,7 @@
       "type": "ss",
       "server": "217.197.161.136",
       "port": 811,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1757,7 +1749,7 @@
       "type": "ss",
       "server": "217.197.161.136",
       "port": 812,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1765,7 +1757,7 @@
       "type": "ss",
       "server": "217.197.161.138",
       "port": 800,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1773,7 +1765,7 @@
       "type": "ss",
       "server": "217.197.161.138",
       "port": 802,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1781,7 +1773,7 @@
       "type": "ss",
       "server": "217.197.161.138",
       "port": 803,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1789,7 +1781,7 @@
       "type": "ss",
       "server": "217.197.161.138",
       "port": 804,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1797,7 +1789,7 @@
       "type": "ss",
       "server": "217.197.161.138",
       "port": 805,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1805,7 +1797,7 @@
       "type": "ss",
       "server": "217.197.161.138",
       "port": 807,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1813,7 +1805,7 @@
       "type": "ss",
       "server": "217.197.161.138",
       "port": 808,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1821,7 +1813,7 @@
       "type": "ss",
       "server": "217.197.161.138",
       "port": 810,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1829,7 +1821,7 @@
       "type": "ss",
       "server": "217.197.161.138",
       "port": 811,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1837,7 +1829,7 @@
       "type": "ss",
       "server": "217.197.161.138",
       "port": 812,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1845,7 +1837,7 @@
       "type": "ss",
       "server": "217.197.161.164",
       "port": 803,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1853,7 +1845,7 @@
       "type": "ss",
       "server": "217.197.161.164",
       "port": 806,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1861,7 +1853,7 @@
       "type": "ss",
       "server": "217.197.161.164",
       "port": 807,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1869,7 +1861,7 @@
       "type": "ss",
       "server": "217.197.161.164",
       "port": 811,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1877,7 +1869,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 800,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1885,7 +1877,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 801,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1893,7 +1885,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 802,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1901,7 +1893,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 803,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1909,7 +1901,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 804,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1917,7 +1909,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 805,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1925,7 +1917,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 806,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1933,7 +1925,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 807,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1941,7 +1933,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 808,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1949,7 +1941,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 809,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1957,7 +1949,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 810,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1965,7 +1957,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 811,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1973,7 +1965,7 @@
       "type": "ss",
       "server": "217.197.161.166",
       "port": 812,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1981,7 +1973,7 @@
       "type": "ss",
       "server": "81.90.189.152",
       "port": 800,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1989,7 +1981,7 @@
       "type": "ss",
       "server": "81.90.189.152",
       "port": 801,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1997,7 +1989,7 @@
       "type": "ss",
       "server": "81.90.189.152",
       "port": 805,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2005,7 +1997,7 @@
       "type": "ss",
       "server": "81.90.189.152",
       "port": 809,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2013,7 +2005,7 @@
       "type": "ss",
       "server": "81.90.189.184",
       "port": 809,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2021,7 +2013,7 @@
       "type": "ss",
       "server": "81.90.189.18",
       "port": 800,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2029,7 +2021,7 @@
       "type": "ss",
       "server": "81.90.189.18",
       "port": 801,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2037,7 +2029,7 @@
       "type": "ss",
       "server": "81.90.189.18",
       "port": 802,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2045,7 +2037,7 @@
       "type": "ss",
       "server": "81.90.189.18",
       "port": 805,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2053,7 +2045,7 @@
       "type": "ss",
       "server": "81.90.189.18",
       "port": 806,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2061,7 +2053,7 @@
       "type": "ss",
       "server": "81.90.189.18",
       "port": 807,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2069,7 +2061,7 @@
       "type": "ss",
       "server": "81.90.189.18",
       "port": 808,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2077,7 +2069,7 @@
       "type": "ss",
       "server": "81.90.189.18",
       "port": 809,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2085,7 +2077,7 @@
       "type": "ss",
       "server": "81.90.189.18",
       "port": 810,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2093,7 +2085,7 @@
       "type": "ss",
       "server": "81.90.189.18",
       "port": 811,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2101,7 +2093,7 @@
       "type": "ss",
       "server": "81.90.189.18",
       "port": 812,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2109,7 +2101,7 @@
       "type": "ss",
       "server": "81.90.189.41",
       "port": 801,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2117,7 +2109,7 @@
       "type": "ss",
       "server": "154.26.132.38",
       "port": 27882,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2125,7 +2117,7 @@
       "type": "ss",
       "server": "154.26.132.38",
       "port": 27883,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2133,7 +2125,7 @@
       "type": "ss",
       "server": "154.26.132.38",
       "port": 27884,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2141,7 +2133,7 @@
       "type": "ss",
       "server": "154.26.132.38",
       "port": 27885,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2149,7 +2141,7 @@
       "type": "ss",
       "server": "3.1.195.148",
       "port": 8316,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2157,7 +2149,7 @@
       "type": "ss",
       "server": "103.36.91.23",
       "port": 8388,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2165,7 +2157,7 @@
       "type": "ss",
       "server": "165.232.169.142",
       "port": 29332,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2173,7 +2165,7 @@
       "type": "ss",
       "server": "103.172.116.6",
       "port": 9059,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2181,7 +2173,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9027,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2189,7 +2181,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9044,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2197,7 +2189,7 @@
       "type": "ss",
       "server": "103.172.116.6",
       "port": 9014,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2205,7 +2197,7 @@
       "type": "ss",
       "server": "103.172.116.6",
       "port": 9043,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2213,7 +2205,7 @@
       "type": "ss",
       "server": "103.172.116.6",
       "port": 9011,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2221,7 +2213,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9046,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2229,7 +2221,7 @@
       "type": "ss",
       "server": "103.172.116.5",
       "port": 9026,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2237,7 +2229,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9026,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2245,7 +2237,7 @@
       "type": "ss",
       "server": "103.172.116.5",
       "port": 9032,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2253,7 +2245,7 @@
       "type": "ss",
       "server": "103.172.116.6",
       "port": 9032,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2261,7 +2253,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9032,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2269,7 +2261,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9064,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2277,7 +2269,7 @@
       "type": "ss",
       "server": "103.172.116.5",
       "port": 9098,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2285,7 +2277,7 @@
       "type": "ss",
       "server": "13.212.199.120",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2293,7 +2285,7 @@
       "type": "ss",
       "server": "13.212.247.98",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2301,7 +2293,7 @@
       "type": "ss",
       "server": "13.213.2.160",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2309,7 +2301,7 @@
       "type": "ss",
       "server": "13.213.31.85",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2317,7 +2309,7 @@
       "type": "ss",
       "server": "13.213.44.183",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2325,7 +2317,7 @@
       "type": "ss",
       "server": "13.213.46.196",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2333,7 +2325,7 @@
       "type": "ss",
       "server": "13.214.212.124",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2341,7 +2333,7 @@
       "type": "ss",
       "server": "13.215.161.16",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2349,7 +2341,7 @@
       "type": "ss",
       "server": "13.215.163.54",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2357,7 +2349,7 @@
       "type": "ss",
       "server": "13.215.173.2",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2365,7 +2357,7 @@
       "type": "ss",
       "server": "13.215.174.243",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2373,7 +2365,7 @@
       "type": "ss",
       "server": "13.215.177.216",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2381,7 +2373,7 @@
       "type": "ss",
       "server": "13.215.191.190",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2389,7 +2381,7 @@
       "type": "ss",
       "server": "13.215.200.86",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2397,7 +2389,7 @@
       "type": "ss",
       "server": "13.215.49.89",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2405,7 +2397,7 @@
       "type": "ss",
       "server": "13.229.105.31",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2413,7 +2405,7 @@
       "type": "ss",
       "server": "13.229.205.33",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2421,7 +2413,7 @@
       "type": "ss",
       "server": "13.250.104.109",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2429,7 +2421,7 @@
       "type": "ss",
       "server": "13.250.46.178",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2437,7 +2429,7 @@
       "type": "ss",
       "server": "13.250.54.18",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2445,7 +2437,7 @@
       "type": "ss",
       "server": "18.141.183.204",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2453,7 +2445,7 @@
       "type": "ss",
       "server": "18.141.236.15",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2461,7 +2453,7 @@
       "type": "ss",
       "server": "18.142.183.235",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2469,7 +2461,7 @@
       "type": "ss",
       "server": "18.143.132.154",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2477,7 +2469,7 @@
       "type": "ss",
       "server": "3.0.147.22",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2485,7 +2477,7 @@
       "type": "ss",
       "server": "3.0.148.195",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2493,7 +2485,7 @@
       "type": "ss",
       "server": "52.221.182.150",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2501,7 +2493,7 @@
       "type": "ss",
       "server": "54.169.114.152",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2509,7 +2501,7 @@
       "type": "ss",
       "server": "54.179.221.54",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2517,7 +2509,7 @@
       "type": "ss",
       "server": "54.251.168.143",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2525,7 +2517,7 @@
       "type": "ss",
       "server": "54.251.73.151",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2533,7 +2525,7 @@
       "type": "ss",
       "server": "54.254.129.246",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2541,7 +2533,7 @@
       "type": "ss",
       "server": "54.254.199.122",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2549,7 +2541,7 @@
       "type": "ss",
       "server": "54.255.43.76",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2557,7 +2549,7 @@
       "type": "ss",
       "server": "103.172.116.5",
       "port": 9084,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2565,7 +2557,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9073,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2573,7 +2565,7 @@
       "type": "ss",
       "server": "139.162.5.19",
       "port": 8099,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2581,7 +2573,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9088,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2589,7 +2581,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9018,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2597,7 +2589,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9007,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2605,7 +2597,7 @@
       "type": "ss",
       "server": "103.172.116.5",
       "port": 9008,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2613,7 +2605,7 @@
       "type": "ss",
       "server": "46.250.234.115",
       "port": 80,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2621,7 +2613,7 @@
       "type": "ss",
       "server": "194.233.75.190",
       "port": 80,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2629,7 +2621,7 @@
       "type": "ss",
       "server": "139.99.68.21",
       "port": 6379,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2637,7 +2629,7 @@
       "type": "ss",
       "server": "45.77.253.107",
       "port": 80,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2645,7 +2637,7 @@
       "type": "ss",
       "server": "68.183.227.4",
       "port": 8080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2873,7 +2865,7 @@
       "port": 25001,
       "uuid": "302b7370-f6c0-408a-a59c-b56f6cb4a5a0",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 158.178.234.153:18757",
@@ -2903,11 +2895,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 43.134.189.122:34237",
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 8.219.59.111:26001",
       "type": "vless",
-      "server": "43.134.189.122",
-      "port": 34237,
-      "uuid": "d7dd3a35-b68b-4992-b319-a85b8a1fc8e5",
+      "server": "8.219.59.111",
+      "port": 26001,
+      "uuid": "cf43f54d-6ec4-4d65-8d63-69e2df1deb74",
       "tls": true,
       "flow": ""
     },
@@ -2921,20 +2913,20 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.10.182:2083",
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 176.98.186.5:443",
       "type": "vless",
-      "server": "47.236.10.182",
-      "port": 2083,
-      "uuid": "48198295-b7ba-4b5c-8d85-085d55a6c869",
+      "server": "176.98.186.5",
+      "port": 443,
+      "uuid": "2bd80876-fc38-445a-9a32-3c7233e1bfb7",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 165.22.49.27:2567",
       "type": "ss",
       "server": "165.22.49.27",
       "port": 2567,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2958,7 +2950,7 @@
       "type": "ss",
       "server": "154.194.12.238",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2966,7 +2958,7 @@
       "type": "ss",
       "server": "45.77.253.107",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2974,7 +2966,7 @@
       "type": "ss",
       "server": "46.250.234.115",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2982,7 +2974,7 @@
       "type": "ss",
       "server": "95.173.218.203",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2990,7 +2982,7 @@
       "type": "ss",
       "server": "194.233.75.190",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2998,7 +2990,7 @@
       "type": "ss",
       "server": "194.87.10.161",
       "port": 8388,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3042,7 +3034,7 @@
       "type": "ss",
       "server": "209.74.82.196",
       "port": 48918,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3050,7 +3042,7 @@
       "type": "ss",
       "server": "209.74.81.149",
       "port": 21166,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3058,7 +3050,7 @@
       "type": "ss",
       "server": "209.74.82.227",
       "port": 26515,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3079,11 +3071,20 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 20.191.143.151:8080",
+      "type": "vless",
+      "server": "20.191.143.151",
+      "port": 8080,
+      "uuid": "699fca60-533f-4436-38db-7881c2150fe2",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 138.2.107.107:443",
       "type": "ss",
       "server": "138.2.107.107",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3091,7 +3092,7 @@
       "type": "ss",
       "server": "185.248.187.69",
       "port": 10297,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3099,7 +3100,7 @@
       "type": "ss",
       "server": "101.32.213.53",
       "port": 19015,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3107,7 +3108,7 @@
       "type": "ss",
       "server": "167.71.195.230",
       "port": 56399,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3115,7 +3116,7 @@
       "type": "ss",
       "server": "45.158.59.74",
       "port": 27802,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3123,7 +3124,7 @@
       "type": "ss",
       "server": "45.76.180.205",
       "port": 31368,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3131,7 +3132,7 @@
       "type": "ss",
       "server": "5.44.249.42",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3139,7 +3140,7 @@
       "type": "ss",
       "server": "68.183.226.95",
       "port": 52042,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3147,7 +3148,7 @@
       "type": "ss",
       "server": "68.183.179.190",
       "port": 35565,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3155,7 +3156,7 @@
       "type": "ss",
       "server": "165.22.49.146",
       "port": 57905,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3163,7 +3164,7 @@
       "type": "ss",
       "server": "174.138.17.254",
       "port": 52252,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3171,7 +3172,7 @@
       "type": "ss",
       "server": "206.189.44.226",
       "port": 38194,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3179,7 +3180,7 @@
       "type": "ss",
       "server": "167.172.95.249",
       "port": 30655,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3187,7 +3188,7 @@
       "type": "ss",
       "server": "45.76.180.205",
       "port": 31298,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3195,7 +3196,7 @@
       "type": "ss",
       "server": "18.139.0.110",
       "port": 8319,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3203,7 +3204,7 @@
       "type": "ss",
       "server": "18.139.0.110",
       "port": 8313,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3211,7 +3212,7 @@
       "type": "ss",
       "server": "18.139.0.110",
       "port": 8316,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3219,7 +3220,7 @@
       "type": "ss",
       "server": "64.176.85.73",
       "port": 1866,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3227,7 +3228,7 @@
       "type": "ss",
       "server": "103.36.91.32",
       "port": 8388,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3235,7 +3236,7 @@
       "type": "ss",
       "server": "13.214.212.139",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3243,7 +3244,7 @@
       "type": "ss",
       "server": "13.229.201.5",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3251,7 +3252,7 @@
       "type": "ss",
       "server": "13.229.229.102",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3259,7 +3260,7 @@
       "type": "ss",
       "server": "18.136.211.144",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3267,7 +3268,7 @@
       "type": "ss",
       "server": "3.1.6.229",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3275,7 +3276,7 @@
       "type": "ss",
       "server": "47.129.168.96",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3283,7 +3284,7 @@
       "type": "ss",
       "server": "13.212.9.210",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3291,7 +3292,7 @@
       "type": "ss",
       "server": "13.229.70.25",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3299,7 +3300,7 @@
       "type": "ss",
       "server": "47.129.50.131",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3307,7 +3308,7 @@
       "type": "ss",
       "server": "54.169.255.43",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3315,7 +3316,7 @@
       "type": "ss",
       "server": "103.106.229.219",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3323,7 +3324,7 @@
       "type": "ss",
       "server": "38.60.199.125",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3331,7 +3332,7 @@
       "type": "ss",
       "server": "167.172.73.185",
       "port": 59844,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3339,7 +3340,7 @@
       "type": "ss",
       "server": "154.196.244.21",
       "port": 16011,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3347,7 +3348,7 @@
       "type": "ss",
       "server": "152.42.254.253",
       "port": 30262,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3355,7 +3356,7 @@
       "type": "ss",
       "server": "139.162.24.50",
       "port": 8009,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3363,7 +3364,7 @@
       "type": "ss",
       "server": "154.196.244.26",
       "port": 16016,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3371,7 +3372,7 @@
       "type": "ss",
       "server": "54.151.202.83",
       "port": 38591,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3379,7 +3380,7 @@
       "type": "ss",
       "server": "52.74.90.75",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3387,7 +3388,7 @@
       "type": "ss",
       "server": "68.183.235.122",
       "port": 8080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3395,7 +3396,7 @@
       "type": "ss",
       "server": "27.50.48.239",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3403,7 +3404,7 @@
       "type": "ss",
       "server": "92.243.74.115",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3436,6 +3437,14 @@
       "server": "27.122.59.45",
       "port": 443,
       "password": "6e1b9a65-884f-3aa9-9469-bf6ec0f08610",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 149.28.151.140:443",
+      "type": "trojan",
+      "server": "149.28.151.140",
+      "port": 443,
+      "password": "842b5f9dd11e458d8613c907c4cc5723",
       "tls": true
     },
     {
@@ -4102,7 +4111,7 @@
       "port": 443,
       "uuid": "4c26ebc3-7784-46d8-b52a-7b0ccae6f4b4",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 13.214.184.4:443",
@@ -4111,7 +4120,7 @@
       "port": 443,
       "uuid": "4f337d83-969e-4438-bb17-aa88e7b17cb0",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.236.65:443",
@@ -4129,7 +4138,7 @@
       "port": 8880,
       "uuid": "54af7d89-3ac6-426b-82c2-993984064066",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 92.243.75.186:8880",
@@ -4210,7 +4219,7 @@
       "port": 51337,
       "uuid": "644fdf71-5d76-4f28-b3d6-b1c386172f32",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 54.255.22.244:44333",
@@ -4273,7 +4282,7 @@
       "port": 443,
       "uuid": "7300363f-c18f-4bcf-a5a9-2ad35220505e",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 18.140.68.145:443",
@@ -4282,7 +4291,7 @@
       "port": 443,
       "uuid": "7300363f-c18f-4bcf-a5a9-2ad35220505e",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 18.143.74.88:443",
@@ -4291,7 +4300,7 @@
       "port": 443,
       "uuid": "7300363f-c18f-4bcf-a5a9-2ad35220505e",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 213.35.108.22:443",
@@ -4300,7 +4309,7 @@
       "port": 443,
       "uuid": "7300363f-c18f-4bcf-a5a9-2ad35220505e",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 27.50.49.61:2096",
@@ -4345,7 +4354,7 @@
       "port": 10297,
       "uuid": "9db6acf4-d3d3-4176-f704-0da5f6da6165",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 5.223.41.62:48851",
@@ -4462,7 +4471,7 @@
       "port": 8081,
       "uuid": "cfd27aaa-5c63-4dee-a629-a386c46c4e2f",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 68.183.234.52:443",
@@ -4685,7 +4694,7 @@
       "type": "ss",
       "server": "43.134.189.122",
       "port": 34237,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -4703,6 +4712,15 @@
       "server": "194.127.193.124",
       "port": 24467,
       "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 43.134.189.122:34237",
+      "type": "vless",
+      "server": "43.134.189.122",
+      "port": 34237,
+      "uuid": "d7dd3a35-b68b-4992-b319-a85b8a1fc8e5",
       "tls": true,
       "flow": ""
     },
@@ -4725,43 +4743,12 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.82.2.59:40070",
-      "type": "vless",
-      "server": "47.82.2.59",
-      "port": 40070,
-      "uuid": "0a2ca46b-7557-432e-a31a-af39b9f9bddd",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 209.17.118.131:26403",
-      "type": "ss",
-      "server": "209.17.118.131",
-      "port": 26403,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 209.74.82.187:46521",
-      "type": "ss",
-      "server": "209.74.82.187",
-      "port": 46521,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 164.52.2.99:443",
       "type": "ss",
       "server": "164.52.2.99",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HYSTERIA2 152.69.220.212:443",
-      "type": "hysteria2",
-      "server": "152.69.220.212",
-      "port": 443
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 43.160.246.221:46920",
@@ -4770,265 +4757,7 @@
       "port": 46920,
       "uuid": "33a0c07b-82c7-40c8-aac7-4ab2071bcc03",
       "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 91.192.81.34:30103",
-      "type": "hy2",
-      "server": "91.192.81.34",
-      "port": 30103
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 103.253.36.252:30103",
-      "type": "hy2",
-      "server": "103.253.36.252",
-      "port": 30103
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 157.245.198.38:10001",
-      "type": "hy2",
-      "server": "157.245.198.38",
-      "port": 10001
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 103.195.189.54:443",
-      "type": "hy2",
-      "server": "103.195.189.54",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 18.142.44.217:3531",
-      "type": "hy2",
-      "server": "18.142.44.217",
-      "port": 3531
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 140.245.57.42:443",
-      "type": "hy2",
-      "server": "140.245.57.42",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 178.128.113.131:30002",
-      "type": "hy2",
-      "server": "178.128.113.131",
-      "port": 30002
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 192.124.176.87:9781",
-      "type": "hy2",
-      "server": "192.124.176.87",
-      "port": 9781
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 129.150.38.200:23729",
-      "type": "hy2",
-      "server": "129.150.38.200",
-      "port": 23729
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 172.236.149.43:10001",
-      "type": "hy2",
-      "server": "172.236.149.43",
-      "port": 10001
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 140.245.55.241:5001",
-      "type": "hy2",
-      "server": "140.245.55.241",
-      "port": 5001
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 217.142.191.118:5001",
-      "type": "hy2",
-      "server": "217.142.191.118",
-      "port": 5001
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 152.69.208.30:23729",
-      "type": "hy2",
-      "server": "152.69.208.30",
-      "port": 23729
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 129.150.46.132:30001",
-      "type": "hy2",
-      "server": "129.150.46.132",
-      "port": 30001
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 3.1.217.51:5475",
-      "type": "hy2",
-      "server": "3.1.217.51",
-      "port": 5475
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 18.142.44.217:1548",
-      "type": "hy2",
-      "server": "18.142.44.217",
-      "port": 1548
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 140.245.47.111:443",
-      "type": "hy2",
-      "server": "140.245.47.111",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 8.219.53.46:5552",
-      "type": "hy2",
-      "server": "8.219.53.46",
-      "port": 5552
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 47.128.157.34:3379",
-      "type": "hy2",
-      "server": "47.128.157.34",
-      "port": 3379
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 140.245.51.129:10001",
-      "type": "hy2",
-      "server": "140.245.51.129",
-      "port": 10001
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 158.178.238.208:2052",
-      "type": "hy2",
-      "server": "158.178.238.208",
-      "port": 2052
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 129.150.36.216:44300",
-      "type": "hy2",
-      "server": "129.150.36.216",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 129.150.37.121:44300",
-      "type": "hy2",
-      "server": "129.150.37.121",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 129.150.43.11:44300",
-      "type": "hy2",
-      "server": "129.150.43.11",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 129.150.48.91:44300",
-      "type": "hy2",
-      "server": "129.150.48.91",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 138.2.86.137:44300",
-      "type": "hy2",
-      "server": "138.2.86.137",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 138.2.90.199:44300",
-      "type": "hy2",
-      "server": "138.2.90.199",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 152.69.210.130:44300",
-      "type": "hy2",
-      "server": "152.69.210.130",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 152.69.210.242:44300",
-      "type": "hy2",
-      "server": "152.69.210.242",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 158.178.224.252:44300",
-      "type": "hy2",
-      "server": "158.178.224.252",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 168.138.176.6:44300",
-      "type": "hy2",
-      "server": "168.138.176.6",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 213.35.101.179:44300",
-      "type": "hy2",
-      "server": "213.35.101.179",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 213.35.103.51:44300",
-      "type": "hy2",
-      "server": "213.35.103.51",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 213.35.108.144:44300",
-      "type": "hy2",
-      "server": "213.35.108.144",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 213.35.117.246:44300",
-      "type": "hy2",
-      "server": "213.35.117.246",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 213.35.118.226:44300",
-      "type": "hy2",
-      "server": "213.35.118.226",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 213.35.124.238:44300",
-      "type": "hy2",
-      "server": "213.35.124.238",
-      "port": 44300
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 139.162.15.99:443",
-      "type": "hy2",
-      "server": "139.162.15.99",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 172.104.42.126:443",
-      "type": "hy2",
-      "server": "172.104.42.126",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 45.118.132.243:443",
-      "type": "hy2",
-      "server": "45.118.132.243",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 129.150.55.250:2052",
-      "type": "hy2",
-      "server": "129.150.55.250",
-      "port": 2052
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 158.178.226.255:2052",
-      "type": "hy2",
-      "server": "158.178.226.255",
-      "port": 2052
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 213.35.99.16:2052",
-      "type": "hy2",
-      "server": "213.35.99.16",
-      "port": 2052
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VMESS 158.178.229.178:443",
@@ -5038,6 +4767,14 @@
       "uuid": "",
       "alterId": 0,
       "cipher": "auto",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 43.134.167.135:9950",
+      "type": "trojan",
+      "server": "43.134.167.135",
+      "port": 9950,
+      "password": "Aimer",
       "tls": true
     },
     {
@@ -5054,7 +4791,7 @@
       "type": "ss",
       "server": "140.245.44.250",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5062,14 +4799,8 @@
       "type": "ss",
       "server": "172.237.74.36",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SOCKS5 194.233.68.54:1088",
-      "type": "socks5",
-      "server": "194.233.68.54",
-      "port": 1088
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.236.84:443",
@@ -5085,7 +4816,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9088,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5093,7 +4824,7 @@
       "type": "ss",
       "server": "103.172.116.79",
       "port": 9038,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5101,7 +4832,7 @@
       "type": "ss",
       "server": "103.172.116.103",
       "port": 9031,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5109,7 +4840,7 @@
       "type": "ss",
       "server": "18.141.186.136",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5117,7 +4848,7 @@
       "type": "ss",
       "server": "103.172.116.94",
       "port": 9003,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5125,7 +4856,7 @@
       "type": "ss",
       "server": "47.128.230.112",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5133,7 +4864,7 @@
       "type": "ss",
       "server": "46.250.237.91",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5141,7 +4872,7 @@
       "type": "ss",
       "server": "146.19.196.197",
       "port": 8388,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5158,7 +4889,7 @@
       "type": "ss",
       "server": "31.192.234.199",
       "port": 5223,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5168,14 +4899,14 @@
       "port": 443,
       "uuid": "c4d62b0e-c4dd-44d7-a18d-50bfee0626af",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 139.99.120.234:8000",
       "type": "ss",
       "server": "139.99.120.234",
       "port": 8000,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5183,7 +4914,7 @@
       "type": "ss",
       "server": "51.79.177.159",
       "port": 8000,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5191,7 +4922,7 @@
       "type": "ss",
       "server": "52.76.140.84",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5199,7 +4930,7 @@
       "type": "ss",
       "server": "138.199.24.171",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5314,7 +5045,7 @@
       "type": "ss",
       "server": "167.172.95.249",
       "port": 37202,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5322,8 +5053,17 @@
       "type": "ss",
       "server": "192.53.172.74",
       "port": 30013,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.10.182:2083",
+      "type": "vless",
+      "server": "47.236.10.182",
+      "port": 2083,
+      "uuid": "48198295-b7ba-4b5c-8d85-085d55a6c869",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 8.222.181.117:443",
@@ -5335,11 +5075,19 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 209.17.118.131:26403",
+      "type": "ss",
+      "server": "209.17.118.131",
+      "port": 26403,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 152.42.174.20:443",
       "type": "ss",
       "server": "152.42.174.20",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5347,7 +5095,7 @@
       "type": "ss",
       "server": "47.236.10.182",
       "port": 2083,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5355,7 +5103,7 @@
       "type": "ss",
       "server": "143.198.213.40",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5363,7 +5111,7 @@
       "type": "ss",
       "server": "172.236.154.50",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5371,7 +5119,7 @@
       "type": "ss",
       "server": "194.36.178.36",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5379,7 +5127,7 @@
       "type": "ss",
       "server": "51.79.158.58",
       "port": 2053,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5387,7 +5135,7 @@
       "type": "ss",
       "server": "51.79.158.58",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5395,7 +5143,7 @@
       "type": "ss",
       "server": "54.151.227.203",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5403,7 +5151,7 @@
       "type": "ss",
       "server": "68.183.178.178",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5411,7 +5159,7 @@
       "type": "ss",
       "server": "27.50.48.69",
       "port": 2083,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5419,7 +5167,7 @@
       "type": "ss",
       "server": "209.17.118.131",
       "port": 12639,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5427,7 +5175,7 @@
       "type": "ss",
       "server": "47.236.167.231",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5435,7 +5183,7 @@
       "type": "ss",
       "server": "8.222.181.117",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5443,7 +5191,7 @@
       "type": "ss",
       "server": "206.238.237.197",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5451,7 +5199,7 @@
       "type": "ss",
       "server": "47.236.180.51",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5459,7 +5207,7 @@
       "type": "ss",
       "server": "47.236.180.51",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5467,7 +5215,7 @@
       "type": "ss",
       "server": "27.50.48.155",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5475,7 +5223,7 @@
       "type": "ss",
       "server": "159.223.93.44",
       "port": 13395,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5483,7 +5231,7 @@
       "type": "ss",
       "server": "139.162.9.136",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -5491,7 +5239,7 @@
       "type": "ss",
       "server": "47.82.6.36",
       "port": 51164,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     }
   ],
@@ -5526,7 +5274,6 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 54.169.254.130:8443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.128.223.32:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 18.136.94.186:443",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 20.191.143.151:8080",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 209.17.118.131:26403",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 209.17.118.131:12639",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.189.147.22:80",
@@ -5604,14 +5351,14 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 27.50.49.247:8880",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 27.50.48.247:8880",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 66.42.54.48:22539",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.10.182:2087",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.94:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 139.180.218.244:21746",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 178.239.123.216:24443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.82.6.36:51164",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.180.51:2096",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.167.231:2096",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.145.226:59548",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.10.182:2087",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.94:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 194.233.94.119:80",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 3.1.195.148:8319",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 157.230.248.167:48705",
@@ -5626,6 +5373,7 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 167.172.83.42:11441",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 129.212.239.177:42036",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 3.1.195.148:8313",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:16922",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 194.233.94.119:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 139.180.146.164:2020",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 20.191.138.47:443",
@@ -5683,7 +5431,6 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 51.79.157.58:50004",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 84.17.38.144:8389",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 81.90.189.57:810",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:16922",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 51.79.161.232:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 84.247.147.61:24914",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 194.233.73.51:14453",
@@ -5845,9 +5592,9 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 158.178.234.153:18757",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 18.143.189.226:27775",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 18.140.234.91:27775",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 43.134.189.122:34237",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 8.219.59.111:26001",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.197:443",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.10.182:2083",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 176.98.186.5:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 165.22.49.27:2567",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 91.192.81.167:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 165.22.55.206:443",
@@ -5866,6 +5613,7 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 209.74.82.227:26515",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 92.243.75.49:2087",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 27.50.48.69:2083",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 20.191.143.151:8080",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 138.2.107.107:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 185.248.187.69:10297",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 101.32.213.53:19015",
@@ -5911,6 +5659,7 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 91.243.81.42:28443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 138.2.107.107:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 27.122.59.45:443",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 149.28.151.140:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 13.76.251.170:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 104.234.233.57:35911",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 124.156.202.172:443",
@@ -6059,11 +5808,10 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 43.134.189.122:34237",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 152.42.174.20:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 194.127.193.124:24467",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 43.134.189.122:34237",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 152.42.167.58:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 152.42.164.192:443",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.82.2.59:40070",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 209.17.118.131:26403",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 209.74.82.187:46521",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - HTTP 66.42.50.118:12580",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 164.52.2.99:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - HYSTERIA2 152.69.220.212:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 43.160.246.221:46920",
@@ -6111,6 +5859,7 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 158.178.226.255:2052",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 213.35.99.16:2052",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VMESS 158.178.229.178:443",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 43.134.167.135:9950",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 140.245.44.250:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 140.245.44.250:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 172.237.74.36:443",
@@ -6145,7 +5894,9 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 8.219.138.86:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 167.172.95.249:37202",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 192.53.172.74:30013",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.10.182:2083",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 8.222.181.117:443",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 209.17.118.131:26403",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 152.42.174.20:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 47.236.10.182:2083",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 143.198.213.40:443",
@@ -6168,7 +5919,8 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 47.82.6.36:51164"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

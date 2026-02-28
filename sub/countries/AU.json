@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes AU",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -13,7 +14,7 @@
       "port": 1443,
       "uuid": "7a169e43-ff85-4572-9843-ba7207d07319",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 45.15.185.69:8443",
@@ -22,7 +23,7 @@
       "port": 8443,
       "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 38.48.124.146:443",
@@ -31,7 +32,7 @@
       "port": 443,
       "uuid": "e4598260-fb5e-4d0a-f0c2-64259f5c38e7",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 152.69.174.99:25248",
@@ -49,7 +50,7 @@
       "port": 443,
       "uuid": "ccedb1b1-35f3-46d1-a85a-c699eef5f3e1",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 170.64.154.27:20651",
@@ -103,7 +104,7 @@
       "port": 443,
       "uuid": "4959177b-62d7-4d1b-b6a3-eed72c0609c5",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 37.9.54.98:443",
@@ -164,7 +165,7 @@
       "type": "ss",
       "server": "46.250.241.55",
       "port": 45720,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -180,7 +181,7 @@
       "type": "ss",
       "server": "180.149.228.179",
       "port": 49514,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -188,7 +189,7 @@
       "type": "ss",
       "server": "172.105.180.227",
       "port": 6679,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -196,7 +197,7 @@
       "type": "ss",
       "server": "172.105.180.227",
       "port": 8080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -204,7 +205,7 @@
       "type": "ss",
       "server": "20.211.112.115",
       "port": 2986,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -212,7 +213,7 @@
       "type": "ss",
       "server": "46.102.153.106",
       "port": 8389,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -220,7 +221,7 @@
       "type": "ss",
       "server": "154.26.156.99",
       "port": 47385,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -228,7 +229,7 @@
       "type": "ss",
       "server": "154.26.156.99",
       "port": 47386,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -236,7 +237,7 @@
       "type": "ss",
       "server": "154.26.156.99",
       "port": 47387,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -244,7 +245,7 @@
       "type": "ss",
       "server": "154.26.156.99",
       "port": 47388,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -252,7 +253,7 @@
       "type": "ss",
       "server": "170.64.170.168",
       "port": 55531,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -260,7 +261,7 @@
       "type": "ss",
       "server": "45.79.238.129",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -268,7 +269,7 @@
       "type": "ss",
       "server": "154.26.156.99",
       "port": 22881,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -276,7 +277,7 @@
       "type": "ss",
       "server": "185.167.116.253",
       "port": 9050,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -284,7 +285,7 @@
       "type": "ss",
       "server": "185.167.116.253",
       "port": 9014,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -292,7 +293,7 @@
       "type": "ss",
       "server": "185.167.116.24",
       "port": 9097,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -300,7 +301,7 @@
       "type": "ss",
       "server": "154.26.155.172",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -352,11 +353,20 @@
       "tls": true
     },
     {
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 20.42.228.160:443",
+      "type": "vless",
+      "server": "20.42.228.160",
+      "port": 443,
+      "uuid": "6f995056-7802-4a1d-bff7-61678e626c3f",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.238:443",
       "type": "ss",
       "server": "103.169.142.238",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -364,7 +374,7 @@
       "type": "ss",
       "server": "103.75.119.38",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -372,7 +382,7 @@
       "type": "ss",
       "server": "154.26.155.172",
       "port": 80,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -380,7 +390,7 @@
       "type": "ss",
       "server": "45.15.185.70",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -388,7 +398,7 @@
       "type": "ss",
       "server": "149.28.164.55",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -396,7 +406,7 @@
       "type": "ss",
       "server": "149.28.164.55",
       "port": 80,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -404,7 +414,7 @@
       "type": "ss",
       "server": "95.111.222.113",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -412,7 +422,7 @@
       "type": "ss",
       "server": "82.97.242.53",
       "port": 1080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -422,14 +432,14 @@
       "port": 443,
       "uuid": "0d93b787-b66b-4696-a036-a0f549764f69",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 170.64.171.83:36402",
       "type": "ss",
       "server": "170.64.171.83",
       "port": 36402,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -437,7 +447,7 @@
       "type": "ss",
       "server": "13.239.86.92",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -445,7 +455,7 @@
       "type": "ss",
       "server": "13.55.202.54",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -561,15 +571,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 20.42.228.160:443",
-      "type": "vless",
-      "server": "20.42.228.160",
-      "port": 443,
-      "uuid": "6f995056-7802-4a1d-bff7-61678e626c3f",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 85.133.194.83:3333",
       "type": "vless",
       "server": "85.133.194.83",
@@ -624,12 +625,12 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 170.64.238.91:39218",
-      "type": "ss",
-      "server": "170.64.238.91",
-      "port": 39218,
-      "cipher": "aes-256-gcm",
-      "password": ""
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 192.65.217.53:8443",
+      "type": "trojan",
+      "server": "192.65.217.53",
+      "port": 8443,
+      "password": "123456",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 185.113.10.132:8650",
@@ -641,52 +642,13 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 159.13.34.59:443",
-      "type": "hy2",
-      "server": "159.13.34.59",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 170.64.217.182:10001",
-      "type": "hy2",
-      "server": "170.64.217.182",
-      "port": 10001
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 192.9.164.54:443",
-      "type": "hy2",
-      "server": "192.9.164.54",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 158.179.18.251:35000",
-      "type": "hy2",
-      "server": "158.179.18.251",
-      "port": 35000
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 170.64.183.54:33939",
-      "type": "hy2",
-      "server": "170.64.183.54",
-      "port": 33939
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 192.9.165.40:443",
-      "type": "hy2",
-      "server": "192.9.165.40",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 192.9.179.140:443",
-      "type": "hy2",
-      "server": "192.9.179.140",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SOCKS5 134.199.159.23:1080",
-      "type": "socks5",
-      "server": "134.199.159.23",
-      "port": 1080
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 91.247.177.207:443",
+      "type": "vless",
+      "server": "91.247.177.207",
+      "port": 443,
+      "uuid": "5a9a33eb-546c-4ffa-aadc-1c75b3ac084b",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 103.224.212.213:443",
@@ -719,7 +681,7 @@
       "type": "ss",
       "server": "103.169.142.64",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -727,7 +689,7 @@
       "type": "ss",
       "server": "192.65.217.138",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -735,7 +697,7 @@
       "type": "ss",
       "server": "20.42.228.160",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -743,7 +705,7 @@
       "type": "ss",
       "server": "192.9.162.122",
       "port": 1443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -751,7 +713,7 @@
       "type": "ss",
       "server": "103.169.142.244",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -759,7 +721,7 @@
       "type": "ss",
       "server": "82.97.243.225",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     }
   ],
@@ -809,6 +771,7 @@
         "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 152.67.98.30:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 13.210.76.227:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 3.27.95.146:443",
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 20.42.228.160:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.238:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.75.119.38:990",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 154.26.155.172:80",
@@ -834,14 +797,13 @@
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 103.169.142.186:8880",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 103.169.142.188:8880",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 209.38.20.147:443",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 20.42.228.160:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 85.133.194.83:3333",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 192.9.180.162:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 192.65.217.3:8880",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 103.65.140.216:34045",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 103.169.142.239:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 103.169.142.64:443",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 170.64.238.91:39218",
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 192.65.217.53:8443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 185.113.10.132:8650",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 159.13.34.59:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 170.64.217.182:10001",
@@ -850,6 +812,7 @@
         "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 170.64.183.54:33939",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 192.9.165.40:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - HY2 192.9.179.140:443",
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 91.247.177.207:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SOCKS5 134.199.159.23:1080",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 103.224.212.213:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 192.65.217.138:2096",
@@ -862,7 +825,8 @@
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 82.97.243.225:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

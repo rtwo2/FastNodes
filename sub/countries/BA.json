@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes BA",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -7,7 +8,7 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - VLESS 77.74.228.247:8880",
+      "name": "\uD83C\uDDE7\uD83C\uDDE6 Unknown - VLESS 77.74.228.247:8880",
       "type": "vless",
       "server": "77.74.228.247",
       "port": 8880,
@@ -16,47 +17,47 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - SS 185.212.111.59:49339",
+      "name": "\uD83C\uDDE7\uD83C\uDDE6 Unknown - SS 185.212.111.59:49339",
       "type": "ss",
       "server": "185.212.111.59",
       "port": 49339,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - SS 185.99.3.108:37588",
+      "name": "\uD83C\uDDE7\uD83C\uDDE6 Unknown - SS 185.99.3.108:37588",
       "type": "ss",
       "server": "185.99.3.108",
       "port": 37588,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - SS 185.99.3.102:43893",
+      "name": "\uD83C\uDDE7\uD83C\uDDE6 Unknown - SS 185.99.3.102:43893",
       "type": "ss",
       "server": "185.99.3.102",
       "port": 43893,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - SS 185.212.111.59:50168",
+      "name": "\uD83C\uDDE7\uD83C\uDDE6 Unknown - SS 185.212.111.59:50168",
       "type": "ss",
       "server": "185.212.111.59",
       "port": 50168,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - SS 185.164.35.9:989",
+      "name": "\uD83C\uDDE7\uD83C\uDDE6 Unknown - SS 185.164.35.9:989",
       "type": "ss",
       "server": "185.164.35.9",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - VLESS 77.74.228.138:2096",
+      "name": "\uD83C\uDDE7\uD83C\uDDE6 Unknown - VLESS 77.74.228.138:2096",
       "type": "vless",
       "server": "77.74.228.138",
       "port": 2096,
@@ -70,16 +71,17 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - VLESS 77.74.228.247:8880",
-        "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - SS 185.212.111.59:49339",
-        "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - SS 185.99.3.108:37588",
-        "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - SS 185.99.3.102:43893",
-        "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - SS 185.212.111.59:50168",
-        "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - SS 185.164.35.9:989",
-        "\uD83C\uDDE7\uD83C\uDDE6 Bosnia and Herzegovina - VLESS 77.74.228.138:2096"
+        "\uD83C\uDDE7\uD83C\uDDE6 Unknown - VLESS 77.74.228.247:8880",
+        "\uD83C\uDDE7\uD83C\uDDE6 Unknown - SS 185.212.111.59:49339",
+        "\uD83C\uDDE7\uD83C\uDDE6 Unknown - SS 185.99.3.108:37588",
+        "\uD83C\uDDE7\uD83C\uDDE6 Unknown - SS 185.99.3.102:43893",
+        "\uD83C\uDDE7\uD83C\uDDE6 Unknown - SS 185.212.111.59:50168",
+        "\uD83C\uDDE7\uD83C\uDDE6 Unknown - SS 185.164.35.9:989",
+        "\uD83C\uDDE7\uD83C\uDDE6 Unknown - VLESS 77.74.228.138:2096"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

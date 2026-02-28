@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes BE",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -7,16 +8,16 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.81:80",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.9.81:80",
       "type": "vless",
       "server": "151.101.9.81",
       "port": 80,
-      "uuid": "e4a6331b-e3e7-4f4e-b46a-8c31bf44bf83",
+      "uuid": "cf25f9d0-408f-1142-30aa-01ead41c420d",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.80:80",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.9.80:80",
       "type": "vless",
       "server": "151.101.9.80",
       "port": 80,
@@ -25,7 +26,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.10.79:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.10.79:443",
       "type": "vless",
       "server": "151.101.10.79",
       "port": 443,
@@ -34,7 +35,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 34.22.142.117:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 34.22.142.117:443",
       "type": "vless",
       "server": "34.22.142.117",
       "port": 443,
@@ -43,7 +44,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.8.79:80",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.8.79:80",
       "type": "vless",
       "server": "151.101.8.79",
       "port": 80,
@@ -52,135 +53,144 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.80:80",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 151.101.9.80:80",
       "type": "ss",
       "server": "151.101.9.80",
       "port": 80,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 194.110.115.93:44208",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 194.110.115.93:44208",
       "type": "ss",
       "server": "194.110.115.93",
       "port": 44208,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 37.120.236.147:40093",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 37.120.236.147:40093",
       "type": "ss",
       "server": "37.120.236.147",
       "port": 40093,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 37.120.218.253:40093",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 37.120.218.253:40093",
       "type": "ss",
       "server": "37.120.218.253",
       "port": 40093,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 194.110.115.83:40093",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 194.110.115.83:40093",
       "type": "ss",
       "server": "194.110.115.83",
       "port": 40093,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 188.95.55.125:40093",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 188.95.55.125:40093",
       "type": "ss",
       "server": "188.95.55.125",
       "port": 40093,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 188.95.55.123:40093",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 188.95.55.123:40093",
       "type": "ss",
       "server": "188.95.55.123",
       "port": 40093,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 188.95.55.115:40093",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 188.95.55.115:40093",
       "type": "ss",
       "server": "188.95.55.115",
       "port": 40093,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 188.95.55.108:40093",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 188.95.55.108:40093",
       "type": "ss",
       "server": "188.95.55.108",
       "port": 40093,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 185.232.21.53:40093",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 185.232.21.53:40093",
       "type": "ss",
       "server": "185.232.21.53",
       "port": 40093,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 194.71.227.178:989",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 194.71.227.178:989",
       "type": "ss",
       "server": "194.71.227.178",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 193.9.114.34:809",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 193.9.114.34:809",
       "type": "ss",
       "server": "193.9.114.34",
       "port": 809,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 193.9.114.34:805",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 193.9.114.34:805",
       "type": "ss",
       "server": "193.9.114.34",
       "port": 805,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 193.9.114.34:801",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 193.9.114.34:801",
       "type": "ss",
       "server": "193.9.114.34",
       "port": 801,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.78:989",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 192.71.249.78:989",
       "type": "ss",
       "server": "192.71.249.78",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.10.79:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 141.98.233.95:1518",
+      "type": "vless",
+      "server": "141.98.233.95",
+      "port": 1518,
+      "uuid": "840fce73-112f-44e1-8bdf-cee760ed7a03",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 151.101.10.79:443",
       "type": "ss",
       "server": "151.101.10.79",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 98.142.254.3:25117",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 98.142.254.3:25117",
       "type": "vless",
       "server": "98.142.254.3",
       "port": 25117,
@@ -189,23 +199,23 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.108:989",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 192.71.249.108:989",
       "type": "ss",
       "server": "192.71.249.108",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.71:989",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 192.71.249.71:989",
       "type": "ss",
       "server": "192.71.249.71",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.10.133:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.10.133:443",
       "type": "vless",
       "server": "151.101.10.133",
       "port": 443,
@@ -214,16 +224,16 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 113.30.152.46:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 113.30.152.46:443",
       "type": "vless",
       "server": "113.30.152.46",
       "port": 443,
       "uuid": "b741da8d-985b-44e1-855d-3a6fc0c7c160",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.67:80",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.9.67:80",
       "type": "vless",
       "server": "151.101.9.67",
       "port": 80,
@@ -232,15 +242,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.81:80",
-      "type": "ss",
-      "server": "151.101.9.81",
-      "port": 80,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 212.134.84.115:597",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 212.134.84.115:597",
       "type": "vless",
       "server": "212.134.84.115",
       "port": 597,
@@ -249,16 +251,16 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 113.30.152.107:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 113.30.152.107:443",
       "type": "vless",
       "server": "113.30.152.107",
       "port": 443,
       "uuid": "677615f7-87d5-5019-a44d-4fc3ff8d59d7",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.79:80",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.9.79:80",
       "type": "vless",
       "server": "151.101.9.79",
       "port": 80,
@@ -267,27 +269,35 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.8.79:80",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 151.101.8.79:80",
       "type": "ss",
       "server": "151.101.8.79",
       "port": 80,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 98.142.254.3:25117",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 98.142.254.3:25117",
       "type": "ss",
       "server": "98.142.254.3",
       "port": 25117,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.79:80",
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 151.101.9.79:80",
       "type": "ss",
       "server": "151.101.9.79",
       "port": 80,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 151.101.9.81:80",
+      "type": "ss",
+      "server": "151.101.9.81",
+      "port": 80,
+      "cipher": "auto",
       "password": ""
     }
   ],
@@ -296,43 +306,45 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.81:80",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.80:80",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.10.79:443",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 34.22.142.117:443",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.8.79:80",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.80:80",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 194.110.115.93:44208",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 37.120.236.147:40093",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 37.120.218.253:40093",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 194.110.115.83:40093",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 188.95.55.125:40093",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 188.95.55.123:40093",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 188.95.55.115:40093",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 188.95.55.108:40093",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 185.232.21.53:40093",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 194.71.227.178:989",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 193.9.114.34:809",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 193.9.114.34:805",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 193.9.114.34:801",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.78:989",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.10.79:443",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 98.142.254.3:25117",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.108:989",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.71:989",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.10.133:443",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 113.30.152.46:443",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.67:80",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.81:80",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 212.134.84.115:597",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 113.30.152.107:443",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.79:80",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.8.79:80",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 98.142.254.3:25117",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.79:80"
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.9.81:80",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.9.80:80",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.10.79:443",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 34.22.142.117:443",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.8.79:80",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 151.101.9.80:80",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 194.110.115.93:44208",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 37.120.236.147:40093",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 37.120.218.253:40093",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 194.110.115.83:40093",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 188.95.55.125:40093",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 188.95.55.123:40093",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 188.95.55.115:40093",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 188.95.55.108:40093",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 185.232.21.53:40093",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 194.71.227.178:989",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 193.9.114.34:809",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 193.9.114.34:805",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 193.9.114.34:801",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 192.71.249.78:989",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 141.98.233.95:1518",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 151.101.10.79:443",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 98.142.254.3:25117",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 192.71.249.108:989",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 192.71.249.71:989",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.10.133:443",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 113.30.152.46:443",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.9.67:80",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 212.134.84.115:597",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 113.30.152.107:443",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - VLESS 151.101.9.79:80",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 151.101.8.79:80",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 98.142.254.3:25117",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 151.101.9.79:80",
+        "\uD83C\uDDE7\uD83C\uDDEA Unknown - SS 151.101.9.81:80"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

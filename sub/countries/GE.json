@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes GE",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -7,16 +8,16 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
-      "name": "\uD83C\uDDEC\uD83C\uDDEA Georgia - VLESS 77.91.103.239:8443",
+      "name": "\uD83C\uDDEC\uD83C\uDDEA Unknown - VLESS 77.91.103.239:8443",
       "type": "vless",
       "server": "77.91.103.239",
       "port": 8443,
       "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDEC\uD83C\uDDEA Georgia - VLESS 77.91.103.67:10004",
+      "name": "\uD83C\uDDEC\uD83C\uDDEA Unknown - VLESS 77.91.103.67:10004",
       "type": "vless",
       "server": "77.91.103.67",
       "port": 10004,
@@ -25,15 +26,15 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEC\uD83C\uDDEA Georgia - SS 77.91.123.173:18332",
+      "name": "\uD83C\uDDEC\uD83C\uDDEA Unknown - SS 77.91.123.173:18332",
       "type": "ss",
       "server": "77.91.123.173",
       "port": 18332,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEC\uD83C\uDDEA Georgia - VLESS 77.91.101.201:443",
+      "name": "\uD83C\uDDEC\uD83C\uDDEA Unknown - VLESS 77.91.101.201:443",
       "type": "vless",
       "server": "77.91.101.201",
       "port": 443,
@@ -42,7 +43,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEC\uD83C\uDDEA Georgia - VLESS 77.91.101.228:443",
+      "name": "\uD83C\uDDEC\uD83C\uDDEA Unknown - VLESS 77.91.101.228:443",
       "type": "vless",
       "server": "77.91.101.228",
       "port": 443,
@@ -51,7 +52,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEC\uD83C\uDDEA Georgia - VLESS 77.91.103.216:2082",
+      "name": "\uD83C\uDDEC\uD83C\uDDEA Unknown - VLESS 77.91.103.216:2082",
       "type": "vless",
       "server": "77.91.103.216",
       "port": 2082,
@@ -60,7 +61,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEC\uD83C\uDDEA Georgia - VLESS 77.91.103.216:8443",
+      "name": "\uD83C\uDDEC\uD83C\uDDEA Unknown - VLESS 77.91.103.216:8443",
       "type": "vless",
       "server": "77.91.103.216",
       "port": 8443,
@@ -74,16 +75,17 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDEC\uD83C\uDDEA Georgia - VLESS 77.91.103.239:8443",
-        "\uD83C\uDDEC\uD83C\uDDEA Georgia - VLESS 77.91.103.67:10004",
-        "\uD83C\uDDEC\uD83C\uDDEA Georgia - SS 77.91.123.173:18332",
-        "\uD83C\uDDEC\uD83C\uDDEA Georgia - VLESS 77.91.101.201:443",
-        "\uD83C\uDDEC\uD83C\uDDEA Georgia - VLESS 77.91.101.228:443",
-        "\uD83C\uDDEC\uD83C\uDDEA Georgia - VLESS 77.91.103.216:2082",
-        "\uD83C\uDDEC\uD83C\uDDEA Georgia - VLESS 77.91.103.216:8443"
+        "\uD83C\uDDEC\uD83C\uDDEA Unknown - VLESS 77.91.103.239:8443",
+        "\uD83C\uDDEC\uD83C\uDDEA Unknown - VLESS 77.91.103.67:10004",
+        "\uD83C\uDDEC\uD83C\uDDEA Unknown - SS 77.91.123.173:18332",
+        "\uD83C\uDDEC\uD83C\uDDEA Unknown - VLESS 77.91.101.201:443",
+        "\uD83C\uDDEC\uD83C\uDDEA Unknown - VLESS 77.91.101.228:443",
+        "\uD83C\uDDEC\uD83C\uDDEA Unknown - VLESS 77.91.103.216:2082",
+        "\uD83C\uDDEC\uD83C\uDDEA Unknown - VLESS 77.91.103.216:8443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

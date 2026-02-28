@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes IN",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -13,7 +14,7 @@
       "port": 8443,
       "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.89.105.56:80",
@@ -67,7 +68,7 @@
       "port": 24725,
       "uuid": "48ddd7e3-5d31-46ab-9153-16c0e4d92adc",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 206.189.135.13:41856",
@@ -106,11 +107,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 104.22.0.87:443",
+      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 104.22.33.78:443",
       "type": "vless",
-      "server": "104.22.0.87",
+      "server": "104.22.33.78",
       "port": 443,
-      "uuid": "cb2effa0-e49c-49d3-aee6-c7e3e1f38922",
+      "uuid": "51905fd3-29de-4b4e-b351-83542f1d5390",
       "tls": true,
       "flow": ""
     },
@@ -124,11 +125,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 104.22.33.78:443",
+      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 104.22.0.87:443",
       "type": "vless",
-      "server": "104.22.33.78",
+      "server": "104.22.0.87",
       "port": 443,
-      "uuid": "51905fd3-29de-4b4e-b351-83542f1d5390",
+      "uuid": "cb2effa0-e49c-49d3-aee6-c7e3e1f38922",
       "tls": true,
       "flow": ""
     },
@@ -157,7 +158,7 @@
       "port": 443,
       "uuid": "4959177b-62d7-4d1b-b6a3-eed72c0609c5",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 129.154.46.115:443",
@@ -184,7 +185,7 @@
       "port": 443,
       "uuid": "4959177b-62d7-4d1b-b6a3-eed72c0609c5",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.88.183.157:23803",
@@ -202,7 +203,7 @@
       "port": 8443,
       "uuid": "fde3da09-e21d-4d8a-aba7-4aef5b963805",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.89.105.24:4443",
@@ -211,22 +212,14 @@
       "port": 4443,
       "uuid": "1b0ad61b-1be2-4cda-9979-984a965b0da5",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - SS 163.171.206.24:44233",
       "type": "ss",
       "server": "163.171.206.24",
       "port": 44233,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - SS 163.171.206.24:28028",
-      "type": "ss",
-      "server": "163.171.206.24",
-      "port": 28028,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -243,7 +236,7 @@
       "type": "ss",
       "server": "103.111.114.29",
       "port": 57456,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -251,7 +244,7 @@
       "type": "ss",
       "server": "82.180.146.173",
       "port": 35652,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -259,7 +252,7 @@
       "type": "ss",
       "server": "172.105.39.228",
       "port": 5600,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -267,7 +260,7 @@
       "type": "ss",
       "server": "172.105.39.228",
       "port": 3306,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -275,7 +268,7 @@
       "type": "ss",
       "server": "172.105.54.131",
       "port": 6697,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -283,7 +276,15 @@
       "type": "ss",
       "server": "169.38.107.52",
       "port": 8389,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - SS 163.171.206.24:28028",
+      "type": "ss",
+      "server": "163.171.206.24",
+      "port": 28028,
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -291,7 +292,7 @@
       "type": "ss",
       "server": "163.171.206.24",
       "port": 44234,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -299,7 +300,7 @@
       "type": "ss",
       "server": "163.171.206.24",
       "port": 44235,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -307,7 +308,7 @@
       "type": "ss",
       "server": "163.171.206.24",
       "port": 44236,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -315,7 +316,7 @@
       "type": "ss",
       "server": "103.97.203.227",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -323,7 +324,7 @@
       "type": "ss",
       "server": "43.204.29.0",
       "port": 805,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -331,7 +332,7 @@
       "type": "ss",
       "server": "134.209.147.198",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -339,7 +340,7 @@
       "type": "ss",
       "server": "45.79.121.117",
       "port": 5601,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -396,7 +397,7 @@
       "type": "ss",
       "server": "82.180.146.173",
       "port": 30607,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -406,14 +407,14 @@
       "port": 443,
       "uuid": "1834316d-2b59-4239-970d-c764218bcdf2",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - SS 139.59.3.70:24725",
       "type": "ss",
       "server": "139.59.3.70",
       "port": 24725,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -421,7 +422,7 @@
       "type": "ss",
       "server": "104.22.0.87",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -429,7 +430,7 @@
       "type": "ss",
       "server": "185.67.125.109",
       "port": 11201,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -457,7 +458,7 @@
       "port": 443,
       "uuid": "0d93b787-b66b-4696-a036-a0f549764f69",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 103.17.193.224:443",
@@ -466,7 +467,7 @@
       "port": 443,
       "uuid": "0d93b787-b66b-4696-a036-a0f549764f69",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.88.183.164:49355",
@@ -482,7 +483,7 @@
       "type": "ss",
       "server": "198.38.86.30",
       "port": 1234,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -490,7 +491,7 @@
       "type": "ss",
       "server": "103.111.114.92",
       "port": 57456,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -500,14 +501,14 @@
       "port": 8443,
       "uuid": "3961c4a7-75dc-4ae1-8e4d-020bb3eff6e3",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - SS 45.88.183.156:12794",
       "type": "ss",
       "server": "45.88.183.156",
       "port": 12794,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -515,7 +516,7 @@
       "type": "ss",
       "server": "64.227.183.64",
       "port": 55305,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -523,7 +524,7 @@
       "type": "ss",
       "server": "64.227.144.190",
       "port": 50690,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -531,7 +532,7 @@
       "type": "ss",
       "server": "103.174.86.114",
       "port": 51348,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -539,7 +540,7 @@
       "type": "ss",
       "server": "134.209.147.198",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -547,7 +548,7 @@
       "type": "ss",
       "server": "3.111.137.132",
       "port": 53223,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -555,7 +556,7 @@
       "type": "ss",
       "server": "13.201.33.249",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -563,7 +564,7 @@
       "type": "ss",
       "server": "45.88.183.158",
       "port": 44629,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -571,7 +572,7 @@
       "type": "ss",
       "server": "45.88.183.164",
       "port": 49355,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -686,7 +687,7 @@
       "port": 8080,
       "uuid": "c988e2e4-3e72-48e0-894f-c458f03246a7",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 159.89.160.226:2095",
@@ -722,7 +723,7 @@
       "port": 13948,
       "uuid": "ecd5a5f8-16ac-4526-bd92-8870b4f2dadf",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 172.69.178.43:2053",
@@ -756,7 +757,7 @@
       "type": "ss",
       "server": "152.70.76.104",
       "port": 46000,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -778,122 +779,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HYSTERIA2 144.24.101.176:30102",
-      "type": "hysteria2",
-      "server": "144.24.101.176",
-      "port": 30102
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 170.205.54.5:443",
-      "type": "hy2",
-      "server": "170.205.54.5",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 144.24.153.219:443",
-      "type": "hy2",
-      "server": "144.24.153.219",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 141.148.208.213:443",
-      "type": "hy2",
-      "server": "141.148.208.213",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 129.154.233.123:35000",
-      "type": "hy2",
-      "server": "129.154.233.123",
-      "port": 35000
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 144.24.101.176:30102",
-      "type": "hy2",
-      "server": "144.24.101.176",
-      "port": 30102
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 142.93.215.128:10001",
-      "type": "hy2",
-      "server": "142.93.215.128",
-      "port": 10001
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 141.148.200.80:2052",
-      "type": "hy2",
-      "server": "141.148.200.80",
-      "port": 2052
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 140.238.229.214:24149",
-      "type": "hy2",
-      "server": "140.238.229.214",
-      "port": 24149
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 129.154.234.42:30102",
-      "type": "hy2",
-      "server": "129.154.234.42",
-      "port": 30102
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 140.245.27.220:443",
-      "type": "hy2",
-      "server": "140.245.27.220",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 144.24.129.30:2052",
-      "type": "hy2",
-      "server": "144.24.129.30",
-      "port": 2052
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 141.148.201.7:2052",
-      "type": "hy2",
-      "server": "141.148.201.7",
-      "port": 2052
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 141.148.204.183:2052",
-      "type": "hy2",
-      "server": "141.148.204.183",
-      "port": 2052
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 144.24.145.69:2052",
-      "type": "hy2",
-      "server": "144.24.145.69",
-      "port": 2052
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 140.238.253.128:443",
-      "type": "hy2",
-      "server": "140.238.253.128",
-      "port": 443
-    },
-    {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 166.0.244.206:2053",
       "type": "vless",
       "server": "166.0.244.206",
       "port": 2053,
       "uuid": "",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - SOCKS5 64.227.131.240:1080",
-      "type": "socks5",
-      "server": "64.227.131.240",
-      "port": 1080
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.89.105.56:8443",
-      "type": "vless",
-      "server": "45.89.105.56",
-      "port": 8443,
-      "uuid": "05b544a4-d479-4ba4-8208-950bd4411453",
       "tls": true,
       "flow": ""
     },
@@ -947,7 +837,7 @@
       "type": "ss",
       "server": "45.89.105.24",
       "port": 4443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -955,7 +845,7 @@
       "type": "ss",
       "server": "194.61.31.126",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     }
   ],
@@ -975,9 +865,9 @@
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 139.59.46.188:37548",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 139.59.58.120:31855",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.88.183.156:12794",
-        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 104.22.0.87:443",
-        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 152.70.76.104:46000",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 104.22.33.78:443",
+        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 152.70.76.104:46000",
+        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 104.22.0.87:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 104.22.4.136:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 152.70.71.23:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 144.24.127.7:443",
@@ -988,7 +878,6 @@
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.88.183.163:8443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.89.105.24:4443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 163.171.206.24:44233",
-        "\uD83C\uDDEE\uD83C\uDDF3 India - SS 163.171.206.24:28028",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 194.61.31.126:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 103.111.114.29:57456",
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 82.180.146.173:35652",
@@ -996,6 +885,7 @@
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 172.105.39.228:3306",
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 172.105.54.131:6697",
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 169.38.107.52:8389",
+        "\uD83C\uDDEE\uD83C\uDDF3 India - SS 163.171.206.24:28028",
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 163.171.206.24:44234",
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 163.171.206.24:44235",
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 163.171.206.24:44236",
@@ -1072,7 +962,6 @@
         "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 140.238.253.128:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 166.0.244.206:2053",
         "\uD83C\uDDEE\uD83C\uDDF3 India - SOCKS5 64.227.131.240:1080",
-        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.89.105.56:8443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 13.200.192.197:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 139.84.163.149:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 20.235.105.146:443",
@@ -1082,7 +971,8 @@
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 194.61.31.126:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

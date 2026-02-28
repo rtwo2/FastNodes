@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes CY",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -85,7 +86,7 @@
       "port": 8443,
       "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 171.22.114.155:8443",
@@ -94,7 +95,7 @@
       "port": 8443,
       "uuid": "4afb1182-4b0a-428b-9f2d-8939b2b214fd",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.88.182.24:25380",
@@ -112,7 +113,7 @@
       "port": 8443,
       "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.89.109.25:18278",
@@ -130,7 +131,7 @@
       "port": 8443,
       "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.12.133.61:8443",
@@ -139,7 +140,7 @@
       "port": 8443,
       "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.245.39:8443",
@@ -148,7 +149,7 @@
       "port": 8443,
       "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.180.45.245:443",
@@ -157,7 +158,7 @@
       "port": 443,
       "uuid": "id8114764549",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.15.128.75:8443",
@@ -166,7 +167,7 @@
       "port": 8443,
       "uuid": "fad2b7e0-d80c-4b7b-a84f-d86e0e49f627",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.12.150.145:15470",
@@ -193,7 +194,7 @@
       "port": 8443,
       "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.83.21.107:59997",
@@ -229,7 +230,7 @@
       "port": 8443,
       "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.15.178.123:8443",
@@ -238,7 +239,7 @@
       "port": 8443,
       "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.15.178.117:8443",
@@ -247,7 +248,7 @@
       "port": 8443,
       "uuid": "4afb1182-4b0a-428b-9f2d-8939b2b214fd",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.15.178.109:8443",
@@ -256,7 +257,7 @@
       "port": 8443,
       "uuid": "4afb1182-4b0a-428b-9f2d-8939b2b214fd",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 94.156.35.144:18836",
@@ -313,47 +314,20 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.185:8880",
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 171.22.114.248:27394",
       "type": "vless",
-      "server": "45.82.251.185",
-      "port": 8880,
-      "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
+      "server": "171.22.114.248",
+      "port": 27394,
+      "uuid": "00b0d4de-b126-4511-87c1-8f1feb462fa6",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.141:8880",
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.126:8880",
       "type": "vless",
-      "server": "45.82.251.141",
+      "server": "45.82.251.126",
       "port": 8880,
-      "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.253.41.237:8443",
-      "type": "vless",
-      "server": "5.253.41.237",
-      "port": 8443,
-      "uuid": "eb42c1ce-5ab3-41f0-95ad-80fa467607d9",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.147:8880",
-      "type": "vless",
-      "server": "45.82.251.147",
-      "port": 8880,
-      "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.149:8880",
-      "type": "vless",
-      "server": "45.82.251.149",
-      "port": 8880,
-      "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
+      "uuid": "8dc7722c-2767-4eea-a28b-2f8daacc07e3",
       "tls": true,
       "flow": ""
     },
@@ -367,20 +341,38 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 171.22.114.248:27394",
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 195.85.59.155:80",
       "type": "vless",
-      "server": "171.22.114.248",
-      "port": 27394,
-      "uuid": "00b0d4de-b126-4511-87c1-8f1feb462fa6",
+      "server": "195.85.59.155",
+      "port": 80,
+      "uuid": "12d6cf82-9eee-4b01-b1bb-e1c1a437a162",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 154.92.9.46:443",
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.183:8880",
       "type": "vless",
-      "server": "154.92.9.46",
-      "port": 443,
-      "uuid": "ec8a65ad-aafc-4095-9b8c-ea10890ca629",
+      "server": "45.82.251.183",
+      "port": 8880,
+      "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.147:8880",
+      "type": "vless",
+      "server": "45.82.251.147",
+      "port": 8880,
+      "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.185:8880",
+      "type": "vless",
+      "server": "45.82.251.185",
+      "port": 8880,
+      "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
       "tls": true,
       "flow": ""
     },
@@ -394,9 +386,36 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.161:8880",
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.146:8880",
       "type": "vless",
-      "server": "45.82.251.161",
+      "server": "45.82.251.146",
+      "port": 8880,
+      "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 154.92.9.46:443",
+      "type": "vless",
+      "server": "154.92.9.46",
+      "port": 443,
+      "uuid": "ec8a65ad-aafc-4095-9b8c-ea10890ca629",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.15.178.112:8443",
+      "type": "vless",
+      "server": "45.15.178.112",
+      "port": 8443,
+      "uuid": "3a2e03e2-90be-4037-9705-1abdc0d5424a",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.149:8880",
+      "type": "vless",
+      "server": "45.82.251.149",
       "port": 8880,
       "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
       "tls": true,
@@ -412,18 +431,9 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.183:8880",
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.161:8880",
       "type": "vless",
-      "server": "45.82.251.183",
-      "port": 8880,
-      "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.146:8880",
-      "type": "vless",
-      "server": "45.82.251.146",
+      "server": "45.82.251.161",
       "port": 8880,
       "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
       "tls": true,
@@ -436,32 +446,14 @@
       "port": 8443,
       "uuid": "3a2e03e2-90be-4037-9705-1abdc0d5424a",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.15.178.112:8443",
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.141:8880",
       "type": "vless",
-      "server": "45.15.178.112",
-      "port": 8443,
-      "uuid": "3a2e03e2-90be-4037-9705-1abdc0d5424a",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.126:8880",
-      "type": "vless",
-      "server": "45.82.251.126",
+      "server": "45.82.251.141",
       "port": 8880,
-      "uuid": "8dc7722c-2767-4eea-a28b-2f8daacc07e3",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 195.85.59.155:80",
-      "type": "vless",
-      "server": "195.85.59.155",
-      "port": 80,
-      "uuid": "12d6cf82-9eee-4b01-b1bb-e1c1a437a162",
+      "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
       "tls": true,
       "flow": ""
     },
@@ -480,6 +472,15 @@
       "server": "195.85.59.95",
       "port": 2082,
       "uuid": "a3f9d9b6-3ae4-4c47-9dbf-33b0a5c7f1a5",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.253.41.237:8443",
+      "type": "vless",
+      "server": "5.253.41.237",
+      "port": 8443,
+      "uuid": "eb42c1ce-5ab3-41f0-95ad-80fa467607d9",
       "tls": true,
       "flow": ""
     },
@@ -706,7 +707,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.135:8880",
@@ -731,7 +732,7 @@
       "type": "ss",
       "server": "45.83.142.237",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -739,7 +740,7 @@
       "type": "ss",
       "server": "134.255.210.49",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -749,7 +750,7 @@
       "port": 4443,
       "uuid": "edb3d24d-1a55-42f7-8752-6ae216f18cf4",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.80:8880",
@@ -774,7 +775,7 @@
       "type": "ss",
       "server": "213.169.137.221",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -782,7 +783,7 @@
       "type": "ss",
       "server": "213.169.137.214",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -790,7 +791,7 @@
       "type": "ss",
       "server": "45.15.162.92",
       "port": 64351,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -798,7 +799,7 @@
       "type": "ss",
       "server": "91.148.135.31",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -806,7 +807,7 @@
       "type": "ss",
       "server": "45.83.20.206",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -887,38 +888,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.253.41.208:8443",
-      "type": "vless",
-      "server": "5.253.41.208",
-      "port": 8443,
-      "uuid": "6432bbec-c4c0-4837-9aa3-82e79def5017",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.12.134.86:8443",
-      "type": "vless",
-      "server": "45.12.134.86",
-      "port": 8443,
-      "uuid": "6432bbec-c4c0-4837-9aa3-82e79def5017",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 144.31.130.225:8443",
-      "type": "vless",
-      "server": "144.31.130.225",
-      "port": 8443,
-      "uuid": "488fa2ff-440b-46b7-b0e0-211bcf923d5e",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 45.82.251.95:8880",
       "type": "ss",
       "server": "45.82.251.95",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -926,7 +900,7 @@
       "type": "ss",
       "server": "45.12.142.55",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -934,7 +908,7 @@
       "type": "ss",
       "server": "171.22.114.248",
       "port": 27394,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -942,7 +916,7 @@
       "type": "ss",
       "server": "195.85.59.155",
       "port": 80,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -950,7 +924,7 @@
       "type": "ss",
       "server": "45.82.251.208",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -958,7 +932,7 @@
       "type": "ss",
       "server": "45.82.251.116",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -966,7 +940,7 @@
       "type": "ss",
       "server": "45.82.252.109",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -994,7 +968,7 @@
       "port": 8443,
       "uuid": "87acc4db-5403-4e4c-80a7-34a8a98990de",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.83.22.3:8443",
@@ -1003,7 +977,7 @@
       "port": 8443,
       "uuid": "87acc4db-5403-4e4c-80a7-34a8a98990de",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.83.140.93:8443",
@@ -1012,7 +986,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.83.140.4:8443",
@@ -1021,7 +995,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.83.140.206:8443",
@@ -1030,7 +1004,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 154.92.9.238:2096",
@@ -1048,14 +1022,14 @@
       "port": 8443,
       "uuid": "87acc4db-5403-4e4c-80a7-34a8a98990de",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 5.253.41.46:443",
       "type": "ss",
       "server": "5.253.41.46",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1101,7 +1075,7 @@
       "port": 443,
       "uuid": "45e3b7ad-03b6-42fc-b616-1e92bdd0a5b3",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.15.162.34:443",
@@ -1110,14 +1084,14 @@
       "port": 443,
       "uuid": "45e3b7ad-03b6-42fc-b616-1e92bdd0a5b3",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 45.83.20.34:58164",
       "type": "ss",
       "server": "45.83.20.34",
       "port": 58164,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1125,7 +1099,7 @@
       "type": "ss",
       "server": "154.92.9.26",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1133,7 +1107,7 @@
       "type": "ss",
       "server": "134.255.210.49",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1141,7 +1115,7 @@
       "type": "ss",
       "server": "2.56.126.190",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1149,7 +1123,7 @@
       "type": "ss",
       "server": "2.56.126.190",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1157,7 +1131,7 @@
       "type": "ss",
       "server": "2.56.126.30",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1165,7 +1139,7 @@
       "type": "ss",
       "server": "2.56.126.30",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1173,7 +1147,7 @@
       "type": "ss",
       "server": "2.56.126.30",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1181,7 +1155,7 @@
       "type": "ss",
       "server": "2.56.126.45",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1189,7 +1163,7 @@
       "type": "ss",
       "server": "2.56.126.45",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1197,7 +1171,7 @@
       "type": "ss",
       "server": "2.56.126.45",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1205,7 +1179,7 @@
       "type": "ss",
       "server": "45.12.133.132",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1213,7 +1187,7 @@
       "type": "ss",
       "server": "45.12.133.132",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1221,7 +1195,7 @@
       "type": "ss",
       "server": "45.12.133.143",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1229,7 +1203,7 @@
       "type": "ss",
       "server": "45.12.133.143",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1237,7 +1211,7 @@
       "type": "ss",
       "server": "45.12.133.58",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1245,7 +1219,7 @@
       "type": "ss",
       "server": "45.12.133.58",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1253,7 +1227,7 @@
       "type": "ss",
       "server": "185.153.183.211",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1261,7 +1235,7 @@
       "type": "ss",
       "server": "45.82.251.152",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1269,7 +1243,7 @@
       "type": "ss",
       "server": "45.82.251.161",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1277,7 +1251,7 @@
       "type": "ss",
       "server": "45.82.251.176",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1285,7 +1259,7 @@
       "type": "ss",
       "server": "45.82.251.58",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1293,7 +1267,7 @@
       "type": "ss",
       "server": "45.82.251.63",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1301,7 +1275,7 @@
       "type": "ss",
       "server": "45.82.251.78",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1309,7 +1283,7 @@
       "type": "ss",
       "server": "45.82.251.93",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1639,7 +1613,7 @@
       "port": 443,
       "uuid": "c7150d62-8775-44ef-9bfa-d4755961427a",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.83:1001",
@@ -1702,7 +1676,7 @@
       "port": 8880,
       "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
       "tls": true,
-      "flow": ""
+      "flow": " # \uD83D\uDD12 [By EbraSha]"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.181:8880",
@@ -1813,14 +1787,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 45.15.128.75:8443",
-      "type": "ss",
-      "server": "45.15.128.75",
-      "port": 8443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 171.22.114.47:8880",
       "type": "vless",
       "server": "171.22.114.47",
@@ -1886,20 +1852,39 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 45.89.109.25:18278",
-      "type": "ss",
-      "server": "45.89.109.25",
-      "port": 18278,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 154.92.9.1:443",
       "type": "ss",
       "server": "154.92.9.1",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.208:443",
+      "type": "vless",
+      "server": "45.82.251.208",
+      "port": 443,
+      "uuid": "e4824193-4f54-453b-d037-88368e85ef0e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.253.41.208:8443",
+      "type": "vless",
+      "server": "5.253.41.208",
+      "port": 8443,
+      "uuid": "6432bbec-c4c0-4837-9aa3-82e79def5017",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.12.134.86:8443",
+      "type": "vless",
+      "server": "45.12.134.86",
+      "port": 8443,
+      "uuid": "6432bbec-c4c0-4837-9aa3-82e79def5017",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.253.41.250:8443",
@@ -1908,7 +1893,7 @@
       "port": 8443,
       "uuid": "6432bbec-c4c0-4837-9aa3-82e79def5017",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.89.110.69:443",
@@ -1920,11 +1905,20 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 144.31.130.225:8443",
+      "type": "vless",
+      "server": "144.31.130.225",
+      "port": 8443,
+      "uuid": "488fa2ff-440b-46b7-b0e0-211bcf923d5e",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
       "name": "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 45.12.135.99:443",
       "type": "ss",
       "server": "45.12.135.99",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1932,7 +1926,7 @@
       "type": "ss",
       "server": "2.56.176.23",
       "port": 4533,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1940,7 +1934,7 @@
       "type": "ss",
       "server": "45.12.150.199",
       "port": 39447,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1948,7 +1942,7 @@
       "type": "ss",
       "server": "45.12.150.212",
       "port": 22658,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1956,7 +1950,7 @@
       "type": "ss",
       "server": "45.15.162.208",
       "port": 17499,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1999,7 +1993,7 @@
       "type": "ss",
       "server": "2.56.173.227",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2007,7 +2001,7 @@
       "type": "ss",
       "server": "45.15.162.212",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2015,7 +2009,7 @@
       "type": "ss",
       "server": "5.253.41.119",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2023,7 +2017,7 @@
       "type": "ss",
       "server": "45.82.251.115",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2031,7 +2025,7 @@
       "type": "ss",
       "server": "45.82.251.126",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2039,7 +2033,7 @@
       "type": "ss",
       "server": "45.82.251.135",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2047,7 +2041,7 @@
       "type": "ss",
       "server": "45.82.251.195",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2055,7 +2049,7 @@
       "type": "ss",
       "server": "45.83.140.34",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2063,7 +2057,7 @@
       "type": "ss",
       "server": "5.253.41.160",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2071,7 +2065,7 @@
       "type": "ss",
       "server": "45.12.150.145",
       "port": 15470,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2079,7 +2073,7 @@
       "type": "ss",
       "server": "5.180.45.245",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     }
   ],
@@ -2122,25 +2116,25 @@
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.114:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.245.173:80",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.180:8880",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.185:8880",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.141:8880",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.253.41.237:8443",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.147:8880",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.149:8880",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.12.142.55:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 171.22.114.248:27394",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 154.92.9.46:443",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.95:8880",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.161:8880",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.144:8880",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.183:8880",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.146:8880",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.15.178.111:8443",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.15.178.112:8443",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.126:8880",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.12.142.55:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 195.85.59.155:80",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.183:8880",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.147:8880",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.185:8880",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.95:8880",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.146:8880",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 154.92.9.46:443",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.15.178.112:8443",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.149:8880",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.144:8880",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.161:8880",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.15.178.111:8443",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.141:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 195.85.59.161:8080",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 195.85.59.95:2082",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.253.41.237:8443",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.152:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 85.208.110.41:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 85.208.110.183:8880",
@@ -2187,9 +2181,6 @@
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 185.153.183.211:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.121:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.124:8880",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.253.41.208:8443",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.12.134.86:8443",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 144.31.130.225:8443",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 45.82.251.95:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 45.12.142.55:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 171.22.114.248:27394",
@@ -2294,7 +2285,6 @@
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 195.26.229.156:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.253.41.160:443",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 185.153.183.210:8880",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 45.15.128.75:8443",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 171.22.114.47:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.253.41.68:2087",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 171.22.114.168:8880",
@@ -2302,10 +2292,13 @@
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 171.22.114.142:8880",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VMESS 195.85.59.95:2082",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VMESS 195.85.59.161:8080",
-        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 45.89.109.25:18278",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 154.92.9.1:443",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.82.251.208:443",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.253.41.208:8443",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.12.134.86:8443",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 5.253.41.250:8443",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 45.89.110.69:443",
+        "\uD83C\uDDE8\uD83C\uDDFE Cyprus - VLESS 144.31.130.225:8443",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 45.12.135.99:443",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 2.56.176.23:4533",
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 45.12.150.199:39447",
@@ -2328,7 +2321,8 @@
         "\uD83C\uDDE8\uD83C\uDDFE Cyprus - SS 5.180.45.245:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

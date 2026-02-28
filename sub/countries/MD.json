@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes MD",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -156,7 +157,7 @@
       "port": 443,
       "uuid": "dd92c4f8-be88-4c61-84eb-d261f798071e",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 85.137.249.196:8443",
@@ -165,7 +166,7 @@
       "port": 8443,
       "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.8.19:45448",
@@ -183,7 +184,7 @@
       "port": 443,
       "uuid": "905738ff-bd46-4f49-98c9-09d0ef24941e",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.236.232.189:8880",
@@ -231,81 +232,9 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.213:8880",
-      "type": "vless",
-      "server": "185.242.87.213",
-      "port": 8880,
-      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.128:8880",
-      "type": "vless",
-      "server": "185.242.87.128",
-      "port": 8880,
-      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.236.232.100:80",
-      "type": "vless",
-      "server": "185.236.232.100",
-      "port": 80,
-      "uuid": "401374e6-df77-41fb-f638-dad8184f175b",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.160:8880",
-      "type": "vless",
-      "server": "185.242.87.160",
-      "port": 8880,
-      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 195.42.233.47:8880",
-      "type": "vless",
-      "server": "195.42.233.47",
-      "port": 8880,
-      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.234.66.97:8880",
-      "type": "vless",
-      "server": "185.234.66.97",
-      "port": 8880,
-      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 89.221.224.238:8880",
       "type": "vless",
       "server": "89.221.224.238",
-      "port": 8880,
-      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 195.42.233.105:8880",
-      "type": "vless",
-      "server": "195.42.233.105",
-      "port": 8880,
-      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.14.200:8880",
-      "type": "vless",
-      "server": "94.131.14.200",
       "port": 8880,
       "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
       "tls": true,
@@ -330,29 +259,38 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 213.159.76.238:8080",
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 195.42.233.47:8880",
       "type": "vless",
-      "server": "213.159.76.238",
-      "port": 8080,
-      "uuid": "9f281d4d-1a02-4eb1-a6cc-d9391d3074fb",
+      "server": "195.42.233.47",
+      "port": 8880,
+      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.234.57.216:443",
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 195.42.233.105:8880",
       "type": "vless",
-      "server": "185.234.57.216",
-      "port": 443,
-      "uuid": "d50ef9ea-7adf-4b45-977a-16bca0f11584",
+      "server": "195.42.233.105",
+      "port": 8880,
+      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 93.185.165.50:55211",
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.14.200:8880",
       "type": "vless",
-      "server": "93.185.165.50",
-      "port": 55211,
-      "uuid": "d14660cf-44f0-4b47-af50-dac98e19d46d",
+      "server": "94.131.14.200",
+      "port": 8880,
+      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.234.66.97:8880",
+      "type": "vless",
+      "server": "185.234.66.97",
+      "port": 8880,
+      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
       "tls": true,
       "flow": ""
     },
@@ -360,6 +298,33 @@
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.13.164:8880",
       "type": "vless",
       "server": "94.131.13.164",
+      "port": 8880,
+      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.110.119:443",
+      "type": "vless",
+      "server": "94.131.110.119",
+      "port": 443,
+      "uuid": "e615a5ba-fce3-4ffa-9c86-b0327a8a107a",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 91.242.229.129:4443",
+      "type": "vless",
+      "server": "91.242.229.129",
+      "port": 4443,
+      "uuid": "c3d8bdd0-777e-47b0-b7d4-28cc1b160ad8",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.160:8880",
+      "type": "vless",
+      "server": "185.242.87.160",
       "port": 8880,
       "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
       "tls": true,
@@ -375,22 +340,58 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 91.242.229.129:4443",
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.128:8880",
       "type": "vless",
-      "server": "91.242.229.129",
-      "port": 4443,
-      "uuid": "c3d8bdd0-777e-47b0-b7d4-28cc1b160ad8",
+      "server": "185.242.87.128",
+      "port": 8880,
+      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
       "tls": true,
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.110.119:443",
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.234.57.216:443",
       "type": "vless",
-      "server": "94.131.110.119",
+      "server": "185.234.57.216",
       "port": 443,
-      "uuid": "e615a5ba-fce3-4ffa-9c86-b0327a8a107a",
+      "uuid": "d50ef9ea-7adf-4b45-977a-16bca0f11584",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 213.159.76.238:8080",
+      "type": "vless",
+      "server": "213.159.76.238",
+      "port": 8080,
+      "uuid": "9f281d4d-1a02-4eb1-a6cc-d9391d3074fb",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.236.232.100:80",
+      "type": "vless",
+      "server": "185.236.232.100",
+      "port": 80,
+      "uuid": "401374e6-df77-41fb-f638-dad8184f175b",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.213:8880",
+      "type": "vless",
+      "server": "185.242.87.213",
+      "port": 8880,
+      "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 93.185.165.50:55211",
+      "type": "vless",
+      "server": "93.185.165.50",
+      "port": 55211,
+      "uuid": "d14660cf-44f0-4b47-af50-dac98e19d46d",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 91.228.10.202:2052",
@@ -570,14 +571,14 @@
       "port": 443,
       "uuid": "fa-397456379-1771015002699385",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - SS 213.159.76.21:443",
       "type": "ss",
       "server": "213.159.76.21",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -587,7 +588,7 @@
       "port": 42642,
       "uuid": "e04f764c-6009-45aa-b033-97a90024634b",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.189.107:8880",
@@ -596,14 +597,14 @@
       "port": 8880,
       "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
       "tls": true,
-      "flow": ""
+      "flow": "#\uD83D\uDCDF46@oneclickvpnkeys"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - SS 185.153.197.5:989",
       "type": "ss",
       "server": "185.153.197.5",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -613,7 +614,7 @@
       "port": 8880,
       "uuid": "15d114ee-c814-47c7-bd12-fab0c7a0128e",
       "tls": true,
-      "flow": ""
+      "flow": "#\uD83D\uDCDF23@oneclickvpnkeys"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.110.117:8880",
@@ -622,7 +623,7 @@
       "port": 8880,
       "uuid": "df0680ca-e43c-498d-ed86-8e196eedd012",
       "tls": true,
-      "flow": ""
+      "flow": "#\uD83D\uDCDF15@oneclickvpnkeys"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 74.119.194.136:12345",
@@ -647,7 +648,7 @@
       "type": "ss",
       "server": "89.221.224.166",
       "port": 8388,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -655,7 +656,7 @@
       "type": "ss",
       "server": "94.131.106.6",
       "port": 43743,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -681,7 +682,7 @@
       "type": "ss",
       "server": "94.131.111.32",
       "port": 8388,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -689,7 +690,7 @@
       "type": "ss",
       "server": "94.131.110.115",
       "port": 47765,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -707,14 +708,14 @@
       "port": 443,
       "uuid": "0518234d-4953-5a33-ab33-ea81f5a884e0",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - SS 194.33.40.114:33992",
       "type": "ss",
       "server": "194.33.40.114",
       "port": 33992,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -722,7 +723,7 @@
       "type": "ss",
       "server": "192.121.87.89",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -730,7 +731,7 @@
       "type": "ss",
       "server": "185.242.86.156",
       "port": 54170,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -738,7 +739,7 @@
       "type": "ss",
       "server": "178.23.190.238",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -746,7 +747,7 @@
       "type": "ss",
       "server": "176.123.1.175",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -754,7 +755,7 @@
       "type": "ss",
       "server": "176.123.5.253",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -762,7 +763,7 @@
       "type": "ss",
       "server": "45.145.0.31",
       "port": 51348,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -770,7 +771,7 @@
       "type": "ss",
       "server": "213.159.66.206",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -807,6 +808,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.189.83:443",
+      "type": "vless",
+      "server": "103.35.189.83",
+      "port": 443,
+      "uuid": "fa-397456379-1771009078823820",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 195.42.233.91:8880",
       "type": "vless",
       "server": "195.42.233.91",
@@ -816,29 +826,29 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.203:8443",
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 86.104.72.160:443",
       "type": "vless",
-      "server": "94.131.101.203",
-      "port": 8443,
-      "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.113.70.30:8443",
-      "type": "vless",
-      "server": "103.113.70.30",
-      "port": 8443,
-      "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.234.57.215:8443",
-      "type": "vless",
-      "server": "185.234.57.215",
-      "port": 8443,
+      "server": "86.104.72.160",
+      "port": 443,
       "uuid": "88f2c5cc-a287-4be9-be28-56c2729d3782",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.232.244.5:2198",
+      "type": "vless",
+      "server": "94.232.244.5",
+      "port": 2198,
+      "uuid": "838f5273-5d2d-4630-a0f5-9cc8e4aef4d6",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 86.104.72.160:8443",
+      "type": "vless",
+      "server": "86.104.72.160",
+      "port": 8443,
+      "uuid": "5727174c-66ac-4713-8f77-8769314872b5",
       "tls": true,
       "flow": ""
     },
@@ -855,7 +865,7 @@
       "type": "ss",
       "server": "94.131.118.98",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -863,7 +873,7 @@
       "type": "ss",
       "server": "89.221.224.238",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -871,7 +881,7 @@
       "type": "ss",
       "server": "185.236.232.100",
       "port": 80,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -879,7 +889,7 @@
       "type": "ss",
       "server": "86.104.74.155",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -887,7 +897,7 @@
       "type": "ss",
       "server": "94.131.14.200",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -895,7 +905,7 @@
       "type": "ss",
       "server": "94.131.13.164",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -903,7 +913,7 @@
       "type": "ss",
       "server": "185.234.66.97",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -911,7 +921,7 @@
       "type": "ss",
       "server": "185.242.87.128",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -919,7 +929,7 @@
       "type": "ss",
       "server": "185.242.87.160",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -927,7 +937,7 @@
       "type": "ss",
       "server": "185.242.87.213",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -935,7 +945,7 @@
       "type": "ss",
       "server": "185.242.87.247",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -943,7 +953,7 @@
       "type": "ss",
       "server": "195.42.233.105",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -951,7 +961,7 @@
       "type": "ss",
       "server": "195.42.233.125",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -959,7 +969,7 @@
       "type": "ss",
       "server": "195.42.233.47",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -967,7 +977,7 @@
       "type": "ss",
       "server": "94.131.110.119",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -975,7 +985,7 @@
       "type": "ss",
       "server": "94.131.100.163",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -983,7 +993,7 @@
       "type": "ss",
       "server": "213.159.76.238",
       "port": 8080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1000,7 +1010,7 @@
       "type": "ss",
       "server": "94.232.247.168",
       "port": 41360,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1008,7 +1018,7 @@
       "type": "ss",
       "server": "91.228.10.202",
       "port": 2052,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1016,7 +1026,7 @@
       "type": "ss",
       "server": "91.225.219.81",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1024,7 +1034,7 @@
       "type": "ss",
       "server": "194.165.59.93",
       "port": 442,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1034,7 +1044,7 @@
       "port": 8443,
       "uuid": "87acc4db-5403-4e4c-80a7-34a8a98990de",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.106.0.87:8443",
@@ -1043,7 +1053,7 @@
       "port": 8443,
       "uuid": "87acc4db-5403-4e4c-80a7-34a8a98990de",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 193.233.203.86:8443",
@@ -1052,7 +1062,7 @@
       "port": 8443,
       "uuid": "2cd7f3f9-a5fc-4509-8c1b-3cfd67191cdd",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 91.229.239.51:8443",
@@ -1061,7 +1071,7 @@
       "port": 8443,
       "uuid": "2cd7f3f9-a5fc-4509-8c1b-3cfd67191cdd",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 45.86.86.2:8443",
@@ -1070,7 +1080,7 @@
       "port": 8443,
       "uuid": "2cd7f3f9-a5fc-4509-8c1b-3cfd67191cdd",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 176.123.1.72:8443",
@@ -1079,7 +1089,7 @@
       "port": 8443,
       "uuid": "2cd7f3f9-a5fc-4509-8c1b-3cfd67191cdd",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 91.208.184.197:8443",
@@ -1088,7 +1098,7 @@
       "port": 8443,
       "uuid": "2cd7f3f9-a5fc-4509-8c1b-3cfd67191cdd",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 194.110.247.100:8443",
@@ -1097,7 +1107,7 @@
       "port": 8443,
       "uuid": "2cd7f3f9-a5fc-4509-8c1b-3cfd67191cdd",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.139:8443",
@@ -1106,7 +1116,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.43:8443",
@@ -1115,7 +1125,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 86.104.72.253:8443",
@@ -1124,7 +1134,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.153:8443",
@@ -1133,7 +1143,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.188.8:8443",
@@ -1142,7 +1152,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.77:8443",
@@ -1151,7 +1161,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.112:8443",
@@ -1160,7 +1170,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 86.104.72.63:8443",
@@ -1169,7 +1179,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.12:8443",
@@ -1178,7 +1188,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.188.16:8443",
@@ -1187,7 +1197,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.176:8443",
@@ -1196,7 +1206,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.91:8443",
@@ -1205,7 +1215,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.115:8443",
@@ -1214,7 +1224,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.159:8443",
@@ -1223,7 +1233,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.252:8443",
@@ -1232,7 +1242,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.8:8443",
@@ -1241,14 +1251,14 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - SS 213.159.67.124:443",
       "type": "ss",
       "server": "213.159.67.124",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1256,7 +1266,7 @@
       "type": "ss",
       "server": "103.35.189.136",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1275,14 +1285,14 @@
       "port": 443,
       "uuid": "6fd9f786-d974-49d0-b5c4-397678de69a2",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - SS 185.234.64.97:443",
       "type": "ss",
       "server": "185.234.64.97",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1290,7 +1300,7 @@
       "type": "ss",
       "server": "195.42.233.83",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1298,7 +1308,7 @@
       "type": "ss",
       "server": "185.234.66.94",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1306,7 +1316,7 @@
       "type": "ss",
       "server": "94.131.111.175",
       "port": 8080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1314,7 +1324,7 @@
       "type": "ss",
       "server": "94.131.8.19",
       "port": 45448,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1322,7 +1332,7 @@
       "type": "ss",
       "server": "91.194.160.151",
       "port": 1235,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1330,7 +1340,7 @@
       "type": "ss",
       "server": "89.221.224.94",
       "port": 1443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1338,7 +1348,7 @@
       "type": "ss",
       "server": "45.140.146.223",
       "port": 8388,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1346,7 +1356,7 @@
       "type": "ss",
       "server": "94.131.108.237",
       "port": 46041,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1354,7 +1364,7 @@
       "type": "ss",
       "server": "86.104.74.243",
       "port": 14255,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1362,7 +1372,7 @@
       "type": "ss",
       "server": "103.106.2.90",
       "port": 8881,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1370,7 +1380,7 @@
       "type": "ss",
       "server": "94.131.96.213",
       "port": 29647,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1378,7 +1388,7 @@
       "type": "ss",
       "server": "178.175.134.2",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1386,7 +1396,7 @@
       "type": "ss",
       "server": "146.19.170.82",
       "port": 47777,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1394,7 +1404,7 @@
       "type": "ss",
       "server": "86.104.74.171",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1402,7 +1412,7 @@
       "type": "ss",
       "server": "86.104.74.171",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1410,7 +1420,7 @@
       "type": "ss",
       "server": "86.104.74.207",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1418,7 +1428,7 @@
       "type": "ss",
       "server": "86.104.74.207",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1426,7 +1436,7 @@
       "type": "ss",
       "server": "86.104.74.229",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1434,7 +1444,7 @@
       "type": "ss",
       "server": "86.104.74.229",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1442,7 +1452,7 @@
       "type": "ss",
       "server": "94.131.9.12",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1450,7 +1460,7 @@
       "type": "ss",
       "server": "94.131.9.12",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1458,7 +1468,7 @@
       "type": "ss",
       "server": "94.131.9.157",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1466,7 +1476,7 @@
       "type": "ss",
       "server": "94.131.9.157",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1474,7 +1484,7 @@
       "type": "ss",
       "server": "94.131.9.159",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1482,7 +1492,7 @@
       "type": "ss",
       "server": "94.131.9.159",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1490,7 +1500,7 @@
       "type": "ss",
       "server": "94.131.9.216",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1498,7 +1508,7 @@
       "type": "ss",
       "server": "94.131.9.217",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1506,7 +1516,7 @@
       "type": "ss",
       "server": "94.131.9.217",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1514,7 +1524,7 @@
       "type": "ss",
       "server": "94.131.9.218",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1522,7 +1532,7 @@
       "type": "ss",
       "server": "94.131.9.218",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1530,7 +1540,7 @@
       "type": "ss",
       "server": "94.131.9.229",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1538,7 +1548,7 @@
       "type": "ss",
       "server": "94.131.9.229",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1546,7 +1556,7 @@
       "type": "ss",
       "server": "94.131.9.230",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1554,7 +1564,7 @@
       "type": "ss",
       "server": "94.131.9.230",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1562,7 +1572,7 @@
       "type": "ss",
       "server": "94.131.9.239",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1570,7 +1580,7 @@
       "type": "ss",
       "server": "94.131.9.240",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1578,7 +1588,7 @@
       "type": "ss",
       "server": "94.131.9.240",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1586,7 +1596,7 @@
       "type": "ss",
       "server": "94.131.9.244",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1594,7 +1604,7 @@
       "type": "ss",
       "server": "94.131.9.244",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1602,7 +1612,7 @@
       "type": "ss",
       "server": "185.234.66.82",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1610,7 +1620,7 @@
       "type": "ss",
       "server": "185.234.66.101",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1618,7 +1628,7 @@
       "type": "ss",
       "server": "94.131.9.172",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1626,7 +1636,7 @@
       "type": "ss",
       "server": "185.236.232.223",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1634,7 +1644,7 @@
       "type": "ss",
       "server": "185.236.232.243",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1642,7 +1652,7 @@
       "type": "ss",
       "server": "185.236.232.247",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1731,7 +1741,7 @@
       "port": 10088,
       "uuid": "2b70f40f-b236-448c-b92e-e598f025a0ed",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.111.195:443",
@@ -1794,7 +1804,7 @@
       "port": 443,
       "uuid": "6199b420-6037-4513-bb15-0e625ec393c2",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.235.243.133:443",
@@ -1839,22 +1849,13 @@
       "port": 443,
       "uuid": "80c32a2b-d074-4069-b82f-cf5f0bcf8aaf",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 91.225.219.114:2082",
       "type": "vless",
       "server": "91.225.219.114",
       "port": 2082,
-      "uuid": "838f5273-5d2d-4630-a0f5-9cc8e4aef4d6",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.232.244.5:2198",
-      "type": "vless",
-      "server": "94.232.244.5",
-      "port": 2198,
       "uuid": "838f5273-5d2d-4630-a0f5-9cc8e4aef4d6",
       "tls": true,
       "flow": ""
@@ -2307,7 +2308,7 @@
       "port": 443,
       "uuid": "d0a86835-954b-4c2d-9f35-584ce0e052be",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 95.164.22.239:2501",
@@ -2395,7 +2396,7 @@
       "type": "ss",
       "server": "45.67.228.11",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2403,7 +2404,7 @@
       "type": "ss",
       "server": "185.236.232.116",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2440,7 +2441,7 @@
       "port": 443,
       "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.189.146:443",
@@ -2474,7 +2475,7 @@
       "type": "ss",
       "server": "31.222.238.127",
       "port": 8043,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2494,12 +2495,6 @@
       "uuid": "6844c624-7c8c-4e23-8b53-cf78209e93bb",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - HY2 94.131.122.35:53040",
-      "type": "hy2",
-      "server": "94.131.122.35",
-      "port": 53040
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VMESS 94.131.8.32:80",
@@ -2671,20 +2666,14 @@
       "port": 8443,
       "uuid": "8892cbc9-549e-4c0c-b8c5-9201706a3791",
       "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - HYSTERIA2 94.103.3.40:2056",
-      "type": "hysteria2",
-      "server": "94.103.3.40",
-      "port": 2056
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - SS 194.246.114.101:443",
       "type": "ss",
       "server": "194.246.114.101",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2692,7 +2681,7 @@
       "type": "ss",
       "server": "74.119.193.40",
       "port": 5223,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2700,7 +2689,7 @@
       "type": "ss",
       "server": "94.131.12.245",
       "port": 37726,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2713,13 +2702,22 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.113.70.30:8443",
+      "type": "vless",
+      "server": "103.113.70.30",
+      "port": 8443,
+      "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.113.70.12:8443",
       "type": "vless",
       "server": "103.113.70.12",
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.113.70.22:8443",
@@ -2728,7 +2726,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.113.70.4:8443",
@@ -2737,7 +2735,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.188.30:8443",
@@ -2746,7 +2744,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.188.43:8443",
@@ -2755,7 +2753,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.188.55:8443",
@@ -2764,7 +2762,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.191.185:8443",
@@ -2773,7 +2771,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.191.186:8443",
@@ -2782,7 +2780,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.191.196:8443",
@@ -2791,7 +2789,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.191.216:8443",
@@ -2800,7 +2798,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.191.222:8443",
@@ -2809,7 +2807,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.191.236:8443",
@@ -2818,7 +2816,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 74.119.194.45:8443",
@@ -2827,7 +2825,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 74.119.195.68:443",
@@ -2845,7 +2843,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 86.104.72.247:8443",
@@ -2854,7 +2852,7 @@
       "port": 8443,
       "uuid": "93a20fae-54f4-4e25-93ef-995b3e52fc04",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.103.2.81:8443",
@@ -2863,7 +2861,7 @@
       "port": 8443,
       "uuid": "669be00c-67b4-4b87-b08f-311c45abced2",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.18:8443",
@@ -2872,7 +2870,7 @@
       "port": 8443,
       "uuid": "4e93d99e-7540-4f4d-884f-63a3c4a845dd",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 213.159.68.51:443",
@@ -2899,7 +2897,7 @@
       "port": 443,
       "uuid": "d9e40f24-d668-457d-926f-e4021246749b",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.110.29:8443",
@@ -2926,7 +2924,7 @@
       "port": 443,
       "uuid": "347b41ac-a0ad-4b39-a335-ca42b624ba9c",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDE9 Moldova - TROJAN 185.234.66.155:2053",
@@ -2959,7 +2957,7 @@
       "type": "ss",
       "server": "176.126.113.161",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2967,7 +2965,7 @@
       "type": "ss",
       "server": "93.185.165.50",
       "port": 55211,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2975,7 +2973,7 @@
       "type": "ss",
       "server": "89.221.224.166",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2983,7 +2981,7 @@
       "type": "ss",
       "server": "94.131.110.29",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2991,7 +2989,7 @@
       "type": "ss",
       "server": "213.159.68.51",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2999,7 +2997,7 @@
       "type": "ss",
       "server": "213.159.76.153",
       "port": 18388,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3007,7 +3005,7 @@
       "type": "ss",
       "server": "185.234.57.207",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3015,7 +3013,7 @@
       "type": "ss",
       "server": "185.138.164.2",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3023,7 +3021,7 @@
       "type": "ss",
       "server": "89.221.224.239",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3031,7 +3029,7 @@
       "type": "ss",
       "server": "94.131.118.39",
       "port": 8880,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     }
   ],
@@ -3065,24 +3063,24 @@
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 195.42.233.125:8880",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.236.232.123:8880",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 86.104.74.155:8880",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.213:8880",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.128:8880",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.236.232.100:80",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.160:8880",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 195.42.233.47:8880",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.234.66.97:8880",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 89.221.224.238:8880",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 195.42.233.105:8880",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.14.200:8880",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.247:8880",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.118.98:8880",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 213.159.76.238:8080",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.234.57.216:443",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 93.185.165.50:55211",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 195.42.233.47:8880",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 195.42.233.105:8880",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.14.200:8880",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.234.66.97:8880",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.13.164:8880",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.100.163:443",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 91.242.229.129:4443",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.110.119:443",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 91.242.229.129:4443",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.160:8880",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.100.163:443",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.128:8880",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.234.57.216:443",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 213.159.76.238:8080",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.236.232.100:80",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.242.87.213:8880",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 93.185.165.50:55211",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 91.228.10.202:2052",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.14.193:8880",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.234.64.94:8880",
@@ -3131,10 +3129,11 @@
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - TROJAN 45.67.228.199:443",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - TROJAN 89.221.224.50:38860",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.236.232.129:8880",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.35.189.83:443",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 195.42.233.91:8880",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.101.203:8443",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.113.70.30:8443",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.234.57.215:8443",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 86.104.72.160:443",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.232.244.5:2198",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 86.104.72.160:8443",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - SS 185.236.233.111:2053",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - SS 94.131.118.98:8880",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - SS 89.221.224.238:8880",
@@ -3255,7 +3254,6 @@
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.234.64.228:443",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 194.165.59.20:443",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 91.225.219.114:2082",
-        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.232.244.5:2198",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 91.228.10.202:2096",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 91.228.10.202:443",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 94.131.122.76:2052",
@@ -3352,6 +3350,7 @@
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - SS 74.119.193.40:5223",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - SS 94.131.12.245:37726",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 185.218.3.9:443",
+        "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.113.70.30:8443",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.113.70.12:8443",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.113.70.22:8443",
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - VLESS 103.113.70.4:8443",
@@ -3391,7 +3390,8 @@
         "\uD83C\uDDF2\uD83C\uDDE9 Moldova - SS 94.131.118.39:8880"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

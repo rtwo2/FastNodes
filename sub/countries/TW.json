@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes TW",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -168,19 +169,19 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 220.130.58.136:35502",
-      "type": "trojan",
-      "server": "220.130.58.136",
-      "port": 35502,
-      "password": "c5355528-55a2-45df-b8fd-a48ce3c41413",
-      "tls": true
-    },
-    {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 220.130.58.136:31102",
       "type": "trojan",
       "server": "220.130.58.136",
       "port": 31102,
       "password": "987525bc-99a3-461e-a50f-a0a667d06ed7",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 220.130.58.136:35502",
+      "type": "trojan",
+      "server": "220.130.58.136",
+      "port": 35502,
+      "password": "c5355528-55a2-45df-b8fd-a48ce3c41413",
       "tls": true
     },
     {
@@ -213,7 +214,7 @@
       "type": "ss",
       "server": "2.58.241.45",
       "port": 38033,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -221,7 +222,7 @@
       "type": "ss",
       "server": "2.58.242.43",
       "port": 33992,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -229,7 +230,7 @@
       "type": "ss",
       "server": "2.58.242.157",
       "port": 33992,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -237,7 +238,7 @@
       "type": "ss",
       "server": "103.177.33.180",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -245,7 +246,7 @@
       "type": "ss",
       "server": "38.54.107.101",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -253,7 +254,7 @@
       "type": "ss",
       "server": "154.223.20.79",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -261,7 +262,7 @@
       "type": "ss",
       "server": "185.189.160.105",
       "port": 41632,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -269,7 +270,7 @@
       "type": "ss",
       "server": "61.220.130.70",
       "port": 50701,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -277,7 +278,7 @@
       "type": "ss",
       "server": "45.196.238.69",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -517,7 +518,7 @@
       "type": "ss",
       "server": "46.249.109.128",
       "port": 56594,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -527,7 +528,7 @@
       "port": 443,
       "uuid": "9f1b677f-aeea-43a9-9927-12188cdc1249",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 35.229.193.80:22233",
@@ -536,7 +537,7 @@
       "port": 22233,
       "uuid": "2ed93971-7824-4581-93bc-a5ef22a56ac5",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 60.251.232.240:995",
@@ -552,7 +553,7 @@
       "type": "ss",
       "server": "154.223.20.79",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -560,7 +561,7 @@
       "type": "ss",
       "server": "2.58.241.42",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -568,7 +569,7 @@
       "type": "ss",
       "server": "118.163.198.43",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -576,7 +577,7 @@
       "type": "ss",
       "server": "118.163.200.40",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -584,7 +585,7 @@
       "type": "ss",
       "server": "125.227.86.44",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -592,7 +593,7 @@
       "type": "ss",
       "server": "125.227.86.46",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -600,7 +601,7 @@
       "type": "ss",
       "server": "125.227.86.47",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -608,7 +609,7 @@
       "type": "ss",
       "server": "211.22.161.134",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -616,7 +617,7 @@
       "type": "ss",
       "server": "211.22.161.135",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -624,7 +625,7 @@
       "type": "ss",
       "server": "59.125.75.115",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -632,7 +633,7 @@
       "type": "ss",
       "server": "60.249.28.137",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -640,7 +641,7 @@
       "type": "ss",
       "server": "60.249.28.138",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -648,7 +649,7 @@
       "type": "ss",
       "server": "60.249.28.59",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -656,7 +657,7 @@
       "type": "ss",
       "server": "60.249.28.60",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -664,7 +665,7 @@
       "type": "ss",
       "server": "60.249.35.2",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -672,7 +673,7 @@
       "type": "ss",
       "server": "60.249.35.37",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -680,7 +681,7 @@
       "type": "ss",
       "server": "60.249.35.38",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -688,7 +689,7 @@
       "type": "ss",
       "server": "60.249.35.39",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -696,7 +697,7 @@
       "type": "ss",
       "server": "60.249.35.3",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -704,7 +705,7 @@
       "type": "ss",
       "server": "60.249.35.59",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -712,7 +713,7 @@
       "type": "ss",
       "server": "61.216.165.233",
       "port": 2377,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -720,7 +721,7 @@
       "type": "ss",
       "server": "223.165.4.173",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -728,7 +729,7 @@
       "type": "ss",
       "server": "185.189.160.98",
       "port": 64759,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -802,7 +803,7 @@
       "port": 443,
       "uuid": "2add6241-8fe8-3922-8347-da25e8ced601",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 141.11.86.94:45888",
@@ -870,212 +871,28 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 223.165.4.173:989",
-      "type": "ss",
-      "server": "223.165.4.173",
-      "port": 989,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 220.128.110.108:43",
       "type": "ss",
       "server": "220.128.110.108",
       "port": 43,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 83.147.13.176:11402",
-      "type": "hy2",
-      "server": "83.147.13.176",
-      "port": 11402
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 61.228.99.214:3462",
+      "type": "trojan",
+      "server": "61.228.99.214",
+      "port": 3462,
+      "password": "6e1b9a65-884f-3aa9-9469-bf6ec0f08610",
+      "tls": true
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 114.41.2.71:24231",
-      "type": "hy2",
-      "server": "114.41.2.71",
-      "port": 24231
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 1.170.221.9:24231",
-      "type": "hy2",
-      "server": "1.170.221.9",
-      "port": 24231
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 1.162.146.24:51373",
-      "type": "hy2",
-      "server": "1.162.146.24",
-      "port": 51373
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 1.162.146.24:51057",
-      "type": "hy2",
-      "server": "1.162.146.24",
-      "port": 51057
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 188.253.6.117:5555",
-      "type": "hy2",
-      "server": "188.253.6.117",
-      "port": 5555
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 118.163.179.137:3074",
-      "type": "hy2",
-      "server": "118.163.179.137",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 118.163.179.138:3074",
-      "type": "hy2",
-      "server": "118.163.179.138",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 118.163.179.158:3074",
-      "type": "hy2",
-      "server": "118.163.179.158",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 118.163.179.159:3074",
-      "type": "hy2",
-      "server": "118.163.179.159",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 118.163.179.160:3074",
-      "type": "hy2",
-      "server": "118.163.179.160",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 118.163.179.161:3074",
-      "type": "hy2",
-      "server": "118.163.179.161",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 118.163.179.162:3074",
-      "type": "hy2",
-      "server": "118.163.179.162",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 125.227.83.21:3074",
-      "type": "hy2",
-      "server": "125.227.83.21",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 125.227.83.22:3074",
-      "type": "hy2",
-      "server": "125.227.83.22",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 125.227.83.24:3074",
-      "type": "hy2",
-      "server": "125.227.83.24",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 125.227.83.25:3074",
-      "type": "hy2",
-      "server": "125.227.83.25",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 125.227.83.26:3074",
-      "type": "hy2",
-      "server": "125.227.83.26",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 211.72.35.152:3074",
-      "type": "hy2",
-      "server": "211.72.35.152",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 211.72.35.155:3074",
-      "type": "hy2",
-      "server": "211.72.35.155",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 211.72.35.157:3074",
-      "type": "hy2",
-      "server": "211.72.35.157",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 211.72.35.158:3074",
-      "type": "hy2",
-      "server": "211.72.35.158",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.3.125:3074",
-      "type": "hy2",
-      "server": "60.249.3.125",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.3.227:3074",
-      "type": "hy2",
-      "server": "60.249.3.227",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.3.228:3074",
-      "type": "hy2",
-      "server": "60.249.3.228",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.3.230:3074",
-      "type": "hy2",
-      "server": "60.249.3.230",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.3.231:3074",
-      "type": "hy2",
-      "server": "60.249.3.231",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.35.59:3074",
-      "type": "hy2",
-      "server": "60.249.35.59",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.35.60:3074",
-      "type": "hy2",
-      "server": "60.249.35.60",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.35.94:3074",
-      "type": "hy2",
-      "server": "60.249.35.94",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.35.95:3074",
-      "type": "hy2",
-      "server": "60.249.35.95",
-      "port": 3074
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.35.96:3074",
-      "type": "hy2",
-      "server": "60.249.35.96",
-      "port": 3074
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 185.189.160.54:18377",
+      "type": "ss",
+      "server": "185.189.160.54",
+      "port": 18377,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 60.248.139.106:10016",
@@ -1087,19 +904,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 114.34.106.124:10443",
-      "type": "ss",
-      "server": "114.34.106.124",
-      "port": 10443,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 125.228.162.233:10145",
       "type": "ss",
       "server": "125.228.162.233",
       "port": 10145,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1107,7 +916,7 @@
       "type": "ss",
       "server": "60.251.232.240",
       "port": 995,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1160,8 +969,8 @@
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 167.179.27.92:443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 210.61.97.241:81",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 122.116.105.15:995",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 220.130.58.136:35502",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 220.130.58.136:31102",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 220.130.58.136:35502",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 220.130.58.136:31101",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 220.130.58.136:35501",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 220.128.110.108:43",
@@ -1247,8 +1056,9 @@
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 61.228.68.42:3462",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 61.228.69.226:3462",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 61.228.69.38:3462",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 223.165.4.173:989",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 220.128.110.108:43",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 61.228.99.214:3462",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 185.189.160.54:18377",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 83.147.13.176:11402",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 114.41.2.71:24231",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 1.170.221.9:24231",
@@ -1282,7 +1092,6 @@
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.35.95:3074",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.35.96:3074",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 60.248.139.106:10016",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 114.34.106.124:10443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 125.228.162.233:10145",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 60.251.232.240:995",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 203.69.248.40:10443",
@@ -1290,7 +1099,8 @@
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 61.221.189.242:3462"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

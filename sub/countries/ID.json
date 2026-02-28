@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes ID",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -7,15 +8,15 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - SS 154.205.159.100:990",
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Unknown - SS 154.205.159.100:990",
       "type": "ss",
       "server": "154.205.159.100",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 43.229.254.177:80",
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Unknown - VLESS 43.229.254.177:80",
       "type": "vless",
       "server": "43.229.254.177",
       "port": 80,
@@ -24,15 +25,15 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - SS 38.60.171.254:990",
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Unknown - SS 38.60.171.254:990",
       "type": "ss",
       "server": "38.60.171.254",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 41.216.177.41:443",
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Unknown - TROJAN 41.216.177.41:443",
       "type": "trojan",
       "server": "41.216.177.41",
       "port": 443,
@@ -40,7 +41,7 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.176.78.153:443",
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Unknown - TROJAN 103.176.78.153:443",
       "type": "trojan",
       "server": "103.176.78.153",
       "port": 443,
@@ -48,7 +49,7 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.226.139.201:443",
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Unknown - TROJAN 103.226.139.201:443",
       "type": "trojan",
       "server": "103.226.139.201",
       "port": 443,
@@ -56,7 +57,7 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 43.218.139.54:443",
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Unknown - TROJAN 43.218.139.54:443",
       "type": "trojan",
       "server": "43.218.139.54",
       "port": 443,
@@ -64,7 +65,7 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.232.248.242:2321",
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Unknown - VLESS 172.232.248.242:2321",
       "type": "vless",
       "server": "172.232.248.242",
       "port": 2321,
@@ -73,16 +74,16 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.235.251.52:321",
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Unknown - VLESS 172.235.251.52:321",
       "type": "vless",
       "server": "172.235.251.52",
       "port": 321,
       "uuid": "1a18e79a-ff9c-43b5-90e1-1c43561364f2",
       "tls": true,
-      "flow": ""
+      "flow": " # \uD83D\uDD12 [By EbraSha]"
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 218.33.84.142:26518",
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Unknown - VLESS 218.33.84.142:26518",
       "type": "vless",
       "server": "218.33.84.142",
       "port": 26518,
@@ -91,7 +92,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.232.237.24:2321",
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Unknown - VLESS 172.232.237.24:2321",
       "type": "vless",
       "server": "172.232.237.24",
       "port": 2321,
@@ -100,7 +101,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 108.137.18.26:8443",
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Unknown - TROJAN 108.137.18.26:8443",
       "type": "trojan",
       "server": "108.137.18.26",
       "port": 8443,
@@ -113,21 +114,22 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - SS 154.205.159.100:990",
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 43.229.254.177:80",
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - SS 38.60.171.254:990",
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 41.216.177.41:443",
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.176.78.153:443",
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.226.139.201:443",
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 43.218.139.54:443",
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.232.248.242:2321",
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.235.251.52:321",
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 218.33.84.142:26518",
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.232.237.24:2321",
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 108.137.18.26:8443"
+        "\uD83C\uDDEE\uD83C\uDDE9 Unknown - SS 154.205.159.100:990",
+        "\uD83C\uDDEE\uD83C\uDDE9 Unknown - VLESS 43.229.254.177:80",
+        "\uD83C\uDDEE\uD83C\uDDE9 Unknown - SS 38.60.171.254:990",
+        "\uD83C\uDDEE\uD83C\uDDE9 Unknown - TROJAN 41.216.177.41:443",
+        "\uD83C\uDDEE\uD83C\uDDE9 Unknown - TROJAN 103.176.78.153:443",
+        "\uD83C\uDDEE\uD83C\uDDE9 Unknown - TROJAN 103.226.139.201:443",
+        "\uD83C\uDDEE\uD83C\uDDE9 Unknown - TROJAN 43.218.139.54:443",
+        "\uD83C\uDDEE\uD83C\uDDE9 Unknown - VLESS 172.232.248.242:2321",
+        "\uD83C\uDDEE\uD83C\uDDE9 Unknown - VLESS 172.235.251.52:321",
+        "\uD83C\uDDEE\uD83C\uDDE9 Unknown - VLESS 218.33.84.142:26518",
+        "\uD83C\uDDEE\uD83C\uDDE9 Unknown - VLESS 172.232.237.24:2321",
+        "\uD83C\uDDEE\uD83C\uDDE9 Unknown - TROJAN 108.137.18.26:8443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes BR",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -7,7 +8,7 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 95.164.4.88:8443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 95.164.4.88:8443",
       "type": "vless",
       "server": "95.164.4.88",
       "port": 8443,
@@ -16,7 +17,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 167.234.255.2:34045",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 167.234.255.2:34045",
       "type": "vless",
       "server": "167.234.255.2",
       "port": 34045,
@@ -25,64 +26,64 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 38.54.57.90:990",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 38.54.57.90:990",
       "type": "ss",
       "server": "38.54.57.90",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 5.188.4.103:11201",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 5.188.4.103:11201",
       "type": "ss",
       "server": "5.188.4.103",
       "port": 11201,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 5.188.4.103:11202",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 5.188.4.103:11202",
       "type": "ss",
       "server": "5.188.4.103",
       "port": 11202,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 5.188.4.103:11203",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 5.188.4.103:11203",
       "type": "ss",
       "server": "5.188.4.103",
       "port": 11203,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 5.188.4.103:11204",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 5.188.4.103:11204",
       "type": "ss",
       "server": "5.188.4.103",
       "port": 11204,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 5.188.4.103:11205",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 5.188.4.103:11205",
       "type": "ss",
       "server": "5.188.4.103",
       "port": 11205,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 77.111.101.80:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 77.111.101.80:443",
       "type": "vless",
       "server": "77.111.101.80",
       "port": 443,
       "uuid": "8a77b19a-36be-43ff-ace0-bc322aa4f1e3",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.36:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.36:443",
       "type": "vless",
       "server": "185.133.35.36",
       "port": 443,
@@ -91,7 +92,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.15.13:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 199.232.15.13:443",
       "type": "vless",
       "server": "199.232.15.13",
       "port": 443,
@@ -100,7 +101,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.115:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.115:443",
       "type": "vless",
       "server": "185.133.35.115",
       "port": 443,
@@ -109,7 +110,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.12.41:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 199.232.12.41:443",
       "type": "vless",
       "server": "199.232.12.41",
       "port": 443,
@@ -118,7 +119,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.144:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.144:443",
       "type": "vless",
       "server": "185.133.35.144",
       "port": 443,
@@ -127,7 +128,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.12.2:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 199.232.12.2:443",
       "type": "vless",
       "server": "199.232.12.2",
       "port": 443,
@@ -136,7 +137,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 151.101.186.133:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 151.101.186.133:443",
       "type": "vless",
       "server": "151.101.186.133",
       "port": 443,
@@ -145,7 +146,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 144.22.252.124:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 144.22.252.124:443",
       "type": "vless",
       "server": "144.22.252.124",
       "port": 443,
@@ -154,7 +155,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.15.239:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 199.232.15.239:443",
       "type": "vless",
       "server": "199.232.15.239",
       "port": 443,
@@ -163,7 +164,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 132.226.163.224:2053",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 132.226.163.224:2053",
       "type": "vless",
       "server": "132.226.163.224",
       "port": 2053,
@@ -172,7 +173,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 38.54.57.180:80",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 38.54.57.180:80",
       "type": "vless",
       "server": "38.54.57.180",
       "port": 80,
@@ -181,96 +182,87 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:46727",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 157.185.173.60:46727",
       "type": "ss",
       "server": "157.185.173.60",
       "port": 46727,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 38.54.57.90:989",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 38.54.57.90:989",
       "type": "ss",
       "server": "38.54.57.90",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 20.201.12.45:1998",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 20.201.12.45:1998",
       "type": "ss",
       "server": "20.201.12.45",
       "port": 1998,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 177.54.152.89:8389",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 177.54.152.89:8389",
       "type": "ss",
       "server": "177.54.152.89",
       "port": 8389,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 154.90.60.117:11201",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 154.90.60.117:11201",
       "type": "ss",
       "server": "154.90.60.117",
       "port": 11201,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18424",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 157.185.173.60:18424",
       "type": "ss",
       "server": "157.185.173.60",
       "port": 18424,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18425",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 157.185.173.60:18425",
       "type": "ss",
       "server": "157.185.173.60",
       "port": 18425,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18426",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 157.185.173.60:18426",
       "type": "ss",
       "server": "157.185.173.60",
       "port": 18426,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18427",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 157.185.173.60:18427",
       "type": "ss",
       "server": "157.185.173.60",
       "port": 18427,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 132.226.164.14:7705",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 132.226.164.14:7705",
       "type": "ss",
       "server": "132.226.164.14",
       "port": 7705,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 20.206.176.5:443",
-      "type": "vless",
-      "server": "20.206.176.5",
-      "port": 443,
-      "uuid": "6f995056-7802-4a1d-bff7-61678e626c3f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - TROJAN 144.22.250.122:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - TROJAN 144.22.250.122:443",
       "type": "trojan",
       "server": "144.22.250.122",
       "port": 443,
@@ -278,31 +270,31 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.133.35.36:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 185.133.35.36:443",
       "type": "ss",
       "server": "185.133.35.36",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 147.45.116.44:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 147.45.116.44:443",
       "type": "ss",
       "server": "147.45.116.44",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.192.124.188:990",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 185.192.124.188:990",
       "type": "ss",
       "server": "185.192.124.188",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - TROJAN 185.133.35.254:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - TROJAN 185.133.35.254:443",
       "type": "trojan",
       "server": "185.133.35.254",
       "port": 443,
@@ -310,7 +302,7 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.251:8880",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.251:8880",
       "type": "vless",
       "server": "185.133.35.251",
       "port": 8880,
@@ -319,7 +311,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.13.32:80",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 199.232.13.32:80",
       "type": "vless",
       "server": "199.232.13.32",
       "port": 80,
@@ -328,7 +320,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.26:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.26:443",
       "type": "vless",
       "server": "185.133.35.26",
       "port": 443,
@@ -337,7 +329,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.15.225:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 199.232.15.225:443",
       "type": "vless",
       "server": "199.232.15.225",
       "port": 443,
@@ -346,7 +338,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.254:8880",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.254:8880",
       "type": "vless",
       "server": "185.133.35.254",
       "port": 8880,
@@ -355,7 +347,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.238:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.238:443",
       "type": "vless",
       "server": "185.133.35.238",
       "port": 443,
@@ -364,7 +356,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.242:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.242:443",
       "type": "vless",
       "server": "185.133.35.242",
       "port": 443,
@@ -373,7 +365,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.98:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.98:443",
       "type": "vless",
       "server": "185.133.35.98",
       "port": 443,
@@ -382,7 +374,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.3:8880",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.3:8880",
       "type": "vless",
       "server": "185.133.35.3",
       "port": 8880,
@@ -391,98 +383,41 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 20.206.176.5:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 20.206.176.5:443",
       "type": "ss",
       "server": "20.206.176.5",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - TUIC 194.58.38.116:53614",
-      "type": "tuic",
-      "server": "194.58.38.116",
-      "port": 53614
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 20.206.176.5:443",
+      "type": "vless",
+      "server": "20.206.176.5",
+      "port": 443,
+      "uuid": "6f995056-7802-4a1d-bff7-61678e626c3f",
+      "tls": true,
+      "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 144.22.187.105:30102",
-      "type": "hy2",
-      "server": "144.22.187.105",
-      "port": 30102
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 144.22.243.213:24749",
-      "type": "hy2",
-      "server": "144.22.243.213",
-      "port": 24749
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 167.234.249.46:444",
-      "type": "hy2",
-      "server": "167.234.249.46",
-      "port": 444
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 132.226.162.10:30102",
-      "type": "hy2",
-      "server": "132.226.162.10",
-      "port": 30102
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 144.22.223.153:30102",
-      "type": "hy2",
-      "server": "144.22.223.153",
-      "port": 30102
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 168.75.85.171:443",
-      "type": "hy2",
-      "server": "168.75.85.171",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 144.22.132.212:2052",
-      "type": "hy2",
-      "server": "144.22.132.212",
-      "port": 2052
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 168.75.103.205:2025",
-      "type": "hy2",
-      "server": "168.75.103.205",
-      "port": 2025
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 129.148.33.28:60800",
-      "type": "hy2",
-      "server": "129.148.33.28",
-      "port": 60800
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 168.75.65.36:60800",
-      "type": "hy2",
-      "server": "168.75.65.36",
-      "port": 60800
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.133.35.242:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 185.133.35.242:443",
       "type": "ss",
       "server": "185.133.35.242",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 147.45.116.72:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 147.45.116.72:443",
       "type": "vless",
       "server": "147.45.116.72",
       "port": 443,
       "uuid": "ca911bd2-e08f-42d8-aefb-3117494d3367",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 154.205.156.52:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 154.205.156.52:443",
       "type": "vless",
       "server": "154.205.156.52",
       "port": 443,
@@ -491,19 +426,19 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 95.164.4.88:8443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 95.164.4.88:8443",
       "type": "ss",
       "server": "95.164.4.88",
       "port": 8443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 77.111.101.80:443",
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 77.111.101.80:443",
       "type": "ss",
       "server": "77.111.101.80",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     }
   ],
@@ -512,71 +447,71 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 95.164.4.88:8443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 167.234.255.2:34045",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 38.54.57.90:990",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 5.188.4.103:11201",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 5.188.4.103:11202",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 5.188.4.103:11203",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 5.188.4.103:11204",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 5.188.4.103:11205",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 77.111.101.80:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.36:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.15.13:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.115:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.12.41:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.144:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.12.2:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 151.101.186.133:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 144.22.252.124:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.15.239:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 132.226.163.224:2053",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 38.54.57.180:80",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:46727",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 38.54.57.90:989",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 20.201.12.45:1998",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 177.54.152.89:8389",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 154.90.60.117:11201",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18424",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18425",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18426",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18427",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 132.226.164.14:7705",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 20.206.176.5:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - TROJAN 144.22.250.122:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.133.35.36:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 147.45.116.44:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.192.124.188:990",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - TROJAN 185.133.35.254:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.251:8880",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.13.32:80",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.26:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.15.225:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.254:8880",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.238:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.242:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.98:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.3:8880",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 20.206.176.5:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - TUIC 194.58.38.116:53614",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 144.22.187.105:30102",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 144.22.243.213:24749",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 167.234.249.46:444",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 132.226.162.10:30102",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 144.22.223.153:30102",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 168.75.85.171:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 144.22.132.212:2052",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 168.75.103.205:2025",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 129.148.33.28:60800",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 168.75.65.36:60800",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.133.35.242:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 147.45.116.72:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 154.205.156.52:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 95.164.4.88:8443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 77.111.101.80:443"
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 95.164.4.88:8443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 167.234.255.2:34045",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 38.54.57.90:990",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 5.188.4.103:11201",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 5.188.4.103:11202",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 5.188.4.103:11203",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 5.188.4.103:11204",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 5.188.4.103:11205",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 77.111.101.80:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.36:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 199.232.15.13:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.115:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 199.232.12.41:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.144:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 199.232.12.2:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 151.101.186.133:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 144.22.252.124:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 199.232.15.239:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 132.226.163.224:2053",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 38.54.57.180:80",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 157.185.173.60:46727",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 38.54.57.90:989",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 20.201.12.45:1998",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 177.54.152.89:8389",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 154.90.60.117:11201",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 157.185.173.60:18424",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 157.185.173.60:18425",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 157.185.173.60:18426",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 157.185.173.60:18427",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 132.226.164.14:7705",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - TROJAN 144.22.250.122:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 185.133.35.36:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 147.45.116.44:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 185.192.124.188:990",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - TROJAN 185.133.35.254:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.251:8880",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 199.232.13.32:80",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.26:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 199.232.15.225:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.254:8880",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.238:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.242:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.98:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 185.133.35.3:8880",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 20.206.176.5:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 20.206.176.5:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - HY2 144.22.187.105:30102",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - HY2 144.22.243.213:24749",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - HY2 167.234.249.46:444",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - HY2 132.226.162.10:30102",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - HY2 144.22.223.153:30102",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - HY2 168.75.85.171:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - HY2 144.22.132.212:2052",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - HY2 168.75.103.205:2025",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - HY2 129.148.33.28:60800",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - HY2 168.75.65.36:60800",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 185.133.35.242:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 147.45.116.72:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - VLESS 154.205.156.52:443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 95.164.4.88:8443",
+        "\uD83C\uDDE7\uD83C\uDDF7 Unknown - SS 77.111.101.80:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes CA",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -22,14 +23,14 @@
       "port": 8443,
       "uuid": "309fa273-6579-4cb2-9143-7cad50401eba",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 23.95.76.59:990",
       "type": "ss",
       "server": "23.95.76.59",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -37,7 +38,7 @@
       "type": "ss",
       "server": "148.113.139.160",
       "port": 46534,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -83,7 +84,7 @@
       "port": 8443,
       "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 185.141.216.210:8443",
@@ -92,7 +93,7 @@
       "port": 8443,
       "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 185.141.216.216:8443",
@@ -101,7 +102,7 @@
       "port": 8443,
       "uuid": "06ac1011-2a7b-4262-845b-633717f202b0",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 165.22.235.48:19401",
@@ -110,7 +111,7 @@
       "port": 19401,
       "uuid": "02e76a24-eb63-4671-af0c-ed011d90b608",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 99.199.73.27:8060",
@@ -290,7 +291,7 @@
       "port": 443,
       "uuid": "c54dd620-fa5f-46de-82c2-9d1492ee74e4",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 23.227.39.227:443",
@@ -389,7 +390,7 @@
       "port": 10595,
       "uuid": "ca-s45.n4-fatvpn.top",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision#|GithubTrojanLinks"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 172.105.24.62:12692",
@@ -416,7 +417,7 @@
       "port": 443,
       "uuid": "e44858da-1b8a-44e5-beee-1188de8b8442",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision#|GithubTrojanLinks"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 172.105.25.227:15143",
@@ -452,7 +453,7 @@
       "port": 443,
       "uuid": "4c26ebc3-7784-46d8-b52a-7b0ccae6f4b4",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 23.249.192.196:443",
@@ -468,7 +469,7 @@
       "type": "ss",
       "server": "23.95.76.147",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -476,7 +477,7 @@
       "type": "ss",
       "server": "148.113.143.102",
       "port": 11201,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -484,7 +485,7 @@
       "type": "ss",
       "server": "144.217.164.29",
       "port": 12000,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -492,7 +493,7 @@
       "type": "ss",
       "server": "45.154.204.7",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -500,7 +501,7 @@
       "type": "ss",
       "server": "142.4.216.225",
       "port": 80,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -526,7 +527,7 @@
       "type": "ss",
       "server": "134.195.196.178",
       "port": 811,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -536,7 +537,7 @@
       "port": 26113,
       "uuid": "cfe032e4-1bc3-454f-9d09-301b0aea08ff",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 81.19.140.245:443",
@@ -545,7 +546,7 @@
       "port": 443,
       "uuid": "2676e126-8f83-44d0-8307-b06b63f8b007",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 51.79.102.243:443",
@@ -570,7 +571,7 @@
       "type": "ss",
       "server": "149.22.95.183",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -587,7 +588,7 @@
       "type": "ss",
       "server": "51.161.80.138",
       "port": 27797,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -604,7 +605,7 @@
       "type": "ss",
       "server": "134.195.196.230",
       "port": 6379,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -612,7 +613,7 @@
       "type": "ss",
       "server": "37.19.211.114",
       "port": 50695,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -620,7 +621,7 @@
       "type": "ss",
       "server": "85.208.108.18",
       "port": 8888,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -628,7 +629,7 @@
       "type": "ss",
       "server": "192.71.227.17",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -636,7 +637,7 @@
       "type": "ss",
       "server": "138.197.166.205",
       "port": 811,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -644,7 +645,7 @@
       "type": "ss",
       "server": "72.140.224.197",
       "port": 812,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -652,7 +653,7 @@
       "type": "ss",
       "server": "72.140.224.197",
       "port": 808,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -660,7 +661,7 @@
       "type": "ss",
       "server": "72.140.224.197",
       "port": 802,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -668,7 +669,7 @@
       "type": "ss",
       "server": "72.140.224.197",
       "port": 801,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -676,7 +677,7 @@
       "type": "ss",
       "server": "51.161.118.38",
       "port": 808,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -684,7 +685,7 @@
       "type": "ss",
       "server": "51.161.118.38",
       "port": 807,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -692,7 +693,7 @@
       "type": "ss",
       "server": "51.161.118.38",
       "port": 805,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -700,7 +701,7 @@
       "type": "ss",
       "server": "196.247.59.156",
       "port": 804,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -708,7 +709,7 @@
       "type": "ss",
       "server": "196.247.59.154",
       "port": 805,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -716,7 +717,7 @@
       "type": "ss",
       "server": "196.247.59.154",
       "port": 803,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -724,7 +725,7 @@
       "type": "ss",
       "server": "138.197.174.245",
       "port": 56443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -732,7 +733,7 @@
       "type": "ss",
       "server": "79.127.200.169",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -740,7 +741,7 @@
       "type": "ss",
       "server": "134.195.196.143",
       "port": 805,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -748,7 +749,7 @@
       "type": "ss",
       "server": "134.195.196.178",
       "port": 800,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -756,7 +757,7 @@
       "type": "ss",
       "server": "134.195.196.178",
       "port": 803,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -764,7 +765,7 @@
       "type": "ss",
       "server": "134.195.196.178",
       "port": 804,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -772,7 +773,7 @@
       "type": "ss",
       "server": "134.195.196.178",
       "port": 806,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -780,7 +781,7 @@
       "type": "ss",
       "server": "134.195.196.178",
       "port": 807,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -788,7 +789,7 @@
       "type": "ss",
       "server": "134.195.196.178",
       "port": 808,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -796,7 +797,7 @@
       "type": "ss",
       "server": "134.195.196.178",
       "port": 809,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -804,7 +805,7 @@
       "type": "ss",
       "server": "134.195.196.178",
       "port": 810,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -812,7 +813,7 @@
       "type": "ss",
       "server": "196.247.59.154",
       "port": 800,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -820,7 +821,7 @@
       "type": "ss",
       "server": "196.247.59.154",
       "port": 801,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -828,7 +829,7 @@
       "type": "ss",
       "server": "196.247.59.154",
       "port": 802,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -836,7 +837,7 @@
       "type": "ss",
       "server": "196.247.59.154",
       "port": 806,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -844,7 +845,7 @@
       "type": "ss",
       "server": "196.247.59.154",
       "port": 809,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -852,7 +853,7 @@
       "type": "ss",
       "server": "196.247.59.156",
       "port": 801,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -860,7 +861,7 @@
       "type": "ss",
       "server": "196.247.59.156",
       "port": 803,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -868,7 +869,7 @@
       "type": "ss",
       "server": "196.247.59.156",
       "port": 806,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -876,7 +877,7 @@
       "type": "ss",
       "server": "196.247.59.156",
       "port": 808,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -884,7 +885,7 @@
       "type": "ss",
       "server": "196.247.59.156",
       "port": 809,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -892,7 +893,7 @@
       "type": "ss",
       "server": "51.161.118.38",
       "port": 800,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -900,7 +901,7 @@
       "type": "ss",
       "server": "51.161.118.38",
       "port": 801,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -908,7 +909,7 @@
       "type": "ss",
       "server": "51.161.118.38",
       "port": 802,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -916,7 +917,7 @@
       "type": "ss",
       "server": "51.161.118.38",
       "port": 803,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -924,7 +925,7 @@
       "type": "ss",
       "server": "51.161.118.38",
       "port": 804,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -932,7 +933,7 @@
       "type": "ss",
       "server": "51.161.118.38",
       "port": 806,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -940,7 +941,7 @@
       "type": "ss",
       "server": "51.161.118.38",
       "port": 810,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -948,7 +949,7 @@
       "type": "ss",
       "server": "51.161.118.38",
       "port": 811,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -956,7 +957,7 @@
       "type": "ss",
       "server": "51.161.118.38",
       "port": 812,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -964,7 +965,7 @@
       "type": "ss",
       "server": "72.140.224.195",
       "port": 800,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -972,7 +973,7 @@
       "type": "ss",
       "server": "51.161.33.111",
       "port": 11202,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -980,7 +981,7 @@
       "type": "ss",
       "server": "79.127.233.170",
       "port": 990,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -988,7 +989,7 @@
       "type": "ss",
       "server": "143.244.43.216",
       "port": 110,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -996,7 +997,7 @@
       "type": "ss",
       "server": "79.127.233.170",
       "port": 989,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1004,7 +1005,7 @@
       "type": "ss",
       "server": "198.8.92.84",
       "port": 49396,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1012,7 +1013,7 @@
       "type": "ss",
       "server": "198.8.92.84",
       "port": 44945,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1020,7 +1021,7 @@
       "type": "ss",
       "server": "134.195.196.107",
       "port": 7306,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1028,7 +1029,7 @@
       "type": "ss",
       "server": "134.195.196.149",
       "port": 7307,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1036,7 +1037,7 @@
       "type": "ss",
       "server": "85.208.108.20",
       "port": 7306,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1044,7 +1045,7 @@
       "type": "ss",
       "server": "85.208.108.20",
       "port": 7307,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1052,7 +1053,7 @@
       "type": "ss",
       "server": "85.208.108.21",
       "port": 7307,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1060,7 +1061,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 7307,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1068,7 +1069,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 7306,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1076,7 +1077,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 7307,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1084,7 +1085,7 @@
       "type": "ss",
       "server": "85.208.108.93",
       "port": 7306,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1092,7 +1093,7 @@
       "type": "ss",
       "server": "134.195.196.149",
       "port": 8080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1100,7 +1101,7 @@
       "type": "ss",
       "server": "134.195.196.193",
       "port": 8000,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1108,7 +1109,7 @@
       "type": "ss",
       "server": "85.208.108.20",
       "port": 8000,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1116,7 +1117,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 8000,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1124,7 +1125,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 5500,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1132,7 +1133,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 8000,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1140,7 +1141,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 8080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1148,7 +1149,7 @@
       "type": "ss",
       "server": "85.208.108.94",
       "port": 8080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1156,7 +1157,7 @@
       "type": "ss",
       "server": "198.8.92.84",
       "port": 38620,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1164,7 +1165,7 @@
       "type": "ss",
       "server": "198.8.92.84",
       "port": 35294,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1172,7 +1173,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 8090,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1180,7 +1181,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 8091,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1188,7 +1189,7 @@
       "type": "ss",
       "server": "134.195.196.149",
       "port": 8090,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1196,7 +1197,7 @@
       "type": "ss",
       "server": "134.195.196.231",
       "port": 8090,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1204,7 +1205,7 @@
       "type": "ss",
       "server": "134.195.198.95",
       "port": 8090,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1212,7 +1213,7 @@
       "type": "ss",
       "server": "134.195.198.95",
       "port": 8091,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1220,7 +1221,7 @@
       "type": "ss",
       "server": "85.208.108.20",
       "port": 8091,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1228,7 +1229,7 @@
       "type": "ss",
       "server": "85.208.108.21",
       "port": 8091,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1236,7 +1237,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 8090,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1244,7 +1245,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 8091,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1252,7 +1253,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 8090,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1260,7 +1261,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 8091,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1268,7 +1269,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 7001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1276,7 +1277,7 @@
       "type": "ss",
       "server": "134.195.196.193",
       "port": 7001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1284,7 +1285,7 @@
       "type": "ss",
       "server": "134.195.196.193",
       "port": 7002,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1292,7 +1293,7 @@
       "type": "ss",
       "server": "134.195.196.51",
       "port": 7002,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1300,7 +1301,7 @@
       "type": "ss",
       "server": "85.208.108.20",
       "port": 7001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1308,7 +1309,7 @@
       "type": "ss",
       "server": "85.208.108.20",
       "port": 7002,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1316,7 +1317,7 @@
       "type": "ss",
       "server": "85.208.108.21",
       "port": 7002,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1324,7 +1325,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 7001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1332,7 +1333,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 7002,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1340,7 +1341,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 7001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1348,7 +1349,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 7002,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1356,7 +1357,7 @@
       "type": "ss",
       "server": "134.195.196.149",
       "port": 6679,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1364,7 +1365,7 @@
       "type": "ss",
       "server": "134.195.196.230",
       "port": 6679,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1372,7 +1373,7 @@
       "type": "ss",
       "server": "85.208.108.18",
       "port": 6679,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1380,7 +1381,7 @@
       "type": "ss",
       "server": "85.208.108.20",
       "port": 6679,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1388,7 +1389,7 @@
       "type": "ss",
       "server": "85.208.108.20",
       "port": 6697,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1396,7 +1397,7 @@
       "type": "ss",
       "server": "85.208.108.21",
       "port": 6679,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1404,7 +1405,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 6697,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1412,7 +1413,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 6679,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1420,7 +1421,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 6697,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1428,7 +1429,7 @@
       "type": "ss",
       "server": "134.195.196.107",
       "port": 8009,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1436,7 +1437,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 8008,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1444,7 +1445,7 @@
       "type": "ss",
       "server": "134.195.196.149",
       "port": 8009,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1452,7 +1453,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 8008,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1460,7 +1461,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 8009,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1468,7 +1469,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 8008,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1476,7 +1477,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 8009,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1484,7 +1485,7 @@
       "type": "ss",
       "server": "85.208.108.61",
       "port": 8008,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1492,7 +1493,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 5600,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1500,7 +1501,7 @@
       "type": "ss",
       "server": "134.195.196.149",
       "port": 3306,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1508,7 +1509,7 @@
       "type": "ss",
       "server": "134.195.196.193",
       "port": 3306,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1516,7 +1517,7 @@
       "type": "ss",
       "server": "134.195.196.193",
       "port": 5600,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1524,7 +1525,7 @@
       "type": "ss",
       "server": "134.195.196.193",
       "port": 5601,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1532,7 +1533,7 @@
       "type": "ss",
       "server": "134.195.196.231",
       "port": 3306,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1540,7 +1541,7 @@
       "type": "ss",
       "server": "134.195.196.51",
       "port": 3389,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1548,7 +1549,7 @@
       "type": "ss",
       "server": "134.195.196.85",
       "port": 5001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1556,7 +1557,7 @@
       "type": "ss",
       "server": "85.208.108.18",
       "port": 5001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1564,7 +1565,7 @@
       "type": "ss",
       "server": "85.208.108.20",
       "port": 5601,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1572,7 +1573,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 3389,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1580,7 +1581,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 5001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1588,7 +1589,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 5601,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1596,7 +1597,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 3306,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1604,7 +1605,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 3389,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1612,7 +1613,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 5000,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1620,7 +1621,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 5001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1628,7 +1629,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 5600,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1636,7 +1637,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 5601,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1644,7 +1645,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 8888,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1652,7 +1653,7 @@
       "type": "ss",
       "server": "85.208.108.94",
       "port": 5001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1660,7 +1661,7 @@
       "type": "ss",
       "server": "134.195.196.107",
       "port": 8118,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1668,7 +1669,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 8118,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1676,7 +1677,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 8119,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1684,7 +1685,7 @@
       "type": "ss",
       "server": "134.195.196.149",
       "port": 8119,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1692,7 +1693,7 @@
       "type": "ss",
       "server": "134.195.196.193",
       "port": 8119,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1700,7 +1701,7 @@
       "type": "ss",
       "server": "38.111.114.246",
       "port": 8119,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1708,7 +1709,7 @@
       "type": "ss",
       "server": "85.208.108.20",
       "port": 8119,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1716,7 +1717,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 8119,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1724,7 +1725,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 8118,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1732,7 +1733,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 8119,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1740,7 +1741,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 9102,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1748,7 +1749,7 @@
       "type": "ss",
       "server": "85.208.108.21",
       "port": 9102,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1756,7 +1757,7 @@
       "type": "ss",
       "server": "85.208.108.58",
       "port": 9101,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1764,7 +1765,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 9101,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1772,7 +1773,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 9102,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1780,7 +1781,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 9101,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1788,7 +1789,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 9102,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1796,7 +1797,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 2376,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1804,7 +1805,7 @@
       "type": "ss",
       "server": "134.195.196.193",
       "port": 2376,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1812,7 +1813,7 @@
       "type": "ss",
       "server": "134.195.198.95",
       "port": 2376,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1820,7 +1821,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 2375,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1828,7 +1829,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 2376,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1836,7 +1837,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 2375,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1844,7 +1845,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 2376,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1852,7 +1853,7 @@
       "type": "ss",
       "server": "85.208.108.90",
       "port": 2375,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1860,7 +1861,7 @@
       "type": "ss",
       "server": "85.208.108.90",
       "port": 2376,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1868,7 +1869,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 5003,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1876,7 +1877,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 5004,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1884,7 +1885,7 @@
       "type": "ss",
       "server": "134.195.196.149",
       "port": 5003,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1892,7 +1893,7 @@
       "type": "ss",
       "server": "198.57.27.218",
       "port": 5004,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1900,7 +1901,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 5004,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1908,7 +1909,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 5003,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1916,7 +1917,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 5004,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1924,7 +1925,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 8882,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1932,7 +1933,7 @@
       "type": "ss",
       "server": "134.195.196.149",
       "port": 8881,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1940,7 +1941,7 @@
       "type": "ss",
       "server": "134.195.196.149",
       "port": 8882,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1948,7 +1949,7 @@
       "type": "ss",
       "server": "38.111.114.246",
       "port": 8882,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1956,7 +1957,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 8882,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1964,7 +1965,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 8881,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1972,7 +1973,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 8882,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1980,7 +1981,7 @@
       "type": "ss",
       "server": "134.195.196.51",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1988,7 +1989,7 @@
       "type": "ss",
       "server": "134.195.198.211",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -1996,7 +1997,7 @@
       "type": "ss",
       "server": "134.195.198.95",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2004,7 +2005,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2012,7 +2013,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2020,7 +2021,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 4444,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2028,7 +2029,7 @@
       "type": "ss",
       "server": "85.208.108.61",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2036,7 +2037,7 @@
       "type": "ss",
       "server": "85.208.108.92",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2044,7 +2045,7 @@
       "type": "ss",
       "server": "198.8.92.84",
       "port": 40220,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2052,7 +2053,7 @@
       "type": "ss",
       "server": "134.195.196.147",
       "port": 6379,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2060,7 +2061,7 @@
       "type": "ss",
       "server": "134.195.196.51",
       "port": 6379,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2068,7 +2069,7 @@
       "type": "ss",
       "server": "85.208.108.20",
       "port": 6379,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2076,7 +2077,7 @@
       "type": "ss",
       "server": "85.208.108.59",
       "port": 6379,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2084,7 +2085,7 @@
       "type": "ss",
       "server": "85.208.108.60",
       "port": 6379,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2092,7 +2093,7 @@
       "type": "ss",
       "server": "85.208.108.90",
       "port": 6379,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2100,7 +2101,7 @@
       "type": "ss",
       "server": "137.184.174.93",
       "port": 8080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2319,7 +2320,7 @@
       "type": "ss",
       "server": "23.227.60.12",
       "port": 2096,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2327,7 +2328,7 @@
       "type": "ss",
       "server": "148.113.138.47",
       "port": 48704,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2335,7 +2336,7 @@
       "type": "ss",
       "server": "51.161.80.138",
       "port": 12743,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2343,7 +2344,7 @@
       "type": "ss",
       "server": "51.161.33.111",
       "port": 24041,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2351,7 +2352,7 @@
       "type": "ss",
       "server": "51.161.32.44",
       "port": 13026,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2361,7 +2362,7 @@
       "port": 8443,
       "uuid": "d85597ac-a05e-4b0e-a910-408ae3e2bcbe",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 74.49.215.61:2096",
@@ -2388,7 +2389,7 @@
       "port": 56565,
       "uuid": "cfa392db-7445-4aa6-964f-2a3e20103936",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 134.195.197.69:19579",
@@ -2403,7 +2404,7 @@
       "type": "ss",
       "server": "172.105.26.226",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2411,7 +2412,7 @@
       "type": "ss",
       "server": "38.180.211.126",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2419,7 +2420,7 @@
       "type": "ss",
       "server": "51.79.54.90",
       "port": 45398,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2427,7 +2428,7 @@
       "type": "ss",
       "server": "85.208.108.21",
       "port": 8080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2435,7 +2436,7 @@
       "type": "ss",
       "server": "134.195.196.200",
       "port": 7002,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2443,7 +2444,7 @@
       "type": "ss",
       "server": "85.208.108.18",
       "port": 7001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2451,7 +2452,7 @@
       "type": "ss",
       "server": "85.208.108.93",
       "port": 7002,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2459,7 +2460,7 @@
       "type": "ss",
       "server": "85.208.108.93",
       "port": 8008,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2467,7 +2468,7 @@
       "type": "ss",
       "server": "85.208.108.94",
       "port": 8888,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2475,7 +2476,7 @@
       "type": "ss",
       "server": "134.195.196.107",
       "port": 3306,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2483,7 +2484,7 @@
       "type": "ss",
       "server": "85.208.108.93",
       "port": 3306,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2491,7 +2492,7 @@
       "type": "ss",
       "server": "85.208.108.93",
       "port": 5000,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2499,7 +2500,7 @@
       "type": "ss",
       "server": "85.208.108.93",
       "port": 8118,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2507,7 +2508,7 @@
       "type": "ss",
       "server": "85.208.108.93",
       "port": 8119,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2515,7 +2516,7 @@
       "type": "ss",
       "server": "134.195.196.3",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2523,7 +2524,7 @@
       "type": "ss",
       "server": "85.208.108.21",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2531,7 +2532,7 @@
       "type": "ss",
       "server": "85.208.108.94",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2539,7 +2540,7 @@
       "type": "ss",
       "server": "85.208.108.93",
       "port": 6379,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2547,7 +2548,7 @@
       "type": "ss",
       "server": "139.177.199.49",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -2660,7 +2661,7 @@
       "port": 8081,
       "uuid": "40d9faec-3130-4e69-bb77-210193e65598",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 134.122.41.60:443",
@@ -2930,7 +2931,7 @@
       "port": 56565,
       "uuid": "cfa392db-7445-4aa6-964f-2a3e20103936",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 51.222.86.157:54051",
@@ -3034,15 +3035,7 @@
       "type": "ss",
       "server": "144.217.7.33",
       "port": 12000,
-      "cipher": "aes-256-gcm",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 144.217.133.97:30238",
-      "type": "ss",
-      "server": "144.217.133.97",
-      "port": 30238,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3061,14 +3054,14 @@
       "port": 443,
       "uuid": "d9e62b6c-e55f-4e10-8743-28814b96c3a5",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 193.203.203.66:443",
       "type": "ss",
       "server": "193.203.203.66",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3088,72 +3081,6 @@
       "uuid": "9b1bd0fe-4e14-44b9-8f43-075924389f25",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - HYSTERIA2 40.233.83.110:45979",
-      "type": "hysteria2",
-      "server": "40.233.83.110",
-      "port": 45979
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - HYSTERIA2 129.153.59.26:30300",
-      "type": "hysteria2",
-      "server": "129.153.59.26",
-      "port": 30300
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - HYSTERIA2 40.233.82.111:30300",
-      "type": "hysteria2",
-      "server": "40.233.82.111",
-      "port": 30300
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - HYSTERIA2 40.233.103.51:47262",
-      "type": "hysteria2",
-      "server": "40.233.103.51",
-      "port": 47262
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - HY2 204.216.108.5:2024",
-      "type": "hy2",
-      "server": "204.216.108.5",
-      "port": 2024
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - HY2 40.233.76.38:30102",
-      "type": "hy2",
-      "server": "40.233.76.38",
-      "port": 30102
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - HY2 140.238.137.165:30102",
-      "type": "hy2",
-      "server": "140.238.137.165",
-      "port": 30102
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - HY2 68.183.199.224:10001",
-      "type": "hy2",
-      "server": "68.183.199.224",
-      "port": 10001
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - HY2 40.233.91.166:443",
-      "type": "hy2",
-      "server": "40.233.91.166",
-      "port": 443
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - HY2 141.195.112.28:9988",
-      "type": "hy2",
-      "server": "141.195.112.28",
-      "port": 9988
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - HY2 40.233.102.224:30300",
-      "type": "hy2",
-      "server": "40.233.102.224",
-      "port": 30300
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - VMESS 15.235.41.200:80",
@@ -3200,7 +3127,7 @@
       "type": "ss",
       "server": "192.18.150.179",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3208,7 +3135,7 @@
       "type": "ss",
       "server": "142.4.216.225",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3216,7 +3143,7 @@
       "type": "ss",
       "server": "134.195.196.143",
       "port": 811,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3224,7 +3151,7 @@
       "type": "ss",
       "server": "134.195.196.143",
       "port": 801,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3232,7 +3159,7 @@
       "type": "ss",
       "server": "134.195.196.143",
       "port": 812,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3240,7 +3167,7 @@
       "type": "ss",
       "server": "74.3.163.117",
       "port": 34386,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3248,7 +3175,7 @@
       "type": "ss",
       "server": "134.195.196.143",
       "port": 802,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3256,7 +3183,7 @@
       "type": "ss",
       "server": "134.195.196.107",
       "port": 7001,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3280,7 +3207,7 @@
       "type": "ss",
       "server": "35.183.69.126",
       "port": 443,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3288,7 +3215,7 @@
       "type": "ss",
       "server": "35.183.216.163",
       "port": 2053,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3296,7 +3223,7 @@
       "type": "ss",
       "server": "198.50.119.86",
       "port": 8080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     },
     {
@@ -3686,7 +3613,7 @@
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 23.227.38.43:443",
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 166.88.130.226:443",
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 144.217.7.33:12000",
-        "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 144.217.133.97:30238",
+        "\uD83C\uDDE8\uD83C\uDDE6 Canada - TUIC 104.223.85.121:40000",
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 172.105.3.132:443",
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - VLESS 209.200.246.41:443",
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 193.203.203.66:443",
@@ -3724,7 +3651,8 @@
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 35.182.251.249:22222"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

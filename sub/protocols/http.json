@@ -1,0 +1,26 @@
+{
+  "name": "FastNodes HTTP",
+  "port": 7890,
+  "socks_port": 7891,
+  "allow_lan": true,
+  "mode": "Rule",
+  "log_level": "info",
+  "external_controller": "127.0.0.1:9090",
+  "proxies": [],
+  "proxy_groups": [
+    {
+      "name": "AUTO",
+      "type": "url-test",
+      "proxies": [
+        "\uD83C\uDDE8\uD83C\uDDF3 Unknown - HTTP 124.15.12.24:251",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - HTTP 66.42.50.118:12580"
+      ],
+      "url": "http://cp.cloudflare.com/generate_204",
+      "interval": 300,
+      "tolerance": 50
+    }
+  ],
+  "rules": [
+    "MATCH,AUTO"
+  ]
+}

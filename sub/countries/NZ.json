@@ -1,4 +1,5 @@
 {
+  "name": "FastNodes NZ",
   "port": 7890,
   "socks_port": 7891,
   "allow_lan": true,
@@ -7,7 +8,7 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
-      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 172.64.197.116:8080",
+      "name": "\uD83C\uDDF3\uD83C\uDDFF Unknown - VLESS 172.64.197.116:8080",
       "type": "vless",
       "server": "172.64.197.116",
       "port": 8080,
@@ -16,7 +17,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - TROJAN 45.15.140.107:19106",
+      "name": "\uD83C\uDDF3\uD83C\uDDFF Unknown - TROJAN 45.15.140.107:19106",
       "type": "trojan",
       "server": "45.15.140.107",
       "port": 19106,
@@ -24,7 +25,7 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 114.129.43.251:8880",
+      "name": "\uD83C\uDDF3\uD83C\uDDFF Unknown - VLESS 114.129.43.251:8880",
       "type": "vless",
       "server": "114.129.43.251",
       "port": 8880,
@@ -33,7 +34,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 114.129.43.168:8880",
+      "name": "\uD83C\uDDF3\uD83C\uDDFF Unknown - VLESS 114.129.43.168:8880",
       "type": "vless",
       "server": "114.129.43.168",
       "port": 8880,
@@ -42,7 +43,7 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 45.15.140.38:28495",
+      "name": "\uD83C\uDDF3\uD83C\uDDFF Unknown - VLESS 45.15.140.38:28495",
       "type": "vless",
       "server": "45.15.140.38",
       "port": 28495,
@@ -51,11 +52,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF3\uD83C\uDDFF New Zealand - SS 172.64.197.116:8080",
+      "name": "\uD83C\uDDF3\uD83C\uDDFF Unknown - SS 172.64.197.116:8080",
       "type": "ss",
       "server": "172.64.197.116",
       "port": 8080,
-      "cipher": "aes-256-gcm",
+      "cipher": "auto",
       "password": ""
     }
   ],
@@ -64,15 +65,16 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 172.64.197.116:8080",
-        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - TROJAN 45.15.140.107:19106",
-        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 114.129.43.251:8880",
-        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 114.129.43.168:8880",
-        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - VLESS 45.15.140.38:28495",
-        "\uD83C\uDDF3\uD83C\uDDFF New Zealand - SS 172.64.197.116:8080"
+        "\uD83C\uDDF3\uD83C\uDDFF Unknown - VLESS 172.64.197.116:8080",
+        "\uD83C\uDDF3\uD83C\uDDFF Unknown - TROJAN 45.15.140.107:19106",
+        "\uD83C\uDDF3\uD83C\uDDFF Unknown - VLESS 114.129.43.251:8880",
+        "\uD83C\uDDF3\uD83C\uDDFF Unknown - VLESS 114.129.43.168:8880",
+        "\uD83C\uDDF3\uD83C\uDDFF Unknown - VLESS 45.15.140.38:28495",
+        "\uD83C\uDDF3\uD83C\uDDFF Unknown - SS 172.64.197.116:8080"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
-      "interval": 300
+      "interval": 300,
+      "tolerance": 50
     }
   ],
   "rules": [

@@ -92,7 +92,7 @@ namespace ProxyCollector.Collector
         };
 
         private const int TargetGoodNodes = 200;
-        private const int MaxFullAttempts = 2000; // safety cap
+        private const int MaxFullAttempts = 2000;
         private const int TestTimeoutMs = 15000;
         private const int AliveCheckTimeoutMs = 2000;
         private const int FullTestTimeoutSeconds = 10;
@@ -101,7 +101,6 @@ namespace ProxyCollector.Collector
 
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
 
-        // Download methods (unchanged)
         private static async Task DownloadFreshGeoIP(HttpClient http)
         {
             Console.WriteLine("Downloading fresh GeoIP database...");
@@ -161,6 +160,7 @@ namespace ProxyCollector.Collector
         private static void LoadAllBlacklists()
         {
             BlacklistCidrs.Clear();
+
             var fireholPath = Path.Combine(Directory.GetCurrentDirectory(), "ProxyCollector", "blacklist.netset");
             if (File.Exists(fireholPath))
             {
@@ -333,9 +333,7 @@ namespace ProxyCollector.Collector
                     skippedBlacklisted++;
                     continue;
                 }
-                string countryCode = "XX";
-                var info = Resolver.GetCountry(ipOrHost);
-                countryCode = info?.CountryCode?.ToUpperInvariant() ?? "XX";
+                string countryCode = Resolver.GetCountry(ipOrHost)?.CountryCode?.ToUpperInvariant() ?? "XX";
                 string lowerHost = ipOrHost.ToLowerInvariant();
                 if (countryCode == "XX")
                 {
@@ -363,7 +361,7 @@ namespace ProxyCollector.Collector
                     };
                 }
                 string flag = Flags.TryGetValue(countryCode, out var f) ? f : "🌍";
-                string countryDisplay = info?.CountryName ?? GetCountryNameFromCode(countryCode) ?? "Unknown";
+                string countryDisplay = GetCountryNameFromCode(countryCode);
                 string cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} {ipOrHost}:{portStr}";
                 var renamedLink = RenameRemarkInLink(trimmed, cleanRemark, proto);
                 string dedupKey = $"{proto.ToLowerInvariant()}:{serverPort}#{cleanRemark.Replace(" ", "").ToLowerInvariant()}";
@@ -522,7 +520,7 @@ namespace ProxyCollector.Collector
             var finalSorted = fullResults.OrderBy(x => x.Latency).ToList();
             Console.WriteLine($"Full test finished → {finalSorted.Count} good proxies (target {TargetGoodNodes})");
 
-            // Fallback: if zero good, use quick-ping sorted
+            // Fallback if zero good
             if (finalSorted.Count == 0)
             {
                 Console.WriteLine("WARNING: 0 good proxies from full test → falling back to quick-ping ranking");
@@ -586,13 +584,13 @@ namespace ProxyCollector.Collector
                 }
                 catch { }
             }
-            return (success >= 2 && success > 0) ? total / success : -1; // require 2/3 success
+            return (success >= 2 && success > 0) ? total / success : -1;
         }
 
         private async Task<bool> IsProxyAliveFullAsync(string link, string proto, CancellationToken token)
         {
             string configPath = Path.GetTempFileName() + ".json";
-            int port = Interlocked.Increment(ref _basePort) % SingBoxBatchSize + 10800;
+            int port = Interlocked.Increment(ref _basePort) % 10 + 10800;
             string socksAddr = $"127.0.0.1:{port}";
             var config = GenerateSingBoxConfig(link, proto, port);
             if (config == null) return false;
@@ -627,7 +625,7 @@ namespace ProxyCollector.Collector
         private async Task<int> TestProxyLatencyFullAsync(string link, string proto, CancellationToken token)
         {
             string configPath = Path.GetTempFileName() + ".json";
-            int port = Interlocked.Increment(ref _basePort) % SingBoxBatchSize + 10800;
+            int port = Interlocked.Increment(ref _basePort) % 10 + 10800;
             string socksAddr = $"127.0.0.1:{port}";
             var config = GenerateSingBoxConfig(link, proto, port);
             if (config == null) return -1;
@@ -947,23 +945,23 @@ namespace ProxyCollector.Collector
                 return "";
             }
         }
+    }
 
-        // Add this extension at the bottom
-        public static class TaskCancellationExtensions
+    // Extension class is now top-level static (fixes CS1109)
+    public static class TaskCancellationExtensions
+    {
+        public static Task WithCancellation(this Task task, CancellationToken token)
         {
-            public static Task WithCancellation(this Task task, CancellationToken token)
-            {
-                var tcs = new TaskCompletionSource<bool>();
-                using (token.Register(s => ((TaskCompletionSource<bool>)s!).TrySetCanceled(), tcs))
-                    return Task.WhenAny(task, tcs.Task).Unwrap();
-            }
+            var tcs = new TaskCompletionSource<bool>();
+            using (token.Register(s => ((TaskCompletionSource<bool>)s!).TrySetCanceled(), tcs))
+                return Task.WhenAny(task, tcs.Task).Unwrap();
+        }
 
-            public static Task<T> WithCancellation<T>(this Task<T> task, CancellationToken token)
-            {
-                var tcs = new TaskCompletionSource<T>();
-                using (token.Register(s => ((TaskCompletionSource<T>)s!).TrySetCanceled(), tcs))
-                    return Task.WhenAny(task, tcs.Task).Unwrap();
-            }
+        public static Task<T> WithCancellation<T>(this Task<T> task, CancellationToken token)
+        {
+            var tcs = new TaskCompletionSource<T>();
+            using (token.Register(s => ((TaskCompletionSource<T>)s!).TrySetCanceled(), tcs))
+                return Task.WhenAny(task, tcs.Task).Unwrap();
         }
     }
 }

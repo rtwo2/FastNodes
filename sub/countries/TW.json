@@ -571,14 +571,6 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 46.249.109.128:56594",
-      "type": "ss",
-      "server": "46.249.109.128",
-      "port": 56594,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 46.249.109.128:443",
       "type": "vless",
       "server": "46.249.109.128",
@@ -613,21 +605,21 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 60.251.232.240:995",
-      "type": "vless",
-      "server": "60.251.232.240",
-      "port": 995,
-      "uuid": "3e974f9e-f568-4c2a-a4db-e9b666b4ea9e",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 154.223.20.79:990",
       "type": "ss",
       "server": "154.223.20.79",
       "port": 990,
       "cipher": "auto",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 122.116.105.15:995",
+      "type": "vless",
+      "server": "122.116.105.15",
+      "port": 995,
+      "uuid": "3e974f9e-f568-4c2a-a4db-e9b666b4ea9e",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 2.58.241.42:443",
@@ -798,6 +790,14 @@
       "password": ""
     },
     {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 46.249.109.128:56594",
+      "type": "ss",
+      "server": "46.249.109.128",
+      "port": 56594,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 185.189.160.98:64759",
       "type": "ss",
       "server": "185.189.160.98",
@@ -952,30 +952,12 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 60.248.139.106:10016",
-      "type": "vless",
-      "server": "60.248.139.106",
-      "port": 10016,
-      "uuid": "3e974f9e-f568-4c2a-a4db-e9b666b4ea9e",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 125.228.162.233:10145",
       "type": "ss",
       "server": "125.228.162.233",
       "port": 10145,
       "cipher": "auto",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 122.116.105.15:995",
-      "type": "vless",
-      "server": "122.116.105.15",
-      "port": 995,
-      "uuid": "3e974f9e-f568-4c2a-a4db-e9b666b4ea9e",
-      "tls": true,
-      "flow": ""
     },
     {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 203.69.248.40:10443",
@@ -992,6 +974,15 @@
       "server": "220.130.58.230",
       "port": 443,
       "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 60.248.139.106:10016",
+      "type": "vless",
+      "server": "60.248.139.106",
+      "port": 10016,
+      "uuid": "3e974f9e-f568-4c2a-a4db-e9b666b4ea9e",
       "tls": true,
       "flow": ""
     }
@@ -1068,13 +1059,12 @@
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 36.231.122.107:443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.152:3389",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.155:3389",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 46.249.109.128:56594",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 46.249.109.128:443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 220.130.58.136:35501",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 220.130.58.136:31101",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 220.128.110.108:43",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 60.251.232.240:995",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 154.223.20.79:990",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 122.116.105.15:995",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 2.58.241.42:443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 118.163.198.43:2377",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 118.163.200.40:2377",
@@ -1096,6 +1086,7 @@
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 60.249.35.59:2377",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 61.216.165.233:2377",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 223.165.4.173:990",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 46.249.109.128:56594",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 185.189.160.98:64759",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 220.130.58.136:28504",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.20.245.139:8443",
@@ -1147,11 +1138,10 @@
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.35.94:3074",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.35.95:3074",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.35.96:3074",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 60.248.139.106:10016",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 125.228.162.233:10145",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 122.116.105.15:995",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 203.69.248.40:10443",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 220.130.58.230:443"
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 220.130.58.230:443",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 60.248.139.106:10016"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

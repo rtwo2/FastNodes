@@ -8,6 +8,14 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
+      "name": "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.49:42934",
+      "type": "ss",
+      "server": "163.171.181.49",
+      "port": 42934,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.49:48852",
       "type": "ss",
       "server": "163.171.181.49",
@@ -16,10 +24,10 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.49:42934",
+      "name": "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.30:11201",
       "type": "ss",
-      "server": "163.171.181.49",
-      "port": 42934,
+      "server": "163.171.181.30",
+      "port": 11201,
       "cipher": "auto",
       "password": ""
     },
@@ -46,22 +54,6 @@
       "port": 42936,
       "cipher": "auto",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.30:11201",
-      "type": "ss",
-      "server": "163.171.181.30",
-      "port": 11201,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.29:11201",
-      "type": "ss",
-      "server": "163.171.181.29",
-      "port": 11201,
-      "cipher": "auto",
-      "password": ""
     }
   ],
   "proxy_groups": [
@@ -69,13 +61,12 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.49:48852",
         "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.49:42934",
+        "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.49:48852",
+        "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.30:11201",
         "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.49:42933",
         "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.49:42935",
-        "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.49:42936",
-        "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.30:11201",
-        "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.29:11201"
+        "\uD83C\uDDF0\uD83C\uDDFC Kuwait - SS 163.171.181.49:42936"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

@@ -22,7 +22,7 @@ namespace ProxyCollector.Collector
         private IPToCountryResolver? _resolver;
         private IPToCountryResolver Resolver => _resolver ??= new IPToCountryResolver();
 
-        private static int _basePort = 10800;
+        private static int _basePort = 20000; // much higher base to avoid conflicts
 
         private static readonly HashSet<string> ValidProtocols = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -94,12 +94,16 @@ namespace ProxyCollector.Collector
         private const int TargetGoodNodes = 200;
         private const int MaxFullAttempts = 2000;
         private const int TestTimeoutMs = 15000;
-        private const int AliveCheckTimeoutMs = 2000;
-        private const int FullTestTimeoutSeconds = 10;
+        private const int AliveCheckTimeoutMs = 3000;     // slightly longer
+        private const int FullTestTimeoutSeconds = 20;    // increased from 10s
         private const int ParallelFullTests = 20;
         private const int ProgressReportEvery = 20;
 
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
+
+        // ────────────────────────────────────────────────────────────────
+        // Download + blacklist methods (unchanged)
+        // ────────────────────────────────────────────────────────────────
 
         private static async Task DownloadFreshGeoIP(HttpClient http)
         {
@@ -304,7 +308,7 @@ namespace ProxyCollector.Collector
             foreach (var line in rawLines)
             {
                 processed++;
-                if (processed % 1000 == 0)
+                if (processed % 5000 == 0)
                     Console.WriteLine($" {processed}/{rawLines.Count} ({Math.Round((double)processed / rawLines.Count * 100, 1)}%)");
                 var trimmed = line.Trim();
                 if (string.IsNullOrWhiteSpace(trimmed)) continue;
@@ -333,7 +337,9 @@ namespace ProxyCollector.Collector
                     skippedBlacklisted++;
                     continue;
                 }
-                string countryCode = Resolver.GetCountry(ipOrHost)?.CountryCode?.ToUpperInvariant() ?? "XX";
+                string countryCode = "XX";
+                var info = Resolver.GetCountry(ipOrHost);
+                countryCode = info?.CountryCode?.ToUpperInvariant() ?? "XX";
                 string lowerHost = ipOrHost.ToLowerInvariant();
                 if (countryCode == "XX")
                 {
@@ -361,7 +367,7 @@ namespace ProxyCollector.Collector
                     };
                 }
                 string flag = Flags.TryGetValue(countryCode, out var f) ? f : "🌍";
-                string countryDisplay = GetCountryNameFromCode(countryCode);
+                string countryDisplay = info?.CountryName ?? GetCountryNameFromCode(countryCode) ?? "Unknown";
                 string cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} {ipOrHost}:{portStr}";
                 var renamedLink = RenameRemarkInLink(trimmed, cleanRemark, proto);
                 string dedupKey = $"{proto.ToLowerInvariant()}:{serverPort}#{cleanRemark.Replace(" ", "").ToLowerInvariant()}";
@@ -518,7 +524,7 @@ namespace ProxyCollector.Collector
             await Task.WhenAll(tasks);
 
             var finalSorted = fullResults.OrderBy(x => x.Latency).ToList();
-            Console.WriteLine($"Full test finished → {finalSorted.Count} good proxies (target {TargetGoodNodes})");
+            Console.WriteLine($"Full test finished → {finalSorted.Count} good proxies (tested {testedCount} candidates, target was {TargetGoodNodes})");
 
             // Fallback if zero good
             if (finalSorted.Count == 0)
@@ -584,19 +590,23 @@ namespace ProxyCollector.Collector
                 }
                 catch { }
             }
-            return (success >= 2 && success > 0) ? total / success : -1;
+            return (success >= 2) ? total / success : -1; // require at least 2 successes
         }
 
         private async Task<bool> IsProxyAliveFullAsync(string link, string proto, CancellationToken token)
         {
             string configPath = Path.GetTempFileName() + ".json";
-            int port = Interlocked.Increment(ref _basePort) % 10 + 10800;
+            int port = Interlocked.Increment(ref _basePort) % 10000 + 20000; // wide range: 20000-29999
             string socksAddr = $"127.0.0.1:{port}";
             var config = GenerateSingBoxConfig(link, proto, port);
-            if (config == null) return false;
+            if (config == null)
+            {
+                Console.WriteLine($"[CONFIG FAIL] Cannot generate sing-box config for: {link}");
+                return false;
+            }
             await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true }), token);
             using var process = StartSingBox(configPath);
-            await Task.Delay(800, token);
+            await Task.Delay(1200, token); // give sing-box more time to start
             bool alive = false;
             try
             {
@@ -610,7 +620,7 @@ namespace ProxyCollector.Collector
                         if (resp.IsSuccessStatusCode)
                         {
                             alive = true;
-                            break;
+                            break; // one success is enough now
                         }
                     }
                     catch { }
@@ -625,13 +635,13 @@ namespace ProxyCollector.Collector
         private async Task<int> TestProxyLatencyFullAsync(string link, string proto, CancellationToken token)
         {
             string configPath = Path.GetTempFileName() + ".json";
-            int port = Interlocked.Increment(ref _basePort) % 10 + 10800;
+            int port = Interlocked.Increment(ref _basePort) % 10000 + 20000;
             string socksAddr = $"127.0.0.1:{port}";
             var config = GenerateSingBoxConfig(link, proto, port);
             if (config == null) return -1;
             await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true }), token);
             using var process = StartSingBox(configPath);
-            await Task.Delay(800, token);
+            await Task.Delay(1200, token);
             int total = 0;
             int count = 0;
             try
@@ -684,43 +694,63 @@ namespace ProxyCollector.Collector
             if (parts.Length < 2) return null;
             string server = parts[0];
             if (!int.TryParse(parts[1], out int port)) return null;
+
             string uuid = "";
             string password = "";
             string flow = "";
+            string security = "auto";
+            int alterId = 0;
+
             switch (protocol.ToLowerInvariant())
             {
                 case "vless":
                     var vlessParts = link.Split('@');
-                    if (vlessParts.Length > 1) uuid = vlessParts[0].Split("://")[1];
-                    flow = Regex.Match(link, "flow=([^&]+)").Groups[1].Value;
+                    if (vlessParts.Length > 1) uuid = vlessParts[0].Split("://")[1].Split('#')[0];
+                    flow = Regex.Match(link, @"flow=([^&]+)").Groups[1].Value;
                     break;
                 case "trojan":
                     var trojanParts = link.Split('@');
-                    if (trojanParts.Length > 1) password = trojanParts[0].Split("://")[1];
+                    if (trojanParts.Length > 1) password = trojanParts[0].Split("://")[1].Split('#')[0];
                     break;
                 case "ss":
                     string ssDecoded = DecodeBase64(link.Substring(5).Split('#')[0]);
                     var ssAuth = ssDecoded.Split('@')[0].Split(':');
-                    if (ssAuth.Length > 1) password = ssAuth[1];
+                    if (ssAuth.Length > 1)
+                    {
+                        security = ssAuth[0];
+                        password = ssAuth[1];
+                    }
                     break;
                 case "vmess":
                     string vmB64 = link.Substring(8).Split('#')[0];
                     string vmDecoded = DecodeBase64(vmB64);
-                    var vmObj = JsonDocument.Parse(vmDecoded).RootElement;
-                    uuid = vmObj.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
+                    if (!string.IsNullOrEmpty(vmDecoded))
+                    {
+                        var vmObj = JsonDocument.Parse(vmDecoded).RootElement;
+                        uuid = vmObj.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
+                        alterId = vmObj.TryGetProperty("aid", out var aidProp) ? aidProp.GetInt32() : 0;
+                        security = vmObj.TryGetProperty("scy", out var scyProp) ? scyProp.GetString() ?? "auto" : "auto";
+                    }
                     break;
                 default:
                     return null;
             }
+
             object outbound = protocol.ToLowerInvariant() switch
             {
                 "vless" => new { type = "vless", server, server_port = port, uuid, tls = new { enabled = true }, flow = flow ?? "" },
                 "trojan" => new { type = "trojan", server, server_port = port, password, tls = new { enabled = true } },
-                "ss" => new { type = "shadowsocks", server, server_port = port, method = "aes-256-gcm", password },
-                "vmess" => new { type = "vmess", server, server_port = port, uuid, alter_id = 0, security = "auto", tls = new { enabled = true } },
+                "ss" => new { type = "shadowsocks", server, server_port = port, method = security, password },
+                "vmess" => new { type = "vmess", server, server_port = port, uuid, alter_id = alterId, security, tls = new { enabled = true } },
                 _ => null!
             };
-            if (outbound == null) return null;
+
+            if (outbound == null)
+            {
+                Console.WriteLine($"[CONFIG FAIL] Unsupported or malformed link: {link}");
+                return null;
+            }
+
             return new
             {
                 log = new { level = "error" },
@@ -944,24 +974,6 @@ namespace ProxyCollector.Collector
             {
                 return "";
             }
-        }
-    }
-
-    // Extension class is now top-level static (fixes CS1109)
-    public static class TaskCancellationExtensions
-    {
-        public static Task WithCancellation(this Task task, CancellationToken token)
-        {
-            var tcs = new TaskCompletionSource<bool>();
-            using (token.Register(s => ((TaskCompletionSource<bool>)s!).TrySetCanceled(), tcs))
-                return Task.WhenAny(task, tcs.Task).Unwrap();
-        }
-
-        public static Task<T> WithCancellation<T>(this Task<T> task, CancellationToken token)
-        {
-            var tcs = new TaskCompletionSource<T>();
-            using (token.Register(s => ((TaskCompletionSource<T>)s!).TrySetCanceled(), tcs))
-                return Task.WhenAny(task, tcs.Task).Unwrap();
         }
     }
 }

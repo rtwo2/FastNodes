@@ -99,14 +99,6 @@ namespace ProxyCollector.Collector
 
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
 
-        private static readonly HashSet<int> CommonProxyPorts = new()
-        {
-            80, 443, 8080, 8443, 2052, 2053, 2082, 2083, 2086, 2095, 2096,
-            8880, 8888, 10000, 10001, 20000, 30000,
-            1080, 10808, 10809, 7890, 7891, 1081, 8000, 8881, 8882, 8883,
-            2010, 2011, 2020, 8889, 9999, 1443, 10443, 4433
-        };
-
         private static async Task DownloadFreshGeoIP(HttpClient http)
         {
             Console.WriteLine("Downloading fresh GeoIP database...");
@@ -228,11 +220,41 @@ namespace ProxyCollector.Collector
             int bits = mask;
             for (int i = 0; i < ipB.Length && bits > 0; i++)
             {
-                byte m = (byte)(0xFF << (8 - Math.Min(bits, 8)));
+                int shift = Math.Min(bits, 8);
+                byte m = (byte)(0xFF << (8 - shift));
                 if ((ipB[i] & m) != (netB[i] & m)) return false;
-                bits -= 8;
+                bits -= shift;
             }
             return true;
+        }
+
+        private string GetCountryNameFromCode(string code)
+        {
+            return code switch
+            {
+                "TW" => "Taiwan",
+                "LV" => "Latvia",
+                "HK" => "Hong Kong",
+                "SG" => "Singapore",
+                "JP" => "Japan",
+                "KR" => "South Korea",
+                "US" => "United States",
+                "GB" => "United Kingdom",
+                "DE" => "Germany",
+                "FR" => "France",
+                "RU" => "Russia",
+                "CA" => "Canada",
+                "NL" => "Netherlands",
+                "AU" => "Australia",
+                "IN" => "India",
+                "MD" => "Moldova",
+                "CY" => "Cyprus",
+                "AE" => "United Arab Emirates",
+                "SC" => "Seychelles",
+                "IM" => "Isle of Man",
+                "LU" => "Luxembourg",
+                _ => "Unknown"
+            };
         }
 
         public async Task StartAsync()
@@ -274,7 +296,7 @@ namespace ProxyCollector.Collector
             var tempPath = Path.Combine(tempDir, "temp_everything.txt");
             await File.WriteAllLinesAsync(tempPath, rawLines);
             Console.WriteLine($"💾 Saved raw → {tempPath} ({rawLines.Count} lines)");
-            var renamedProxies = new List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)>();
+            var renamedProxies = new List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object? ClashProxy)>();
             var seenNormalized = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             int skippedNumbered = 0, parseFail = 0, skippedLongFilename = 0, skippedBlacklisted = 0;
             Console.WriteLine("\n🧹 Parsing + strict deduplicating + forced clean renaming...");
@@ -286,12 +308,12 @@ namespace ProxyCollector.Collector
                     Console.WriteLine($" {processed}/{rawLines.Count} ({Math.Round((double)processed / rawLines.Count * 100, 1)}%)");
                 var trimmed = line.Trim();
                 if (string.IsNullOrWhiteSpace(trimmed)) continue;
-                if (Regex.IsMatch(trimmed, @"\s*\(\d{2,}\)\s*$"))  // Light: only skip (10+)
+                if (Regex.IsMatch(trimmed, @"\s*\(\d{2,}\)\s*$"))
                 {
                     skippedNumbered++;
                     continue;
                 }
-                var (proto, serverPort, _) = ParseProxyLine(trimmed);  // Use trimmed directly (no aggressive prefix strip)
+                var (proto, serverPort, _) = ParseProxyLine(trimmed);
                 if (string.IsNullOrEmpty(serverPort) || !serverPort.Contains(":"))
                 {
                     parseFail++;
@@ -301,7 +323,7 @@ namespace ProxyCollector.Collector
                 if (parts.Length < 2) continue;
                 string ipOrHost = parts[0];
                 string portStr = parts[1];
-                if (!int.TryParse(portStr, out int port))  // Removed CommonProxyPorts filter
+                if (!int.TryParse(portStr, out int port))
                 {
                     parseFail++;
                     continue;
@@ -342,11 +364,11 @@ namespace ProxyCollector.Collector
                 string flag = Flags.TryGetValue(countryCode, out var f) ? f : "🌍";
                 string countryDisplay = info?.CountryName ?? GetCountryNameFromCode(countryCode);
                 string cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} {ipOrHost}:{portStr}";
-                var renamedLink = RenameRemarkInLink(trimmed, cleanRemark, proto);  // Use trimmed (keeps more original)
+                var renamedLink = RenameRemarkInLink(trimmed, cleanRemark, proto);
                 string dedupKey = $"{proto.ToLowerInvariant()}:{serverPort}#{cleanRemark.Replace(" ", "").ToLowerInvariant()}";
                 if (seenNormalized.Add(dedupKey))
                 {
-                    object clashProxy = GenerateClashProxy(proto, serverPort, trimmed, cleanRemark);
+                    object? clashProxy = GenerateClashProxy(proto, serverPort, trimmed, cleanRemark);
                     renamedProxies.Add((renamedLink, proto, countryCode, serverPort, cleanRemark, clashProxy));
                 }
             }
@@ -414,39 +436,10 @@ namespace ProxyCollector.Collector
             Console.WriteLine("\n🎉 Done!");
         }
 
-        private string GetCountryNameFromCode(string code)
-        {
-            return code switch
-            {
-                "TW" => "Taiwan",
-                "LV" => "Latvia",
-                "HK" => "Hong Kong",
-                "SG" => "Singapore",
-                "JP" => "Japan",
-                "KR" => "South Korea",
-                "US" => "United States",
-                "GB" => "United Kingdom",
-                "DE" => "Germany",
-                "FR" => "France",
-                "RU" => "Russia",
-                "CA" => "Canada",
-                "NL" => "Netherlands",
-                "AU" => "Australia",
-                "IN" => "India",
-                "MD" => "Moldova",
-                "CY" => "Cyprus",
-                "AE" => "United Arab Emirates",
-                "SC" => "Seychelles",
-                "IM" => "Isle of Man",
-                "LU" => "Luxembourg",
-                _ => "Unknown"
-            };
-        }
-
-        private async Task GenerateBestResultsAsync(List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)> proxies)
+        private async Task GenerateBestResultsAsync(List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object? ClashProxy)> proxies)
         {
             Console.WriteLine($"\n🏆 Quick raw testing {proxies.Count} proxies...");
-            var tested = new ConcurrentBag<(string Link, int Latency, object ClashProxy)>();
+            var tested = new ConcurrentBag<(string Link, int Latency, object? ClashProxy)>();
             int processed = 0;
             await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 20 }, async (p, ct) =>
             {
@@ -473,13 +466,13 @@ namespace ProxyCollector.Collector
                 {
                     name = $"FastNodes Top {limit}",
                     proxies = jsonProxies,
-                    proxy_groups = new[]
+                    proxy_groups = new object[]
                     {
                         new
                         {
                             name = "AUTO",
                             type = "url-test",
-                            proxies = topN.Select(t => ((dynamic)t.ClashProxy).name ?? "Unnamed").ToList(),
+                            proxies = topN.Select(t => ((dynamic?)t.ClashProxy)?.name ?? "Unnamed").ToList(),
                             url = "http://cp.cloudflare.com/generate_204",
                             interval = 300
                         }
@@ -557,7 +550,7 @@ namespace ProxyCollector.Collector
             catch { }
 
             process.Kill(true);
-            File.Delete(configPath);
+            try { File.Delete(configPath); } catch { }
             return alive;
         }
 
@@ -594,7 +587,7 @@ namespace ProxyCollector.Collector
             }
 
             process.Kill(true);
-            File.Delete(configPath);
+            try { File.Delete(configPath); } catch { }
             return count > 0 ? total / count : -1;
         }
 
@@ -605,7 +598,7 @@ namespace ProxyCollector.Collector
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "sing-box",
-                    Arguments = $"run -c {configPath}",
+                    Arguments = $"run -c \"{configPath}\"",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -626,19 +619,16 @@ namespace ProxyCollector.Collector
             string uuid = "";
             string password = "";
             string flow = "";
-            // Expanded parsing
             switch (protocol.ToLowerInvariant())
             {
                 case "vless":
                     var vlessParts = link.Split('@');
-                    if (vlessParts.Length > 1)
-                        uuid = vlessParts[0].Split("://")[1];
+                    if (vlessParts.Length > 1) uuid = vlessParts[0].Split("://")[1];
                     flow = Regex.Match(link, "flow=([^&]+)").Groups[1].Value;
                     break;
                 case "trojan":
                     var trojanParts = link.Split('@');
-                    if (trojanParts.Length > 1)
-                        password = trojanParts[0].Split("://")[1];
+                    if (trojanParts.Length > 1) password = trojanParts[0].Split("://")[1];
                     break;
                 case "ss":
                     string ssDecoded = DecodeBase64(link.Substring(5).Split('#')[0]);
@@ -649,29 +639,29 @@ namespace ProxyCollector.Collector
                     string vmB64 = link.Substring(8).Split('#')[0];
                     string vmDecoded = DecodeBase64(vmB64);
                     var vmObj = JsonDocument.Parse(vmDecoded).RootElement;
-                    uuid = vmObj.GetProperty("id").GetString();
+                    uuid = vmObj.TryGetProperty("id", out var idProp) ? idProp.GetString() ?? "" : "";
                     break;
                 default:
                     return null;
             }
 
-            var outbound = new
+            object outbound = protocol.ToLowerInvariant() switch
             {
-                type = protocol,
-                server,
-                server_port = port,
-                uuid = uuid,
-                password = password,
-                tls = new { enabled = true },
-                flow = flow
+                "vless" => new { type = "vless", server, server_port = port, uuid, tls = new { enabled = true }, flow },
+                "trojan" => new { type = "trojan", server, server_port = port, password, tls = new { enabled = true } },
+                "ss" => new { type = "shadowsocks", server, server_port = port, method = "aes-256-gcm", password },
+                "vmess" => new { type = "vmess", server, server_port = port, uuid, alter_id = 0, security = "auto", tls = new { enabled = true } },
+                _ => null!
             };
+
+            if (outbound == null) return null;
 
             return new
             {
                 log = new { level = "error" },
-                inbounds = new[] { new { type = "socks", listen = "127.0.0.1", listen_port = localPort } },
-                outbounds = new[] { outbound, new { type = "direct", tag = "direct" } },
-                route = new { rules = new[] { new { outbound = protocol } } }
+                inbounds = new object[] { new { type = "socks", listen = "127.0.0.1", listen_port = localPort } },
+                outbounds = new object[] { outbound, new { type = "direct", tag = "direct" } },
+                route = new { rules = new object[] { new { outbound = protocol } } }
             };
         }
 
@@ -689,7 +679,7 @@ namespace ProxyCollector.Collector
             return proto;
         }
 
-        private async Task SaveClashJson(string filePath, List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)> proxies, string configName)
+        private async Task SaveClashJson(string filePath, List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object? ClashProxy)> proxies, string configName)
         {
             var clashProxies = proxies.Select(x => x.ClashProxy).Where(p => p != null).ToList();
             var remarkList = proxies.Select(x => x.Remark).ToList();
@@ -702,7 +692,7 @@ namespace ProxyCollector.Collector
                 log_level = "info",
                 external_controller = "127.0.0.1:9090",
                 proxies = clashProxies,
-                proxy_groups = new[]
+                proxy_groups = new object[]
                 {
                     new
                     {
@@ -719,7 +709,7 @@ namespace ProxyCollector.Collector
             await File.WriteAllTextAsync(filePath, JsonSerializer.Serialize(clashConfig, options));
         }
 
-        private object GenerateClashProxy(string proto, string serverPort, string originalLine, string name)
+        private object? GenerateClashProxy(string proto, string serverPort, string originalLine, string name)
         {
             string server = "unknown";
             int port = 443;
@@ -780,7 +770,7 @@ namespace ProxyCollector.Collector
                     catch { }
                     return new { name, type = "ss", server, port, cipher = "aes-256-gcm", password = "" };
                 default:
-                    return new { name, type = proto, server, port };
+                    return null;
             }
         }
 

@@ -9,7 +9,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Net;
-using System.Diagnostics;  // For Process
+using System.Diagnostics;
+using System.Threading;
 using ProxyCollector.Configuration;
 using ProxyCollector.Services;
 
@@ -21,6 +22,8 @@ namespace ProxyCollector.Collector
         private IPToCountryResolver? _resolver;
         private IPToCountryResolver Resolver => _resolver ??= new IPToCountryResolver();
 
+        private static int _basePort = 10800; // for batch sing-box ports
+
         private static readonly HashSet<string> ValidProtocols = new(StringComparer.OrdinalIgnoreCase)
         {
             "vmess", "vless", "trojan", "ss", "shadowsocks", "hysteria2", "hy2", "tuic", "socks", "socks5", "anytls"
@@ -28,7 +31,7 @@ namespace ProxyCollector.Collector
 
         private static readonly Dictionary<string, string> Flags = new(StringComparer.OrdinalIgnoreCase)
         {
-            // ... (full flags dict as before)
+            {"AD", "🇦🇩"}, {"AE", "🇦🇪"}, /* ... full dictionary as in your original code ... */ {"ZW", "🇿🇼"}
         };
 
         private static readonly string[] TestUrls = {
@@ -40,96 +43,140 @@ namespace ProxyCollector.Collector
         };
 
         private const int MaxBestResults = 500;
-        private const int TestTimeoutMs = 15000;  // Raised for Iran
+        private const int TestTimeoutMs = 15000;
         private const int AliveCheckTimeoutMs = 4000;
-        private const int QuickCandidates = 2000;  // Top N for full test
-        private const int BatchSize = 10;  // Parallel sing-box instances
+        private const int QuickCandidatesLimit = 2000;
+        private const int SingBoxBatchSize = 10;
 
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
 
-        private static async Task DownloadFreshGeoIP(HttpClient http)
-        {
-            // ... (same as before)
-        }
-
-        private static async Task DownloadFreshFireHOLBlacklist(HttpClient http)
-        {
-            // ... (same as before)
-        }
-
-        private static async Task DownloadFreshBogons(HttpClient http)
-        {
-            // ... (same as before)
-        }
-
-        private static void LoadAllBlacklists()
-        {
-            // ... (same as before)
-        }
+        // ... DownloadFreshGeoIP, DownloadFreshFireHOLBlacklist, DownloadFreshBogons, LoadAllBlacklists (keep as is)
 
         private static bool IsBlacklisted(string ipStr)
         {
-            // ... (same as before)
+            if (!IPAddress.TryParse(ipStr, out var ip)) return true;
+            foreach (var (net, mask) in BlacklistCidrs)
+            {
+                if (IsIpInCidr(ip, net, mask)) return true;
+            }
+            return false;
         }
 
         private static bool IsIpInCidr(IPAddress ip, IPAddress net, int mask)
         {
-            // ... (same as before)
-        }
+            byte[] ipB = ip.GetAddressBytes();
+            byte[] netB = net.GetAddressBytes();
+            if (ipB.Length != netB.Length) return false;
 
-        public async Task StartAsync()
-        {
-            // ... (same as before)
-        }
-
-        private async Task RunFullCollectionMode()
-        {
-            // ... (same fetching, parsing loop as your lighter version)
+            int bits = mask;
+            for (int i = 0; i < ipB.Length && bits > 0; i++)
+            {
+                int shift = Math.Min(bits, 8);
+                byte m = (byte)(0xFF << (8 - shift));
+                if ((ipB[i] & m) != (netB[i] & m)) return false;
+                bits -= shift;
+            }
+            return true;
         }
 
         private string GetCountryNameFromCode(string code)
         {
-            // ... (same as before)
+            return code switch
+            {
+                "TW" => "Taiwan",
+                "LV" => "Latvia",
+                "HK" => "Hong Kong",
+                "SG" => "Singapore",
+                "JP" => "Japan",
+                "KR" => "South Korea",
+                "US" => "United States",
+                "GB" => "United Kingdom",
+                "DE" => "Germany",
+                "FR" => "France",
+                "RU" => "Russia",
+                "CA" => "Canada",
+                "NL" => "Netherlands",
+                "AU" => "Australia",
+                "IN" => "India",
+                "MD" => "Moldova",
+                "CY" => "Cyprus",
+                _ => "Unknown"
+            };
+        }
+
+        public async Task StartAsync()
+        {
+            await DownloadFreshGeoIP(_http);
+            await DownloadFreshFireHOLBlacklist(_http);
+            await DownloadFreshBogons(_http);
+            LoadAllBlacklists();
+            Console.WriteLine("🚀 ProxyCollector started - FastNodes fork");
+            await RunFullCollectionMode();
+        }
+
+        private async Task RunFullCollectionMode()
+        {
+            // Keep your existing fetching + parsing logic here
+            // Assume it populates List<(string Link, string Proto, ...)> renamedProxies
+            // Then call:
+            await GenerateBestResultsAsync(renamedProxies);
+            // ... save everything.txt, protocols/*.txt, countries/*.txt, etc.
         }
 
         private async Task GenerateBestResultsAsync(List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object ClashProxy)> proxies)
         {
-            Console.WriteLine($"\n🏆 Quick raw testing {proxies.Count} proxies for candidates...");
-            var quickTested = new ConcurrentBag<(string Link, int Latency, string Proto, object ClashProxy)>();
-            await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 20 }, async (p, ct) =>
+            Console.WriteLine($"\n🏆 Quick raw multi-URL testing {proxies.Count} proxies...");
+            var quickResults = new ConcurrentBag<(string Link, int Latency, string Proto, object ClashProxy)>();
+
+            await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 30 }, async (p, ct) =>
             {
                 int latency = await QuickRawLatencyAsync(p.Link);
-                if (latency > 0 && latency < 1500)
-                    quickTested.Add((p.Link, latency, p.Proto, p.ClashProxy));
+                if (latency > 0 && latency < 2000)
+                    quickResults.Add((p.Link, latency, p.Proto, p.ClashProxy));
             });
 
-            var candidates = quickTested.OrderBy(t => t.Latency).Take(QuickCandidates).ToList();
-            Console.WriteLine($"Found {candidates.Count} quick candidates — now full tunneling test...");
+            var candidates = quickResults.OrderBy(x => x.Latency).Take(QuickCandidatesLimit).ToList();
+            Console.WriteLine($" → {candidates.Count} quick candidates passed → starting full sing-box tunnel test...");
 
-            var fullTested = new ConcurrentBag<(string Link, int Latency, object ClashProxy)>();
-            var batches = candidates.Chunk(BatchSize);
+            var fullResults = new ConcurrentBag<(string Link, int Latency, object ClashProxy)>();
+
+            var batches = candidates.Chunk(SingBoxBatchSize);
             foreach (var batch in batches)
             {
-                var tasks = batch.Select(async c =>
+                var batchTasks = batch.Select(async item =>
                 {
-                    if (await IsProxyAliveFullAsync(c.Link, c.Proto))
+                    if (await IsProxyAliveFullAsync(item.Link, item.Proto))
                     {
-                        int latency = await TestProxyLatencyFullAsync(c.Link, c.Proto);
-                        if (latency > 0) fullTested.Add((c.Link, latency, c.ClashProxy));
+                        int fullLatency = await TestProxyLatencyFullAsync(item.Link, item.Proto);
+                        if (fullLatency > 0)
+                            fullResults.Add((item.Link, fullLatency, item.ClashProxy));
                     }
-                });
-                await Task.WhenAll(tasks);
+                }).ToArray();
+
+                await Task.WhenAll(batchTasks);
             }
 
-            var sorted = fullTested.OrderBy(t => t.Latency).ToList();
-            // ... (save top100/200/etc as before)
+            var sorted = fullResults.OrderBy(x => x.Latency).ToList();
+            Console.WriteLine($"Full tunnel test complete: {sorted.Count} usable proxies");
+
+            // Save top N files (keep your existing save logic)
+            var bestDir = Path.Combine(Directory.GetCurrentDirectory(), "sub", "Best-Results");
+            Directory.CreateDirectory(bestDir);
+
+            foreach (var limit in new[] { 100, 200, 300, 400, 500 })
+            {
+                var top = sorted.Take(limit).ToList();
+                await File.WriteAllLinesAsync(
+                    Path.Combine(bestDir, $"top{limit}.txt"),
+                    top.Select(t => $"{t.Link} # latency={t.Latency}ms")
+                );
+                // ... json save as before
+            }
         }
 
         private async Task<int> QuickRawLatencyAsync(string link)
         {
-            // Simple raw test (your original, multiple URLs average)
-            int total = 0;
-            int count = 0;
+            int total = 0, success = 0;
             foreach (var url in TestUrls)
             {
                 try
@@ -140,115 +187,146 @@ namespace ProxyCollector.Collector
                     if (resp.IsSuccessStatusCode)
                     {
                         total += (int)(DateTime.UtcNow - start).TotalMilliseconds;
-                        count++;
+                        success++;
                     }
                 }
                 catch { }
             }
-            return count > 0 ? total / count : -1;
+            return success > 0 ? total / success : -1;
         }
 
         private async Task<bool> IsProxyAliveFullAsync(string link, string proto)
         {
-            string configPath = $"temp_sing_{Guid.NewGuid().ToString("N")}.json";
-            int port = Interlocked.Increment(ref _basePort) % 10 + 10800;  // Unique port 10800-10809
-            string localSocks = $"127.0.0.1:{port}";
+            string configPath = Path.GetTempFileName() + ".json";
+            int localPort = Interlocked.Increment(ref _basePort) % SingBoxBatchSize + 10800;
+            string socksAddr = $"127.0.0.1:{localPort}";
 
-            var config = GenerateSingBoxConfig(link, proto, localSocks);
+            var config = GenerateSingBoxConfig(link, proto, localPort);
+            if (config == null) return false;
+
             await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(config));
 
-            var process = StartSingBox(configPath);
-            await Task.Delay(1000);  // Startup wait
+            using var process = StartSingBox(configPath);
+            await Task.Delay(1200); // give time to start
 
             bool alive = false;
             try
             {
-                var proxy = new WebProxy(localSocks);
-                using var client = new HttpClient(new HttpClientHandler { Proxy = proxy }) { Timeout = TimeSpan.FromMilliseconds(AliveCheckTimeoutMs) };
+                var handler = new HttpClientHandler { Proxy = new WebProxy(socksAddr) };
+                using var client = new HttpClient(handler) { Timeout = TimeSpan.FromMilliseconds(AliveCheckTimeoutMs) };
                 var resp = await client.GetAsync(TestUrls[0]);
                 alive = resp.IsSuccessStatusCode;
             }
             catch { }
 
-            process.Kill();
-            File.Delete(configPath);
+            process.Kill(true);
+            try { File.Delete(configPath); } catch { }
             return alive;
         }
 
         private async Task<int> TestProxyLatencyFullAsync(string link, string proto)
         {
-            string configPath = $"temp_sing_{Guid.NewGuid().ToString("N")}.json";
-            int port = Interlocked.Increment(ref _basePort) % 10 + 10800;
-            string localSocks = $"127.0.0.1:{port}";
+            string configPath = Path.GetTempFileName() + ".json";
+            int localPort = Interlocked.Increment(ref _basePort) % SingBoxBatchSize + 10800;
+            string socksAddr = $"127.0.0.1:{localPort}";
 
-            var config = GenerateSingBoxConfig(link, proto, localSocks);
+            var config = GenerateSingBoxConfig(link, proto, localPort);
+            if (config == null) return -1;
+
             await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(config));
 
-            var process = StartSingBox(configPath);
-            await Task.Delay(1000);
+            using var process = StartSingBox(configPath);
+            await Task.Delay(1200);
 
-            int total = 0;
-            int count = 0;
+            int total = 0, success = 0;
             foreach (var url in TestUrls)
             {
                 try
                 {
-                    var proxy = new WebProxy(localSocks);
-                    using var client = new HttpClient(new HttpClientHandler { Proxy = proxy }) { Timeout = TimeSpan.FromMilliseconds(TestTimeoutMs) };
+                    var handler = new HttpClientHandler { Proxy = new WebProxy(socksAddr) };
+                    using var client = new HttpClient(handler) { Timeout = TimeSpan.FromMilliseconds(TestTimeoutMs) };
                     var start = DateTime.UtcNow;
                     var resp = await client.GetAsync(url);
                     if (resp.IsSuccessStatusCode)
                     {
                         total += (int)(DateTime.UtcNow - start).TotalMilliseconds;
-                        count++;
+                        success++;
                     }
                 }
                 catch { }
             }
 
-            process.Kill();
-            File.Delete(configPath);
-            return count > 0 ? total / count : -1;
+            process.Kill(true);
+            try { File.Delete(configPath); } catch { }
+
+            return success > 0 ? total / success : -1;
         }
 
         private Process StartSingBox(string configPath)
         {
-            var process = new Process
+            var psi = new ProcessStartInfo
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "sing-box",
-                    Arguments = $"run -c {configPath}",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
+                FileName = "sing-box",
+                Arguments = $"run -c \"{configPath}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
             };
-            process.Start();
-            return process;
+            var p = new Process { StartInfo = psi };
+            p.Start();
+            return p;
         }
 
-        private object GenerateSingBoxConfig(string link, string proto, string localSocks)
+        private object? GenerateSingBoxConfig(string link, string proto, int localPort)
         {
-            // Parse link (use your ParseProxyLine + more)
-            var (protocol, serverPort, remark) = ParseProxyLine(link);
-            var parts = serverPort.Split(':');
-            string server = parts[0];
-            int port = int.Parse(parts[1]);
-            string uuid = "";  // Extract from link (adapt for each proto)
-            // For simplicity, pseudo-parse (expand per proto)
-            var outbound = new { type = protocol, server, port, uuid /* etc */ };
+            // Very basic skeleton — expand this per protocol!
+            // You need to parse uuid, password, flow, etc. from link
+            // For now returning null on unknown to skip
+
+            string server = "unknown";
+            int port = 443;
+            string uuidOrPass = "";
+
+            try
+            {
+                var uri = new Uri(link);
+                server = uri.Host;
+                port = uri.Port > 0 ? uri.Port : 443;
+                if (proto == "vless" || proto == "vmess")
+                    uuidOrPass = uri.UserInfo; // rough
+            }
+            catch { return null; }
+
+            var outbound = proto.ToLowerInvariant() switch
+            {
+                "vless" => new { type = "vless", server, server_port = port, uuid = uuidOrPass, tls = new { enabled = true } },
+                "vmess" => new { type = "vmess", server, server_port = port, uuid = uuidOrPass, alter_id = 0, security = "auto", tls = new { enabled = true } },
+                "ss" => new { type = "shadowsocks", server, server_port = port, method = "aes-256-gcm", password = uuidOrPass },
+                "trojan" => new { type = "trojan", server, server_port = port, password = uuidOrPass, tls = new { enabled = true } },
+                _ => null
+            };
+
+            if (outbound == null) return null;
 
             return new
             {
-                log = new { level = "error" },
-                inbounds = new[] { new { type = "socks", listen = "127.0.0.1", listen_port = int.Parse(localSocks.Split(':')[1]) } },
+                log = new { level = "fatal" },
+                inbounds = new[]
+                {
+                    new { type = "socks", tag = "socks-in", listen = "127.0.0.1", listen_port = localPort }
+                },
                 outbounds = new[] { outbound, new { type = "direct", tag = "direct" } },
-                route = new { rules = new[] { new { outbound = outbound.type } } }
+                route = new
+                {
+                    rules = new[]
+                    {
+                        new { outbound = outbound.type }
+                    }
+                }
             };
         }
 
-        // ... (rest of your class: NormalizeProto, SaveClashJson, GenerateClashProxy, RenameRemarkInLink, ParseProxyLine, DecodeBase64)
+        // Keep all your other methods: ParseProxyLine, RenameRemarkInLink, GenerateClashProxy, etc.
     }
 }

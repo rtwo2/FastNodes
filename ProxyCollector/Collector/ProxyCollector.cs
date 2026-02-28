@@ -93,12 +93,12 @@ namespace ProxyCollector.Collector
 
         private const int MaxBestResults = 500;
         private const int TestTimeoutMs = 15000;
-        private const int AliveCheckTimeoutMs = 3000;
+        private const int AliveCheckTimeoutMs = 2000;
+        private const int MaxQuickTestProxies = 15000;
         private const int QuickCandidatesLimit = 500;
         private const int SingBoxBatchSize = 10;
 
         private static readonly List<(IPAddress Network, int Mask)> BlacklistCidrs = new();
-        private static readonly ConcurrentDictionary<string, string> IpCountryCache = new();
 
         private static async Task DownloadFreshGeoIP(HttpClient http)
         {
@@ -250,10 +250,6 @@ namespace ProxyCollector.Collector
                 "IN" => "India",
                 "MD" => "Moldova",
                 "CY" => "Cyprus",
-                "AE" => "United Arab Emirates",
-                "SC" => "Seychelles",
-                "IM" => "Isle of Man",
-                "LU" => "Luxembourg",
                 _ => "Unknown"
             };
         }
@@ -335,18 +331,11 @@ namespace ProxyCollector.Collector
                     continue;
                 }
                 string countryCode = "XX";
-                if (IPAddress.TryParse(ipOrHost, out _))
+                var info = Resolver.GetCountry(ipOrHost);
+                countryCode = info?.CountryCode?.ToUpperInvariant() ?? "XX";
+                string lowerHost = ipOrHost.ToLowerInvariant();
+                if (countryCode == "XX")
                 {
-                    if (!IpCountryCache.TryGetValue(ipOrHost, out countryCode))
-                    {
-                        var info = Resolver.GetCountry(ipOrHost);
-                        countryCode = info?.CountryCode?.ToUpperInvariant() ?? "XX";
-                        IpCountryCache[ipOrHost] = countryCode;
-                    }
-                }
-                else
-                {
-                    string lowerHost = ipOrHost.ToLowerInvariant();
                     countryCode = lowerHost switch
                     {
                         var h when h.EndsWith(".tw") || h.Contains("taiwan") => "TW",
@@ -370,7 +359,7 @@ namespace ProxyCollector.Collector
                     };
                 }
                 string flag = Flags.TryGetValue(countryCode, out var f) ? f : "🌍";
-                string countryDisplay = GetCountryNameFromCode(countryCode);
+                string countryDisplay = info?.CountryName ?? GetCountryNameFromCode(countryCode) ?? "Unknown";
                 string cleanRemark = $"{flag} {countryDisplay} - {proto.ToUpperInvariant()} {ipOrHost}:{portStr}";
                 var renamedLink = RenameRemarkInLink(trimmed, cleanRemark, proto);
                 string dedupKey = $"{proto.ToLowerInvariant()}:{serverPort}#{cleanRemark.Replace(" ", "").ToLowerInvariant()}";
@@ -422,7 +411,6 @@ namespace ProxyCollector.Collector
                 }
                 var json = Path.Combine(protocolsDir, $"{safeKey}.json");
                 await SaveClashJson(json, g.ToList(), $"FastNodes {safeKey.ToUpper()}");
-                Console.WriteLine($"Saved {safeKey}.json ({g.Count()})");
             }
             Console.WriteLine("By country...");
             foreach (var g in renamedProxies.GroupBy(x => x.CountryCode))
@@ -433,17 +421,15 @@ namespace ProxyCollector.Collector
                 Console.WriteLine($" → {txt} ({g.Count()})");
                 var json = Path.Combine(countriesDir, $"{g.Key}.json");
                 await SaveClashJson(json, g.ToList(), $"FastNodes {g.Key}");
-                Console.WriteLine($"Saved {g.Key}.json ({g.Count()})");
             }
-            var unknowns = renamedProxies.Where(p => !ValidProtocols.Contains(p.Proto)).Select(p => p.Link).ToList();
+            var unknowns = renamedProxies.Where(p => !ValidProtocols.Contains(p.Proto)).ToList();
             if (unknowns.Any())
             {
                 var unknownPath = Path.Combine(protocolsDir, "unknown.txt");
-                await File.WriteAllLinesAsync(unknownPath, unknowns);
+                await File.WriteAllLinesAsync(unknownPath, unknowns.Select(p => p.Link));
                 Console.WriteLine($" → {unknownPath} ({unknowns.Count})");
                 var unknownJson = Path.Combine(protocolsDir, "unknown.json");
-                await SaveClashJson(unknownJson, renamedProxies.Where(p => !ValidProtocols.Contains(p.Proto)).ToList(), "FastNodes Unknown");
-                Console.WriteLine($"Saved unknown.json ({unknowns.Count})");
+                await SaveClashJson(unknownJson, unknowns, "FastNodes Unknown");
             }
             await GenerateBestResultsAsync(renamedProxies);
             Console.WriteLine("\n🎉 Done!");
@@ -451,17 +437,23 @@ namespace ProxyCollector.Collector
 
         private async Task GenerateBestResultsAsync(List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object? ClashProxy)> proxies)
         {
-            Console.WriteLine($"\n🏆 Quick raw testing {proxies.Count} proxies...");
-            var quickResults = new ConcurrentBag<(string Link, int Latency, object? ClashProxy)>();
-            await Parallel.ForEachAsync(proxies, new ParallelOptions { MaxDegreeOfParallelism = 60 }, async (p, ct) =>
+            Console.WriteLine($"\n🏆 Quick raw testing up to {MaxQuickTestProxies} proxies...");
+            var quickResults = new ConcurrentBag<(string Link, int Latency, string Proto, object? ClashProxy)>();
+
+            var toTest = proxies.Take(MaxQuickTestProxies).ToList();
+
+            await Parallel.ForEachAsync(toTest, new ParallelOptions { MaxDegreeOfParallelism = 80 }, async (p, ct) =>
             {
                 int latency = await QuickRawLatencyAsync(p.Link);
                 if (latency > 0 && latency < 1500)
-                    quickResults.Add((p.Link, latency, p.ClashProxy));
+                    quickResults.Add((p.Link, latency, p.Proto, p.ClashProxy));
             });
-            var candidates = quickResults.OrderBy(t => t.Latency).Take(QuickCandidatesLimit).ToList();
+
+            var candidates = quickResults.OrderBy(x => x.Latency).Take(QuickCandidatesLimit).ToList();
             Console.WriteLine($" → {candidates.Count} quick candidates passed → starting full sing-box tunnel test...");
+
             var fullResults = new ConcurrentBag<(string Link, int Latency, object? ClashProxy)>();
+
             var batches = candidates.Chunk(SingBoxBatchSize);
             foreach (var batch in batches)
             {
@@ -474,10 +466,13 @@ namespace ProxyCollector.Collector
                             fullResults.Add((item.Link, fullLatency, item.ClashProxy));
                     }
                 }).ToArray();
+
                 await Task.WhenAll(batchTasks);
             }
-            var sorted = fullResults.Where(x => !x.Link.ToLowerInvariant().Contains("reality")).OrderBy(x => x.Latency).ToList();
+
+            var sorted = fullResults.OrderBy(x => x.Latency).ToList();
             Console.WriteLine($"Full tunnel test complete: {sorted.Count} usable proxies");
+
             var bestDir = Path.Combine(Directory.GetCurrentDirectory(), "sub", "Best-Results");
             Directory.CreateDirectory(bestDir);
             var limits = new[] { 100, 200, 300, 400, 500 };
@@ -487,20 +482,22 @@ namespace ProxyCollector.Collector
                 var txtPath = Path.Combine(bestDir, $"top{limit}.txt");
                 await File.WriteAllLinesAsync(txtPath, topN.Select(t => $"{t.Link} # latency={t.Latency}ms"));
                 Console.WriteLine($"Saved sub/Best-Results/top{limit}.txt ({topN.Count})");
+
                 var jsonProxies = topN.Select(t => t.ClashProxy).Where(p => p != null).ToList();
                 var jsonConfig = new
                 {
                     name = $"FastNodes Top {limit}",
                     proxies = jsonProxies,
-                    proxy_groups = new object[]
+                    proxy_groups = new[]
                     {
                         new
                         {
                             name = "AUTO",
                             type = "url-test",
-                            proxies = topN.Select(t => ((dynamic?)t.ClashProxy)?.name ?? "Unnamed").ToList(),
+                            proxies = topN.Select(t => ((dynamic)t.ClashProxy).name ?? "Unnamed").ToList(),
                             url = "http://cp.cloudflare.com/generate_204",
-                            interval = 300
+                            interval = 300,
+                            tolerance = 50
                         }
                     },
                     rules = new[] { "MATCH,AUTO" }
@@ -527,7 +524,7 @@ namespace ProxyCollector.Collector
                     {
                         total += (int)(DateTime.UtcNow - start).TotalMilliseconds;
                         success++;
-                        if (success >= 2) break;
+                        if (success >= 1) break;
                     }
                 }
                 catch { }
@@ -680,9 +677,10 @@ namespace ProxyCollector.Collector
         private async Task SaveClashJson(string filePath, List<(string Link, string Proto, string CountryCode, string ServerPort, string Remark, object? ClashProxy)> proxies, string configName)
         {
             var clashProxies = proxies.Select(x => x.ClashProxy).Where(p => p != null).ToList();
-            var remarkList = proxies.Select(x => x.Remark).ToList();
+            var proxyNames = proxies.Select(x => x.Remark).ToList();
             var clashConfig = new
             {
+                name = configName,
                 port = 7890,
                 socks_port = 7891,
                 allow_lan = true,
@@ -690,15 +688,16 @@ namespace ProxyCollector.Collector
                 log_level = "info",
                 external_controller = "127.0.0.1:9090",
                 proxies = clashProxies,
-                proxy_groups = new object[]
+                proxy_groups = new[]
                 {
                     new
                     {
                         name = "AUTO",
                         type = "url-test",
-                        proxies = remarkList,
+                        proxies = proxyNames,
                         url = "http://cp.cloudflare.com/generate_204",
-                        interval = 300
+                        interval = 300,
+                        tolerance = 50
                     }
                 },
                 rules = new[] { "MATCH,AUTO" }

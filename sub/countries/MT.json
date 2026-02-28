@@ -26,15 +26,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 172.64.204.234:443",
-      "type": "vless",
-      "server": "172.64.204.234",
-      "port": 443,
-      "uuid": "d9eb0df3-3190-4447-86b6-656fe5ff1119",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.63:8880",
       "type": "vless",
       "server": "193.227.99.63",
@@ -53,12 +44,13 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - SS 171.22.254.129:990",
-      "type": "ss",
-      "server": "171.22.254.129",
-      "port": 990,
-      "cipher": "auto",
-      "password": ""
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 172.64.204.234:443",
+      "type": "vless",
+      "server": "172.64.204.234",
+      "port": 443,
+      "uuid": "d9eb0df3-3190-4447-86b6-656fe5ff1119",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.148:2096",
@@ -68,6 +60,14 @@
       "uuid": "1a25f8ad-cad2-4e93-b5bf-34e42bcac02a",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - SS 171.22.254.129:990",
+      "type": "ss",
+      "server": "171.22.254.129",
+      "port": 990,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.66:8443",
@@ -165,15 +165,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.238:2096",
-      "type": "vless",
-      "server": "193.227.99.238",
-      "port": 2096,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF2\uD83C\uDDF9 Malta - SS 193.227.99.148:2096",
       "type": "ss",
       "server": "193.227.99.148",
@@ -197,11 +188,11 @@
       "proxies": [
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.214:443",
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.249:443",
-        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 172.64.204.234:443",
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.63:8880",
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.247:8880",
-        "\uD83C\uDDF2\uD83C\uDDF9 Malta - SS 171.22.254.129:990",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 172.64.204.234:443",
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.148:2096",
+        "\uD83C\uDDF2\uD83C\uDDF9 Malta - SS 171.22.254.129:990",
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.66:8443",
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - SS 171.22.254.17:989",
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.138:2096",
@@ -213,7 +204,6 @@
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.234:8880",
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.124:2053",
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.168:8880",
-        "\uD83C\uDDF2\uD83C\uDDF9 Malta - VLESS 193.227.99.238:2096",
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - SS 193.227.99.148:2096",
         "\uD83C\uDDF2\uD83C\uDDF9 Malta - SS 172.64.204.234:443"
       ],

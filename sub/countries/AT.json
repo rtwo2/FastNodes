@@ -134,15 +134,6 @@
       "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 212.183.88.1:443",
-      "type": "vless",
-      "server": "212.183.88.1",
-      "port": 443,
-      "uuid": "a13df940-020c-465f-bc89-ee5279b5cd6a",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 152.53.66.46:443",
       "type": "vless",
       "server": "152.53.66.46",
@@ -496,14 +487,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 212.113.106.243:13022",
-      "type": "ss",
-      "server": "212.113.106.243",
-      "port": 13022,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 212.113.106.243:12949",
       "type": "ss",
       "server": "212.113.106.243",
@@ -540,6 +523,14 @@
       "type": "ss",
       "server": "195.133.88.97",
       "port": 50319,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 212.113.106.243:13022",
+      "type": "ss",
+      "server": "212.113.106.243",
+      "port": 13022,
       "cipher": "auto",
       "password": ""
     },
@@ -605,6 +596,15 @@
       "server": "212.183.88.251",
       "port": 8880,
       "uuid": "0132166f-e702-48ed-a9e7-b07af768faf8",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 212.183.88.1:443",
+      "type": "vless",
+      "server": "212.183.88.1",
+      "port": 443,
+      "uuid": "05e6ff19-7c2f-42ce-9e66-f45bec9e8b0f",
       "tls": true,
       "flow": ""
     },
@@ -831,6 +831,14 @@
       "tls": true
     },
     {
+      "name": "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 37.235.56.69:989",
+      "type": "ss",
+      "server": "37.235.56.69",
+      "port": 989,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 94.228.169.114:25663",
       "type": "ss",
       "server": "94.228.169.114",
@@ -964,7 +972,6 @@
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 152.53.51.29:22955",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 178.22.31.68:8443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 152.53.46.3:443",
-        "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 212.183.88.1:443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 152.53.66.46:443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 152.53.46.200:443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 94.228.169.211:10565",
@@ -1005,12 +1012,12 @@
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 185.104.63.201:443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 196.245.238.34:443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 212.183.88.158:2096",
-        "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 212.113.106.243:13022",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 212.113.106.243:12949",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 212.183.88.238:2096",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 212.183.88.232:443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 212.113.106.76:29149",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 195.133.88.97:50319",
+        "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 212.113.106.243:13022",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 195.133.88.107:443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 151.236.11.221:8443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 185.180.12.81:989",
@@ -1019,6 +1026,7 @@
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - TROJAN 212.183.88.172:443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - TROJAN 212.183.88.194:443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 212.183.88.251:8880",
+        "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 212.183.88.1:443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 212.183.88.109:443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 212.183.88.162:443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 212.183.88.172:443",
@@ -1048,6 +1056,7 @@
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - HY2 152.53.54.139:30000",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - HY2 152.53.0.187:40443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VMESS 94.228.169.108:443",
+        "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 37.235.56.69:989",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - SS 94.228.169.114:25663",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 138.124.90.159:8443",
         "\uD83C\uDDE6\uD83C\uDDF9 Austria - VLESS 212.183.88.146:443",

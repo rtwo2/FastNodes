@@ -3203,18 +3203,34 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 35.183.69.126:443",
+      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 165.22.235.48:19401",
       "type": "ss",
-      "server": "35.183.69.126",
-      "port": 443,
+      "server": "165.22.235.48",
+      "port": 19401,
       "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 35.183.216.163:2053",
+      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 144.217.133.97:30238",
       "type": "ss",
-      "server": "35.183.216.163",
-      "port": 2053,
+      "server": "144.217.133.97",
+      "port": 30238,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 85.208.108.136:8443",
+      "type": "ss",
+      "server": "85.208.108.136",
+      "port": 8443,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 35.183.69.126:443",
+      "type": "ss",
+      "server": "35.183.69.126",
+      "port": 443,
       "cipher": "auto",
       "password": ""
     },
@@ -3225,22 +3241,6 @@
       "port": 8080,
       "cipher": "auto",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 35.182.103.89:22222",
-      "type": "trojan",
-      "server": "35.182.103.89",
-      "port": 22222,
-      "password": "telegram-id-directvpn",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 35.182.251.249:22222",
-      "type": "trojan",
-      "server": "35.182.251.249",
-      "port": 22222,
-      "password": "telegram-id-directvpn",
-      "tls": true
     }
   ],
   "proxy_groups": [
@@ -3644,11 +3644,11 @@
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 134.195.196.107:7001",
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 3.96.146.189:22222",
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 35.183.57.142:22222",
+        "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 165.22.235.48:19401",
+        "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 144.217.133.97:30238",
+        "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 85.208.108.136:8443",
         "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 35.183.69.126:443",
-        "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 35.183.216.163:2053",
-        "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 198.50.119.86:8080",
-        "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 35.182.103.89:22222",
-        "\uD83C\uDDE8\uD83C\uDDE6 Canada - TROJAN 35.182.251.249:22222"
+        "\uD83C\uDDE8\uD83C\uDDE6 Canada - SS 198.50.119.86:8080"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

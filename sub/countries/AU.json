@@ -668,13 +668,12 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 103.169.142.244:443",
-      "type": "vless",
-      "server": "103.169.142.244",
+      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.6:443",
+      "type": "ss",
+      "server": "103.169.142.6",
       "port": 443,
-      "uuid": "a13df940-020c-465f-bc89-ee5279b5cd6a",
-      "tls": true,
-      "flow": ""
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.64:443",
@@ -696,30 +695,6 @@
       "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 20.42.228.160:443",
       "type": "ss",
       "server": "20.42.228.160",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 192.9.162.122:1443",
-      "type": "ss",
-      "server": "192.9.162.122",
-      "port": 1443,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.244:443",
-      "type": "ss",
-      "server": "103.169.142.244",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 82.97.243.225:443",
-      "type": "ss",
-      "server": "82.97.243.225",
       "port": 443,
       "cipher": "auto",
       "password": ""
@@ -816,13 +791,10 @@
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SOCKS5 134.199.159.23:1080",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - TROJAN 103.224.212.213:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 192.65.217.138:2096",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - VLESS 103.169.142.244:443",
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.6:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.64:443",
         "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 192.65.217.138:2096",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 20.42.228.160:443",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 192.9.162.122:1443",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 103.169.142.244:443",
-        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 82.97.243.225:443"
+        "\uD83C\uDDE6\uD83C\uDDFA Australia - SS 20.42.228.160:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

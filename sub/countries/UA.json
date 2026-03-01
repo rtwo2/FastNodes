@@ -229,14 +229,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 194.150.220.103:443",
-      "type": "ss",
-      "server": "194.150.220.103",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 95.164.47.60:443",
       "type": "ss",
       "server": "95.164.47.60",
@@ -278,14 +270,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 195.28.182.217:51348",
-      "type": "ss",
-      "server": "195.28.182.217",
-      "port": 51348,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 193.238.153.84:33817",
       "type": "ss",
       "server": "193.238.153.84",
@@ -306,6 +290,14 @@
       "type": "ss",
       "server": "193.0.61.96",
       "port": 51348,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 194.150.220.103:443",
+      "type": "ss",
+      "server": "194.150.220.103",
+      "port": 443,
       "cipher": "auto",
       "password": ""
     },
@@ -354,6 +346,14 @@
       "type": "ss",
       "server": "176.103.53.105",
       "port": 990,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 195.28.182.217:51348",
+      "type": "ss",
+      "server": "195.28.182.217",
+      "port": 51348,
       "cipher": "auto",
       "password": ""
     },
@@ -531,12 +531,21 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - TROJAN 130.0.236.88:443",
-      "type": "trojan",
-      "server": "130.0.236.88",
+      "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - VLESS 95.164.36.59:443",
+      "type": "vless",
+      "server": "95.164.36.59",
       "port": 443,
-      "password": "d2adff89-5143-4d67-921f-3478464de5bb",
-      "tls": true
+      "uuid": "ecf605cd-bddf-45db-a3d4-a254c776ef52",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 130.0.233.100:33610",
+      "type": "ss",
+      "server": "130.0.233.100",
+      "port": 33610,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - VLESS 130.0.233.100:8443",
@@ -546,23 +555,6 @@
       "uuid": "ccb8e0cd3b764e97bf6dd015830a5510",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - VLESS 95.164.36.59:443",
-      "type": "vless",
-      "server": "95.164.36.59",
-      "port": 443,
-      "uuid": "a6b5e86d-248d-4313-bc1f-716baf350ef8",
-      "tls": true,
-      "flow": "xtls-rprx-vision"
-    },
-    {
-      "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 130.0.233.100:33610",
-      "type": "ss",
-      "server": "130.0.233.100",
-      "port": 33610,
-      "cipher": "auto",
-      "password": ""
     },
     {
       "name": "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 95.164.36.59:443",
@@ -619,22 +611,22 @@
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - VLESS 94.154.33.216:8080",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 156.146.50.102:50695",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 37.19.218.197:8389",
-        "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 194.150.220.103:443",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 95.164.47.60:443",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - TROJAN 95.164.33.62:443",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - VLESS 91.218.212.223:443",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 95.164.36.192:64751",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 5.188.6.8:989",
-        "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 195.28.182.217:51348",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 193.238.153.84:33817",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 95.164.44.237:49790",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 193.0.61.96:51348",
+        "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 194.150.220.103:443",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 95.164.35.90:8388",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 95.164.37.226:8388",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 95.164.36.59:8388",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 163.171.137.76:47395",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 147.78.3.93:990",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 176.103.53.105:990",
+        "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 195.28.182.217:51348",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 95.164.45.70:8880",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 95.164.45.78:8880",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 95.164.45.90:8880",
@@ -655,10 +647,9 @@
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - VLESS 95.164.45.62:8880",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 163.171.137.72:11201",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - VLESS 95.164.45.122:50268",
-        "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - TROJAN 130.0.236.88:443",
-        "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - VLESS 130.0.233.100:8443",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - VLESS 95.164.36.59:443",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 130.0.233.100:33610",
+        "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - VLESS 130.0.233.100:8443",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 95.164.36.59:443",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 91.218.122.10:8443",
         "\uD83C\uDDFA\uD83C\uDDE6 Ukraine - SS 130.0.233.100:8443"

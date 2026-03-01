@@ -61,14 +61,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 91.250.240.148:49339",
-      "type": "ss",
-      "server": "91.250.240.148",
-      "port": 49339,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDF5\uD83C\uDDF9 Portugal - VLESS 104.22.13.192:443",
       "type": "vless",
       "server": "104.22.13.192",
@@ -78,10 +70,10 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 185.231.233.112:989",
+      "name": "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 91.250.240.148:49339",
       "type": "ss",
-      "server": "185.231.233.112",
-      "port": 989,
+      "server": "91.250.240.148",
+      "port": 49339,
       "cipher": "auto",
       "password": ""
     },
@@ -108,6 +100,14 @@
       "port": 990,
       "cipher": "auto",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 185.231.233.112:989",
+      "type": "ss",
+      "server": "185.231.233.112",
+      "port": 989,
+      "cipher": "auto",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -121,12 +121,12 @@
         "\uD83C\uDDF5\uD83C\uDDF9 Portugal - VLESS 104.22.12.215:443",
         "\uD83C\uDDF5\uD83C\uDDF9 Portugal - VLESS 104.22.13.215:443",
         "\uD83C\uDDF5\uD83C\uDDF9 Portugal - VLESS 104.22.13.10:80",
-        "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 91.250.240.148:49339",
         "\uD83C\uDDF5\uD83C\uDDF9 Portugal - VLESS 104.22.13.192:443",
-        "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 185.231.233.112:989",
+        "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 91.250.240.148:49339",
         "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 104.22.13.192:2053",
         "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 31.129.22.32:443",
-        "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 185.231.233.173:990"
+        "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 185.231.233.173:990",
+        "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 185.231.233.112:989"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

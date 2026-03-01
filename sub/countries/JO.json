@@ -17,15 +17,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF4 Jordan - VLESS 62.72.166.138:2096",
-      "type": "vless",
-      "server": "62.72.166.138",
-      "port": 2096,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:41022",
       "type": "ss",
       "server": "91.106.109.17",
@@ -42,35 +33,20 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48212",
-      "type": "ss",
-      "server": "91.106.109.17",
-      "port": 48212,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48210",
-      "type": "ss",
-      "server": "91.106.109.17",
-      "port": 48210,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48213",
-      "type": "ss",
-      "server": "91.106.109.17",
-      "port": 48213,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDEF\uD83C\uDDF4 Jordan - VLESS 62.72.166.238:2096",
       "type": "vless",
       "server": "62.72.166.238",
       "port": 2096,
       "uuid": "1a25f8ad-cad2-4e93-b5bf-34e42bcac02a",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF4 Jordan - VLESS 62.72.166.138:2096",
+      "type": "vless",
+      "server": "62.72.166.138",
+      "port": 2096,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
     },
@@ -163,10 +139,34 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48210",
+      "type": "ss",
+      "server": "91.106.109.17",
+      "port": 48210,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48211",
       "type": "ss",
       "server": "91.106.109.17",
       "port": 48211,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48212",
+      "type": "ss",
+      "server": "91.106.109.17",
+      "port": 48212,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48213",
+      "type": "ss",
+      "server": "91.106.109.17",
+      "port": 48213,
       "cipher": "auto",
       "password": ""
     }
@@ -177,13 +177,10 @@
       "type": "url-test",
       "proxies": [
         "\uD83C\uDDEF\uD83C\uDDF4 Jordan - VLESS 62.72.166.67:2096",
-        "\uD83C\uDDEF\uD83C\uDDF4 Jordan - VLESS 62.72.166.138:2096",
         "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:41022",
         "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.73:11201",
-        "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48212",
-        "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48210",
-        "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48213",
         "\uD83C\uDDEF\uD83C\uDDF4 Jordan - VLESS 62.72.166.238:2096",
+        "\uD83C\uDDEF\uD83C\uDDF4 Jordan - VLESS 62.72.166.138:2096",
         "\uD83C\uDDEF\uD83C\uDDF4 Jordan - TROJAN 62.72.166.140:443",
         "\uD83C\uDDEF\uD83C\uDDF4 Jordan - TROJAN 62.72.166.57:443",
         "\uD83C\uDDEF\uD83C\uDDF4 Jordan - VLESS 62.72.166.251:8880",
@@ -194,7 +191,10 @@
         "\uD83C\uDDEF\uD83C\uDDF4 Jordan - VLESS 141.9:443",
         "\uD83C\uDDEF\uD83C\uDDF4 Jordan - VLESS 62.72.166.3:8880",
         "\uD83C\uDDEF\uD83C\uDDF4 Jordan - VLESS 62.72.166.168:8880",
-        "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48211"
+        "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48210",
+        "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48211",
+        "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48212",
+        "\uD83C\uDDEF\uD83C\uDDF4 Jordan - SS 91.106.109.17:48213"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

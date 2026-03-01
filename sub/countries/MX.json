@@ -42,25 +42,17 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDFD Mexico - TROJAN 154.205.152.109:443",
-      "type": "trojan",
-      "server": "154.205.152.109",
-      "port": 443,
-      "password": "af4b064a9c39472fb34ad8b113acdc6b",
-      "tls": true
+      "name": "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 190.103.179.23:989",
+      "type": "ss",
+      "server": "190.103.179.23",
+      "port": 989,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 147.78.1.230:990",
       "type": "ss",
       "server": "147.78.1.230",
-      "port": 990,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 147.78.1.27:990",
-      "type": "ss",
-      "server": "147.78.1.27",
       "port": 990,
       "cipher": "auto",
       "password": ""
@@ -74,18 +66,10 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 190.103.179.23:989",
+      "name": "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 147.78.1.27:990",
       "type": "ss",
-      "server": "190.103.179.23",
-      "port": 989,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 185.163.1.90:11201",
-      "type": "ss",
-      "server": "185.163.1.90",
-      "port": 11201,
+      "server": "147.78.1.27",
+      "port": 990,
       "cipher": "auto",
       "password": ""
     },
@@ -93,6 +77,14 @@
       "name": "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 38.60.224.37:11201",
       "type": "ss",
       "server": "38.60.224.37",
+      "port": 11201,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 185.163.1.90:11201",
+      "type": "ss",
+      "server": "185.163.1.90",
       "port": 11201,
       "cipher": "auto",
       "password": ""
@@ -112,14 +104,6 @@
       "port": 8443,
       "cipher": "auto",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 216.238.75.111:443",
-      "type": "ss",
-      "server": "216.238.75.111",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
     }
   ],
   "proxy_groups": [
@@ -131,18 +115,16 @@
         "\uD83C\uDDF2\uD83C\uDDFD Mexico - VLESS 158.23.168.120:443",
         "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 154.205.152.64:11201",
         "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 89.223.88.33:11201",
-        "\uD83C\uDDF2\uD83C\uDDFD Mexico - TROJAN 154.205.152.109:443",
-        "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 147.78.1.230:990",
-        "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 147.78.1.27:990",
-        "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 147.78.1.230:989",
         "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 190.103.179.23:989",
-        "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 185.163.1.90:11201",
-        "\uD83C\uDDF2\uD83C\uDDFD Mexico - HYSTERIA2 140.84.178.54:50000",
-        "\uD83C\uDDF2\uD83C\uDDFD Mexico - HY2 140.84.168.166:443",
+        "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 147.78.1.230:990",
+        "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 147.78.1.230:989",
+        "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 147.78.1.27:990",
         "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 38.60.224.37:11201",
+        "\uD83C\uDDF2\uD83C\uDDFD Mexico - HYSTERIA2 140.84.171.236:50000",
+        "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 185.163.1.90:11201",
+        "\uD83C\uDDF2\uD83C\uDDFD Mexico - HY2 140.84.168.166:443",
         "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 216.238.75.111:80",
-        "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 138.186.140.102:8443",
-        "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 216.238.75.111:443"
+        "\uD83C\uDDF2\uD83C\uDDFD Mexico - SS 138.186.140.102:8443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

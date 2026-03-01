@@ -26,18 +26,18 @@
       "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 119.159.245.24:26736",
-      "type": "ss",
-      "server": "119.159.245.24",
-      "port": 26736,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 154.205.145.37:11201",
       "type": "ss",
       "server": "154.205.145.37",
       "port": 11201,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 119.159.245.24:26736",
+      "type": "ss",
+      "server": "119.159.245.24",
+      "port": 26736,
       "cipher": "auto",
       "password": ""
     },
@@ -114,14 +114,6 @@
       "uuid": "a48ac360-6114-a334-d678-6c267114e106",
       "tls": true,
       "flow": "xtls-rprx-vision"
-    },
-    {
-      "name": "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 104.22.5.137:80",
-      "type": "ss",
-      "server": "104.22.5.137",
-      "port": 80,
-      "cipher": "auto",
-      "password": ""
     }
   ],
   "proxy_groups": [
@@ -131,8 +123,8 @@
       "proxies": [
         "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - VLESS 103.175.79.10:443",
         "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - VLESS 103.175.79.2:443",
-        "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 119.159.245.24:26736",
         "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 154.205.145.37:11201",
+        "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 119.159.245.24:26736",
         "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 103.125.147.48:51348",
         "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 156.59.243.6:990",
         "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 103.175.79.2:443",
@@ -141,8 +133,7 @@
         "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 119.159.245.24:26738",
         "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 119.159.245.24:26739",
         "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 119.159.245.24:29700",
-        "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - VLESS 103.175.79.10:993",
-        "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - SS 104.22.5.137:80"
+        "\uD83C\uDDF5\uD83C\uDDF0 Pakistan - VLESS 103.175.79.10:993"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

@@ -8,15 +8,6 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 95.164.4.88:8443",
-      "type": "vless",
-      "server": "95.164.4.88",
-      "port": 8443,
-      "uuid": "1a7a39e4-8c9b-4052-b8b2-c0929536bba5",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 167.234.255.2:34045",
       "type": "vless",
       "server": "167.234.255.2",
@@ -173,6 +164,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 95.164.4.88:8443",
+      "type": "vless",
+      "server": "95.164.4.88",
+      "port": 8443,
+      "uuid": "1a7a39e4-8c9b-4052-b8b2-c0929536bba5",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.36:443",
       "type": "vless",
       "server": "185.133.35.36",
@@ -212,6 +212,15 @@
       "port": 8389,
       "cipher": "auto",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 134.65.25.228:443",
+      "type": "vless",
+      "server": "134.65.25.228",
+      "port": 443,
+      "uuid": "808fee56-008a-4780-91ba-40f072f63e49",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - TROJAN 144.22.250.122:443",
@@ -384,6 +393,14 @@
       "password": ""
     },
     {
+      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - TROJAN 185.133.35.160:443",
+      "type": "trojan",
+      "server": "185.133.35.160",
+      "port": 443,
+      "password": "6884d714-d3c4-4b49-aa20-767ea92837d6",
+      "tls": true
+    },
+    {
       "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.133.35.242:443",
       "type": "ss",
       "server": "185.133.35.242",
@@ -423,7 +440,6 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 95.164.4.88:8443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 167.234.255.2:34045",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 38.54.57.90:990",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 5.188.4.103:11201",
@@ -442,6 +458,7 @@
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 199.232.15.239:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 132.226.163.224:2053",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 38.54.57.180:80",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 95.164.4.88:8443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.36:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:46727",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 38.54.57.90:989",
@@ -449,6 +466,7 @@
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HYSTERIA2 167.234.251.78:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HYSTERIA2 150.230.89.61:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 177.54.152.89:8389",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 134.65.25.228:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - TROJAN 144.22.250.122:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 147.45.116.44:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.192.124.188:990",
@@ -469,6 +487,7 @@
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18425",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18426",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18427",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HYSTERIA2 168.138.233.67:50000",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 144.22.187.105:30102",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 144.22.243.213:24749",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 167.234.249.46:444",
@@ -479,6 +498,7 @@
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 168.75.103.205:2025",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 129.148.33.28:60800",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 168.75.65.36:60800",
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - TROJAN 185.133.35.160:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.133.35.242:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 147.45.116.72:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 154.205.156.52:443",

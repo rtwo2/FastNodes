@@ -205,15 +205,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 134.65.25.228:443",
-      "type": "vless",
-      "server": "134.65.25.228",
-      "port": 443,
-      "uuid": "808fee56-008a-4780-91ba-40f072f63e49",
-      "tls": true,
-      "flow": "xtls-rprx-vision"
-    },
-    {
       "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - TROJAN 144.22.250.122:443",
       "type": "trojan",
       "server": "144.22.250.122",
@@ -417,14 +408,6 @@
       "uuid": "a13df940-020c-465f-bc89-ee5279b5cd6a",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.133.35.36:443",
-      "type": "ss",
-      "server": "185.133.35.36",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
     }
   ],
   "proxy_groups": [
@@ -457,7 +440,6 @@
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HYSTERIA2 167.234.251.78:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HYSTERIA2 150.230.89.61:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 177.54.152.89:8389",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 134.65.25.228:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - TROJAN 144.22.250.122:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 147.45.116.44:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.192.124.188:990",
@@ -478,7 +460,6 @@
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18425",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18426",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 157.185.173.60:18427",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HYSTERIA2 168.138.233.67:50000",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 144.22.187.105:30102",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 144.22.243.213:24749",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - HY2 167.234.249.46:444",
@@ -492,8 +473,7 @@
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.133.35.242:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 147.45.116.72:443",
         "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 154.205.156.52:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.36:443",
-        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - SS 185.133.35.36:443"
+        "\uD83C\uDDE7\uD83C\uDDF7 Brazil - VLESS 185.133.35.36:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

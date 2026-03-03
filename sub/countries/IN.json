@@ -179,24 +179,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 152.70.76.104:46000",
-      "type": "vless",
-      "server": "152.70.76.104",
-      "port": 46000,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.88.183.163:8443",
-      "type": "vless",
-      "server": "45.88.183.163",
-      "port": 8443,
-      "uuid": "fde3da09-e21d-4d8a-aba7-4aef5b963805",
-      "tls": true,
-      "flow": "xtls-rprx-vision"
-    },
-    {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 144.24.97.225:443",
       "type": "vless",
       "server": "144.24.97.225",
@@ -345,6 +327,15 @@
       "type": "vless",
       "server": "154.198.173.138",
       "port": 2096,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 152.70.76.104:46000",
+      "type": "vless",
+      "server": "152.70.76.104",
+      "port": 46000,
       "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
@@ -827,15 +818,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 152.70.75.80:15805",
-      "type": "vless",
-      "server": "152.70.75.80",
-      "port": 15805,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 139.84.163.149:443",
       "type": "vless",
       "server": "139.84.163.149",
@@ -862,20 +844,20 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 104.22.0.87:443",
-      "type": "vless",
-      "server": "104.22.0.87",
-      "port": 443,
-      "uuid": "cb2effa0-e49c-49d3-aee6-c7e3e1f38922",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.89.105.56:8443",
       "type": "vless",
       "server": "45.89.105.56",
       "port": 8443,
       "uuid": "5a54a377-a9d3-4ea5-b7b0-17bd899e202d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 152.70.75.80:15805",
+      "type": "vless",
+      "server": "152.70.75.80",
+      "port": 15805,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
     },
@@ -1010,8 +992,6 @@
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 104.22.33.91:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 129.154.237.13:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.88.183.157:23803",
-        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 152.70.76.104:46000",
-        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.88.183.163:8443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 144.24.97.225:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 163.171.206.24:44233",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.89.105.24:4443",
@@ -1030,6 +1010,7 @@
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 146.56.48.138:23010",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 139.59.3.70:19608",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 154.198.173.138:2096",
+        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 152.70.76.104:46000",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 92.4.64.184:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 98.70.26.236:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 13.200.192.197:443",
@@ -1102,12 +1083,11 @@
         "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 144.24.145.69:2052",
         "\uD83C\uDDEE\uD83C\uDDF3 India - HY2 140.238.253.128:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 166.0.244.206:2053",
-        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 152.70.75.80:15805",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 139.84.163.149:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 35.154.123.52:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 198.38.86.30:1234",
-        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 104.22.0.87:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.89.105.56:8443",
+        "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 152.70.75.80:15805",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 216.10.243.159:443",
         "\uD83C\uDDEE\uD83C\uDDF3 India - VLESS 45.88.183.55:2053",
         "\uD83C\uDDEE\uD83C\uDDF3 India - SS 45.89.105.56:80",

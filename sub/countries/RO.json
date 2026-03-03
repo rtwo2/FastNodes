@@ -390,26 +390,18 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - TROJAN 185.247.224.136:443",
-      "type": "trojan",
-      "server": "185.247.224.136",
-      "port": 443,
-      "password": "af4b064a9c39472fb34ad8b113acdc6b",
-      "tls": true
+      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 194.14.217.115:989",
+      "type": "ss",
+      "server": "194.14.217.115",
+      "port": 989,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 185.126.237.38:990",
       "type": "ss",
       "server": "185.126.237.38",
       "port": 990,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 194.14.217.115:989",
-      "type": "ss",
-      "server": "194.14.217.115",
-      "port": 989,
       "cipher": "auto",
       "password": ""
     },
@@ -1090,27 +1082,26 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.13.151.22:8443",
-      "type": "vless",
-      "server": "45.13.151.22",
-      "port": 8443,
-      "uuid": "966288c3-6775-4f2d-9513-3fc1f4e8cd5f",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 188.241.241.20:2053",
+      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 188.241.241.29:2053",
       "type": "ss",
-      "server": "188.241.241.20",
+      "server": "188.241.241.29",
       "port": 2053,
       "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 45.13.151.22:8443",
+      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 188.241.241.33:2053",
       "type": "ss",
-      "server": "45.13.151.22",
-      "port": 8443,
+      "server": "188.241.241.33",
+      "port": 2053,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 188.241.241.3:2053",
+      "type": "ss",
+      "server": "188.241.241.3",
+      "port": 2053,
       "cipher": "auto",
       "password": ""
     },
@@ -1118,6 +1109,14 @@
       "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 45.12.30.95:443",
       "type": "ss",
       "server": "45.12.30.95",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 45.85.118.241:443",
+      "type": "ss",
+      "server": "45.85.118.241",
       "port": 443,
       "cipher": "auto",
       "password": ""
@@ -1171,9 +1170,8 @@
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.85.119.238:2096",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.12.30.138:2096",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.12.31.138:2096",
-        "\uD83C\uDDF7\uD83C\uDDF4 Romania - TROJAN 185.247.224.136:443",
-        "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 185.126.237.38:990",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 194.14.217.115:989",
+        "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 185.126.237.38:990",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 194.14.217.38:989",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 194.14.217.89:989",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 45.85.119.151:8880",
@@ -1252,10 +1250,11 @@
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - TROJAN 45.85.118.241:443",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - TROJAN 45.85.118.83:8443",
         "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.85.118.146:80",
-        "\uD83C\uDDF7\uD83C\uDDF4 Romania - VLESS 45.13.151.22:8443",
-        "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 188.241.241.20:2053",
-        "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 45.13.151.22:8443",
-        "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 45.12.30.95:443"
+        "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 188.241.241.29:2053",
+        "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 188.241.241.33:2053",
+        "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 188.241.241.3:2053",
+        "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 45.12.30.95:443",
+        "\uD83C\uDDF7\uD83C\uDDF4 Romania - SS 45.85.118.241:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

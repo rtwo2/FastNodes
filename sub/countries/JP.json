@@ -320,14 +320,6 @@
       "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.70.180:2001",
-      "type": "trojan",
-      "server": "160.16.70.180",
-      "port": 2001,
-      "password": "262f1d150049457ac1d6e66b020fa980",
-      "tls": true
-    },
-    {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 158.101.131.94:2083",
       "type": "vless",
       "server": "158.101.131.94",
@@ -355,14 +347,6 @@
       "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.106.99:2001",
-      "type": "trojan",
-      "server": "160.16.106.99",
-      "port": 2001,
-      "password": "262f1d150049457ac1d6e66b020fa980",
-      "tls": true
-    },
-    {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 103.115.18.22:8443",
       "type": "vless",
       "server": "103.115.18.22",
@@ -379,14 +363,6 @@
       "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.72.205:2001",
-      "type": "trojan",
-      "server": "160.16.72.205",
-      "port": 2001,
-      "password": "262f1d150049457ac1d6e66b020fa980",
-      "tls": true
     },
     {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 18.183.167.108:331",
@@ -432,13 +408,13 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 15.168.173.144:443",
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 43.206.124.158:443",
       "type": "vless",
-      "server": "15.168.173.144",
+      "server": "43.206.124.158",
       "port": 443,
-      "uuid": "e0306a33-9971-4b75-a5e0-a176a5a48a2e",
+      "uuid": "4c26ebc3-7784-46d8-b52a-7b0ccae6f4b4",
       "tls": true,
-      "flow": ""
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 161.248.63.15:41579",
@@ -450,13 +426,13 @@
       "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 43.206.124.158:443",
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 15.168.173.144:443",
       "type": "vless",
-      "server": "43.206.124.158",
+      "server": "15.168.173.144",
       "port": 443,
-      "uuid": "4c26ebc3-7784-46d8-b52a-7b0ccae6f4b4",
+      "uuid": "e0306a33-9971-4b75-a5e0-a176a5a48a2e",
       "tls": true,
-      "flow": "xtls-rprx-vision"
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 43.153.181.217:80",
@@ -662,15 +638,6 @@
       "server": "154.197.108.247",
       "port": 8880,
       "uuid": "d60fc3c5-9f07-4cdb-b81f-70af27936bdc",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 43.133.216.147:443",
-      "type": "vless",
-      "server": "43.133.216.147",
-      "port": 443,
-      "uuid": "66eb38e6-0b40-558b-d8de-989f07f351b7",
       "tls": true,
       "flow": ""
     },
@@ -1215,28 +1182,12 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.214.104:2001",
-      "type": "trojan",
-      "server": "160.16.214.104",
-      "port": 2001,
-      "password": "f7dbed8b1ca85124e793ba6c0bcfd0db",
-      "tls": true
-    },
-    {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 153.121.45.139:4920",
       "type": "trojan",
       "server": "153.121.45.139",
       "port": 4920,
       "password": "f7dbed8b1ca85124e793ba6c0bcfd0db",
       "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 103.106.228.175:8009",
-      "type": "ss",
-      "server": "103.106.228.175",
-      "port": 8009,
-      "cipher": "auto",
-      "password": ""
     },
     {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 13.192.169.190:331",
@@ -1309,6 +1260,14 @@
       "port": 43074,
       "password": "347ca311-8fc2-499c-8fe1-bd0ecb50f1b3",
       "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 103.106.228.175:8009",
+      "type": "ss",
+      "server": "103.106.228.175",
+      "port": 8009,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 158.101.152.6:2919",
@@ -1505,6 +1464,14 @@
       "type": "trojan",
       "server": "160.16.130.21",
       "port": 4920,
+      "password": "262f1d150049457ac1d6e66b020fa980",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.72.205:2001",
+      "type": "trojan",
+      "server": "160.16.72.205",
+      "port": 2001,
       "password": "262f1d150049457ac1d6e66b020fa980",
       "tls": true
     },
@@ -1741,9 +1708,9 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 176.97.71.101:443",
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 176.97.70.244:443",
       "type": "vless",
-      "server": "176.97.71.101",
+      "server": "176.97.70.244",
       "port": 443,
       "uuid": "eb071647-72a6-46be-8e89-ff3d228d52f6",
       "tls": true,
@@ -1759,27 +1726,131 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 193.38.139.204:806",
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.153.185:443",
       "type": "ss",
-      "server": "193.38.139.204",
-      "port": 806,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.83.221:443",
-      "type": "ss",
-      "server": "43.207.83.221",
+      "server": "43.207.153.185",
       "port": 443,
       "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.145.107:2053",
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 168.138.44.176:443",
       "type": "trojan",
-      "server": "160.16.145.107",
-      "port": 2053,
-      "password": "96983eb4-c8f1-316e-ab00-500014ed3d8b",
+      "server": "168.138.44.176",
+      "port": 443,
+      "password": "8d2d5953-d649-4034-94f2-72f2df2623da",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 141.147.191.85:28443",
+      "type": "trojan",
+      "server": "141.147.191.85",
+      "port": 28443,
+      "password": "750a29bf-0a40-437f-b120-38de74ae7eaf",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 103.75.118.27:989",
+      "type": "ss",
+      "server": "103.75.118.27",
+      "port": 989,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:804",
+      "type": "ss",
+      "server": "185.172.113.182",
+      "port": 804,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:811",
+      "type": "ss",
+      "server": "185.172.113.182",
+      "port": 811,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.26.91:1664",
+      "type": "ss",
+      "server": "185.160.26.91",
+      "port": 1664,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 15.168.28.231:443",
+      "type": "trojan",
+      "server": "15.168.28.231",
+      "port": 443,
+      "password": "c51d3975-a40c-4a5b-929b-c8595ed87850",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.68.169:443",
+      "type": "ss",
+      "server": "43.207.68.169",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 54.199.83.239:2333",
+      "type": "ss",
+      "server": "54.199.83.239",
+      "port": 2333,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.230.201.192:443",
+      "type": "trojan",
+      "server": "150.230.201.192",
+      "port": 443,
+      "password": "f42e1a2e-e650-44f4-8d17-bcb68663da18",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 138.2.45.243:443",
+      "type": "trojan",
+      "server": "138.2.45.243",
+      "port": 443,
+      "password": "c19d1432-8b3e-4818-8837-3d160cf65908",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.206.219.140:443",
+      "type": "ss",
+      "server": "43.206.219.140",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.230.96.103:443",
+      "type": "trojan",
+      "server": "150.230.96.103",
+      "port": 443,
+      "password": "da777aae-defb-41d0-a183-2c27da2b4677",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.24.217:811",
+      "type": "ss",
+      "server": "185.160.24.217",
+      "port": 811,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 132.226.5.246:443",
+      "type": "trojan",
+      "server": "132.226.5.246",
+      "port": 443,
+      "password": "4f7dc540-d244-4e64-af21-4b5bb300add3",
       "tls": true
     },
     {
@@ -1791,17 +1862,33 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.1.14:443",
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:800",
       "type": "ss",
-      "server": "43.207.1.14",
-      "port": 443,
+      "server": "185.172.113.182",
+      "port": 800,
       "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 175.41.205.247:443",
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.24.217:803",
       "type": "ss",
-      "server": "175.41.205.247",
+      "server": "185.160.24.217",
+      "port": 803,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 138.2.45.89:44301",
+      "type": "trojan",
+      "server": "138.2.45.89",
+      "port": 44301,
+      "password": "6d64570c-81d4-30fa-b2e2-dce73e1a2702",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 54.178.60.213:443",
+      "type": "ss",
+      "server": "54.178.60.213",
       "port": 443,
       "cipher": "auto",
       "password": ""
@@ -1815,27 +1902,11 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.68.169:443",
-      "type": "ss",
-      "server": "43.207.68.169",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.206.219.140:443",
-      "type": "ss",
-      "server": "43.206.219.140",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 15.168.28.231:443",
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.230.217.213:443",
       "type": "trojan",
-      "server": "15.168.28.231",
+      "server": "150.230.217.213",
       "port": 443,
-      "password": "c51d3975-a40c-4a5b-929b-c8595ed87850",
+      "password": "c09eb137-bf68-4658-84e0-102d94b74168",
       "tls": true
     },
     {
@@ -1847,54 +1918,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.24.217:811",
-      "type": "ss",
-      "server": "185.160.24.217",
-      "port": 811,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 54.178.60.213:443",
-      "type": "ss",
-      "server": "54.178.60.213",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 133.167.100.203:2053",
-      "type": "trojan",
-      "server": "133.167.100.203",
-      "port": 2053,
-      "password": "96983eb4-c8f1-316e-ab00-500014ed3d8b",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.24.217:803",
-      "type": "ss",
-      "server": "185.160.24.217",
-      "port": 803,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 219.94.250.108:2053",
-      "type": "trojan",
-      "server": "219.94.250.108",
-      "port": 2053,
-      "password": "96983eb4-c8f1-316e-ab00-500014ed3d8b",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 132.226.5.246:443",
-      "type": "trojan",
-      "server": "132.226.5.246",
-      "port": 443,
-      "password": "4f7dc540-d244-4e64-af21-4b5bb300add3",
-      "tls": true
-    },
-    {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 153.121.74.146:2053",
       "type": "trojan",
       "server": "153.121.74.146",
@@ -1903,58 +1926,10 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.26.91:1664",
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 89.31.126.150:802",
       "type": "ss",
-      "server": "185.160.26.91",
-      "port": 1664,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 54.199.83.239:2333",
-      "type": "ss",
-      "server": "54.199.83.239",
-      "port": 2333,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 168.138.43.89:443",
-      "type": "trojan",
-      "server": "168.138.43.89",
-      "port": 443,
-      "password": "d06a3f01-1ff0-4792-9b8e-a5a604bc74a2",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 89.31.126.171:800",
-      "type": "ss",
-      "server": "89.31.126.171",
-      "port": 800,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 138.2.45.89:44301",
-      "type": "trojan",
-      "server": "138.2.45.89",
-      "port": 44301,
-      "password": "6d64570c-81d4-30fa-b2e2-dce73e1a2702",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.206.221.164:443",
-      "type": "ss",
-      "server": "43.206.221.164",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.82.53:443",
-      "type": "ss",
-      "server": "43.207.82.53",
-      "port": 443,
+      "server": "89.31.126.150",
+      "port": 802,
       "cipher": "auto",
       "password": ""
     },
@@ -1967,52 +1942,68 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 49.212.221.47:2053",
-      "type": "trojan",
-      "server": "49.212.221.47",
-      "port": 2053,
-      "password": "96983eb4-c8f1-316e-ab00-500014ed3d8b",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.230.201.192:443",
-      "type": "trojan",
-      "server": "150.230.201.192",
-      "port": 443,
-      "password": "f42e1a2e-e650-44f4-8d17-bcb68663da18",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:800",
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.206.221.164:443",
       "type": "ss",
-      "server": "185.172.113.182",
+      "server": "43.206.221.164",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 106.180.225.69:1443",
+      "type": "trojan",
+      "server": "106.180.225.69",
+      "port": 1443,
+      "password": "7x42LetRa0",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.166.104:443",
+      "type": "ss",
+      "server": "43.207.166.104",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 168.138.43.89:443",
+      "type": "trojan",
+      "server": "168.138.43.89",
+      "port": 443,
+      "password": "d06a3f01-1ff0-4792-9b8e-a5a604bc74a2",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 193.38.139.204:806",
+      "type": "ss",
+      "server": "193.38.139.204",
+      "port": 806,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.82.53:443",
+      "type": "ss",
+      "server": "43.207.82.53",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 3.112.193.151:443",
+      "type": "ss",
+      "server": "3.112.193.151",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 89.31.126.171:800",
+      "type": "ss",
+      "server": "89.31.126.171",
       "port": 800,
       "cipher": "auto",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.230.96.103:443",
-      "type": "trojan",
-      "server": "150.230.96.103",
-      "port": 443,
-      "password": "da777aae-defb-41d0-a183-2c27da2b4677",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 89.31.126.150:802",
-      "type": "ss",
-      "server": "89.31.126.150",
-      "port": 802,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 168.138.44.176:443",
-      "type": "trojan",
-      "server": "168.138.44.176",
-      "port": 443,
-      "password": "8d2d5953-d649-4034-94f2-72f2df2623da",
-      "tls": true
     },
     {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 139.162.72.96:22060",
@@ -2047,14 +2038,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:804",
-      "type": "ss",
-      "server": "185.172.113.182",
-      "port": 804,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:806",
       "type": "ss",
       "server": "185.172.113.182",
@@ -2075,14 +2058,6 @@
       "type": "ss",
       "server": "185.172.113.182",
       "port": 810,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:811",
-      "type": "ss",
-      "server": "185.172.113.182",
-      "port": 811,
       "cipher": "auto",
       "password": ""
     },
@@ -3471,6 +3446,14 @@
       "password": ""
     },
     {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 175.41.205.247:443",
+      "type": "ss",
+      "server": "175.41.205.247",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 18.183.174.138:443",
       "type": "ss",
       "server": "18.183.174.138",
@@ -3479,25 +3462,9 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 3.112.193.151:443",
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.1.14:443",
       "type": "ss",
-      "server": "3.112.193.151",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.153.185:443",
-      "type": "ss",
-      "server": "43.207.153.185",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.166.104:443",
-      "type": "ss",
-      "server": "43.207.166.104",
+      "server": "43.207.1.14",
       "port": 443,
       "cipher": "auto",
       "password": ""
@@ -3506,6 +3473,14 @@
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.66.114:443",
       "type": "ss",
       "server": "43.207.66.114",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.83.221:443",
+      "type": "ss",
+      "server": "43.207.83.221",
       "port": 443,
       "cipher": "auto",
       "password": ""
@@ -3635,14 +3610,6 @@
       "type": "ss",
       "server": "172.105.218.17",
       "port": 8099,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 103.75.118.27:989",
-      "type": "ss",
-      "server": "103.75.118.27",
-      "port": 989,
       "cipher": "auto",
       "password": ""
     },
@@ -3783,14 +3750,6 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 141.147.191.85:28443",
-      "type": "trojan",
-      "server": "141.147.191.85",
-      "port": 28443,
-      "password": "750a29bf-0a40-437f-b120-38de74ae7eaf",
-      "tls": true
-    },
-    {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 133.242.55.38:443",
       "type": "trojan",
       "server": "133.242.55.38",
@@ -3807,19 +3766,43 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 106.180.225.69:1443",
-      "type": "trojan",
-      "server": "106.180.225.69",
-      "port": 1443,
-      "password": "7x42LetRa0",
-      "tls": true
-    },
-    {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 43.206.140.241:443",
       "type": "trojan",
       "server": "43.206.140.241",
       "port": 443,
       "password": "8cb7ad4e-2d61-3950-bb33-1d2cc3e653dd",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 133.167.100.203:2053",
+      "type": "trojan",
+      "server": "133.167.100.203",
+      "port": 2053,
+      "password": "96983eb4-c8f1-316e-ab00-500014ed3d8b",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.145.107:2053",
+      "type": "trojan",
+      "server": "160.16.145.107",
+      "port": 2053,
+      "password": "96983eb4-c8f1-316e-ab00-500014ed3d8b",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 219.94.250.108:2053",
+      "type": "trojan",
+      "server": "219.94.250.108",
+      "port": 2053,
+      "password": "96983eb4-c8f1-316e-ab00-500014ed3d8b",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 49.212.221.47:2053",
+      "type": "trojan",
+      "server": "49.212.221.47",
+      "port": 2053,
+      "password": "96983eb4-c8f1-316e-ab00-500014ed3d8b",
       "tls": true
     },
     {
@@ -3903,22 +3886,6 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.230.217.213:443",
-      "type": "trojan",
-      "server": "150.230.217.213",
-      "port": 443,
-      "password": "c09eb137-bf68-4658-84e0-102d94b74168",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 138.2.45.243:443",
-      "type": "trojan",
-      "server": "138.2.45.243",
-      "port": 443,
-      "password": "c19d1432-8b3e-4818-8837-3d160cf65908",
-      "tls": true
-    },
-    {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.66.13.75:443",
       "type": "trojan",
       "server": "150.66.13.75",
@@ -3932,6 +3899,14 @@
       "server": "133.18.227.50",
       "port": 30000,
       "password": "e42b8392-782e-43f4-8403-1f006c2173ab",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.214.104:2001",
+      "type": "trojan",
+      "server": "160.16.214.104",
+      "port": 2001,
+      "password": "f7dbed8b1ca85124e793ba6c0bcfd0db",
       "tls": true
     },
     {
@@ -4348,18 +4323,18 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 155.248.181.189:443",
-      "type": "ss",
-      "server": "155.248.181.189",
-      "port": 443,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 158.101.152.6:2919",
       "type": "ss",
       "server": "158.101.152.6",
       "port": 2919,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 155.248.181.189:443",
+      "type": "ss",
+      "server": "155.248.181.189",
+      "port": 443,
       "cipher": "auto",
       "password": ""
     },
@@ -4844,22 +4819,19 @@
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.85.33:3419",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 172.104.81.253:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 8.216.21.75:20443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.70.180:2001",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 158.101.131.94:2083",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 202.84.53.85:19999",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 38.60.212.251:29059",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.106.99:2001",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 103.115.18.22:8443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 188.253.118.197:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.72.205:2001",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 18.183.167.108:331",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 43.167.186.55:80",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 8.222.82.26:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 153.121.45.139:4674",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 109.123.231.212:2053",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 15.168.173.144:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 161.248.63.15:41579",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 43.206.124.158:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 161.248.63.15:41579",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 15.168.173.144:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 43.153.181.217:80",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 43.153.181.217:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 150.230.107.234:41381",
@@ -4883,7 +4855,6 @@
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 160.16.203.210:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 113.37.149.36:12553",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 154.197.108.247:8880",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 43.133.216.147:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 172.105.226.69:13156",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 172.104.98.150:20667",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 139.162.80.169:17301",
@@ -4949,9 +4920,7 @@
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 18.181.193.208:3057",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 13.230.112.99:4920",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 54.250.253.77:50446",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.214.104:2001",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 153.121.45.139:4920",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 103.106.228.175:8009",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 13.192.169.190:331",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 3.112.227.13:1359",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 43.206.218.105:1359",
@@ -4961,6 +4930,7 @@
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 13.115.155.105:4674",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 54.178.70.68:4019",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 5.34.222.4:43074",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 103.106.228.175:8009",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 158.101.152.6:2919",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 89.31.125.101:812",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.24.217:812",
@@ -4985,6 +4955,7 @@
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 157.120.32.122:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.106.99:4920",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.130.21:4920",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.72.205:2001",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 23.145.24.30:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 5.34.222.4:43642",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 35.75.186.204:443",
@@ -5013,49 +4984,50 @@
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 43.165.191.25:22272",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 45.129.8.233:48631",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 160.16.123.124:10087",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 176.97.71.101:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 176.97.70.244:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 45.129.8.68:45631",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 193.38.139.204:806",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.83.221:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.145.107:2053",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 155.248.172.87:28443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.1.14:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 175.41.205.247:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 89.31.126.150:812",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.68.169:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.206.219.140:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 15.168.28.231:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.24.217:808",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.24.217:811",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 54.178.60.213:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 133.167.100.203:2053",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.24.217:803",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 219.94.250.108:2053",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 132.226.5.246:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 153.121.74.146:2053",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.26.91:1664",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 54.199.83.239:2333",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 168.138.43.89:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 89.31.126.171:800",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 138.2.45.89:44301",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.206.221.164:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.82.53:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 193.38.139.204:809",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 49.212.221.47:2053",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.230.201.192:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:800",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.230.96.103:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 89.31.126.150:802",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.153.185:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 168.138.44.176:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 141.147.191.85:28443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 103.75.118.27:989",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:804",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:811",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.26.91:1664",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 15.168.28.231:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.68.169:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 54.199.83.239:2333",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.230.201.192:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 138.2.45.243:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.206.219.140:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.230.96.103:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.24.217:811",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 132.226.5.246:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 155.248.172.87:28443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:800",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.24.217:803",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 138.2.45.89:44301",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 54.178.60.213:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 89.31.126.150:812",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.230.217.213:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.24.217:808",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 153.121.74.146:2053",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 89.31.126.150:802",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 193.38.139.204:809",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.206.221.164:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 106.180.225.69:1443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.166.104:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 168.138.43.89:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 193.38.139.204:806",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.82.53:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 3.112.193.151:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 89.31.126.171:800",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 139.162.72.96:22060",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 139.162.102.16:46965",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 54.248.54.190:1234",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.160.24.217:804",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:804",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:806",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:809",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:810",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:811",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 185.172.113.182:812",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 194.156.231.251:800",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 194.156.231.251:807",
@@ -5229,11 +5201,11 @@
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 13.114.82.97:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 13.231.154.132:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 13.231.243.205:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 175.41.205.247:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 18.183.174.138:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 3.112.193.151:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.153.185:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.166.104:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.1.14:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.66.114:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 43.207.83.221:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 54.250.238.74:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 54.64.6.209:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 13.114.170.208:443",
@@ -5250,7 +5222,6 @@
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 84.17.34.108:80",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 172.104.123.158:8097",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 172.105.218.17:8099",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 103.75.118.27:989",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 156.231.104.17:18007",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 20.210.122.21:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 156.231.104.16:18006",
@@ -5268,11 +5239,13 @@
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 202.8.9.67:28443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 202.8.9.27:28443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 57.182.73.203:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 141.147.191.85:28443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 133.242.55.38:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 20.210.234.145:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 106.180.225.69:1443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 43.206.140.241:443",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 133.167.100.203:2053",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.145.107:2053",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 219.94.250.108:2053",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 49.212.221.47:2053",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 20.89.130.227:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 154.31.113.72:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 158.101.145.82:443",
@@ -5283,10 +5256,9 @@
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 13.192.185.89:9718",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 35.77.216.3:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 3.112.220.151:26911",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.230.217.213:443",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 138.2.45.243:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 150.66.13.75:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 133.18.227.50:30000",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.214.104:2001",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 185.212.56.168:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 3.112.192.169:16717",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 43.206.127.212:443",
@@ -5337,8 +5309,8 @@
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 154.205.139.9:11204",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 154.205.139.9:11205",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - VLESS 152.70.101.24:16048",
-        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 155.248.181.189:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 158.101.152.6:2919",
+        "\uD83C\uDDEF\uD83C\uDDF5 Japan - SS 155.248.181.189:443",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 160.16.72.33:4920",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 3.112.20.105:3419",
         "\uD83C\uDDEF\uD83C\uDDF5 Japan - TROJAN 3.112.20.105:3423",

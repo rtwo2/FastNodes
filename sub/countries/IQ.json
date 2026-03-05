@@ -17,6 +17,24 @@
       "flow": "xtls-rprx-vision"
     },
     {
+      "name": "\uD83C\uDDEE\uD83C\uDDF6 Iraq - VLESS 178.17.48.233:8443",
+      "type": "vless",
+      "server": "178.17.48.233",
+      "port": 8443,
+      "uuid": "d8117e46-4b46-4fc6-abff-2fe4ed447b17",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF6 Iraq - VLESS 178.17.52.40:8443",
+      "type": "vless",
+      "server": "178.17.52.40",
+      "port": 8443,
+      "uuid": "d8117e46-4b46-4fc6-abff-2fe4ed447b17",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
       "name": "\uD83C\uDDEE\uD83C\uDDF6 Iraq - VLESS 178.17.61.67:443",
       "type": "vless",
       "server": "178.17.61.67",
@@ -66,15 +84,6 @@
       "port": 443,
       "password": "af4b064a9c39472fb34ad8b113acdc6b",
       "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF6 Iraq - VLESS 178.17.48.230:443",
-      "type": "vless",
-      "server": "178.17.48.230",
-      "port": 443,
-      "uuid": "12e85033-5dcf-4185-8add-d7066ea480a4",
-      "tls": true,
-      "flow": ""
     }
   ],
   "proxy_groups": [
@@ -83,13 +92,14 @@
       "type": "url-test",
       "proxies": [
         "\uD83C\uDDEE\uD83C\uDDF6 Iraq - VLESS 178.17.50.111:443",
+        "\uD83C\uDDEE\uD83C\uDDF6 Iraq - VLESS 178.17.48.233:8443",
+        "\uD83C\uDDEE\uD83C\uDDF6 Iraq - VLESS 178.17.52.40:8443",
         "\uD83C\uDDEE\uD83C\uDDF6 Iraq - VLESS 178.17.61.67:443",
         "\uD83C\uDDEE\uD83C\uDDF6 Iraq - SS 178.17.61.67:5790",
         "\uD83C\uDDEE\uD83C\uDDF6 Iraq - VLESS 178.17.48.57:443",
         "\uD83C\uDDEE\uD83C\uDDF6 Iraq - SS 81.90.29.126:53672",
         "\uD83C\uDDEE\uD83C\uDDF6 Iraq - VLESS 81.90.29.137:443",
-        "\uD83C\uDDEE\uD83C\uDDF6 Iraq - TROJAN 154.93.37.237:443",
-        "\uD83C\uDDEE\uD83C\uDDF6 Iraq - VLESS 178.17.48.230:443"
+        "\uD83C\uDDEE\uD83C\uDDF6 Iraq - TROJAN 154.93.37.237:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

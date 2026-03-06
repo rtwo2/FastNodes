@@ -269,6 +269,42 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 139.162.51.191:443",
+      "type": "vless",
+      "server": "139.162.51.191",
+      "port": 443,
+      "uuid": "e3713ba4-a8fc-44ec-b401-3b736e67718d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 128.199.128.117:443",
+      "type": "vless",
+      "server": "128.199.128.117",
+      "port": 443,
+      "uuid": "e3713ba4-a8fc-44ec-b401-3b736e67718d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 146.190.91.9:443",
+      "type": "vless",
+      "server": "146.190.91.9",
+      "port": 443,
+      "uuid": "e3713ba4-a8fc-44ec-b401-3b736e67718d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 165.22.99.110:443",
+      "type": "vless",
+      "server": "165.22.99.110",
+      "port": 443,
+      "uuid": "e3713ba4-a8fc-44ec-b401-3b736e67718d",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 91.242.241.45:8443",
       "type": "vless",
       "server": "91.242.241.45",
@@ -881,9 +917,18 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.150:443",
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.82.6.36:51164",
       "type": "vless",
-      "server": "206.238.237.150",
+      "server": "47.82.6.36",
+      "port": 51164,
+      "uuid": "d29a7cee-acd1-4821-adbf-517f8681040e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.197:443",
+      "type": "vless",
+      "server": "206.238.237.197",
       "port": 443,
       "uuid": "a13df940-020c-465f-bc89-ee5279b5cd6a",
       "tls": true,
@@ -1536,15 +1581,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 139.162.51.191:443",
-      "type": "vless",
-      "server": "139.162.51.191",
-      "port": 443,
-      "uuid": "e3713ba4-a8fc-44ec-b401-3b736e67718d",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 43.160.251.110:443",
       "type": "vless",
       "server": "43.160.251.110",
@@ -1563,37 +1599,34 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 128.199.128.117:443",
-      "type": "vless",
-      "server": "128.199.128.117",
-      "port": 443,
-      "uuid": "e3713ba4-a8fc-44ec-b401-3b736e67718d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 146.190.91.9:443",
-      "type": "vless",
-      "server": "146.190.91.9",
-      "port": 443,
-      "uuid": "e3713ba4-a8fc-44ec-b401-3b736e67718d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 165.22.99.110:443",
-      "type": "vless",
-      "server": "165.22.99.110",
-      "port": 443,
-      "uuid": "e3713ba4-a8fc-44ec-b401-3b736e67718d",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 165.22.49.27:2567",
       "type": "ss",
       "server": "165.22.49.27",
       "port": 2567,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 68.183.227.4:8080",
+      "type": "ss",
+      "server": "68.183.227.4",
+      "port": 8080,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 38.89.142.56:990",
+      "type": "ss",
+      "server": "38.89.142.56",
+      "port": 990,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 172.104.168.83:7307",
+      "type": "ss",
+      "server": "172.104.168.83",
+      "port": 7307,
       "cipher": "auto",
       "password": ""
     },
@@ -1659,14 +1692,6 @@
       "server": "185.230.245.213",
       "port": 3306,
       "password": "3c4e10af98c30972",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 13.214.161.88:443",
-      "type": "trojan",
-      "server": "13.214.161.88",
-      "port": 443,
-      "password": "4aeda200-44c9-4168-8f2a-a00a72176d35",
       "tls": true
     },
     {
@@ -1754,6 +1779,14 @@
       "password": ""
     },
     {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 209.74.82.156:18571",
+      "type": "ss",
+      "server": "209.74.82.156",
+      "port": 18571,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 154.194.12.238:2096",
       "type": "vless",
       "server": "154.194.12.238",
@@ -1761,14 +1794,6 @@
       "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 209.74.82.156:18571",
-      "type": "ss",
-      "server": "209.74.82.156",
-      "port": 18571,
-      "cipher": "auto",
-      "password": ""
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 217.197.161.166:812",
@@ -2211,14 +2236,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 172.104.168.83:7307",
-      "type": "ss",
-      "server": "172.104.168.83",
-      "port": 7307,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 217.197.161.166:800",
       "type": "ss",
       "server": "217.197.161.166",
@@ -2359,14 +2376,6 @@
       "type": "ss",
       "server": "165.22.49.146",
       "port": 57905,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 38.89.142.56:990",
-      "type": "ss",
-      "server": "38.89.142.56",
-      "port": 990,
       "cipher": "auto",
       "password": ""
     },
@@ -3067,14 +3076,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 68.183.227.4:8080",
-      "type": "ss",
-      "server": "68.183.227.4",
-      "port": 8080,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 68.183.235.122:8080",
       "type": "ss",
       "server": "68.183.235.122",
@@ -3136,6 +3137,14 @@
       "server": "5.44.249.52",
       "port": 3389,
       "password": "26a663656e575c0b",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 13.214.161.88:443",
+      "type": "trojan",
+      "server": "13.214.161.88",
+      "port": 443,
+      "password": "4aeda200-44c9-4168-8f2a-a00a72176d35",
       "tls": true
     },
     {
@@ -4557,13 +4566,12 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 152.42.167.58:443",
-      "type": "vless",
-      "server": "152.42.167.58",
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 128.199.252.180:443",
+      "type": "trojan",
+      "server": "128.199.252.180",
       "port": 443,
-      "uuid": "4f4a8022-0a8e-4f55-9883-777b6830802e",
-      "tls": true,
-      "flow": ""
+      "password": "13c169be-8592-4eaa-94cb-69c859e7d987",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 152.42.164.192:443",
@@ -4581,6 +4589,47 @@
       "port": 16922,
       "cipher": "auto",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27882",
+      "type": "ss",
+      "server": "154.26.132.38",
+      "port": 27882,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27883",
+      "type": "ss",
+      "server": "154.26.132.38",
+      "port": 27883,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27884",
+      "type": "ss",
+      "server": "154.26.132.38",
+      "port": 27884,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27885",
+      "type": "ss",
+      "server": "154.26.132.38",
+      "port": 27885,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 152.42.167.58:443",
+      "type": "vless",
+      "server": "152.42.167.58",
+      "port": 443,
+      "uuid": "4f4a8022-0a8e-4f55-9883-777b6830802e",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 194.233.73.51:14453",
@@ -4623,46 +4672,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27882",
-      "type": "ss",
-      "server": "154.26.132.38",
-      "port": 27882,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27883",
-      "type": "ss",
-      "server": "154.26.132.38",
-      "port": 27883,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27884",
-      "type": "ss",
-      "server": "154.26.132.38",
-      "port": 27884,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27885",
-      "type": "ss",
-      "server": "154.26.132.38",
-      "port": 27885,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 128.199.252.180:443",
-      "type": "trojan",
-      "server": "128.199.252.180",
-      "port": 443,
-      "password": "13c169be-8592-4eaa-94cb-69c859e7d987",
-      "tls": true
-    },
-    {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 43.160.246.221:46920",
       "type": "vless",
       "server": "43.160.246.221",
@@ -4690,17 +4699,9 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 172.104.63.96:443",
-      "type": "trojan",
-      "server": "172.104.63.96",
-      "port": 443,
-      "password": "aa485bb6-493e-461a-a27d-caff3a10725e",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 68.183.227.236:8080",
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 128.199.172.224:8080",
       "type": "ss",
-      "server": "68.183.227.236",
+      "server": "128.199.172.224",
       "port": 8080,
       "cipher": "auto",
       "password": ""
@@ -4737,6 +4738,15 @@
       "port": 443,
       "cipher": "auto",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.236.84:443",
+      "type": "vless",
+      "server": "206.238.236.84",
+      "port": 443,
+      "uuid": "89b3cbba-e6ac-485a-9481-976a0415eab9",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 103.172.116.79:9088",
@@ -5009,18 +5019,9 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.82.6.36:51164",
+      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.150:443",
       "type": "vless",
-      "server": "47.82.6.36",
-      "port": 51164,
-      "uuid": "d29a7cee-acd1-4821-adbf-517f8681040e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.197:443",
-      "type": "vless",
-      "server": "206.238.237.197",
+      "server": "206.238.237.150",
       "port": 443,
       "uuid": "a13df940-020c-465f-bc89-ee5279b5cd6a",
       "tls": true,
@@ -5151,6 +5152,10 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.148.7:42759",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 213.35.100.31:47112",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 77.93.91.159:443",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 139.162.51.191:443",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 128.199.128.117:443",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 146.190.91.9:443",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 165.22.99.110:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 91.242.241.45:8443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 165.22.49.27:2567",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 27.50.48.155:443",
@@ -5219,7 +5224,8 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 27.50.48.247:8880",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 139.180.218.244:21746",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 178.239.123.216:24443",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.150:443",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.82.6.36:51164",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.197:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.236.41:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 194.233.94.119:80",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 157.230.248.167:48705",
@@ -5298,13 +5304,12 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 18.143.189.226:27775",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 18.140.234.91:27775",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 34.143.159.175:443",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 139.162.51.191:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 43.160.251.110:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 43.160.195.223:443",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 128.199.128.117:443",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 146.190.91.9:443",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 165.22.99.110:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 165.22.49.27:2567",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 68.183.227.4:8080",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 38.89.142.56:990",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 172.104.168.83:7307",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 103.172.116.196:3389",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 91.192.81.167:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 15.235.197.4:80",
@@ -5313,7 +5318,6 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 185.230.245.210:3306",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 185.230.245.211:3306",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 185.230.245.213:3306",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 13.214.161.88:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 194.87.10.161:8388",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 27.50.48.158:2096",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 124.243.132.106:23333",
@@ -5324,8 +5328,8 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 209.74.82.227:26515",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 92.243.75.49:2087",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 209.74.82.189:21520",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 154.194.12.238:2096",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 209.74.82.156:18571",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 154.194.12.238:2096",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 217.197.161.166:812",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 81.90.189.41:801",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 18.141.183.204:443",
@@ -5381,7 +5385,6 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 217.197.161.136:803",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 139.99.68.21:6379",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 217.197.161.166:810",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 172.104.168.83:7307",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 217.197.161.166:800",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 103.172.116.5:9098",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 217.197.161.166:809",
@@ -5400,7 +5403,6 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 68.183.226.95:52042",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 68.183.179.190:35565",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 165.22.49.146:57905",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 38.89.142.56:990",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 38.247.64.176:990",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 217.197.161.136:806",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 217.197.161.136:808",
@@ -5488,7 +5490,6 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 52.74.90.75:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 45.77.253.107:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 45.77.253.107:80",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 68.183.227.4:8080",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 68.183.235.122:8080",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 27.50.48.239:8443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 92.243.74.115:443",
@@ -5497,6 +5498,7 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 168.138.176.18:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 5.44.249.51:3389",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 5.44.249.52:3389",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 13.214.161.88:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 5.44.249.50:3389",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 5.44.249.52:3306",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 103.253.24.212:443",
@@ -5663,19 +5665,19 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.236.167.231:2096",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 66.42.54.48:22539",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 43.134.189.122:34237",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 152.42.167.58:443",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 128.199.252.180:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 152.42.164.192:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:16922",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27882",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27883",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27884",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27885",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 152.42.167.58:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 194.233.73.51:14453",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 194.233.73.51:48801",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 194.233.73.51:48802",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 194.233.73.51:48803",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 194.233.73.51:48804",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27882",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27883",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27884",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 154.26.132.38:27885",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 128.199.252.180:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - HTTP 66.42.50.118:12580",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - HYSTERIA2 152.69.220.212:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 43.160.246.221:46920",
@@ -5724,12 +5726,12 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 158.178.226.255:2052",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - HY2 213.35.99.16:2052",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VMESS 158.178.229.178:443",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - TROJAN 172.104.63.96:443",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 68.183.227.236:8080",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 128.199.172.224:8080",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 140.245.44.250:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 140.245.44.250:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 46.250.234.115:80",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 172.237.74.36:443",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.236.84:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 103.172.116.79:9088",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 103.172.116.79:9038",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 103.172.116.103:9031",
@@ -5762,8 +5764,7 @@
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 8.219.138.86:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 167.172.95.249:37202",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 192.53.172.74:30013",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 47.82.6.36:51164",
-        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.197:443",
+        "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.150:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 206.238.237.175:443",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - VLESS 138.2.111.140:10010",
         "\uD83C\uDDF8\uD83C\uDDEC Singapore - SS 138.2.111.140:10010",

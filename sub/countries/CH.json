@@ -62,15 +62,6 @@
       "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 213.176.18.99:443",
-      "type": "vless",
-      "server": "213.176.18.99",
-      "port": 443,
-      "uuid": "2cfa0b66-2854-4158-ac8b-82d37f3783a0",
-      "tls": true,
-      "flow": "xtls-rprx-vision"
-    },
-    {
       "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 45.141.119.180:8443",
       "type": "vless",
       "server": "45.141.119.180",
@@ -107,11 +98,20 @@
       "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 193.168.144.46:443",
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 185.227.149.123:443",
       "type": "vless",
-      "server": "193.168.144.46",
+      "server": "185.227.149.123",
       "port": 443,
-      "uuid": "cdb38f5b-12c3-414b-eacd-a635dc633701",
+      "uuid": "7c3f08c8-7b3b-4028-91d8-378a18c2b62a",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 179.43.176.216:443",
+      "type": "vless",
+      "server": "179.43.176.216",
+      "port": 443,
+      "uuid": "948fac3c-42bf-41a6-a5f9-704d36ff0d8d",
       "tls": true,
       "flow": ""
     },
@@ -125,29 +125,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 179.43.176.216:443",
-      "type": "vless",
-      "server": "179.43.176.216",
-      "port": 443,
-      "uuid": "948fac3c-42bf-41a6-a5f9-704d36ff0d8d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 185.227.149.123:443",
-      "type": "vless",
-      "server": "185.227.149.123",
-      "port": 443,
-      "uuid": "7c3f08c8-7b3b-4028-91d8-378a18c2b62a",
-      "tls": true,
-      "flow": "xtls-rprx-vision"
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 83.228.231.196:56249",
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 83.228.231.196:33279",
       "type": "vless",
       "server": "83.228.231.196",
-      "port": 56249,
-      "uuid": "4cb986b2-f314-4a99-b207-6cc82f10878a",
+      "port": 33279,
+      "uuid": "e268f5bd-3319-4bfd-bc88-5bcde2e909f8",
       "tls": true,
       "flow": ""
     },
@@ -161,11 +143,11 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 83.228.231.196:33279",
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 83.228.231.196:56249",
       "type": "vless",
       "server": "83.228.231.196",
-      "port": 33279,
-      "uuid": "e268f5bd-3319-4bfd-bc88-5bcde2e909f8",
+      "port": 56249,
+      "uuid": "4cb986b2-f314-4a99-b207-6cc82f10878a",
       "tls": true,
       "flow": ""
     },
@@ -175,6 +157,15 @@
       "server": "138.124.80.238",
       "port": 443,
       "uuid": "TMG_7f36cec857e",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 193.168.144.46:443",
+      "type": "vless",
+      "server": "193.168.144.46",
+      "port": 443,
+      "uuid": "cdb38f5b-12c3-414b-eacd-a635dc633701",
       "tls": true,
       "flow": ""
     },
@@ -269,20 +260,20 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 94.156.203.153:29880",
-      "type": "vless",
-      "server": "94.156.203.153",
-      "port": 29880,
-      "uuid": "ecee63a4-a4a9-4c77-a589-5142c4cddeae",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 94.156.203.224:24501",
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 94.156.203.224:26626",
       "type": "vless",
       "server": "94.156.203.224",
-      "port": 24501,
-      "uuid": "96b8efd8-8a0d-4194-a311-10168edf2071",
+      "port": 26626,
+      "uuid": "80224ec3-8289-43a4-8de1-dce19bd6c439",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 84.234.31.193:2053",
+      "type": "vless",
+      "server": "84.234.31.193",
+      "port": 2053,
+      "uuid": "75b52620-610a-4e4d-b11b-2bcd8f1d508e",
       "tls": true,
       "flow": ""
     },
@@ -438,6 +429,33 @@
       "flow": "xtls-rprx-vision"
     },
     {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 195.141.59.27:443",
+      "type": "vless",
+      "server": "195.141.59.27",
+      "port": 443,
+      "uuid": "948fac3c-42bf-41a6-a5f9-704d36ff0d8d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 194.135.22.181:443",
+      "type": "vless",
+      "server": "194.135.22.181",
+      "port": 443,
+      "uuid": "26524cce-d514-4014-a426-365fb266a14d",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 195.15.254.118:443",
+      "type": "vless",
+      "server": "195.15.254.118",
+      "port": 443,
+      "uuid": "26524cce-d514-4014-a426-365fb266a14d",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:110",
       "type": "ss",
       "server": "185.186.76.25",
@@ -446,26 +464,10 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:225",
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:222",
       "type": "ss",
       "server": "185.186.76.25",
-      "port": 225,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:224",
-      "type": "ss",
-      "server": "185.186.76.25",
-      "port": 224,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:228",
-      "type": "ss",
-      "server": "185.186.76.25",
-      "port": 228,
+      "port": 222,
       "cipher": "auto",
       "password": ""
     },
@@ -478,10 +480,26 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:222",
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:225",
       "type": "ss",
       "server": "185.186.76.25",
-      "port": 222,
+      "port": 225,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:228",
+      "type": "ss",
+      "server": "185.186.76.25",
+      "port": 228,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:224",
+      "type": "ss",
+      "server": "185.186.76.25",
+      "port": 224,
       "cipher": "auto",
       "password": ""
     },
@@ -667,15 +685,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 84.234.31.193:2053",
-      "type": "vless",
-      "server": "84.234.31.193",
-      "port": 2053,
-      "uuid": "75b52620-610a-4e4d-b11b-2bcd8f1d508e",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 84.234.31.193:2083",
       "type": "vless",
       "server": "84.234.31.193",
@@ -699,15 +708,6 @@
       "server": "185.18.250.29",
       "port": 8880,
       "uuid": "fab7bf9c-ddb9-4563-8a04-fb01ce6c0fbf",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 194.135.22.181:443",
-      "type": "vless",
-      "server": "194.135.22.181",
-      "port": 443,
-      "uuid": "26524cce-d514-4014-a426-365fb266a14d",
       "tls": true,
       "flow": ""
     },
@@ -770,15 +770,6 @@
       "port": 13262,
       "cipher": "auto",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 195.15.254.118:443",
-      "type": "vless",
-      "server": "195.15.254.118",
-      "port": 443,
-      "uuid": "26524cce-d514-4014-a426-365fb266a14d",
-      "tls": true,
-      "flow": ""
     },
     {
       "name": "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 23.166.88.198:3306",
@@ -866,19 +857,18 @@
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 91.90.193.159:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 5.101.85.4:47407",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 194.156.102.53:8443",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 213.176.18.99:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 45.141.119.180:8443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 45.85.93.59:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 87.120.222.73:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 138.124.32.20:443",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 193.168.144.46:443",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 83.228.225.98:24472",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 179.43.176.216:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 185.227.149.123:443",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 83.228.231.196:56249",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 83.228.228.44:22",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 179.43.176.216:443",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 83.228.225.98:24472",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 83.228.231.196:33279",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 83.228.228.44:22",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 83.228.231.196:56249",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 138.124.80.238:443",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 193.168.144.46:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 185.18.250.25:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 185.18.250.117:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 140.238.214.247:443",
@@ -889,8 +879,8 @@
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 83.228.210.214:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 45.90.57.107:80",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 185.18.250.247:8880",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 94.156.203.153:29880",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 94.156.203.224:24501",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 94.156.203.224:26626",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 84.234.31.193:2053",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 185.18.250.67:8080",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 185.18.250.30:80",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 38.180.161.123:8119",
@@ -909,12 +899,15 @@
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 138.124.32.20:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 45.85.93.204:2345",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 208.69.78.161:8443",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 195.141.59.27:443",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 194.135.22.181:443",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 195.15.254.118:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:110",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:225",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:224",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:228",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:227",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:222",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:227",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:225",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:228",
+        "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.186.76.25:224",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 156.146.62.160:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.126.116.125:9098",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 84.234.31.193:1080",
@@ -937,11 +930,9 @@
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 185.18.250.254:8880",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 185.18.250.33:80",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 84.234.28.212:666",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 84.234.31.193:2053",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 84.234.31.193:2083",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 185.18.250.3:8880",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 185.18.250.29:8880",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 194.135.22.181:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 138.124.80.238:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 45.155.53.147:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 37.156.46.188:8529",
@@ -949,7 +940,6 @@
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 185.18.250.52:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 84.234.30.84:36226",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 86.106.84.195:13262",
-        "\uD83C\uDDE8\uD83C\uDDED Switzerland - VLESS 195.15.254.118:443",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 23.166.88.198:3306",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 195.15.243.171:2048",
         "\uD83C\uDDE8\uD83C\uDDED Switzerland - SS 45.85.93.59:443",

@@ -26,24 +26,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 31.22.116.216:2083",
-      "type": "vless",
-      "server": "31.22.116.216",
-      "port": 2083,
-      "uuid": "7b175aaa-550a-4048-9437-c59919643cbf",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 31.22.116.225:443",
-      "type": "vless",
-      "server": "31.22.116.225",
-      "port": 443,
-      "uuid": "2cd6ed0f-636e-4e6c-9449-5a263d7a0fa5",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 95.164.38.6:2052",
       "type": "vless",
       "server": "95.164.38.6",
@@ -78,14 +60,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 192.71.166.102:989",
-      "type": "ss",
-      "server": "192.71.166.102",
-      "port": 989,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 192.71.166.102:990",
       "type": "ss",
       "server": "192.71.166.102",
@@ -97,6 +71,14 @@
       "name": "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 192.71.166.100:989",
       "type": "ss",
       "server": "192.71.166.100",
+      "port": 989,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 192.71.166.102:989",
+      "type": "ss",
+      "server": "192.71.166.102",
       "port": 989,
       "cipher": "auto",
       "password": ""
@@ -176,6 +158,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 31.22.116.225:443",
+      "type": "vless",
+      "server": "31.22.116.225",
+      "port": 443,
+      "uuid": "2cd6ed0f-636e-4e6c-9449-5a263d7a0fa5",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 31.22.116.208:443",
       "type": "ss",
       "server": "31.22.116.208",
@@ -199,15 +190,13 @@
       "proxies": [
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 31.22.116.134:2096",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 31.22.116.216:2087",
-        "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 31.22.116.216:2083",
-        "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 31.22.116.225:443",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 95.164.38.6:2052",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 194.150.167.52:47121",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - TROJAN 217.12.204.110:8443",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 217.12.204.110:7443",
-        "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 192.71.166.102:989",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 192.71.166.102:990",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 192.71.166.100:989",
+        "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 192.71.166.102:989",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 83.147.240.3:24237",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 38.54.29.18:11201",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 38.54.29.57:11201",
@@ -217,6 +206,7 @@
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 38.54.29.130:11201",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 38.54.29.130:11202",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 31.22.116.208:443",
+        "\uD83C\uDDEC\uD83C\uDDF7 Greece - VLESS 31.22.116.225:443",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 31.22.116.208:443",
         "\uD83C\uDDEC\uD83C\uDDF7 Greece - SS 31.22.116.225:443"
       ],

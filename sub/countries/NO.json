@@ -128,6 +128,14 @@
       "password": ""
     },
     {
+      "name": "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 185.90.61.153:989",
+      "type": "ss",
+      "server": "185.90.61.153",
+      "port": 989,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
       "name": "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 51.13.182.236:6870",
       "type": "ss",
       "server": "51.13.182.236",
@@ -139,14 +147,6 @@
       "name": "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 185.213.23.226:989",
       "type": "ss",
       "server": "185.213.23.226",
-      "port": 989,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 185.90.61.153:989",
-      "type": "ss",
-      "server": "185.90.61.153",
       "port": 989,
       "cipher": "auto",
       "password": ""
@@ -201,6 +201,14 @@
       "uuid": "c310c80c-1e60-42a7-8b01-ca1123df0c16",
       "tls": true,
       "flow": "xtls-rprx-vision"
+    },
+    {
+      "name": "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 89.185.81.169:443",
+      "type": "ss",
+      "server": "89.185.81.169",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -222,15 +230,16 @@
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 194.68.32.29:989",
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - VLESS 46.29.238.196:443",
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 107.174.114.71:443",
+        "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 185.90.61.153:989",
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 51.13.182.236:6870",
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 185.213.23.226:989",
-        "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 185.90.61.153:989",
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - TROJAN 5.182.34.216:2096",
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - VLESS 95.173.205.70:8443",
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - VLESS 148.135.195.96:44356",
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - TROJAN 83.143.87.9:18581",
         "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 185.213.23.63:990",
-        "\uD83C\uDDF3\uD83C\uDDF4 Norway - VLESS 217.170.206.157:443"
+        "\uD83C\uDDF3\uD83C\uDDF4 Norway - VLESS 217.170.206.157:443",
+        "\uD83C\uDDF3\uD83C\uDDF4 Norway - SS 89.185.81.169:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

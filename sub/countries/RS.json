@@ -17,6 +17,15 @@
       "flow": "xtls-rprx-vision"
     },
     {
+      "name": "\uD83C\uDDF7\uD83C\uDDF8 Serbia - VLESS 94.230.184.94:8443",
+      "type": "vless",
+      "server": "94.230.184.94",
+      "port": 8443,
+      "uuid": "948fac3c-42bf-41a6-a5f9-704d36ff0d8d",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDF7\uD83C\uDDF8 Serbia - SS 152.89.160.115:33992",
       "type": "ss",
       "server": "152.89.160.115",
@@ -40,15 +49,6 @@
       "uuid": "20fda433-1864-433b-b3dd-8f119fe4cafd",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF7\uD83C\uDDF8 Serbia - VLESS 94.230.184.94:8443",
-      "type": "vless",
-      "server": "94.230.184.94",
-      "port": 8443,
-      "uuid": "948fac3c-42bf-41a6-a5f9-704d36ff0d8d",
-      "tls": true,
-      "flow": ""
     }
   ],
   "proxy_groups": [
@@ -57,10 +57,10 @@
       "type": "url-test",
       "proxies": [
         "\uD83C\uDDF7\uD83C\uDDF8 Serbia - VLESS 38.180.17.232:443",
+        "\uD83C\uDDF7\uD83C\uDDF8 Serbia - VLESS 94.230.184.94:8443",
         "\uD83C\uDDF7\uD83C\uDDF8 Serbia - SS 152.89.160.115:33992",
         "\uD83C\uDDF7\uD83C\uDDF8 Serbia - SS 194.71.126.31:989",
-        "\uD83C\uDDF7\uD83C\uDDF8 Serbia - VLESS 217.196.104.83:8443",
-        "\uD83C\uDDF7\uD83C\uDDF8 Serbia - VLESS 94.230.184.94:8443"
+        "\uD83C\uDDF7\uD83C\uDDF8 Serbia - VLESS 217.196.104.83:8443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

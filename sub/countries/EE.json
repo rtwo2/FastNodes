@@ -44,11 +44,11 @@
       "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 138.124.100.12:443",
+      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 77.239.126.119:7443",
       "type": "vless",
-      "server": "138.124.100.12",
-      "port": 443,
-      "uuid": "256c5f48-4908-4255-83d1-c86cb58f22b4",
+      "server": "77.239.126.119",
+      "port": 7443,
+      "uuid": "928f52c7-4bba-41e8-9807-11d681dca3a5",
       "tls": true,
       "flow": "xtls-rprx-vision"
     },
@@ -58,6 +58,15 @@
       "server": "138.124.100.53",
       "port": 443,
       "uuid": "e2e1ddaa-1acf-4c4c-a211-92284f6440ed",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
+      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 138.124.100.12:443",
+      "type": "vless",
+      "server": "138.124.100.12",
+      "port": 443,
+      "uuid": "256c5f48-4908-4255-83d1-c86cb58f22b4",
       "tls": true,
       "flow": "xtls-rprx-vision"
     },
@@ -134,11 +143,29 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 144.31.178.168:443",
+      "type": "vless",
+      "server": "144.31.178.168",
+      "port": 443,
+      "uuid": "eb162ab1-a006-4931-b1b3-8fc88a22b10e",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
       "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 45.80.110.229:2053",
       "type": "vless",
       "server": "45.80.110.229",
       "port": 2053,
       "uuid": "d342d11e-d424-4583-b36e-524ab1f0afa4",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 185.159.247.138:2096",
+      "type": "vless",
+      "server": "185.159.247.138",
+      "port": 2096,
+      "uuid": "1a25f8ad-cad2-4e93-b5bf-34e42bcac02a",
       "tls": true,
       "flow": ""
     },
@@ -226,15 +253,6 @@
       "uuid": "de2708c5-6e8e-4582-85ed-98f2554e5208",
       "tls": true,
       "flow": "xtls-rprx-vision"
-    },
-    {
-      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 185.159.247.138:2096",
-      "type": "vless",
-      "server": "185.159.247.138",
-      "port": 2096,
-      "uuid": "1a25f8ad-cad2-4e93-b5bf-34e42bcac02a",
-      "tls": true,
-      "flow": ""
     },
     {
       "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 185.159.247.158:2096",
@@ -479,15 +497,6 @@
       "flow": "xtls-rprx-vision"
     },
     {
-      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 185.36.141.121:443",
-      "type": "vless",
-      "server": "185.36.141.121",
-      "port": 443,
-      "uuid": "948fac3c-42bf-41a6-a5f9-704d36ff0d8d",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 45.80.108.138:2096",
       "type": "vless",
       "server": "45.80.108.138",
@@ -495,15 +504,6 @@
       "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 144.31.178.168:443",
-      "type": "vless",
-      "server": "144.31.178.168",
-      "port": 443,
-      "uuid": "eb162ab1-a006-4931-b1b3-8fc88a22b10e",
-      "tls": true,
-      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 64.188.78.189:8443",
@@ -572,8 +572,9 @@
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 185.155.97.85:443",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 5.101.179.212:2053",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 94.156.236.78:8443",
-        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 138.124.100.12:443",
+        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 77.239.126.119:7443",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 138.124.100.53:443",
+        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 138.124.100.12:443",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 45.80.108.238:2096",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 64.188.82.15:4443",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 185.252.177.178:443",
@@ -582,7 +583,9 @@
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 185.159.247.247:8880",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 45.80.110.63:8880",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 45.80.110.247:8880",
+        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 144.31.178.168:443",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 45.80.110.229:2053",
+        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 185.159.247.138:2096",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 37.252.4.81:24773",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - SS 38.180.44.28:1080",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 77.239.126.202:443",
@@ -593,7 +596,6 @@
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - SS 138.124.100.53:443",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 91.184.248.119:443",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 87.121.86.31:57516",
-        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 185.159.247.138:2096",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 185.159.247.158:2096",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 165.231.193.19:443",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 165.231.193.18:443",
@@ -622,9 +624,7 @@
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 146.19.143.150:4768",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 89.150.40.53:2052",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 91.184.250.227:443",
-        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 185.36.141.121:443",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 45.80.108.138:2096",
-        "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 144.31.178.168:443",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - VLESS 64.188.78.189:8443",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - SS 185.159.247.138:2096",
         "\uD83C\uDDEA\uD83C\uDDEA Estonia - SS 64.188.78.189:8443",

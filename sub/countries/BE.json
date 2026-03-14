@@ -8,6 +8,15 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.80:80",
+      "type": "vless",
+      "server": "151.101.9.80",
+      "port": 80,
+      "uuid": "5a1d2c0c-abfa-4050-918f-bfab3eaee62a",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.81:80",
       "type": "vless",
       "server": "151.101.9.81",
@@ -22,15 +31,6 @@
       "server": "151.101.10.79",
       "port": 443,
       "uuid": "ed76b56c-9009-46f0-9f97-c37bf2375815",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.80:80",
-      "type": "vless",
-      "server": "151.101.9.80",
-      "port": 80,
-      "uuid": "5a1d2c0c-abfa-4050-918f-bfab3eaee62a",
       "tls": true,
       "flow": ""
     },
@@ -157,14 +157,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.78:989",
-      "type": "ss",
-      "server": "192.71.249.78",
-      "port": 989,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.80:80",
       "type": "ss",
       "server": "151.101.9.80",
@@ -180,6 +172,14 @@
       "uuid": "582c84b9-25e9-48ae-826b-e1bdafca3730",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.78:989",
+      "type": "ss",
+      "server": "192.71.249.78",
+      "port": 989,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.108:989",
@@ -271,9 +271,9 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
+        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.80:80",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.81:80",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.10.79:443",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.80:80",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 34.22.142.117:443",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 113.30.152.46:443",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 194.110.115.93:44208",
@@ -289,9 +289,9 @@
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 193.9.114.34:809",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 193.9.114.34:805",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 193.9.114.34:801",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.78:989",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.80:80",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 98.142.254.3:25117",
+        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.78:989",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.108:989",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.71:989",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.10.133:443",

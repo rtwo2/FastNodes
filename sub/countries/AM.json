@@ -8,6 +8,15 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
+      "name": "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 178.160.229.241:443",
+      "type": "vless",
+      "server": "178.160.229.241",
+      "port": 443,
+      "uuid": "0c56d165-7005-4655-8b9e-4f6888b50318",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
       "name": "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 45.129.185.20:443",
       "type": "vless",
       "server": "45.129.185.20",
@@ -15,15 +24,6 @@
       "uuid": "45686761-5a47-40c0-a982-a06233f9d64e",
       "tls": true,
       "flow": "xtls-rprx-vision"
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 93.115.240.88:20000",
-      "type": "vless",
-      "server": "93.115.240.88",
-      "port": 20000,
-      "uuid": "fc8f56b0-7433-4e8f-9798-ab072af1e423",
-      "tls": true,
-      "flow": ""
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 188.164.159.178:2053",
@@ -71,6 +71,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 93.115.240.88:20000",
+      "type": "vless",
+      "server": "93.115.240.88",
+      "port": 20000,
+      "uuid": "fc8f56b0-7433-4e8f-9798-ab072af1e423",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDE6\uD83C\uDDF2 Armenia - SS 85.90.207.104:18791",
       "type": "ss",
       "server": "85.90.207.104",
@@ -84,6 +93,15 @@
       "server": "188.164.159.158",
       "port": 2096,
       "uuid": "1a25f8ad-cad2-4e93-b5bf-34e42bcac02a",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 194.156.103.151:443",
+      "type": "vless",
+      "server": "194.156.103.151",
+      "port": 443,
+      "uuid": "1fb78ef8-7bf0-47fe-bf74-eeffea5b0fad",
       "tls": true,
       "flow": ""
     },
@@ -510,15 +528,17 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
+        "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 178.160.229.241:443",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 45.129.185.20:443",
-        "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 93.115.240.88:20000",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 188.164.159.178:2053",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 188.164.158.246:2053",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 85.90.207.130:22872",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 188.164.158.247:8880",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 93.115.240.74:15500",
+        "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 93.115.240.88:20000",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - SS 85.90.207.104:18791",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 188.164.159.158:2096",
+        "\uD83C\uDDE6\uD83C\uDDF2 Armenia - VLESS 194.156.103.151:443",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - SS 146.185.248.22:989",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - SS 85.90.207.183:54300",
         "\uD83C\uDDE6\uD83C\uDDF2 Armenia - SS 93.115.240.88:20000",

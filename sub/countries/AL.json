@@ -35,6 +35,15 @@
       "flow": "xtls-rprx-vision"
     },
     {
+      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 45.15.170.80:28495",
+      "type": "vless",
+      "server": "45.15.170.80",
+      "port": 28495,
+      "uuid": "7e296434-2d17-48d3-928d-19eaa34aecb1",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 45.15.170.183:443",
       "type": "vless",
       "server": "45.15.170.183",
@@ -51,15 +60,6 @@
       "uuid": "6beee13a-f356-4a51-8e65-75f776508e8f",
       "tls": true,
       "flow": "xtls-rprx-vision"
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 45.15.170.80:28495",
-      "type": "vless",
-      "server": "45.15.170.80",
-      "port": 28495,
-      "uuid": "7e296434-2d17-48d3-928d-19eaa34aecb1",
-      "tls": true,
-      "flow": ""
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 78.159.131.16:443",
@@ -105,14 +105,6 @@
       "uuid": "",
       "alterId": 0,
       "cipher": "auto",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - TROJAN 78.159.131.12:28259",
-      "type": "trojan",
-      "server": "78.159.131.12",
-      "port": 28259,
-      "password": "MeaDiUmPlkWbZJ2BON8tz",
       "tls": true
     },
     {
@@ -211,15 +203,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 185.177.238.40:443",
-      "type": "vless",
-      "server": "185.177.238.40",
-      "port": 443,
-      "uuid": "23c0ab15-030a-441a-b906-1a23c483dfb6",
-      "tls": true,
-      "flow": "xtls-rprx-vision"
-    },
-    {
       "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 87.121.162.183:443",
       "type": "vless",
       "server": "87.121.162.183",
@@ -227,6 +210,23 @@
       "uuid": "b73855fb-2ec9-4039-935a-a206dda339f8",
       "tls": true,
       "flow": "xtls-rprx-vision"
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 185.177.238.40:443",
+      "type": "vless",
+      "server": "185.177.238.40",
+      "port": 443,
+      "uuid": "c5ec12ef-13ee-4df5-91a2-581e732d3528",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
+      "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - TROJAN 78.159.131.12:28259",
+      "type": "trojan",
+      "server": "78.159.131.12",
+      "port": 28259,
+      "password": "MeaDiUmPlkWbZJ2BON8tz",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDE6\uD83C\uDDF1 Albania - SS 31.171.153.181:989",
@@ -305,15 +305,14 @@
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 45.15.170.237:80",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 78.159.131.90:443",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 144.31.131.32:8443",
+        "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 45.15.170.80:28495",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 45.15.170.183:443",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 78.159.131.5:443",
-        "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 45.15.170.80:28495",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 78.159.131.16:443",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 78.159.131.210:443",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 78.159.131.76:443",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 78.159.131.23:443",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VMESS 45.15.170.237:80",
-        "\uD83C\uDDE6\uD83C\uDDF1 Albania - TROJAN 78.159.131.12:28259",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - SS 31.171.153.133:34687",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 144.31.129.38:443",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 144.31.131.42:443",
@@ -325,8 +324,9 @@
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 185.177.238.18:2083",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 185.177.238.99:443",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - SS 87.121.162.249:443",
-        "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 185.177.238.40:443",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 87.121.162.183:443",
+        "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 185.177.238.40:443",
+        "\uD83C\uDDE6\uD83C\uDDF1 Albania - TROJAN 78.159.131.12:28259",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - SS 31.171.153.181:989",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - SS 31.171.153.178:989",
         "\uD83C\uDDE6\uD83C\uDDF1 Albania - VLESS 78.159.131.107:443",

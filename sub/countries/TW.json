@@ -107,6 +107,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 106.105.161.54:12345",
+      "type": "vless",
+      "server": "106.105.161.54",
+      "port": 12345,
+      "uuid": "948fac3c-42bf-41a6-a5f9-704d36ff0d8d",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 2.58.241.45:38033",
       "type": "ss",
       "server": "2.58.241.45",
@@ -157,22 +166,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 154.223.20.79:989",
-      "type": "ss",
-      "server": "154.223.20.79",
-      "port": 989,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 185.189.160.105:41632",
-      "type": "ss",
-      "server": "185.189.160.105",
-      "port": 41632,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 103.168.155.73:3306",
       "type": "trojan",
       "server": "103.168.155.73",
@@ -221,36 +214,20 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.155:3389",
-      "type": "trojan",
-      "server": "211.72.35.155",
-      "port": 3389,
-      "password": "b09d2aaa443af97a",
-      "tls": true
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 61.220.130.70:50701",
+      "type": "ss",
+      "server": "61.220.130.70",
+      "port": 50701,
+      "cipher": "auto",
+      "password": ""
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.226:3389",
-      "type": "trojan",
-      "server": "60.249.3.226",
-      "port": 3389,
-      "password": "7ac49a893e0bd10c",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.157:3389",
-      "type": "trojan",
-      "server": "211.72.35.157",
-      "port": 3389,
-      "password": "8b475d9e868e43e0",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.228:3389",
-      "type": "trojan",
-      "server": "60.249.3.228",
-      "port": 3389,
-      "password": "7ac49a893e0bd10c",
-      "tls": true
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 154.223.20.79:989",
+      "type": "ss",
+      "server": "154.223.20.79",
+      "port": 989,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.158:3389",
@@ -258,30 +235,6 @@
       "server": "211.72.35.158",
       "port": 3389,
       "password": "7b06d22a8a7c764f",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.153:3389",
-      "type": "trojan",
-      "server": "211.72.35.153",
-      "port": 3389,
-      "password": "7b06d22a8a7c764f",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.154:3389",
-      "type": "trojan",
-      "server": "211.72.35.154",
-      "port": 3389,
-      "password": "7b06d22a8a7c764f",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.152:3389",
-      "type": "trojan",
-      "server": "211.72.35.152",
-      "port": 3389,
-      "password": "b09d2aaa443af97a",
       "tls": true
     },
     {
@@ -293,11 +246,51 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.156:3389",
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.226:3389",
       "type": "trojan",
-      "server": "211.72.35.156",
+      "server": "60.249.3.226",
+      "port": 3389,
+      "password": "7ac49a893e0bd10c",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 185.189.160.105:41632",
+      "type": "ss",
+      "server": "185.189.160.105",
+      "port": 41632,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.155:3389",
+      "type": "trojan",
+      "server": "211.72.35.155",
+      "port": 3389,
+      "password": "b09d2aaa443af97a",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.152:3389",
+      "type": "trojan",
+      "server": "211.72.35.152",
+      "port": 3389,
+      "password": "b84d16a244460e09",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.154:3389",
+      "type": "trojan",
+      "server": "211.72.35.154",
       "port": 3389,
       "password": "7b06d22a8a7c764f",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.157:3389",
+      "type": "trojan",
+      "server": "211.72.35.157",
+      "port": 3389,
+      "password": "8b475d9e868e43e0",
       "tls": true
     },
     {
@@ -485,14 +478,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 61.220.130.70:50701",
-      "type": "ss",
-      "server": "61.220.130.70",
-      "port": 50701,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.248.114.182:3306",
       "type": "trojan",
       "server": "60.248.114.182",
@@ -506,6 +491,30 @@
       "server": "60.249.3.227",
       "port": 3389,
       "password": "7ac49a893e0bd10c",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.228:3389",
+      "type": "trojan",
+      "server": "60.249.3.228",
+      "port": 3389,
+      "password": "7ac49a893e0bd10c",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.153:3389",
+      "type": "trojan",
+      "server": "211.72.35.153",
+      "port": 3389,
+      "password": "7b06d22a8a7c764f",
+      "tls": true
+    },
+    {
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.156:3389",
+      "type": "trojan",
+      "server": "211.72.35.156",
+      "port": 3389,
+      "password": "7b06d22a8a7c764f",
       "tls": true
     },
     {
@@ -671,21 +680,20 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 154.223.20.79:990",
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 223.165.4.173:989",
       "type": "ss",
-      "server": "154.223.20.79",
-      "port": 990,
+      "server": "223.165.4.173",
+      "port": 989,
       "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 203.69.248.40:33699",
-      "type": "vless",
-      "server": "203.69.248.40",
-      "port": 33699,
-      "uuid": "69b9d375-c6c1-64f9-c4a9-f409c8586e5b",
-      "tls": true,
-      "flow": ""
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 185.189.160.54:18377",
+      "type": "ss",
+      "server": "185.189.160.54",
+      "port": 18377,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 61.228.99.214:3462",
@@ -704,10 +712,10 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 223.165.4.173:989",
+      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 154.223.20.79:990",
       "type": "ss",
-      "server": "223.165.4.173",
-      "port": 989,
+      "server": "154.223.20.79",
+      "port": 990,
       "cipher": "auto",
       "password": ""
     },
@@ -716,14 +724,6 @@
       "type": "ss",
       "server": "125.228.162.233",
       "port": 10145,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 114.33.57.170:443",
-      "type": "ss",
-      "server": "114.33.57.170",
-      "port": 443,
       "cipher": "auto",
       "password": ""
     },
@@ -771,30 +771,29 @@
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 114.34.202.224:10004",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 167.179.27.92:443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 210.61.97.241:81",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 106.105.161.54:12345",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 2.58.241.45:38033",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 2.58.242.43:33992",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 2.58.242.157:33992",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 38.54.107.101:990",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 46.249.109.128:443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 220.128.110.108:43",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 154.223.20.79:989",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 185.189.160.105:41632",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 103.168.155.73:3306",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.231:3389",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.229:3389",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.230:3389",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.248.114.184:3306",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.125:3389",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.155:3389",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.226:3389",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.157:3389",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.228:3389",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 61.220.130.70:50701",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 154.223.20.79:989",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.158:3389",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.153:3389",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.154:3389",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.152:3389",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 2.58.242.43:443",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.156:3389",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.226:3389",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 185.189.160.105:41632",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.155:3389",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.152:3389",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.154:3389",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.157:3389",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 103.177.33.180:443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 2.58.241.42:443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 118.163.198.43:2377",
@@ -818,9 +817,11 @@
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 61.216.165.233:2377",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 223.165.4.173:990",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 185.189.160.98:64759",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 61.220.130.70:50701",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.248.114.182:3306",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.227:3389",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 60.249.3.228:3389",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.153:3389",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.72.35.156:3389",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 220.130.58.136:28504",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 211.20.245.139:8443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 59.125.131.163:8443",
@@ -841,8 +842,8 @@
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 210.61.97.241:81",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 103.137.62.229:443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 141.11.86.94:45888",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 154.223.20.79:990",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 203.69.248.40:33699",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 223.165.4.173:989",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 185.189.160.54:18377",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - TROJAN 61.228.99.214:3462",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 83.147.13.176:11402",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 114.41.2.71:24231",
@@ -877,9 +878,8 @@
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.35.95:3074",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - HY2 60.249.35.96:3074",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 46.249.109.128:56594",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 223.165.4.173:989",
+        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 154.223.20.79:990",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 125.228.162.233:10145",
-        "\uD83C\uDDF9\uD83C\uDDFC Taiwan - SS 114.33.57.170:443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 114.32.9.249:16443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 203.69.248.40:10443",
         "\uD83C\uDDF9\uD83C\uDDFC Taiwan - VLESS 220.130.58.230:443"

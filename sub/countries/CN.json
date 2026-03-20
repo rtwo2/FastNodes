@@ -8,6 +8,15 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
+      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 183.240.252.165:8654",
+      "type": "vless",
+      "server": "183.240.252.165",
+      "port": 8654,
+      "uuid": "f6ddddaf-dfd6-4134-9dae-03b93b03d145",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 223.72.61.78:1234",
       "type": "vless",
       "server": "223.72.61.78",
@@ -31,15 +40,6 @@
       "server": "218.204.179.53",
       "port": 50394,
       "uuid": "2cd6ed0f-636e-4e6c-9449-5a263d7a0fa5",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 183.240.252.165:8654",
-      "type": "vless",
-      "server": "183.240.252.165",
-      "port": 8654,
-      "uuid": "f6ddddaf-dfd6-4134-9dae-03b93b03d145",
       "tls": true,
       "flow": ""
     },
@@ -2390,10 +2390,10 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - SS 183.240.252.165:8654",
+      "name": "\uD83C\uDDE8\uD83C\uDDF3 China - SS 139.196.41.153:443",
       "type": "ss",
-      "server": "183.240.252.165",
-      "port": 8654,
+      "server": "139.196.41.153",
+      "port": 443,
       "cipher": "auto",
       "password": ""
     }
@@ -2403,10 +2403,10 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
+        "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 183.240.252.165:8654",
         "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 223.72.61.78:1234",
         "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 42.236.73.72:443",
         "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 218.204.179.53:50394",
-        "\uD83C\uDDE8\uD83C\uDDF3 China - VLESS 183.240.252.165:8654",
         "\uD83C\uDDE8\uD83C\uDDF3 China - SS 203.156.198.89:25339",
         "\uD83C\uDDE8\uD83C\uDDF3 China - SS 183.240.232.214:25338",
         "\uD83C\uDDE8\uD83C\uDDF3 China - SS 36.139.239.208:25487",
@@ -2701,7 +2701,7 @@
         "\uD83C\uDDE8\uD83C\uDDF3 China - SS 36.141.40.46:15161",
         "\uD83C\uDDE8\uD83C\uDDF3 China - HY2 178.236.237.84:443",
         "\uD83C\uDDE8\uD83C\uDDF3 China - SS 123.88.148.9:65045",
-        "\uD83C\uDDE8\uD83C\uDDF3 China - SS 183.240.252.165:8654"
+        "\uD83C\uDDE8\uD83C\uDDF3 China - SS 139.196.41.153:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

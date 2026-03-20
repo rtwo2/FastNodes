@@ -42,17 +42,18 @@
       "tls": true
     },
     {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 202.155.11.207:11444",
+      "type": "vless",
+      "server": "202.155.11.207",
+      "port": 11444,
+      "uuid": "217e8d75-528f-4198-8217-ae2885ac9dba",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
       "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.176.78.153:443",
       "type": "trojan",
       "server": "103.176.78.153",
-      "port": 443,
-      "password": "idc117okt",
-      "tls": true
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.226.139.201:443",
-      "type": "trojan",
-      "server": "103.226.139.201",
       "port": 443,
       "password": "idc117okt",
       "tls": true
@@ -64,6 +65,14 @@
       "port": 990,
       "cipher": "auto",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.226.139.201:443",
+      "type": "trojan",
+      "server": "103.226.139.201",
+      "port": 443,
+      "password": "idc117okt",
+      "tls": true
     },
     {
       "name": "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 43.218.139.54:443",
@@ -127,9 +136,10 @@
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - SS 154.205.159.100:990",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 43.229.254.177:80",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 41.216.177.41:443",
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 202.155.11.207:11444",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.176.78.153:443",
-        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.226.139.201:443",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - SS 38.60.171.254:990",
+        "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 103.226.139.201:443",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - TROJAN 43.218.139.54:443",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.232.248.242:2321",
         "\uD83C\uDDEE\uD83C\uDDE9 Indonesia - VLESS 172.235.251.52:321",

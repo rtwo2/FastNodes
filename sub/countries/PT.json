@@ -61,6 +61,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDF5\uD83C\uDDF9 Portugal - VLESS 104.22.13.192:443",
+      "type": "vless",
+      "server": "104.22.13.192",
+      "port": 443,
+      "uuid": "884f9b2c-f0c5-44dd-a68e-3e39ce93bb39",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 91.250.240.148:49339",
       "type": "ss",
       "server": "91.250.240.148",
@@ -73,6 +82,23 @@
       "type": "ss",
       "server": "104.22.13.192",
       "port": 2053,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF5\uD83C\uDDF9 Portugal - VLESS 185.138.89.6:8443",
+      "type": "vless",
+      "server": "185.138.89.6",
+      "port": 8443,
+      "uuid": "5e1083b9-4d4f-50ef-93e7-6e966dfce1f9",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 185.231.233.112:989",
+      "type": "ss",
+      "server": "185.231.233.112",
+      "port": 989,
       "cipher": "auto",
       "password": ""
     },
@@ -91,14 +117,6 @@
       "port": 990,
       "cipher": "auto",
       "password": ""
-    },
-    {
-      "name": "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 185.231.233.112:989",
-      "type": "ss",
-      "server": "185.231.233.112",
-      "port": 989,
-      "cipher": "auto",
-      "password": ""
     }
   ],
   "proxy_groups": [
@@ -112,11 +130,13 @@
         "\uD83C\uDDF5\uD83C\uDDF9 Portugal - VLESS 104.22.12.215:443",
         "\uD83C\uDDF5\uD83C\uDDF9 Portugal - VLESS 104.22.13.215:443",
         "\uD83C\uDDF5\uD83C\uDDF9 Portugal - VLESS 104.22.13.10:80",
+        "\uD83C\uDDF5\uD83C\uDDF9 Portugal - VLESS 104.22.13.192:443",
         "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 91.250.240.148:49339",
         "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 104.22.13.192:2053",
+        "\uD83C\uDDF5\uD83C\uDDF9 Portugal - VLESS 185.138.89.6:8443",
+        "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 185.231.233.112:989",
         "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 31.129.22.32:443",
-        "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 185.231.233.173:990",
-        "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 185.231.233.112:989"
+        "\uD83C\uDDF5\uD83C\uDDF9 Portugal - SS 185.231.233.173:990"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

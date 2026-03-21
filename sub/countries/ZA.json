@@ -87,6 +87,15 @@
       "flow": ""
     },
     {
+      "name": "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 102.37.157.78:6013",
+      "type": "vless",
+      "server": "102.37.157.78",
+      "port": 6013,
+      "uuid": "f9a84da7-102f-4066-8593-095c4a4af003",
+      "tls": true,
+      "flow": ""
+    },
+    {
       "name": "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 160.123.255.18:443",
       "type": "vless",
       "server": "160.123.255.18",
@@ -153,12 +162,13 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDFF\uD83C\uDDE6 South Africa - TROJAN 169.239.128.39:443",
-      "type": "trojan",
-      "server": "169.239.128.39",
+      "name": "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 139.84.228.27:443",
+      "type": "vless",
+      "server": "139.84.228.27",
       "port": 443,
-      "password": "3ac6a6ca99f74941b1eaf892818e2ddb",
-      "tls": true
+      "uuid": "2e1add4a64494887bd4b2a3a211e58e6",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
     },
     {
       "name": "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 192.142.48.21:443",
@@ -420,6 +430,7 @@
         "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 104.22.46.204:443",
         "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 102.132.188.63:8880",
         "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 102.177.176.213:8880",
+        "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 102.37.157.78:6013",
         "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 160.123.255.18:443",
         "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 102.37.134.67:8082",
         "\uD83C\uDDFF\uD83C\uDDE6 South Africa - SS 102.37.156.224:443",
@@ -428,7 +439,7 @@
         "\uD83C\uDDFF\uD83C\uDDE6 South Africa - SS 41.203.4.34:989",
         "\uD83C\uDDFF\uD83C\uDDE6 South Africa - SS 102.165.47.134:47121",
         "\uD83C\uDDFF\uD83C\uDDE6 South Africa - SS 102.165.20.38:8389",
-        "\uD83C\uDDFF\uD83C\uDDE6 South Africa - TROJAN 169.239.128.39:443",
+        "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 139.84.228.27:443",
         "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 192.142.48.21:443",
         "\uD83C\uDDFF\uD83C\uDDE6 South Africa - VLESS 102.177.176.61:2096",
         "\uD83C\uDDFF\uD83C\uDDE6 South Africa - TROJAN 212.90.123.133:28443",

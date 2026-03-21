@@ -16,14 +16,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF5\uD83C\uDDEA Peru - TROJAN 38.180.173.150:443",
-      "type": "trojan",
-      "server": "38.180.173.150",
-      "port": 443,
-      "password": "3ac6a6ca99f74941b1eaf892818e2ddb",
-      "tls": true
-    },
-    {
       "name": "\uD83C\uDDF5\uD83C\uDDEA Peru - SS 138.186.143.32:990",
       "type": "ss",
       "server": "138.186.143.32",
@@ -46,6 +38,14 @@
       "port": 989,
       "cipher": "auto",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF5\uD83C\uDDEA Peru - TROJAN 38.180.173.150:443",
+      "type": "trojan",
+      "server": "38.180.173.150",
+      "port": 443,
+      "password": "3ac6a6ca99f74941b1eaf892818e2ddb",
+      "tls": true
     }
   ],
   "proxy_groups": [
@@ -54,10 +54,10 @@
       "type": "url-test",
       "proxies": [
         "\uD83C\uDDF5\uD83C\uDDEA Peru - SS 185.47.252.251:990",
-        "\uD83C\uDDF5\uD83C\uDDEA Peru - TROJAN 38.180.173.150:443",
         "\uD83C\uDDF5\uD83C\uDDEA Peru - SS 138.186.143.32:990",
         "\uD83C\uDDF5\uD83C\uDDEA Peru - SS 190.120.229.28:989",
-        "\uD83C\uDDF5\uD83C\uDDEA Peru - SS 138.186.143.32:989"
+        "\uD83C\uDDF5\uD83C\uDDEA Peru - SS 138.186.143.32:989",
+        "\uD83C\uDDF5\uD83C\uDDEA Peru - TROJAN 38.180.173.150:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

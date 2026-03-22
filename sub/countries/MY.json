@@ -8,24 +8,6 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.78:2053",
-      "type": "vless",
-      "server": "45.89.107.78",
-      "port": 2053,
-      "uuid": "948fac3c-42bf-41a6-a5f9-704d36ff0d8d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 155.254.60.17:443",
-      "type": "vless",
-      "server": "155.254.60.17",
-      "port": 443,
-      "uuid": "948fac3c-42bf-41a6-a5f9-704d36ff0d8d",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.128.54.17:443",
       "type": "vless",
       "server": "45.128.54.17",
@@ -33,14 +15,6 @@
       "uuid": "297df885-9161-46cb-94d4-90a8a8489645",
       "tls": true,
       "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - SS 124.217.247.205:51348",
-      "type": "ss",
-      "server": "124.217.247.205",
-      "port": 51348,
-      "cipher": "auto",
-      "password": ""
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - SS 202.59.10.102:989",
@@ -59,13 +33,12 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.200:8443",
-      "type": "vless",
-      "server": "45.89.107.200",
-      "port": 8443,
-      "uuid": "5e1083b9-4d4f-50ef-93e7-6e966dfce1f9",
-      "tls": true,
-      "flow": ""
+      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - SS 124.217.247.205:51348",
+      "type": "ss",
+      "server": "124.217.247.205",
+      "port": 51348,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.148:8443",
@@ -144,14 +117,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - TROJAN 38.60.195.223:443",
-      "type": "trojan",
-      "server": "38.60.195.223",
-      "port": 443,
-      "password": "3ac6a6ca99f74941b1eaf892818e2ddb",
-      "tls": true
-    },
-    {
       "name": "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.223:443",
       "type": "vless",
       "server": "45.89.107.223",
@@ -166,13 +131,10 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.78:2053",
-        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 155.254.60.17:443",
         "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.128.54.17:443",
-        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - SS 124.217.247.205:51348",
         "\uD83C\uDDF2\uD83C\uDDFE Malaysia - SS 202.59.10.102:989",
         "\uD83C\uDDF2\uD83C\uDDFE Malaysia - SS 223.25.246.4:8389",
-        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.200:8443",
+        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - SS 124.217.247.205:51348",
         "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.148:8443",
         "\uD83C\uDDF2\uD83C\uDDFE Malaysia - SS 38.60.192.176:990",
         "\uD83C\uDDF2\uD83C\uDDFE Malaysia - SS 103.243.215.17:990",
@@ -182,7 +144,6 @@
         "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.235:443",
         "\uD83C\uDDF2\uD83C\uDDFE Malaysia - TROJAN 45.89.107.118:443",
         "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.244:443",
-        "\uD83C\uDDF2\uD83C\uDDFE Malaysia - TROJAN 38.60.195.223:443",
         "\uD83C\uDDF2\uD83C\uDDFE Malaysia - VLESS 45.89.107.223:443"
       ],
       "url": "http://cp.cloudflare.com/generate_204",

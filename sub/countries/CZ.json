@@ -278,15 +278,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 194.182.79.247:13479",
-      "type": "vless",
-      "server": "194.182.79.247",
-      "port": 13479,
-      "uuid": "76394cec-9b9a-49a7-84cf-1ff52c70aaf5",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.85.23.138:2096",
       "type": "vless",
       "server": "195.85.23.138",
@@ -328,14 +319,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.133.15.149:26832",
-      "type": "ss",
-      "server": "195.133.15.149",
-      "port": 26832,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 194.87.221.4:443",
       "type": "ss",
       "server": "194.87.221.4",
@@ -344,54 +327,10 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.133.15.149:443",
-      "type": "vless",
+      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.133.15.149:26832",
+      "type": "ss",
       "server": "195.133.15.149",
-      "port": 443,
-      "uuid": "0549c0f0-934e-4228-dc7f-5ef62b32543d",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 188.130.208.240:8443",
-      "type": "vless",
-      "server": "188.130.208.240",
-      "port": 8443,
-      "uuid": "bf026898-1c13-465e-ae62-2128f6f5126e",
-      "tls": true,
-      "flow": "xtls-rprx-vision"
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 95.85.235.33:443",
-      "type": "vless",
-      "server": "95.85.235.33",
-      "port": 443,
-      "uuid": "ee72108d-41b3-4be4-963a-13a95a4796ad",
-      "tls": true,
-      "flow": "xtls-rprx-vision"
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 212.192.220.123:6443",
-      "type": "vless",
-      "server": "212.192.220.123",
-      "port": 6443,
-      "uuid": "fd37be2f-f8d1-47de-97e8-13c28107d31e",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.123.246.15:51348",
-      "type": "ss",
-      "server": "195.123.246.15",
-      "port": 51348,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
-      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 143.244.58.102:443",
-      "type": "ss",
-      "server": "143.244.58.102",
-      "port": 443,
+      "port": 26832,
       "cipher": "auto",
       "password": ""
     },
@@ -399,6 +338,22 @@
       "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 212.102.38.41:443",
       "type": "ss",
       "server": "212.102.38.41",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 212.102.38.88:443",
+      "type": "ss",
+      "server": "212.102.38.88",
+      "port": 443,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 143.244.58.102:443",
+      "type": "ss",
+      "server": "143.244.58.102",
       "port": 443,
       "cipher": "auto",
       "password": ""
@@ -420,18 +375,18 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.181.160.6:990",
+      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.123.246.15:51348",
       "type": "ss",
-      "server": "195.181.160.6",
-      "port": 990,
+      "server": "195.123.246.15",
+      "port": 51348,
       "cipher": "auto",
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 212.102.38.88:443",
+      "name": "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.181.160.6:990",
       "type": "ss",
-      "server": "212.102.38.88",
-      "port": 443,
+      "server": "195.181.160.6",
+      "port": 990,
       "cipher": "auto",
       "password": ""
     },
@@ -899,25 +854,20 @@
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.85.23.63:8880",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.85.23.213:8880",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.85.23.20:8880",
-        "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 194.182.79.247:13479",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.85.23.138:2096",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 193.235.207.28:989",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - TROJAN 195.133.93.135:443",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - TROJAN 92.118.149.85:443",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 95.85.234.172:443",
-        "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.133.15.149:26832",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 194.87.221.4:443",
-        "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 195.133.15.149:443",
-        "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 188.130.208.240:8443",
-        "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 95.85.235.33:443",
-        "\uD83C\uDDE8\uD83C\uDDFF Czechia - VLESS 212.192.220.123:6443",
-        "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.123.246.15:51348",
-        "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 143.244.58.102:443",
+        "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.133.15.149:26832",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 212.102.38.41:443",
+        "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 212.102.38.88:443",
+        "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 143.244.58.102:443",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 194.182.79.250:52612",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 212.193.27.52:2222",
+        "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.123.246.15:51348",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 195.181.160.6:990",
-        "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 212.102.38.88:443",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 194.182.79.235:28256",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 194.182.79.252:37815",
         "\uD83C\uDDE8\uD83C\uDDFF Czechia - SS 194.182.79.216:43707",

@@ -53,15 +53,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 141.98.233.95:1518",
-      "type": "vless",
-      "server": "141.98.233.95",
-      "port": 1518,
-      "uuid": "840fce73-112f-44e1-8bdf-cee760ed7a03",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 194.110.115.93:44208",
       "type": "ss",
       "server": "194.110.115.93",
@@ -166,14 +157,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.78:989",
-      "type": "ss",
-      "server": "192.71.249.78",
-      "port": 989,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.80:80",
       "type": "ss",
       "server": "151.101.9.80",
@@ -186,9 +169,17 @@
       "type": "vless",
       "server": "151.101.9.194",
       "port": 443,
-      "uuid": "febbc960-a868-4e9a-a93b-aa52308b1452",
+      "uuid": "fdec7980-cae0-41cc-d92b-e3604fef5394",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.78:989",
+      "type": "ss",
+      "server": "192.71.249.78",
+      "port": 989,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.108:989",
@@ -267,6 +258,14 @@
       "port": 80,
       "cipher": "auto",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.81:80",
+      "type": "ss",
+      "server": "151.101.9.81",
+      "port": 80,
+      "cipher": "auto",
+      "password": ""
     }
   ],
   "proxy_groups": [
@@ -279,7 +278,6 @@
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.10.79:443",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.80:80",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 34.22.142.117:443",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 141.98.233.95:1518",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 194.110.115.93:44208",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 37.120.236.147:40093",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 37.120.218.253:40093",
@@ -293,9 +291,9 @@
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 193.9.114.34:809",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 193.9.114.34:805",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 193.9.114.34:801",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.78:989",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.80:80",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.194:443",
+        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.78:989",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.108:989",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 192.71.249.71:989",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.10.133:443",
@@ -304,7 +302,8 @@
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 113.30.152.107:443",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 98.142.254.3:25117",
         "\uD83C\uDDE7\uD83C\uDDEA Belgium - VLESS 151.101.9.79:80",
-        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.79:80"
+        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.79:80",
+        "\uD83C\uDDE7\uD83C\uDDEA Belgium - SS 151.101.9.81:80"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

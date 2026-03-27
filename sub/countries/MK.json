@@ -24,14 +24,6 @@
       "password": ""
     },
     {
-      "name": "\uD83C\uDDF2\uD83C\uDDF0 North Macedonia - SS 46.183.185.37:989",
-      "type": "ss",
-      "server": "46.183.185.37",
-      "port": 989,
-      "cipher": "auto",
-      "password": ""
-    },
-    {
       "name": "\uD83C\uDDF2\uD83C\uDDF0 North Macedonia - VLESS 89.185.82.64:443",
       "type": "vless",
       "server": "89.185.82.64",
@@ -45,6 +37,14 @@
       "type": "ss",
       "server": "46.183.185.15",
       "port": 990,
+      "cipher": "auto",
+      "password": ""
+    },
+    {
+      "name": "\uD83C\uDDF2\uD83C\uDDF0 North Macedonia - SS 46.183.185.37:989",
+      "type": "ss",
+      "server": "46.183.185.37",
+      "port": 989,
       "cipher": "auto",
       "password": ""
     },
@@ -64,9 +64,9 @@
       "proxies": [
         "\uD83C\uDDF2\uD83C\uDDF0 North Macedonia - SS 185.225.28.85:47121",
         "\uD83C\uDDF2\uD83C\uDDF0 North Macedonia - SS 46.183.185.15:989",
-        "\uD83C\uDDF2\uD83C\uDDF0 North Macedonia - SS 46.183.185.37:989",
         "\uD83C\uDDF2\uD83C\uDDF0 North Macedonia - VLESS 89.185.82.64:443",
         "\uD83C\uDDF2\uD83C\uDDF0 North Macedonia - SS 46.183.185.15:990",
+        "\uD83C\uDDF2\uD83C\uDDF0 North Macedonia - SS 46.183.185.37:989",
         "\uD83C\uDDF2\uD83C\uDDF0 North Macedonia - SS 46.183.185.37:990"
       ],
       "url": "http://cp.cloudflare.com/generate_204",

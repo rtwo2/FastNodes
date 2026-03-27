@@ -8,20 +8,20 @@
   "external_controller": "127.0.0.1:9090",
   "proxies": [
     {
-      "name": "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.138:2096",
-      "type": "vless",
-      "server": "185.162.231.138",
-      "port": 2096,
-      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.186:2087",
       "type": "vless",
       "server": "185.162.231.186",
       "port": 2087,
       "uuid": "31a27ed1-2ec6-4ab5-95b6-3e213e59e0a9",
+      "tls": true,
+      "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.138:2096",
+      "type": "vless",
+      "server": "185.162.231.138",
+      "port": 2096,
+      "uuid": "6202b230-417c-4d8e-b624-0f71afa9c75d",
       "tls": true,
       "flow": ""
     },
@@ -40,15 +40,6 @@
       "server": "185.162.231.213",
       "port": 8880,
       "uuid": "fab7bf9c-ddb9-4563-8a04-fb01ce6c0fbf",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.148:2096",
-      "type": "vless",
-      "server": "185.162.231.148",
-      "port": 2096,
-      "uuid": "1a25f8ad-cad2-4e93-b5bf-34e42bcac02a",
       "tls": true,
       "flow": ""
     },
@@ -205,6 +196,15 @@
       "port": 80,
       "cipher": "auto",
       "password": ""
+    },
+    {
+      "name": "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.148:2096",
+      "type": "vless",
+      "server": "185.162.231.148",
+      "port": 2096,
+      "uuid": "1a25f8ad-cad2-4e93-b5bf-34e42bcac02a",
+      "tls": true,
+      "flow": ""
     }
   ],
   "proxy_groups": [
@@ -212,11 +212,10 @@
       "name": "AUTO",
       "type": "url-test",
       "proxies": [
-        "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.138:2096",
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.186:2087",
+        "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.138:2096",
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.228.3:80",
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.213:8880",
-        "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.148:2096",
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.229.238:2096",
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - SS 185.162.231.138:2096",
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - SS 86.38.4.73:8881",
@@ -234,7 +233,8 @@
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.229.253:2053",
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - SS 185.162.231.148:2096",
         "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.230.238:2096",
-        "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - SS 185.162.229.185:80"
+        "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - SS 185.162.229.185:80",
+        "\uD83C\uDDEE\uD83C\uDDF2 Isle of Man - VLESS 185.162.231.148:2096"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

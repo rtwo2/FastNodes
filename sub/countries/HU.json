@@ -17,15 +17,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.174:1443",
-      "type": "vless",
-      "server": "217.13.104.174",
-      "port": 1443,
-      "uuid": "2e0941f5-7dd0-463b-84d9-d2347c4ee67a",
-      "tls": true,
-      "flow": "xtls-rprx-vision"
-    },
-    {
       "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.177:443",
       "type": "vless",
       "server": "217.13.104.177",
@@ -177,11 +168,20 @@
       "flow": "xtls-rprx-vision"
     },
     {
+      "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.133:1443",
+      "type": "vless",
+      "server": "217.13.104.133",
+      "port": 1443,
+      "uuid": "6e92b83e-a843-4aa5-b6f3-23c5af8d8f08",
+      "tls": true,
+      "flow": "xtls-rprx-vision"
+    },
+    {
       "name": "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.133:11443",
       "type": "vless",
       "server": "217.13.104.133",
       "port": 11443,
-      "uuid": "ef134eb1-a567-4a14-9e73-ddbe4ec653ce",
+      "uuid": "6e92b83e-a843-4aa5-b6f3-23c5af8d8f08",
       "tls": true,
       "flow": ""
     },
@@ -302,7 +302,6 @@
       "type": "url-test",
       "proxies": [
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 5.182.38.91:17267",
-        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.174:1443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.177:443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.133:443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.133:5443",
@@ -320,6 +319,7 @@
         "\uD83C\uDDED\uD83C\uDDFA Hungary - SS 5.182.38.91:17267",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.101:443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.111.70:443",
+        "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.133:1443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - VLESS 217.13.104.133:11443",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - SS 194.71.130.26:2949",
         "\uD83C\uDDED\uD83C\uDDFA Hungary - SS 192.71.211.161:989",

@@ -26,24 +26,6 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 45.83.122.71:10677",
-      "type": "vless",
-      "server": "45.83.122.71",
-      "port": 10677,
-      "uuid": "7238b4d0-73ec-4d22-8ff4-3f82bfc5e827",
-      "tls": true,
-      "flow": ""
-    },
-    {
-      "name": "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 45.83.122.71:25841",
-      "type": "vless",
-      "server": "45.83.122.71",
-      "port": 25841,
-      "uuid": "0773fe44-baaf-49fd-e834-5b05f6da3942",
-      "tls": true,
-      "flow": ""
-    },
-    {
       "name": "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - SS 45.138.74.160:7261",
       "type": "ss",
       "server": "45.138.74.160",
@@ -129,6 +111,15 @@
       "uuid": "fab7bf9c-ddb9-4563-8a04-fb01ce6c0fbf",
       "tls": true,
       "flow": ""
+    },
+    {
+      "name": "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 185.174.138.194:80",
+      "type": "vless",
+      "server": "185.174.138.194",
+      "port": 80,
+      "uuid": "17714732-15b6-5b7a-9703-8c874ef8bef4",
+      "tls": true,
+      "flow": ""
     }
   ],
   "proxy_groups": [
@@ -138,8 +129,6 @@
       "proxies": [
         "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 185.174.138.141:8443",
         "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 203.32.121.53:8080",
-        "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 45.83.122.71:10677",
-        "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 45.83.122.71:25841",
         "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - SS 45.138.74.160:7261",
         "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 45.138.74.173:20601",
         "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - SS 91.103.253.151:19057",
@@ -149,7 +138,8 @@
         "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 185.174.138.6:80",
         "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 185.174.138.186:8880",
         "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 185.174.138.168:8880",
-        "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 185.174.138.213:8880"
+        "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 185.174.138.213:8880",
+        "\uD83C\uDDFB\uD83C\uDDEC British Virgin Islands - VLESS 185.174.138.194:80"
       ],
       "url": "http://cp.cloudflare.com/generate_204",
       "interval": 300,

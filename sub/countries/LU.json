@@ -21,7 +21,7 @@
       "type": "vless",
       "server": "95.85.95.85",
       "port": 443,
-      "uuid": "4cb39a2e-0aa0-43c4-bd94-5026c13e9ba3",
+      "uuid": "22ebc3ad-2e41-4fb3-acdd-c6269ac9bf81",
       "tls": true,
       "flow": ""
     },
@@ -692,13 +692,12 @@
       "tls": true
     },
     {
-      "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 107.189.7.176:49839",
-      "type": "vless",
+      "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - SS 107.189.7.176:46294",
+      "type": "ss",
       "server": "107.189.7.176",
-      "port": 49839,
-      "uuid": "c56375ea-317d-4d81-9213-582d024e5d3a",
-      "tls": true,
-      "flow": ""
+      "port": 46294,
+      "cipher": "auto",
+      "password": ""
     },
     {
       "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 107.189.7.176:47644",
@@ -710,12 +709,13 @@
       "flow": ""
     },
     {
-      "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - SS 107.189.7.176:46294",
-      "type": "ss",
+      "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 107.189.7.176:49839",
+      "type": "vless",
       "server": "107.189.7.176",
-      "port": 46294,
-      "cipher": "auto",
-      "password": ""
+      "port": 49839,
+      "uuid": "c56375ea-317d-4d81-9213-582d024e5d3a",
+      "tls": true,
+      "flow": ""
     },
     {
       "name": "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - SS 107.189.7.176:47644",
@@ -818,9 +818,9 @@
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 188.42.88.144:8443",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 188.42.88.252:8443",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - TROJAN 188.42.88.144:2083",
-        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 107.189.7.176:49839",
-        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 107.189.7.176:47644",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - SS 107.189.7.176:46294",
+        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 107.189.7.176:47644",
+        "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - VLESS 107.189.7.176:49839",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - SS 107.189.7.176:47644",
         "\uD83C\uDDF1\uD83C\uDDFA Luxembourg - SS 107.189.7.176:49839"
       ],

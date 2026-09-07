@@ -1,0 +1,481 @@
+proxies:
+  - name: "🌐 Cloudflare | 162.159.192.0"
+    type: wireguard
+    server: "162.159.192.0"
+    port: 859
+    ip: "172.16.0.2/32,2606:4700:110:8354:f105:aa3e:23c:3103/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "0FSpseR8IgSrmXSC8rRrq1DBKasAmZqkzRMQ4VPKxlo="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [229,126,95]
+
+  - name: "🌐 Cloudflare | 162.159.192.13 :891"
+    type: wireguard
+    server: "162.159.192.13"
+    port: 891
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "cMZh12kSc0CzevsmZVNBDGq9UzCBIOd1IyDqyFHaDFc="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [252,227,118]
+
+  - name: "🌐 Cloudflare | 162.159.192.145 :4177"
+    type: wireguard
+    server: "162.159.192.145"
+    port: 4177
+    ip: "172.16.0.2/32,2606:4700:110:852c:4a12:7ae6:7e47:f35f/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "GX2HBifMqofZuqDeuUpLpO2VWlChtHhBYzUz+9Xkxp0="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [135,252,97]
+
+  - name: "🌐 Cloudflare | 162.159.192.15"
+    type: wireguard
+    server: "162.159.192.15"
+    port: 943
+    ip: "172.16.0.2/32,2606:4700:110:863e:3ca4:c194:e5f3:fcc9/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "2Cd3AZEeoz4JA+ox2hRcjgEpPUqDnVOkMOvKNEB33Hc="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [31,46,24]
+
+  - name: "🌐 Cloudflare | 162.159.192.18 :7281"
+    type: wireguard
+    server: "162.159.192.18"
+    port: 7281
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "EGJv3zPymgGxvlJjXqcB2cmyY8Xo4mY0w9bxP1pk2GQ="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [145,102,173]
+
+  - name: "🌐 Cloudflare | 162.159.192.2 :878"
+    type: wireguard
+    server: "162.159.192.2"
+    port: 878
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "uPnOVvknUik9L6CCbwL0ilNxlgKLaLC9EC2FVcoGF28="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [115,35,212]
+
+  - name: "🌐 Cloudflare | 162.159.192.20 :903"
+    type: wireguard
+    server: "162.159.192.20"
+    port: 903
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "8CBaFoNjMJ64gMWudh+rjxrHtCq0lktrhxseaYo2S0k="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [228,46,87]
+
+  - name: "🌐 Cloudflare | 162.159.192.20 :1002"
+    type: wireguard
+    server: "162.159.192.20"
+    port: 1002
+    ip: "172.16.0.2/32,2606:4700:110:8fac:4a35:ddba:d2e0:af22/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "kFM9KnwUCLvq2j0OJKPkQoZnCdqNF2BmndQ1WYBZNHc="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [148,33,241]
+
+  - name: "🌐 Cloudflare | 162.159.192.4 :500"
+    type: wireguard
+    server: "162.159.192.4"
+    port: 500
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "uPnOVvknUik9L6CCbwL0ilNxlgKLaLC9EC2FVcoGF28="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [115,35,212]
+
+  - name: "🌐 Cloudflare | 162.159.195.194"
+    type: wireguard
+    server: "162.159.195.194"
+    port: 864
+    ip: "172.16.0.2/32,2606:4700:110:8e7b:7f14:5ec0:5f5d:cc1a/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "8OZnGhj0UhaMLqG1teayFEC16JkSy76UQqHtH7yVFXk="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [117,25,17]
+
+  - name: "🌐 Cloudflare | 162.159.195.230"
+    type: wireguard
+    server: "162.159.195.230"
+    port: 1843
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "iI4A7qsgbBGw7Uy8p9KzvCXSvqvB0DsfTakAMeHNfEU="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [94,93,191]
+
+  - name: "🌐 Cloudflare | 162.159.195.25"
+    type: wireguard
+    server: "162.159.195.25"
+    port: 1010
+    ip: "172.16.0.2/32,2606:4700:110:8841:4823:26be:b97e:e1ad/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "yN1JTfs09lhO94+naZ7XOwoGsywBgDM2DhU440nVrVI="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [67,26,146]
+
+  - name: "🌐 Cloudflare | 162.159.195.3 :5279"
+    type: wireguard
+    server: "162.159.195.3"
+    port: 5279
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "ANsY0fuQkdRtj896H0fkDQr0hxoE3BfkxdIM9JKWx2E="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [103,177,44]
+
+  - name: "🌐 Cloudflare | 162.159.195.4"
+    type: wireguard
+    server: "162.159.195.4"
+    port: 2371
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "CBMxaub4dG7Q9W91x4+lUCqtF9eV1BN+4osBfWZNXHs="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [225,17,205]
+
+  - name: "🌐 Cloudflare | 162.159.195.48 :5279"
+    type: wireguard
+    server: "162.159.195.48"
+    port: 5279
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "6HFhVcetnpDm0WS0LETEEPkUmBQzKPUpPYfRbdqDkn8="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [8,29,164]
+
+  - name: "🌐 Cloudflare | 162.159.195.8 :3581"
+    type: wireguard
+    server: "162.159.195.8"
+    port: 3581
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "uPnOVvknUik9L6CCbwL0ilNxlgKLaLC9EC2FVcoGF28="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [115,35,212]
+
+  - name: "🌐 Cloudflare | 162.159.195.8 :7559"
+    type: wireguard
+    server: "162.159.195.8"
+    port: 7559
+    ip: "172.16.0.2/32,2606:4700:110:8f81:d551:a0:532e:a2b3/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "sBMkUOfmUEK4O1RO5PMrLHbveC+isad3h5Oyp2K9S0g="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [24,224,33]
+
+  - name: "🇩🇪 Düsseldorf, DE · Owl Limited | 176.113.68.6"
+    type: wireguard
+    server: "176.113.68.6"
+    port: 51820
+    ip: "10.0.125.43/32,2a0e:1c80:1337:1:10:0:125:43/128"
+    public-key: "EyBJUawu49A1d9e03Fa0xSMzw2NBEF+8y0DuFu9SF1M="
+    private-key: "SD9lIFsItASmL3HhjrN3xkOQQdwLpLdjYgK2RW40hGo="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [0,0,0]
+
+  - name: "🌐 Cloudflare | 188.114.96.135"
+    type: wireguard
+    server: "188.114.96.135"
+    port: 942
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "wGIrp9rAnjEIN8xTLQeFtYEVnfbqPJnxrvanOeq0oH8="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [120,213,192]
+
+  - name: "🌐 Cloudflare | 188.114.96.178"
+    type: wireguard
+    server: "188.114.96.178"
+    port: 988
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "cJYmovjRWIjmYQjEwzY1cjmqJOqtAG1Y2I4OYxPMMHE="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [253,202,167]
+
+  - name: "🌐 Cloudflare | 188.114.96.233 :7152"
+    type: wireguard
+    server: "188.114.96.233"
+    port: 7152
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "qFPf70wY1w8m7u3S443mCPSTtbKflTPfheECiFx9H0E="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [225,120,131]
+
+  - name: "🌐 Cloudflare | 188.114.96.237"
+    type: wireguard
+    server: "188.114.96.237"
+    port: 7152
+    ip: "172.16.0.2/32,2606:4700:110:820c:a6cd:f150:f93d:727f/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "uagcOEk22j3auytMrFz+VhKl3pgIKPjrbH5wlM+1j+Y="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [226,44,46]
+
+  - name: "🌐 Cloudflare | 188.114.96.247"
+    type: wireguard
+    server: "188.114.96.247"
+    port: 3854
+    ip: "172.16.0.2/32,2606:4700:110:8f81:d551:a0:532e:a2b3/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "IIi0qWjug05eWUsXLsYoP79SsVfjPPACM9fG8iG+f2c="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [248,43,18]
+
+  - name: "🌐 Cloudflare | 188.114.96.26"
+    type: wireguard
+    server: "188.114.96.26"
+    port: 1018
+    ip: "172.16.0.2/32,2606:4700:110:8f81:d551:a0:532e:a2b3/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "eK0WbWVXwlsz7rIVHIj+99YfZQGdlOwZjNrJIvcvJF8="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [48,124,124]
+
+  - name: "🌐 Cloudflare | 188.114.96.71"
+    type: wireguard
+    server: "188.114.96.71"
+    port: 1074
+    ip: "172.16.0.2/32,2606:4700:110:8f81:d551:a0:532e:a2b3/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "sBeR7dIrxsDGylE4qECa5s8qF7ZsedSdRHY9mJgsG2E="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [111,182,209]
+
+  - name: "🌐 Cloudflare | 188.114.97.140"
+    type: wireguard
+    server: "188.114.97.140"
+    port: 1701
+    ip: "172.16.0.2/32,2606:4700:110:8220:91ae:e61b:c875:876b/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "qCUvEJMJt0cLRyoLHU0fyCzI17BoMRIu2mKk9seeAl4="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [121,114,98]
+
+  - name: "🌐 Cloudflare | 188.114.97.2 :5279"
+    type: wireguard
+    server: "188.114.97.2"
+    port: 5279
+    ip: "172.16.0.2/32,2606:4700:110:8ee4:29c:acf2:b4e3:51f0/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "8LW89w519Fi6Sh9g6TGqfH+UqBjJgw4gKHINpNizSHo="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [34,69,8]
+
+  - name: "🌐 Cloudflare | 188.114.98.115 :903"
+    type: wireguard
+    server: "188.114.98.115"
+    port: 903
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "4FtgX0yndjKXEqotyYkY8uua9HN7OCkcSqS8NHgRe3k="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [245,248,171]
+
+  - name: "🌐 Cloudflare | 188.114.99.100"
+    type: wireguard
+    server: "188.114.99.100"
+    port: 1014
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "+HqSv0qdDVkfJT6TQu1hfpAxFGjkj21U1eu+N0Ph7UI="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [30,238,4]
+
+  - name: "🌐 Cloudflare | 188.114.99.126 :894"
+    type: wireguard
+    server: "188.114.99.126"
+    port: 894
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "CKhobkhCpHDD2ygfXMp256m4SJ8UdOvRGevvgWkZU1A="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [206,226,9]
+
+  - name: "🌐 Cloudflare | 188.114.99.137 :4198"
+    type: wireguard
+    server: "188.114.99.137"
+    port: 4198
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "EGA0JKtdI3gdftNuX6ky+GbUH+xWvUt4oy11ySvdZX4="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [135,131,215]
+
+  - name: "🌐 Cloudflare | 188.114.99.169 :1018"
+    type: wireguard
+    server: "188.114.99.169"
+    port: 1018
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "qFPf70wY1w8m7u3S443mCPSTtbKflTPfheECiFx9H0E="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [225,120,131]
+
+  - name: "🌐 Cloudflare | 188.114.99.253"
+    type: wireguard
+    server: "188.114.99.253"
+    port: 8886
+    ip: "172.16.0.2/32,2606:4700:110:836d:6db1:60f:a52f:733b/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "UDp2cKxGhq2u24bKnXExN5G7WYMFlfyEmCBYNT88WEA="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [130,69,0]
+
+  - name: "🌐 Cloudflare | 188.114.99.33 :908"
+    type: wireguard
+    server: "188.114.99.33"
+    port: 908
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "sHcj7hfYkZ3BmCY0V3MilzxcozxM0ZzPZaAM1Kp2qlg="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [201,202,241]
+
+  - name: "🌐 Cloudflare | 188.114.99.53 :908"
+    type: wireguard
+    server: "188.114.99.53"
+    port: 908
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "6Auhx1h8Yxj4eTKCedBQ33eJrjF0ta0iXepym6XDLEA="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [75,192,13]
+
+  - name: "🇬🇷 Athens, GR · Datacamp Limited | 79.127.218.5"
+    type: wireguard
+    server: "79.127.218.5"
+    port: 51820
+    ip: "10.0.125.43/32,2a0e:1c80:1337:1:10:0:125:43/128"
+    public-key: "dyzLMM5cxozi4XhKSkT9s+a7DUhO8akNQlFkU7XFWyo="
+    private-key: "SD9lIFsItASmL3HhjrN3xkOQQdwLpLdjYgK2RW40hGo="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [0,0,0]
+
+  - name: "🌐 Cloudflare | engage.cloudflareclient.com"
+    type: wireguard
+    server: "engage.cloudflareclient.com"
+    port: 4500
+    ip: "172.16.0.2/32,2606:4700:110:8594:1ef:b2e8:9bfa:e96d/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "wIB82OaDSLW7fMmxe7W5RmT3yaeZqDH8Kl6oG151u3c="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [16,204,100]
+
+  - name: "🌐 Cloudflare | [[2606:4700:d0::a29f:c003]]"
+    type: wireguard
+    server: "[2606:4700:d0::a29f:c003]"
+    port: 2408
+    ip: "172.16.0.2/32"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "GCpkNcdHkbft3GDGx370jW6SZtYQ17C1CB2lV1QA92Q="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [165,62,85]
+
+  - name: "🌐 Cloudflare | [[2606:4700:d0::a29f:c00b]] :500"
+    type: wireguard
+    server: "[2606:4700:d0::a29f:c00b]"
+    port: 500
+    ip: "172.16.0.2/32,2606:4700:110:8594:1ef:b2e8:9bfa:e96d/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "wIB82OaDSLW7fMmxe7W5RmT3yaeZqDH8Kl6oG151u3c="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [16,204,100]
+
+  - name: "🌐 Cloudflare | [[2606:4700:d0::a29f:c00b]] :939"
+    type: wireguard
+    server: "[2606:4700:d0::a29f:c00b]"
+    port: 939
+    ip: "172.16.0.2/32,2606:4700:110:8da6:abc9:ba0a:d03d:af1d/128"
+    public-key: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+    private-key: "bR9RgULeVcc86zkRHgqU6aGk4X32X0BjhvCeDXal00Q="
+    allowed-ips: "0.0.0.0/0, ::/0"
+    dns: "1.1.1.1"
+    mtu: 1280
+    reserved: [182,167,212]
+

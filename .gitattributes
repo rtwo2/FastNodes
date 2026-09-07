@@ -1,0 +1,37 @@
+# Set default behavior to automatically normalize line endings.
+* text=auto eol=lf
+
+# Explicitly treat C# files as text for better diff/merge
+*.cs text diff=csharp
+
+# Treat project/solution files as text (default merge driver)
+*.csproj text
+*.sln text
+*.vbproj text
+*.vcxproj text
+*.vcproj text
+
+# Treat binary files as binary (no diff, no auto-merge)
+*.jpg binary
+*.png binary
+*.gif binary
+*.ico binary
+*.exe binary
+*.dll binary
+*.pdb binary
+*.zip binary
+*.7z binary
+*.rar binary
+
+# Explicitly disable line ending conversion for binary formats
+*.png -text
+*.jpg -text
+*.gif -text
+*.ico -text
+
+# For generated files (like Resources.Designer.cs) - treat as text but ignore in diffs if needed
+*.Designer.cs text
+
+# Optional: Prevent accidental commits of large binaries
+*.nupkg binary
+*.snk binary

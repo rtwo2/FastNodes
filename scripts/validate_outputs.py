@@ -100,6 +100,16 @@ def validate_tree(root: pathlib.Path) -> list[str]:
             raise ValidationError(
                 f"{name} has {counts[name]} lines; maximum is {MAX_TOP_LINES}"
             )
+        # Ranked shortlists are consumed as curated selections. Duplicates waste
+        # scarce slots and make ranking/IPv6-diversity guarantees misleading.
+        if counts.get(name, 0):
+            lines = [
+                line.strip()
+                for line in (root / name).read_text(encoding="utf-8-sig").splitlines()
+                if line.strip()
+            ]
+            if len(lines) != len(set(lines)):
+                raise ValidationError(f"{name} contains duplicate entries")
     for name in ("verified.txt", "everything.txt"):
         if counts.get(name, 0) == 0:
             raise ValidationError(f"{name} is empty; refusing to publish")
@@ -176,6 +186,15 @@ def self_test() -> None:
         else:
             raise ValidationError("self-test failed to catch top_ipv6.txt entries missing from ipv6_only.txt")
         (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
+        (root / "top.txt").write_text(good[0] + "\n" + good[0] + "\n", encoding="utf-8")
+        try:
+            validate_tree(root)
+        except ValidationError as exc:
+            if "top.txt contains duplicate entries" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to catch duplicate ranked entries")
+        (root / "top.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "top_ipv6.txt").unlink()
         try:
             validate_tree(root)

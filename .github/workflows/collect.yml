@@ -908,12 +908,22 @@ jobs:
           if not any(n.version == 4 for n in ranges) or not any(n.version == 6 for n in ranges):
               sys.exit('::error::Official Cloudflare range lists are incomplete; refusing to publish')
           def in_cf(value):
-              value = value.strip().strip('[]\"\'`,;')
+              value = value.strip().strip('"\\'\`,;')
+              # WireGuard .conf Endpoint fields may be written as [IPv6]:port.
+              if value.startswith('[') and ']' in value:
+                  value = value[1:value.index(']')]
               try:
                   ip = ipaddress.ip_address(value)
-                  return any(ip.version == n.version and ip in n for n in ranges)
               except ValueError:
-                  return False
+                  # Also recognize IPv4:port and unambiguous host:port forms.
+                  host, sep, port = value.rpartition(':')
+                  if not sep or not port.isdigit():
+                      return False
+                  try:
+                      ip = ipaddress.ip_address(host.strip('[]'))
+                  except ValueError:
+                      return False
+              return any(ip.version == n.version and ip in n for n in ranges)
           def uri_endpoint(line):
               # Check the proxy's connection endpoint only, not resolver IPs in query parameters.
               m = re.search(r'(?i)\b(vless|vmess|trojan|ss|ssr|hysteria2?|hy2|tuic|socks5?|wireguard)://([^\s<>\"\']+)', line)

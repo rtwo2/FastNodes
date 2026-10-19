@@ -31,6 +31,26 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
         raise ValidationError(f"{path}: cannot read as UTF-8: {exc}") from exc
 
     lines = [line.strip() for line in text.splitlines() if line.strip()]
+
+    # Some generated .txt files intentionally contain Clash YAML rather than one
+    # URI per line (currently protocols/wireguard.txt). Validate each proxy block
+    # structurally instead of misclassifying YAML keys as malformed proxy links.
+    if lines and lines[0].lower() == "proxies:":
+        blocks = re.split(r"(?m)^\s*-\s+", text)[1:]
+        if not blocks:
+            raise ValidationError(f"{path}: YAML subscription has no proxy entries")
+        for index, block in enumerate(blocks, 1):
+            kind = re.search(r"""(?m)^\s*type\s*:\s*['"]?([a-z0-9_-]+)""", block, re.IGNORECASE)
+            server = re.search(r"""(?m)^\s*(?:server|server-host|endpoint|address)\s*:\s*([^#\n]+)""", block, re.IGNORECASE)
+            port = re.search(r"""(?m)^\s*port\s*:\s*['"]?(\d+)""", block, re.IGNORECASE)
+            if not kind or kind.group(1).lower() not in SCHEMES:
+                raise ValidationError(f"{path}: YAML proxy entry {index} has missing/unsupported type")
+            if not server or not server.group(1).strip().strip("'\""):
+                raise ValidationError(f"{path}: YAML proxy entry {index} has no server endpoint")
+            if not port or not (1 <= int(port.group(1)) <= 65535):
+                raise ValidationError(f"{path}: YAML proxy entry {index} has invalid port")
+        return len(blocks), 0
+
     malformed = [
         (i, line[:120])
         for i, line in enumerate(text.splitlines(), 1)
@@ -105,7 +125,11 @@ def self_test() -> None:
         (root / "verified.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "everything.txt").write_text("\n".join(good) + "\n", encoding="utf-8")
         (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
+        yaml = 'proxies:\n  - name: "WG test"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n'
+        (root / "wireguard.txt").write_text(yaml, encoding="utf-8")
         validate_tree(root)
+        if validate_lines(root / "wireguard.txt")[0] != 1:
+            raise ValidationError("self-test failed to count YAML proxy entries")
         (root / "protocols").mkdir()
         (root / "protocols" / "vless.txt").write_text("not a proxy URI\n", encoding="utf-8")
         try:

@@ -244,7 +244,14 @@ namespace ProxyCollector.Collector
             if (Directory.Exists(backupSub))
             {
                 try { Directory.Delete(backupSub, recursive: true); }
-                catch (Exception ex) { LogWarning($"Published outputs, but could not remove rollback directory: {ex.Message}"); }
+                catch (Exception ex)
+                {
+                    // The workflow stages all repository changes for publication. Never
+                    // leave an un-audited old output tree at the repo root and then return
+                    // success; fail the run so it cannot be committed alongside sub/.
+                    LogError($"Could not remove rollback directory; refusing to publish this run: {ex.Message}");
+                    throw;
+                }
             }
 
             LogSuccess($"Published complete output tree: {finalSub}");

@@ -762,6 +762,17 @@ namespace ProxyCollector.Collector
                 : "XX";
         }
 
+        internal static string CombineGeoCountryCodes(string? cityCountryCode, string? countryCountryCode)
+        {
+            string cityCode = NormalizeGeoCountryCode(cityCountryCode);
+            string countryCode = NormalizeGeoCountryCode(countryCountryCode);
+            // The City and Country databases are independent datasets. When both contain a
+            // country and disagree, suppress the country claim rather than pick one at random.
+            if (cityCode != "XX" && countryCode != "XX" && cityCode != countryCode)
+                return "XX";
+            return countryCode != "XX" ? countryCode : cityCode;
+        }
+
         internal static (string Location, string CountryCode) BuildGeoLocationLabel(
             IReadOnlyList<GeoLocationCandidate> candidates)
         {
@@ -835,20 +846,32 @@ namespace ProxyCollector.Collector
                 {
                     string address = ip.ToString();
                     var city = await Resolver.GetCityAsync(address);
-                    string countryCode = NormalizeGeoCountryCode(city?.CountryCode);
-                    string countryName = city?.CountryName ?? "";
-                    if (countryCode == "XX")
+                    var country = await Resolver.GetCountryAsync(address);
+                    string cityCode = NormalizeGeoCountryCode(city?.CountryCode);
+                    string countryDbCode = NormalizeGeoCountryCode(country?.CountryCode);
+                    string countryCode = CombineGeoCountryCodes(city?.CountryCode, country?.CountryCode);
+
+                    // Prefer the dedicated Country database's English label when it agrees.
+                    // A city name is eligible only when the City database also agrees on the code.
+                    string countryName = "";
+                    if (countryCode != "XX")
                     {
-                        var country = await Resolver.GetCountryAsync(address);
-                        countryCode = NormalizeGeoCountryCode(country?.CountryCode);
-                        if (!string.IsNullOrWhiteSpace(country?.CountryName) &&
+                        if (countryDbCode == countryCode &&
+                            !string.IsNullOrWhiteSpace(country?.CountryName) &&
                             !country.CountryName.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
                             countryName = country.CountryName;
+                        else if (cityCode == countryCode &&
+                                 !string.IsNullOrWhiteSpace(city?.CountryName) &&
+                                 !city.CountryName.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
+                            countryName = city.CountryName;
                     }
+                    string cityName = cityCode != "XX" && cityCode == countryCode
+                        ? city?.CityName ?? ""
+                        : "";
 
                     string organization = await Resolver.GetOrgAsync(address) ?? "";
                     candidates.Add(new GeoLocationCandidate(
-                        countryCode, countryName, city?.CityName ?? "", organization));
+                        countryCode, countryName, cityName, organization));
                 }
 
                 return BuildGeoLocationLabel(candidates);

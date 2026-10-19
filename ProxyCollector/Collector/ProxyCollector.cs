@@ -1257,11 +1257,7 @@ namespace ProxyCollector.Collector
                 .ThenBy(p => p.Proto, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            await SaveAllCategories(finalProxies);
-            string diagnosticsDir = Path.Combine(Directory.GetCurrentDirectory(), "sub", "diagnostics");
-            Directory.CreateDirectory(diagnosticsDir);
-            await File.WriteAllTextAsync(Path.Combine(diagnosticsDir, "source-health.csv"), sourceReportCsv, new UTF8Encoding(false));
-            LogSuccess($"Saved source audit: sub/diagnostics/source-health.csv ({sourceStats.Count} configured sources)");
+            await SaveAllCategories(finalProxies, sourceReportCsv);
             GroupEnd();
 
             runStopwatch.Stop();
@@ -2916,15 +2912,23 @@ namespace ProxyCollector.Collector
         // _part3.txt, ...
         private const int ChunkSize = 1000;
 
-        private async Task SaveAllCategories(List<FinalProxy> proxies)
+        private async Task SaveAllCategories(List<FinalProxy> proxies, string sourceReportCsv)
         {
-            var sub = Path.Combine(Directory.GetCurrentDirectory(), "sub");
+            var root = Directory.GetCurrentDirectory();
+            var finalSub = Path.Combine(root, "sub");
+            var stagingSub = Path.Combine(root, "sub.staging");
+            var backupSub = Path.Combine(root, "sub.previous");
 
-            // v6.13: wipe the ENTIRE sub tree (was: only the three category dirs) —
-            // stale top-level files from past versions used to survive forever.
-            // state/ lives OUTSIDE sub/ and is untouched.
-            if (Directory.Exists(sub)) Directory.Delete(sub, recursive: true);
-            Directory.CreateDirectory(sub);
+            // Recover the last complete output tree if a prior process was interrupted
+            // between directory renames. Otherwise remove only stale staging/backup
+            // directories; never delete the currently published sub/ tree up front.
+            if (!Directory.Exists(finalSub) && Directory.Exists(backupSub))
+                Directory.Move(backupSub, finalSub);
+            if (Directory.Exists(stagingSub)) Directory.Delete(stagingSub, recursive: true);
+            if (Directory.Exists(backupSub)) Directory.Delete(backupSub, recursive: true);
+
+            Directory.CreateDirectory(stagingSub);
+            var sub = stagingSub;
             // v6.13.1: re-create the category dirs — the wipe patch above deleted the
             // old creation loop, and File.WriteAllLinesAsync never creates intermediate
             // directories, so the first protocols/vless.txt write crashed the run.
@@ -3094,6 +3098,44 @@ namespace ProxyCollector.Collector
                 LogSuccess($"Saved wireguard: {ok}/{wgNodes.Count} converted → " +
                            $"{ok} Clash YAML nodes (NekoBox) + {ok} .conf files (WireGuard app)");
             }
+
+            // Diagnostics are part of the same staged tree, so published subscriptions
+            // and their source-health report always describe the same completed run.
+            string diagnosticsDir = Path.Combine(sub, "diagnostics");
+            Directory.CreateDirectory(diagnosticsDir);
+            await File.WriteAllTextAsync(
+                Path.Combine(diagnosticsDir, "source-health.csv"),
+                sourceReportCsv, new UTF8Encoding(false));
+            LogSuccess($"Saved source audit: sub/diagnostics/source-health.csv");
+
+            // Publish only after every output has been generated. Keep the old tree as
+            // a rollback copy until the staged tree is in place; if the second rename
+            // fails, restore the previous tree before surfacing the error.
+            bool movedOldTree = false;
+            if (Directory.Exists(finalSub))
+            {
+                Directory.Move(finalSub, backupSub);
+                movedOldTree = true;
+            }
+
+            try
+            {
+                Directory.Move(stagingSub, finalSub);
+            }
+            catch
+            {
+                if (movedOldTree && !Directory.Exists(finalSub) && Directory.Exists(backupSub))
+                    Directory.Move(backupSub, finalSub);
+                throw;
+            }
+
+            if (Directory.Exists(backupSub))
+            {
+                try { Directory.Delete(backupSub, recursive: true); }
+                catch (Exception ex) { LogWarning($"Published outputs, but could not remove rollback directory: {ex.Message}"); }
+            }
+
+            LogSuccess($"Published complete output tree: {finalSub}");
         }
 
         // v6.13: family by RESOLVED address — warm cache makes this ~free.

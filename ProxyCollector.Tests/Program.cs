@@ -128,6 +128,16 @@ internal static class Program
         Checks.Equal(0, CollectorType.SelectTopWithIpv6Diversity(ranked, ipv6Links, maxCount: 0).Count,
             "IPv6-aware shortlist handles a zero-size request");
 
+        var tied = new[]
+        {
+            new CollectorType.FinalProxy { Link = "vless://c@example.com:443", Remark = "tie", Score = 10, TlsVerified = true },
+            new CollectorType.FinalProxy { Link = "vless://a@example.com:443", Remark = "tie", Score = 10, TlsVerified = true },
+            new CollectorType.FinalProxy { Link = "vless://b@example.com:443", Remark = "tie", Score = 10, TlsVerified = true }
+        };
+        var tiedTop = CollectorType.SelectTopWithIpv6Diversity(tied, new HashSet<string>(StringComparer.Ordinal));
+        Checks.That(tiedTop.Select(x => x.Link).SequenceEqual(tied.Select(x => x.Link).OrderBy(x => x, StringComparer.Ordinal)),
+            "ranked shortlist uses URI as a stable final tie-breaker");
+
         Console.WriteLine($"Parser regression tests passed ({Checks.Count} assertions).");
     }
 }

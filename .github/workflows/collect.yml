@@ -908,7 +908,8 @@ jobs:
           if not any(n.version == 4 for n in ranges) or not any(n.version == 6 for n in ranges):
               sys.exit('::error::Official Cloudflare range lists are incomplete; refusing to publish')
           def in_cf(value):
-              value = value.strip().strip('"\\'\`,;')
+              value = value.strip().strip('[]')
+              value = value.strip('"').strip("'").strip("`,;")
               # WireGuard .conf Endpoint fields may be written as [IPv6]:port.
               if value.startswith('[') and ']' in value:
                   value = value[1:value.index(']')]

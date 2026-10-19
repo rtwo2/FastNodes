@@ -16,7 +16,7 @@ SCHEMES = (
 SCHEME_PATTERN = "|".join(sorted((re.escape(s) for s in SCHEMES), key=len, reverse=True))
 URI_RE = re.compile(rf"^(?:{SCHEME_PATTERN})://\S+", re.IGNORECASE)
 REQUIRED = ("top.txt", "verified.txt", "everything.txt")
-EXPECTED_FILES = ("top_ipv6.txt",)
+EXPECTED_FILES = ("top_ipv6.txt", "ipv4_only.txt", "ipv6_only.txt")
 MAX_TOP_LINES = 1000
 
 class ValidationError(Exception):
@@ -104,6 +104,27 @@ def validate_tree(root: pathlib.Path) -> list[str]:
         if counts.get(name, 0) == 0:
             raise ValidationError(f"{name} is empty; refusing to publish")
 
+    # The ranked IPv6 shortlist is generated directly from ipv6_only.txt's
+    # candidate pool. Every top_ipv6 entry must therefore exist in the family
+    # feed; catch accidental truncation or mismatched output publication.
+    top_ipv6_path = root / "top_ipv6.txt"
+    ipv6_only_path = root / "ipv6_only.txt"
+    top_ipv6_links = {
+        line.strip() for line in top_ipv6_path.read_text(encoding="utf-8-sig").splitlines()
+        if line.strip()
+    }
+    ipv6_links = {
+        line.strip() for line in ipv6_only_path.read_text(encoding="utf-8-sig").splitlines()
+        if line.strip()
+    }
+    missing_ipv6_links = top_ipv6_links - ipv6_links
+    if missing_ipv6_links:
+        sample = next(iter(missing_ipv6_links))[:120]
+        raise ValidationError(
+            f"top_ipv6.txt contains {len(missing_ipv6_links)} node(s) missing from "
+            f"ipv6_only.txt; sample: {sample!r}"
+        )
+
     report.insert(0, "Validated subscriptions: " + " ".join(
         f"{name}={counts.get(name, 0)}" for name in REQUIRED
     ))
@@ -141,10 +162,20 @@ def self_test() -> None:
         (root / "top_ipv6.txt").write_text(good[4] + "\n", encoding="utf-8")
         (root / "verified.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "everything.txt").write_text("\n".join(good) + "\n", encoding="utf-8")
+        (root / "ipv4_only.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
         yaml = 'proxies:\n  - name: "WG test"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n'
         (root / "wireguard.txt").write_text(yaml, encoding="utf-8")
         validate_tree(root)
+        (root / "ipv6_only.txt").write_text(good[0] + "\n", encoding="utf-8")
+        try:
+            validate_tree(root)
+        except ValidationError as exc:
+            if "missing from ipv6_only.txt" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to catch top_ipv6.txt entries missing from ipv6_only.txt")
+        (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
         (root / "top_ipv6.txt").unlink()
         try:
             validate_tree(root)

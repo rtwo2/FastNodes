@@ -95,9 +95,32 @@ namespace ProxyCollector.Collector
             }
             else if (File.Exists(lastVerifiedPath))
             {
-                await File.WriteAllTextAsync(Path.Combine(sub, "verified.txt"),
-                    await File.ReadAllTextAsync(lastVerifiedPath));
-                LogWarning($"verified.txt: only {xrayVerified.Count} current-run successes (replacement floor {replacementFloor}); preserving last-good set ({previousVerifiedCount}).");
+                // The last-good snapshot predates this run and may contain entries that
+                // no longer satisfy output safety policy. Reuse the existing safety filter
+                // here; otherwise this helper is dead code and unsafe fallback entries can
+                // make the entire publication fail the final Cloudflare/WARP audit.
+                var previousLinks = await File.ReadAllLinesAsync(lastVerifiedPath);
+                var safePreviousLinks = await FilterSafeLastGoodLinksAsync(previousLinks);
+                if (safePreviousLinks.Count > 0)
+                {
+                    await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), safePreviousLinks);
+                    int removed = previousLinks.Count(line => !string.IsNullOrWhiteSpace(line)) - safePreviousLinks.Count;
+                    LogWarning($"verified.txt: only {xrayVerified.Count} current-run successes (replacement floor {replacementFloor}); preserving {safePreviousLinks.Count} safe last-good entries ({removed} filtered).");
+                }
+                else if (xrayVerified.Count > 0)
+                {
+                    // Do not publish an empty or entirely unsafe fallback snapshot when
+                    // this run still has some positively verified nodes.
+                    await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), xrayVerified.Select(x => x.Link));
+                    LogWarning($"verified.txt: last-good snapshot had no safe entries; using {xrayVerified.Count} current-run successes below replacement floor {replacementFloor}.");
+                }
+                else
+                {
+                    // Throw before the staged tree replaces sub/. The caller can retry
+                    // without destroying the previously published complete output tree.
+                    throw new InvalidOperationException(
+                        "No current-run Xray-verified nodes and no safe entries in state/verified_last.txt; refusing to publish an unsafe verified.txt.");
+                }
             }
             else
             {

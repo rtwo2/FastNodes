@@ -59,12 +59,17 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
                 raise ValidationError(f"{path}: YAML proxy entry {index} has invalid port")
         return len(blocks), 0
 
+    allowed_legacy_lines = (
+        LEGACY_BAD_AGGREGATE_LINES
+        if path.parent.name == "sub" and path.name in {"everything.txt", "stable.txt", "ipv4_only.txt"}
+        else set()
+    )
     malformed = [
         (i, line[:120])
         for i, line in enumerate(text.splitlines(), 1)
         if line.strip()
         and not URI_RE.fullmatch(line.strip())
-        and line.strip() not in LEGACY_BAD_AGGREGATE_LINES
+        and line.strip() not in allowed_legacy_lines
     ]
     if malformed:
         sample = "; ".join(f"line {i}: {value!r}" for i, value in malformed[:5])
@@ -92,9 +97,14 @@ def validate_tree(root: pathlib.Path) -> list[str]:
         count, duplicates = validate_lines(path)
         rel = path.relative_to(root).as_posix()
         counts[rel] = count
+        allowed_legacy_lines = (
+            LEGACY_BAD_AGGREGATE_LINES
+            if path.parent.name == "sub" and path.name in {"everything.txt", "stable.txt", "ipv4_only.txt"}
+            else set()
+        )
         legacy_count = sum(
             1 for line in path.read_text(encoding="utf-8-sig").splitlines()
-            if line.strip() in LEGACY_BAD_AGGREGATE_LINES
+            if line.strip() in allowed_legacy_lines
         )
         if legacy_count:
             report.append(

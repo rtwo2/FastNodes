@@ -1,15 +1,12 @@
 name: Collect Proxies
 
 on:
-  # Run a fresh collection after collector/source configuration changes on main.
-  # Generated output/state commits are excluded to prevent self-trigger loops.
+  # Run a fresh collection after collector code changes on main.
+  # Tests, validators, and workflow-only edits use CI; scheduled runs refresh data.
   push:
     branches: [main]
     paths:
       - "ProxyCollector/**"
-      - "ProxyCollector.Tests/**"
-      - "scripts/**"
-      - ".github/workflows/collect.yml"
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:

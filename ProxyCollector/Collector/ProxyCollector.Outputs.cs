@@ -311,7 +311,15 @@ namespace ProxyCollector.Collector
                     if (link.Length == 0) return;
 
                     var parsed = ParseProxyLine(link);
-                    if (parsed is null || IsCloudflareMetadata(parsed)) return;
+                    // A last-good snapshot can predate current live filtering. Reapply
+                    // endpoint and credential policy before retaining any fallback link.
+                    if (parsed is null ||
+                        IsCloudflareMetadata(parsed) ||
+                        IsBadHost(parsed.Host) ||
+                        IsPlaceholderCredential(parsed.Credential) ||
+                        (CredentialRequiredProtocols.Contains(NormalizeProto(parsed.Protocol)) &&
+                         string.IsNullOrEmpty(parsed.Credential)))
+                        return;
 
                     // ParseProxyLine strips display remarks from BaseLink. Inspect the
                     // original fallback line too, matching the final-output audit policy.
@@ -324,25 +332,34 @@ namespace ProxyCollector.Collector
                         (NormalizeProto(parsed.Protocol) == "wireguard" && lower.Contains("warp")))
                         return;
 
-                    bool isCloudflare = false;
+                    bool isUnsafeAddress = false;
                     if (IPAddress.TryParse(parsed.Host.Trim('[', ']'), out var literal))
                     {
-                        isCloudflare = IsCloudflareIp(literal);
+                        isUnsafeAddress =
+                            IsCloudflareIp(literal) ||
+                            IsPrivateOrReservedIp(literal) ||
+                            IsFireholBlacklisted(literal);
                     }
                     else
                     {
                         try
                         {
                             var addresses = await Resolver.ResolveAllAsync(parsed.Host);
-                            isCloudflare = addresses.Any(IsCloudflareIp);
+                            // Reject mixed DNS answers if any address is unsafe. Keep the
+                            // existing fail-open behavior on resolver failure so a DNS
+                            // outage alone does not erase the last-good snapshot.
+                            isUnsafeAddress = addresses.Any(address =>
+                                IsCloudflareIp(address) ||
+                                IsPrivateOrReservedIp(address) ||
+                                IsFireholBlacklisted(address));
                         }
                         catch
                         {
-                            // Preserve the established fail-open rule for inconclusive DNS.
+                            // Preserve last-good entries during inconclusive DNS failures.
                         }
                     }
 
-                    if (!isCloudflare) safe[index] = link;
+                    if (!isUnsafeAddress) safe[index] = link;
                 });
 
             return safe.Where(link => !string.IsNullOrWhiteSpace(link))

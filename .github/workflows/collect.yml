@@ -895,7 +895,7 @@ jobs:
               echo "::error::HTML/error response detected in generated subscription: $file"
               exit 1
             fi
-            if ! grep -Eq '^(vless|vmess|trojan|ss|ssr|hysteria2?|hy2|tuic|socks5?|wireguard)://' "$file"; then
+            if ! grep -Eiq '^(vmess|vless|trojan|ss|shadowsocks|ssr|hysteria2?|hy2|tuic|naive|anytls|brook|snell|juicity|mieru|wireguard|wg|socks5?|socks4)://' "$file"; then
               echo "::error::No recognized proxy URI schemes found in $file"
               exit 1
             fi

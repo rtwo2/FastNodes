@@ -86,11 +86,15 @@ namespace ProxyCollector.Collector
             // at least 25 nodes and 20% of the previous set before rotating the fallback.
             int replacementFloor = previousVerifiedCount == 0
                 ? 1 : Math.Max(25, (int)Math.Ceiling(previousVerifiedCount * 0.20));
+            // Commit the fallback snapshot only after the complete output tree is
+            // published. A later category-generation failure must not advance state
+            // beyond the last successfully published verified.txt.
+            List<string>? nextVerifiedSnapshot = null;
             if (xrayVerified.Count >= replacementFloor)
             {
-                await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), xrayVerified.Select(x => x.Link));
-                Directory.CreateDirectory("state");
-                await File.WriteAllLinesAsync(lastVerifiedPath, xrayVerified.Select(x => x.Link));
+                var currentVerifiedLinks = xrayVerified.Select(x => x.Link).ToList();
+                await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), currentVerifiedLinks);
+                nextVerifiedSnapshot = currentVerifiedLinks;
                 LogSuccess($"Saved verified.txt ({xrayVerified.Count}) — current-run full proxy roundtrip");
             }
             else if (File.Exists(lastVerifiedPath))
@@ -106,7 +110,7 @@ namespace ProxyCollector.Collector
                     await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), safePreviousLinks);
                     // Sanitize the persistent fallback too, so removed entries do not
                     // reappear as unsafe candidates on every subsequent collection.
-                    await File.WriteAllLinesAsync(lastVerifiedPath, safePreviousLinks);
+                    nextVerifiedSnapshot = safePreviousLinks;
                     int removed = previousLinks.Count(line => !string.IsNullOrWhiteSpace(line)) - safePreviousLinks.Count;
                     LogWarning($"verified.txt: only {xrayVerified.Count} current-run successes (replacement floor {replacementFloor}); preserving {safePreviousLinks.Count} safe last-good entries ({removed} filtered).");
                 }
@@ -115,7 +119,7 @@ namespace ProxyCollector.Collector
                     // Do not publish an empty or entirely unsafe fallback snapshot when
                     // this run still has some positively verified nodes.
                     await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), xrayVerified.Select(x => x.Link));
-                    await File.WriteAllLinesAsync(lastVerifiedPath, xrayVerified.Select(x => x.Link));
+                    nextVerifiedSnapshot = xrayVerified.Select(x => x.Link).ToList();
                     LogWarning($"verified.txt: last-good snapshot had no safe entries; using {xrayVerified.Count} current-run successes below replacement floor {replacementFloor}.");
                 }
                 else
@@ -308,6 +312,13 @@ namespace ProxyCollector.Collector
             }
 
             LogSuccess($"Published complete output tree: {finalSub}");
+
+            if (nextVerifiedSnapshot is not null)
+            {
+                Directory.CreateDirectory("state");
+                await File.WriteAllLinesAsync(lastVerifiedPath, nextVerifiedSnapshot);
+                LogSuccess($"Updated verified last-good snapshot ({nextVerifiedSnapshot.Count} entries) after publication.");
+            }
         }
 
         // v6.13: family by RESOLVED address — warm cache makes this ~free.

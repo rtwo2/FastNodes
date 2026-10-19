@@ -354,7 +354,9 @@ namespace ProxyCollector.Collector
                     if (parsed is null ||
                         IsCloudflareMetadata(parsed) ||
                         IsBadHost(parsed.Host) ||
-                        IsPlaceholderCredential(parsed.Credential))
+                        IsPlaceholderCredential(parsed.Credential) ||
+                        (CredentialRequiredProtocols.Contains(NormalizeProto(parsed.Protocol)) &&
+                         string.IsNullOrEmpty(parsed.Credential)))
                         return;
 
                     // ParseProxyLine strips display remarks from BaseLink. Inspect the

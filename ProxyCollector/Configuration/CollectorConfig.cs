@@ -74,6 +74,16 @@ namespace ProxyCollector.Configuration
         }
 
         /// <summary>
+        /// Applies a positive source cap while preserving curated source order.
+        /// A zero or negative cap means no limit.
+        /// </summary>
+        public static string[] ApplySourceLimit(IEnumerable<string> sources, int sourceLimit)
+        {
+            var materialized = sources.ToArray();
+            return sourceLimit > 0 ? materialized.Take(sourceLimit).ToArray() : materialized;
+        }
+
+        /// <summary>
         /// https://github.com/{user}/{repo}/raw/{branch}/{path}
         ///   → https://raw.githubusercontent.com/{user}/{repo}/{branch}/{path}
         ///

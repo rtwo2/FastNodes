@@ -1572,33 +1572,27 @@ namespace ProxyCollector.Collector
         private async Task<List<ParsedProxy>> DropTcpRefusedAsync(List<ParsedProxy> proxies)
         {
             // RST on connect = the server's own TCP stack saying nothing listens on that
-            // port. This is the exact opposite of the removed v6-style check: there, a
-            // timeout meant "dead"; here a timeout means "unknown, keep". UDP-based
-            // protocols skip entirely — RST semantics don't apply to them (v6.4 lesson).
-            // Connects go to the pre-resolved IP from the resolver cache, so the 3s
-            // budget is purely the handshake — the v6.7 regression (DNS resolution
-            // eating the connect timeout) structurally cannot recur here.
+            // port. A timeout or other error is inconclusive and always keeps the node.
             var candidates = proxies
                 .Where(p => !UdpProtocols.Contains(p.Protocol) && int.TryParse(p.Port, out _))
                 .ToList();
             if (candidates.Count == 0) return proxies;
 
-            // v6.12: probe ENDPOINTS (resolved IP + port), not nodes. An RST is a
-            // property of the endpoint, not the credential — but the dedup key
-            // deliberately keeps cred/SNI/path variants apart, so one host:port with
-            // 3 nodes was probed 3 times, and CF-fronted hostnames collapse onto shared
-            // IPs on top of that. Sequential warm-cache lookups (~free), probe each
-            // endpoint once, refuse ⇒ drop every node mapped to it. Breaker still
-            // counts NODES (dropped / candidates), unchanged semantics.
+            // Probe every resolved address for each hostname. A multi-address hostname is
+            // dead only if every answer explicitly refuses the port; one refused A record
+            // must not discard a node whose AAAA/other A record can still serve clients.
             var endpointSet = new Dictionary<(string Ip, int Port), byte>();
-            var nodeEndpoints = new List<(ParsedProxy Node, string Ip, int Port)>(candidates.Count);
+            var nodeEndpoints = new List<(ParsedProxy Node, IPAddress[] Addresses, int Port)>(candidates.Count);
             foreach (var p in candidates)
             {
-                var ip = await Resolver.ResolveAsync(p.Host);   // cache hit from GeoIP stage
-                if (ip == null) continue;                       // unresolvable — DNS filter's territory
+                var addresses = (await Resolver.ResolveAllAsync(p.Host))
+                    .Distinct()
+                    .ToArray();
+                if (addresses.Length == 0) continue; // unresolvable = DNS filter's territory
                 int port = int.Parse(p.Port);
-                endpointSet.TryAdd((ip.ToString(), port), 0);
-                nodeEndpoints.Add((p, ip.ToString(), port));
+                foreach (var ip in addresses)
+                    endpointSet.TryAdd((ip.ToString(), port), 0);
+                nodeEndpoints.Add((p, addresses, port));
             }
             if (endpointSet.Count == 0) return proxies;
 
@@ -1607,27 +1601,26 @@ namespace ProxyCollector.Collector
                 async (ep, ct) =>
                 {
                     using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                    timeoutCts.CancelAfter(TimeSpan.FromSeconds(3));   // without this a
-                                                                      // blackholed SYN hangs
-                                                                      // ~2min on OS defaults
+                    timeoutCts.CancelAfter(TimeSpan.FromSeconds(3));
                     try
                     {
                         using var tcp = new TcpClient();
                         await tcp.ConnectAsync(IPAddress.Parse(ep.Ip), ep.Port, timeoutCts.Token);
-                        // connected — endpoint stays (we deliberately don't send anything)
+                        // Connected — this endpoint is alive (we deliberately send nothing).
                     }
                     catch (SocketException e) when (e.SocketErrorCode == SocketError.ConnectionRefused)
                     {
-                        deadEndpoints.Add(ep);        // affirmative death only
+                        deadEndpoints.Add(ep); // affirmative death for this address only
                     }
-                    catch (OperationCanceledException) { /* 3s timeout — inconclusive, keep */ }
+                    catch (OperationCanceledException) { /* timeout — inconclusive, keep */ }
                     catch { /* unreachable / no-v6-route / anything else — keep */ }
                 });
 
             if (deadEndpoints.IsEmpty) return proxies;
 
             var deadSet = deadEndpoints.ToHashSet();
-            int droppedNodes = nodeEndpoints.Count(ne => deadSet.Contains((ne.Ip, ne.Port)));
+            int droppedNodes = nodeEndpoints.Count(ne =>
+                AllResolvedEndpointsRefused(ne.Addresses, ne.Port, deadSet));
             if (droppedNodes > candidates.Count * MaxDropFraction)
             {
                 LogWarning($"TCP filter: {deadSet.Count} refused endpoints ({droppedNodes}/{candidates.Count} nodes) — over {MaxDropFraction:P0} circuit breaker, keeping all.");
@@ -1635,12 +1628,23 @@ namespace ProxyCollector.Collector
             }
 
             var deadNodeKeys = nodeEndpoints
-                .Where(ne => deadSet.Contains((ne.Ip, ne.Port)))
+                .Where(ne => AllResolvedEndpointsRefused(ne.Addresses, ne.Port, deadSet))
                 .Select(ne => ne.Node.DeduplicationKey)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             var result = proxies.Where(p => !deadNodeKeys.Contains(p.DeduplicationKey)).ToList();
-            LogWarning($"TCP-refused: dropped {proxies.Count - result.Count} nodes across {deadSet.Count} refused endpoints (RST received, port closed).");
+            LogWarning($"TCP-refused: dropped {proxies.Count - result.Count} nodes across {deadSet.Count} refused endpoints (all resolved addresses refused).");
             return result;
+        }
+
+        internal static bool AllResolvedEndpointsRefused(
+            IEnumerable<IPAddress> addresses,
+            int port,
+            ISet<(string Ip, int Port)> refusedEndpoints)
+        {
+            var unique = addresses.Select(ip => ip.ToString())
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            return unique.Length > 0 && unique.All(ip => refusedEndpoints.Contains((ip, port)));
         }
 
         // ====================== XRAY DEEP CHECK (v6.15) ======================

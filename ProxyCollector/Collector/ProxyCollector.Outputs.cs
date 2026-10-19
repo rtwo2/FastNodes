@@ -75,7 +75,6 @@ namespace ProxyCollector.Collector
             var xrayVerified = proxies.Where(x => x.XrayVerified)
                 .OrderByDescending(x => ipv6Links.Contains(x.Link))
                 .ThenByDescending(x => x.Score)
-                .ThenByDescending(x => x.XrayStreak)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
                 .ToList();
             string lastVerifiedPath = Path.Combine("state", "verified_last.txt");

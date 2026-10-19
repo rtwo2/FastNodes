@@ -104,6 +104,9 @@ namespace ProxyCollector.Collector
                 if (safePreviousLinks.Count > 0)
                 {
                     await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), safePreviousLinks);
+                    // Sanitize the persistent fallback too, so removed entries do not
+                    // reappear as unsafe candidates on every subsequent collection.
+                    await File.WriteAllLinesAsync(lastVerifiedPath, safePreviousLinks);
                     int removed = previousLinks.Count(line => !string.IsNullOrWhiteSpace(line)) - safePreviousLinks.Count;
                     LogWarning($"verified.txt: only {xrayVerified.Count} current-run successes (replacement floor {replacementFloor}); preserving {safePreviousLinks.Count} safe last-good entries ({removed} filtered).");
                 }
@@ -112,6 +115,7 @@ namespace ProxyCollector.Collector
                     // Do not publish an empty or entirely unsafe fallback snapshot when
                     // this run still has some positively verified nodes.
                     await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), xrayVerified.Select(x => x.Link));
+                    await File.WriteAllLinesAsync(lastVerifiedPath, xrayVerified.Select(x => x.Link));
                     LogWarning($"verified.txt: last-good snapshot had no safe entries; using {xrayVerified.Count} current-run successes below replacement floor {replacementFloor}.");
                 }
                 else

@@ -87,10 +87,11 @@ def validate_tree(root: pathlib.Path) -> list[str]:
         if path.stat().st_size > 50 * 1024 * 1024:
             report.append(f"WARNING {rel}: file exceeds 50 MiB ({path.stat().st_size} bytes)")
 
-    if counts.get("top.txt", 0) > MAX_TOP_LINES:
-        raise ValidationError(
-            f"top.txt has {counts['top.txt']} lines; maximum is {MAX_TOP_LINES}"
-        )
+    for name in ("top.txt", "top_ipv6.txt"):
+        if counts.get(name, 0) > MAX_TOP_LINES:
+            raise ValidationError(
+                f"{name} has {counts[name]} lines; maximum is {MAX_TOP_LINES}"
+            )
     for name in ("verified.txt", "everything.txt"):
         if counts.get(name, 0) == 0:
             raise ValidationError(f"{name} is empty; refusing to publish")
@@ -129,6 +130,7 @@ def self_test() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         root = pathlib.Path(tmp)
         (root / "top.txt").write_text(good[0] + "\n", encoding="utf-8")
+        (root / "top_ipv6.txt").write_text(good[4] + "\n", encoding="utf-8")
         (root / "verified.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "everything.txt").write_text("\n".join(good) + "\n", encoding="utf-8")
         (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")

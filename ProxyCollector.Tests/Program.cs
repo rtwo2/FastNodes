@@ -87,6 +87,27 @@ internal static class Program
                 System.Net.Sockets.AddressFamily.InterNetworkV6),
             "IPv4-mapped IPv6 literal is not misclassified as native IPv6");
 
+        var ranked = Enumerable.Range(0, 1200)
+            .Select(i => new ProxyCollector.Collector.FinalProxy
+            {
+                Link = $"vless://node{i}@example.com:443",
+                Remark = $"node{i}",
+                Score = 1200 - i,
+                TlsVerified = true
+            })
+            .ToList();
+        var ipv6Links = ranked.Skip(1000).Select(x => x.Link).ToHashSet(StringComparer.Ordinal);
+        var ipv6AwareTop = CollectorType.SelectTopWithIpv6Diversity(ranked, ipv6Links);
+        Checks.Equal(1000, ipv6AwareTop.Count, "IPv6-aware shortlist preserves the 1000-node contract");
+        Checks.Equal(200, ipv6AwareTop.Count(x => ipv6Links.Contains(x.Link)),
+            "IPv6-aware shortlist reserves 20% for native-IPv6-capable nodes when enough exist");
+        Checks.That(ipv6AwareTop.Any(x => x.Link == ranked[1199].Link),
+            "IPv6-aware shortlist can promote lower-ranked IPv6-capable nodes into the shortlist");
+        Checks.That(ipv6AwareTop.Zip(ipv6AwareTop.Skip(1), (a, b) => a.Score >= b.Score).All(x => x),
+            "IPv6-aware shortlist remains score-ordered after family balancing");
+        Checks.Equal(0, CollectorType.SelectTopWithIpv6Diversity(ranked, ipv6Links, maxCount: 0).Count,
+            "IPv6-aware shortlist handles a zero-size request");
+
         Console.WriteLine($"Parser regression tests passed ({Checks.Count} assertions).");
     }
 }

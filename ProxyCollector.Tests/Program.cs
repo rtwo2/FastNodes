@@ -12,6 +12,18 @@ internal static class Program
             "IPv6 multicast address is rejected as a public proxy endpoint");
         Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("2001:4860:4860::8888")),
             "public IPv6 unicast address remains eligible");
+        foreach (var address in new[]
+        {
+            "0.0.0.0", "10.1.2.3", "100.64.0.1", "127.0.0.1", "169.254.1.1",
+            "172.16.0.1", "192.168.1.1", "192.0.2.1", "198.18.0.1", "198.51.100.1",
+            "203.0.113.1", "224.0.0.1", "::", "::1", "fc00::1", "fe80::1",
+            "2001:db8::1", "::ffff:127.0.0.1"
+        })
+            Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.Parse(address)),
+                $"non-public/reserved address {address} is rejected");
+        foreach (var address in new[] { "1.1.1.1", "8.8.8.8", "2001:4860:4860::8888" })
+            Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse(address)),
+                $"public address {address} remains eligible");
 
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");

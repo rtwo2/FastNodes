@@ -160,6 +160,12 @@ namespace ProxyCollector.Collector
             return false;
         }
 
+        // DNS names can return several A/AAAA records. A host is unsafe if ANY
+        // answer is private/reserved or on the loaded IPv4 blacklist; checking only the
+        // representative address can let a mixed public/private DNS answer through.
+        internal static bool HasUnsafeResolvedAddress(IEnumerable<IPAddress> addresses)
+            => addresses.Any(ip => IsPrivateOrReservedIp(ip) || IsFireholBlacklisted(ip));
+
         private static bool IsPlaceholderCredential(string credential)
             => !string.IsNullOrEmpty(credential) && PlaceholderCredentialPattern.IsMatch(credential.Trim());
 
@@ -1490,9 +1496,10 @@ namespace ProxyCollector.Collector
             await Parallel.ForEachAsync(hosts, new ParallelOptions { MaxDegreeOfParallelism = 100 },
                 async (host, _) =>
                 {
-                    var ip = await Resolver.ResolveAsync(host);   // cache hit from GeoIP stage
-                    if (ip == null) return;                       // unresolvable = DNS filter's territory
-                    if (IsPrivateOrReservedIp(ip) || IsFireholBlacklisted(ip))
+                    var addresses = await Resolver.ResolveAllAsync(host); // cached full A/AAAA set
+                    if (addresses.Length == 0) return;            // unresolvable = DNS filter's territory
+                    // Reject mixed answers too: clients may select any returned address.
+                    if (addresses.Any(ip => IsPrivateOrReservedIp(ip) || IsFireholBlacklisted(ip)))
                         bad.Add(host);
                 });
 

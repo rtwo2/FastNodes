@@ -130,13 +130,68 @@ internal static class Program
 
         var tied = new[]
         {
-            new CollectorType.FinalProxy { Link = "vless://c@example.com:443", Remark = "tie", Score = 10, TlsVerified = true },
-            new CollectorType.FinalProxy { Link = "vless://a@example.com:443", Remark = "tie", Score = 10, TlsVerified = true },
-            new CollectorType.FinalProxy { Link = "vless://b@example.com:443", Remark = "tie", Score = 10, TlsVerified = true }
+            new ProxyCollector.Collector.FinalProxy { Link = "vless://c@example.com:443", Remark = "tie", Score = 10, TlsVerified = true },
+            new ProxyCollector.Collector.FinalProxy { Link = "vless://a@example.com:443", Remark = "tie", Score = 10, TlsVerified = true },
+            new ProxyCollector.Collector.FinalProxy { Link = "vless://b@example.com:443", Remark = "tie", Score = 10, TlsVerified = true }
         };
         var tiedTop = CollectorType.SelectTopWithIpv6Diversity(tied, new HashSet<string>(StringComparer.Ordinal));
         Checks.That(tiedTop.Select(x => x.Link).SequenceEqual(tied.Select(x => x.Link).OrderBy(x => x, StringComparer.Ordinal)),
             "ranked shortlist uses URI as a stable final tie-breaker");
+
+        var singleGeo = new[]
+        {
+            new CollectorType.GeoLocationCandidate("DE", "Germany", "Frankfurt am Main", "Hetzner Online GmbH")
+        };
+        var singleLabel = CollectorType.BuildGeoLocationLabel(singleGeo);
+        Checks.Equal("🇩🇪 Frankfurt am Main, DE · Hetzner Online", singleLabel.Location,
+            "GeoIP location naming uses the matching flag and preserves trusted city casing");
+        Checks.Equal("DE", singleLabel.CountryCode, "GeoIP returns normalized ISO country codes");
+
+        var multiCityGeo = new[]
+        {
+            new CollectorType.GeoLocationCandidate("DE", "Germany", "Frankfurt", "Hetzner GmbH"),
+            new CollectorType.GeoLocationCandidate("DE", "Germany", "Berlin", "Hetzner GmbH")
+        };
+        var multiCityLabel = CollectorType.BuildGeoLocationLabel(multiCityGeo);
+        Checks.Equal("🇩🇪 Germany · Hetzner", multiCityLabel.Location,
+            "DNS answers in the same country but different cities use country-level naming");
+        Checks.Equal("🇩🇪 Germany · Hetzner", CollectorType.BuildGeoLocationLabel(multiCityGeo.Reverse().ToArray()).Location,
+            "GeoIP label is independent of DNS answer ordering");
+
+        var conflictingGeo = new[]
+        {
+            new CollectorType.GeoLocationCandidate("DE", "Germany", "Frankfurt", "Hetzner GmbH"),
+            new CollectorType.GeoLocationCandidate("NL", "Netherlands", "Amsterdam", "OVH SAS")
+        };
+        var conflictingLabel = CollectorType.BuildGeoLocationLabel(conflictingGeo);
+        Checks.Equal("🌐 Unknown", conflictingLabel.Location,
+            "Conflicting country/provider signals do not produce a misleading flag or country");
+        Checks.Equal("XX", conflictingLabel.CountryCode,
+            "Conflicting country signals do not bias continent and proximity ranking");
+
+        var conflictingCountrySameOrg = new[]
+        {
+            new CollectorType.GeoLocationCandidate("DE", "Germany", "Frankfurt", "Hetzner GmbH"),
+            new CollectorType.GeoLocationCandidate("NL", "Netherlands", "Amsterdam", "Hetzner GmbH")
+        };
+        Checks.Equal("🌐 Hetzner", CollectorType.BuildGeoLocationLabel(conflictingCountrySameOrg).Location,
+            "When country disagrees, a unanimous provider may be shown without a country claim");
+
+        var invalidGeo = new[]
+        {
+            new CollectorType.GeoLocationCandidate("", "Unknown", "Frankfurt", "")
+        };
+        Checks.Equal("🌐 Unknown", CollectorType.BuildGeoLocationLabel(invalidGeo).Location,
+            "Missing country code never creates a malformed or incorrect city flag");
+        Checks.Equal("XX", CollectorType.BuildGeoLocationLabel(invalidGeo).CountryCode,
+            "Missing country metadata normalizes to XX");
+        
+        var properCaseGeo = new[]
+        {
+            new CollectorType.GeoLocationCandidate("US", "United States", "McLean", "")
+        };
+        Checks.Equal("🇺🇸 McLean, US", CollectorType.BuildGeoLocationLabel(properCaseGeo).Location,
+            "GeoIP city names preserve meaningful internal capitalization");
 
         Console.WriteLine($"Parser regression tests passed ({Checks.Count} assertions).");
     }

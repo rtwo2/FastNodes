@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using CollectorType = ProxyCollector.Collector.ProxyCollector;
 
@@ -5,6 +6,13 @@ internal static class Program
 {
     private static void Main()
     {
+        Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.IPv6Any),
+            "IPv6 unspecified address is rejected as a public proxy endpoint");
+        Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("ff02::1")),
+            "IPv6 multicast address is rejected as a public proxy endpoint");
+        Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("2001:4860:4860::8888")),
+            "public IPv6 unicast address remains eligible");
+
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");
         Checks.That(ipv6 is not null, "VLESS IPv6 link parses");

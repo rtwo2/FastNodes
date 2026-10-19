@@ -254,6 +254,56 @@ namespace ProxyCollector.Collector
         internal static bool HasAddressFamily(IEnumerable<IPAddress> addresses, AddressFamily family)
             => addresses.Any(ip => ip.AddressFamily == family);
 
+        private async Task<List<string>> FilterSafeLastGoodLinksAsync(IReadOnlyList<string> links)
+        {
+            var safe = new string?[links.Count];
+            await Parallel.ForEachAsync(Enumerable.Range(0, links.Count),
+                new ParallelOptions { MaxDegreeOfParallelism = 50 },
+                async (index, _) =>
+                {
+                    string link = links[index].Trim();
+                    if (link.Length == 0) return;
+
+                    var parsed = ParseProxyLine(link);
+                    if (parsed is null || IsCloudflareMetadata(parsed)) return;
+
+                    // ParseProxyLine strips display remarks from BaseLink. Inspect the
+                    // original fallback line too, matching the final-output audit policy.
+                    string lower = link.ToLowerInvariant();
+                    if (lower.Contains("cloudflare") ||
+                        lower.Contains("workers.dev") ||
+                        lower.Contains("pages.dev") ||
+                        lower.Contains("trycloudflare.com") ||
+                        lower.Contains("warp://") ||
+                        (NormalizeProto(parsed.Protocol) == "wireguard" && lower.Contains("warp")))
+                        return;
+
+                    bool isCloudflare = false;
+                    if (IPAddress.TryParse(parsed.Host.Trim('[', ']'), out var literal))
+                    {
+                        isCloudflare = IsCloudflareIp(literal);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            var addresses = await Resolver.ResolveAllAsync(parsed.Host);
+                            isCloudflare = addresses.Any(IsCloudflareIp);
+                        }
+                        catch
+                        {
+                            // Preserve the established fail-open rule for inconclusive DNS.
+                        }
+                    }
+
+                    if (!isCloudflare) safe[index] = link;
+                });
+
+            return safe.Where(link => !string.IsNullOrWhiteSpace(link))
+                .Select(link => link!)
+                .ToList();
+        }
+
         private async Task<List<FinalProxy>> FilterByFamilyAsync(List<FinalProxy> proxies, AddressFamily family)
         {
             var result = new List<FinalProxy>();

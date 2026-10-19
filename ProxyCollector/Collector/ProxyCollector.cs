@@ -1499,7 +1499,7 @@ namespace ProxyCollector.Collector
                     var addresses = await Resolver.ResolveAllAsync(host); // cached full A/AAAA set
                     if (addresses.Length == 0) return;            // unresolvable = DNS filter's territory
                     // Reject mixed answers too: clients may select any returned address.
-                    if (addresses.Any(ip => IsPrivateOrReservedIp(ip) || IsFireholBlacklisted(ip)))
+                    if (HasUnsafeResolvedAddress(addresses))
                         bad.Add(host);
                 });
 

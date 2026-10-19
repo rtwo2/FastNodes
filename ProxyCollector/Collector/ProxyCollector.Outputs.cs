@@ -96,9 +96,27 @@ namespace ProxyCollector.Collector
             }
             else if (File.Exists(lastVerifiedPath))
             {
-                await File.WriteAllTextAsync(Path.Combine(sub, "verified.txt"),
-                    await File.ReadAllTextAsync(lastVerifiedPath));
-                LogWarning($"verified.txt: only {xrayVerified.Count} current-run successes (replacement floor {replacementFloor}); preserving last-good set ({previousVerifiedCount}).");
+                var lastGoodLines = await File.ReadAllLinesAsync(lastVerifiedPath);
+                var safeLastGood = await FilterSafeLastGoodLinksAsync(lastGoodLines);
+                if (safeLastGood.Count > 0)
+                {
+                    await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), safeLastGood);
+                    LogWarning($"verified.txt: only {xrayVerified.Count} current-run successes (replacement floor {replacementFloor}); preserving {safeLastGood.Count}/{lastGoodLines.Length} safe last-good entries.");
+                }
+                else if (xrayVerified.Count > 0)
+                {
+                    // Prefer a small, current-run verified set over an unsafe or wholly
+                    // stale fallback. Do not rotate the last-good snapshot below its floor.
+                    await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), xrayVerified.Select(x => x.Link));
+                    LogWarning($"verified.txt: no safe last-good entries; publishing {xrayVerified.Count} current-run roundtrip successes without rotating the snapshot.");
+                }
+                else
+                {
+                    // Fail before swapping the staged output tree. Publishing an unsafe
+                    // fallback is worse than keeping the previous complete publication.
+                    throw new InvalidOperationException(
+                        "No current Xray-verified nodes and no safe last-good fallback; refusing to publish verified.txt.");
+                }
             }
             else
             {

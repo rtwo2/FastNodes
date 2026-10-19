@@ -744,50 +744,119 @@ namespace ProxyCollector.Collector
         }
 
         // ====================== LOCATION ======================
-        // Resolves both the display string and the raw country code in one shot, so we
-        // never need a second DNS lookup for the same host later just to get its ISO code.
-        // Fallback chain: city (+ org if available) -> country + org -> country only ->
-        // org only -> Unknown. Org is shown alongside city too, not just as a fallback
-        // for when city is missing — knowing the hosting provider is useful even when
-        // the city is known (e.g. distinguishing a Hetzner box from an OVH box in the
-        // same city).
+        // Geolocation is a best-effort IP-database estimate, not proof of a server's
+        // physical location. For hostnames with multiple A/AAAA answers, only display
+        // a city when every public answer agrees on both country and city. If country
+        // answers conflict, withhold the flag/country rather than confidently mislabel it.
+        internal sealed record GeoLocationCandidate(
+            string? CountryCode, string? CountryName, string? CityName, string? Organization);
+
+        private static string NormalizeGeoText(string? value)
+            => Regex.Replace(value?.Trim() ?? "", @"\\s+", " ");
+
+        private static string NormalizeGeoCountryCode(string? value)
+        {
+            string code = (value ?? "").Trim().ToUpperInvariant();
+            return code.Length == 2 && code.All(c => c is >= 'A' and <= 'Z') && Flags.ContainsKey(code)
+                ? code
+                : "XX";
+        }
+
+        internal static (string Location, string CountryCode) BuildGeoLocationLabel(
+            IReadOnlyList<GeoLocationCandidate> candidates)
+        {
+            if (candidates is null || candidates.Count == 0)
+                return ("🌐 Unknown", "XX");
+
+            // Provider names are shown only when every resolved address reports the same
+            // non-empty ASN organization. CDN/round-robin hostnames can span providers;
+            // choosing whichever IP happened to resolve first would make names misleading.
+            var organizations = candidates
+                .Select(c => ShortenOrg(NormalizeGeoText(c.Organization)))
+                .ToArray();
+            string org = organizations.Length > 0 &&
+                         organizations.All(o => !string.IsNullOrWhiteSpace(o)) &&
+                         organizations.Distinct(StringComparer.OrdinalIgnoreCase).Count() == 1
+                ? organizations.OrderBy(o => o, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(o => o, StringComparer.Ordinal).First()
+                : "";
+            string orgSuffix = org.Length > 0 ? $" · {org}" : "";
+
+            var countryCodes = candidates.Select(c => NormalizeGeoCountryCode(c.CountryCode)).ToArray();
+            if (countryCodes.Any(cc => cc == "XX") ||
+                countryCodes.Distinct(StringComparer.Ordinal).Count() != 1)
+            {
+                return (org.Length > 0 ? $"🌐 {org}" : "🌐 Unknown", "XX");
+            }
+
+            string cc = countryCodes[0];
+            string flag = Flags.TryGetValue(cc, out var foundFlag) ? foundFlag : "🌍";
+
+            // Preserve GeoIP's original city casing. Lowercasing before TitleCase damaged
+            // proper names such as McLean and other names with meaningful internal capitals.
+            var cityNames = candidates.Select(c => NormalizeGeoText(c.CityName)).ToArray();
+            if (cityNames.All(city => city.Length > 0) &&
+                cityNames.Distinct(StringComparer.OrdinalIgnoreCase).Count() == 1)
+            {
+                string cityName = cityNames
+                    .OrderBy(city => city, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(city => city, StringComparer.Ordinal)
+                    .First();
+                return ($"{flag} {cityName}, {cc}{orgSuffix}", cc);
+            }
+
+            // Country names must agree too. If a dataset gives inconsistent names for the
+            // same code, use the unambiguous ISO code instead of printing a possibly wrong name.
+            var countryNames = candidates
+                .Select(c => NormalizeGeoText(c.CountryName))
+                .Where(name => name.Length > 0 && !name.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            string countryName = countryNames.Length == 1 ? countryNames[0] : cc;
+            return ($"{flag} {countryName}{orgSuffix}", cc);
+        }
+
         private async Task<(string Location, string CountryCode)> GetLocationAndCountryAsync(string host)
         {
             try
             {
-                string? org = await Resolver.GetOrgAsync(host);
-                string shortOrgTop = string.IsNullOrEmpty(org) ? "" : ShortenOrg(org);
-                string orgSuffix = !string.IsNullOrEmpty(shortOrgTop) ? $" · {shortOrgTop}" : "";
+                // Resolve and examine all public A/AAAA answers, not just the resolver's
+                // first IPv4-preferred address. Sort addresses so cache/wire order can never
+                // decide which flag, city, or provider appears in a node's remark.
+                var addresses = (await Resolver.ResolveAllAsync(host))
+                    .Where(ip => !IsPrivateOrReservedIp(ip))
+                    .Distinct()
+                    .OrderBy(ip => ip.AddressFamily == AddressFamily.InterNetwork ? 0 : 1)
+                    .ThenBy(ip => ip.ToString(), StringComparer.Ordinal)
+                    .ToArray();
 
-                var city = await Resolver.GetCityAsync(host);
-                if (!string.IsNullOrEmpty(city?.CityName))
+                var candidates = new List<GeoLocationCandidate>(addresses.Length);
+                foreach (var ip in addresses)
                 {
-                    string cityCc = city.CountryCode?.ToUpper() ?? "XX";
-                    string flag = Flags.TryGetValue(cityCc, out var f) ? f : "🌍";
-                    string cityName = System.Globalization.CultureInfo.InvariantCulture.TextInfo
-                        .ToTitleCase(city.CityName.Trim().ToLowerInvariant());
-                    return ($"{flag} {cityName}, {cityCc}{orgSuffix}", cityCc);
+                    string address = ip.ToString();
+                    var city = await Resolver.GetCityAsync(address);
+                    string countryCode = NormalizeGeoCountryCode(city?.CountryCode);
+                    string countryName = city?.CountryName ?? "";
+                    if (countryCode == "XX")
+                    {
+                        var country = await Resolver.GetCountryAsync(address);
+                        countryCode = NormalizeGeoCountryCode(country?.CountryCode);
+                        if (!string.IsNullOrWhiteSpace(country?.CountryName) &&
+                            !country.CountryName.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
+                            countryName = country.CountryName;
+                    }
+
+                    string organization = await Resolver.GetOrgAsync(address) ?? "";
+                    candidates.Add(new GeoLocationCandidate(
+                        countryCode, countryName, city?.CityName ?? "", organization));
                 }
 
-                var country = await Resolver.GetCountryAsync(host);
-                string cc = country?.CountryCode?.ToUpper() ?? "XX";
-                if (!string.IsNullOrEmpty(cc) && cc != "XX")
-                {
-                    string flagC = Flags.TryGetValue(cc, out var fc) ? fc : "🌍";
-                    string name = !string.IsNullOrEmpty(country?.CountryName) && country.CountryName != "Unknown"
-                        ? country.CountryName : cc;
-                    return ($"{flagC} {name}{orgSuffix}", cc);
-                }
-
-                // Neither city nor country resolved — the ASN db is a separate lookup and
-                // may still have an org name even in this case, so try it before giving up.
-                string shortOrg = string.IsNullOrEmpty(org) ? "" : ShortenOrg(org);
-                if (!string.IsNullOrEmpty(shortOrg))
-                    return ($"🌐 {shortOrg}", "XX");
-
+                return BuildGeoLocationLabel(candidates);
+            }
+            catch
+            {
                 return ("🌐 Unknown", "XX");
             }
-            catch { return ("🌐 Unknown", "XX"); }
         }
 
         // MaxMind's org strings often carry legal suffixes ("Hetzner Online GmbH",
@@ -1084,6 +1153,9 @@ namespace ProxyCollector.Collector
                 .OrderBy(p => p.Host, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(p => int.TryParse(p.Port, out var pn) ? pn : 0)
                 .ThenBy(p => p.Protocol, StringComparer.OrdinalIgnoreCase)
+                // Same host/port/protocol may still describe different credentials or
+                // transports. The full canonical key makes remark suffix assignment stable.
+                .ThenBy(p => p.DeduplicationKey, StringComparer.Ordinal)
                 .ToList();
             LogSuccess($"Total proxies: {alive.Count}");
 

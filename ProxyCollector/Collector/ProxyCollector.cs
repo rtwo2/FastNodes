@@ -3144,10 +3144,13 @@ namespace ProxyCollector.Collector
             var result = new List<FinalProxy>();
             foreach (var x in proxies)
             {
-                IPAddress? ip = IPAddress.TryParse(x.Host, out var literal)
-                    ? literal
-                    : await Resolver.ResolveAsync(x.Host);   // cache hit from GeoIP stage
-                if (ip != null && ip.AddressFamily == family) result.Add(x);
+                // Include a hostname in each family it actually resolves to. The resolver
+                // prefers IPv4 for GeoIP, so its single representative address must not be
+                // used to classify dual-stack hosts or IPv6 coverage will be understated.
+                var addresses = IPAddress.TryParse(x.Host, out var literal)
+                    ? new[] { literal }
+                    : await Resolver.ResolveAllAsync(x.Host); // cached full A/AAAA set from GeoIP stage
+                if (addresses.Any(ip => ip.AddressFamily == family)) result.Add(x);
             }
             return result;
         }

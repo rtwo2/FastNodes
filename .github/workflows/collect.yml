@@ -1043,6 +1043,9 @@ jobs:
           PYCF
           find sub -type f -size +50M -printf '::warning::Large generated file (>50 MiB): %p (%s bytes)\n'
 
+      - name: Revalidate final output tree before commit
+        run: python3 scripts/validate_outputs.py sub
+
       - name: Upload build and collector logs
         if: always()
         uses: actions/upload-artifact@v7

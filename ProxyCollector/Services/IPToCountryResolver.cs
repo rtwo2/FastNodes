@@ -23,7 +23,7 @@ public enum DnsVerdict
     Inconclusive     // timeout / transient / refused — KEEP the node
 }
 
-public sealed record DnsResult(IPAddress? Ip, DnsVerdict Verdict);
+public sealed record DnsResult(IPAddress? Ip, DnsVerdict Verdict, IPAddress[]? Addresses = null);
 
 public sealed class IPToCountryResolver : IDisposable
 {
@@ -71,6 +71,18 @@ public sealed class IPToCountryResolver : IDisposable
     /// <summary>Cached resolution (shares the GeoIP stage's cache). Null = failed for any reason.</summary>
     public async Task<IPAddress?> ResolveAsync(string address)
         => (await ResolveIpAsync(address)).Ip;
+
+    /// <summary>Return every cached A/AAAA answer for dual-stack subscription classification.</summary>
+    public async Task<IPAddress[]> ResolveAllAsync(string address)
+    {
+        if (IPAddress.TryParse(address, out var literal)) return new[] { literal };
+
+        var result = await ResolveIpAsync(address);
+        if (result.Addresses is { Length: > 0 } all) return all;
+
+        var representative = result.Ip;
+        return representative is null ? Array.Empty<IPAddress>() : new[] { representative };
+    }
 
     /// <summary>
     /// One live, UNCACHED attempt returning the VERDICT — the confirmation retry
@@ -223,11 +235,11 @@ public sealed class IPToCountryResolver : IDisposable
                 // pile-up of wasted in-flight resolver calls.
                 using var cts = new CancellationTokenSource(DnsTimeout);
                 var addresses = await Dns.GetHostAddressesAsync(address, cts.Token);
-                if (addresses.Length == 0) return new DnsResult(null, DnsVerdict.Inconclusive);
+                if (addresses.Length == 0) return new DnsResult(null, DnsVerdict.Inconclusive, Array.Empty<IPAddress>());
 
                 var ip = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork)
                      ?? addresses[0];
-                return new DnsResult(ip, DnsVerdict.Resolved);
+                return new DnsResult(ip, DnsVerdict.Resolved, addresses);
             }
             catch (SocketException e) when (e.SocketErrorCode is SocketError.HostNotFound or SocketError.NoData)
             {

@@ -51,6 +51,22 @@ internal static class Program
 
         Checks.That(CollectorType.ParseProxyLine("not a proxy URI") is null,
             "Malformed non-proxy input is rejected");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vless://My-chanel-Telegram-ATOVPN @167.104.219.12:35671?security=tls&type=tcp#bad") is null,
+            "Literal whitespace inside a proxy URI is rejected");
+
+        var dualStack = new[]
+        {
+            System.Net.IPAddress.Parse("198.51.100.7"),
+            System.Net.IPAddress.Parse("2001:db8::7")
+        };
+        Checks.That(CollectorType.HasAddressFamily(dualStack, System.Net.Sockets.AddressFamily.InterNetwork),
+            "Dual-stack host is included in IPv4-capable outputs");
+        Checks.That(CollectorType.HasAddressFamily(dualStack, System.Net.Sockets.AddressFamily.InterNetworkV6),
+            "Dual-stack host is included in IPv6-capable outputs");
+        Checks.That(!CollectorType.HasAddressFamily(new[] { System.Net.IPAddress.Parse("198.51.100.7") },
+                System.Net.Sockets.AddressFamily.InterNetworkV6),
+            "IPv4-only host is not included in IPv6-capable outputs");
 
         Console.WriteLine($"Parser regression tests passed ({Checks.Count} assertions).");
     }

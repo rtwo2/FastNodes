@@ -32,6 +32,10 @@ namespace ProxyCollector.Collector
             int hashIdx = line.IndexOf('#');
             string baseLink = hashIdx >= 0 ? line[..hashIdx].Trim() : line.Trim();
             if (string.IsNullOrEmpty(baseLink)) return null;
+            // A literal whitespace inside the URI (for example before @ in userinfo)
+            // is malformed. Encoded spaces (%20) remain valid; remarks after # were
+            // already removed above.
+            if (baseLink.Any(char.IsWhiteSpace)) return null;
 
             if (baseLink.StartsWith("vmess://", StringComparison.OrdinalIgnoreCase))
             {

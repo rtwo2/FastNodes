@@ -44,6 +44,9 @@ jobs:
           set -o pipefail
           dotnet build ProxyCollector --configuration Release 2>&1 | tee /tmp/fastnodes-build.log
 
+      - name: Run parser and IP-family regression tests
+        run: dotnet run --configuration Release --project ProxyCollector.Tests
+
       - name: Setup xray-core (pinned for reproducible verification)
         env:
           XRAY_VERSION: 26.3.27

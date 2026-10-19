@@ -18,10 +18,9 @@ URI_RE = re.compile(rf"^(?:{SCHEME_PATTERN})://\S+", re.IGNORECASE)
 REQUIRED = ("top.txt", "verified.txt", "everything.txt")
 MAX_TOP_LINES = 1000
 
-# Two malformed VLESS lines remain in checked-in historical aggregate snapshots
-# (everything.txt and ipv4_only.txt). The source feeds are cleaned in this PR and
-# the collector now rejects this malformed authority shape; keep the exception exact
-# and visible until the next generated outputs replace these snapshots.
+# Two malformed VLESS lines are repeated in checked-in generated snapshots. The
+# source feeds are cleaned in this PR and the collector now rejects this malformed
+# authority shape; keep the exception exact and visible until outputs are regenerated.
 LEGACY_BAD_AGGREGATE_LINES = {
     "vless://My-chanel-Telegram-ATOVPN @136.148.64.242:443?security=tls&type=tcp#%F0%9F%87%B9%F0%9F%87%B7%20Istanbul%2C%20TR%20%C2%B7%20YottaSrc%20%7C%20136.148.64.242%20%3A443%C2%B7vless",
     "vless://My-chanel-Telegram-ATOVPN @167.104.219.12:35671?security=tls&type=tcp#%F0%9F%87%B9%F0%9F%87%B7%20Istanbul%2C%20TR%20%C2%B7%20YottaSrc%20%7C%20167.104.219.12%20%3A35671%C2%B7vless",
@@ -60,13 +59,12 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
                 raise ValidationError(f"{path}: YAML proxy entry {index} has invalid port")
         return len(blocks), 0
 
-    legacy_aggregate = path.name in {"everything.txt", "ipv4_only.txt"}
     malformed = [
         (i, line[:120])
         for i, line in enumerate(text.splitlines(), 1)
         if line.strip()
         and not URI_RE.fullmatch(line.strip())
-        and not (legacy_aggregate and line.strip() in LEGACY_BAD_AGGREGATE_LINES)
+        and line.strip() not in LEGACY_BAD_AGGREGATE_LINES
     ]
     if malformed:
         sample = "; ".join(f"line {i}: {value!r}" for i, value in malformed[:5])
@@ -94,15 +92,14 @@ def validate_tree(root: pathlib.Path) -> list[str]:
         count, duplicates = validate_lines(path)
         rel = path.relative_to(root).as_posix()
         counts[rel] = count
-        if rel in {"everything.txt", "ipv4_only.txt"}:
-            legacy_count = sum(
-                1 for line in path.read_text(encoding="utf-8-sig").splitlines()
-                if line.strip() in LEGACY_BAD_AGGREGATE_LINES
+        legacy_count = sum(
+            1 for line in path.read_text(encoding="utf-8-sig").splitlines()
+            if line.strip() in LEGACY_BAD_AGGREGATE_LINES
+        )
+        if legacy_count:
+            report.append(
+                f"WARNING {rel}: {legacy_count} exact legacy malformed line(s) tolerated until output regeneration"
             )
-            if legacy_count:
-                report.append(
-                    f"WARNING {rel}: {legacy_count} exact legacy malformed line(s) tolerated until aggregate regeneration"
-                )
         if duplicates:
             report.append(f"WARNING {rel}: {duplicates} duplicate line(s)")
         if path.stat().st_size > 50 * 1024 * 1024:

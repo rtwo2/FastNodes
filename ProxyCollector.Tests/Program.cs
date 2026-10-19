@@ -79,6 +79,14 @@ internal static class Program
                 System.Net.Sockets.AddressFamily.InterNetworkV6),
             "IPv4-only host is not included in IPv6-capable outputs");
 
+        var mappedV4 = System.Net.IPAddress.Parse("::ffff:65.109.219.162");
+        Checks.That(CollectorType.HasAddressFamily(new[] { mappedV4 },
+                System.Net.Sockets.AddressFamily.InterNetwork),
+            "IPv4-mapped IPv6 literal is included in IPv4-capable outputs");
+        Checks.That(!CollectorType.HasAddressFamily(new[] { mappedV4 },
+                System.Net.Sockets.AddressFamily.InterNetworkV6),
+            "IPv4-mapped IPv6 literal is not misclassified as native IPv6");
+
         Console.WriteLine($"Parser regression tests passed ({Checks.Count} assertions).");
     }
 }

@@ -923,6 +923,9 @@ jobs:
                       ip = ipaddress.ip_address(host.strip('[]'))
                   except ValueError:
                       return False
+              # Normalize IPv4-mapped IPv6 so IPv4 Cloudflare CIDRs still match.
+              if isinstance(ip, ipaddress.IPv6Address) and ip.ipv4_mapped is not None:
+                  ip = ip.ipv4_mapped
               return any(ip.version == n.version and ip in n for n in ranges)
 
           # Regression checks for the endpoint spellings found in V2Ray and WireGuard
@@ -934,6 +937,7 @@ jobs:
           assert in_cf(f'[{sample_v6}]'), 'bracketed IPv6 Cloudflare endpoint missed'
           assert in_cf(f'[{sample_v6}]:51820'), '[IPv6]:port Cloudflare endpoint missed'
           assert in_cf(str(sample_v6)), 'bare IPv6 Cloudflare endpoint missed'
+          assert in_cf(f'::ffff:{sample_v4}'), 'IPv4-mapped IPv6 Cloudflare endpoint missed'
           assert not in_cf('example.com:443'), 'hostname:port incorrectly treated as a Cloudflare IP'
 
           def uri_endpoint(line):

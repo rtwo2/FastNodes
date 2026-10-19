@@ -586,6 +586,9 @@ namespace ProxyCollector.Collector
 
         private static bool IsCloudflareIp(IPAddress ip)
         {
+            // IPv4-mapped IPv6 is still an IPv4 endpoint; normalize before CIDR checks
+            // so a mapped Cloudflare IPv4 address cannot bypass the official IPv4 ranges.
+            if (ip.IsIPv4MappedToIPv6) ip = ip.MapToIPv4();
             var b = ip.GetAddressBytes();
             if (ip.AddressFamily == AddressFamily.InterNetwork)
             {

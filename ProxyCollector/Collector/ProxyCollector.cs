@@ -752,7 +752,7 @@ namespace ProxyCollector.Collector
             string? CountryCode, string? CountryName, string? CityName, string? Organization);
 
         private static string NormalizeGeoText(string? value)
-            => Regex.Replace(value?.Trim() ?? "", @"\\s+", " ");
+            => string.Join(" ", (value ?? "").Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
 
         private static string NormalizeGeoCountryCode(string? value)
         {

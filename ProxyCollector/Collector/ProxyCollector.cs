@@ -2461,7 +2461,7 @@ namespace ProxyCollector.Collector
         }
 
         // ====================== SOURCE DECODING ======================
-        private static List<string> DecodeAndExtractLines(string text, string url)
+        internal static List<string> DecodeAndExtractLines(string text, string url)
         {
             var results = new List<string>();
             bool isYaml = url.EndsWith(".yaml") || url.EndsWith(".yml");

@@ -138,6 +138,13 @@ internal static class Program
         Checks.That(tiedTop.Select(x => x.Link).SequenceEqual(tied.Select(x => x.Link).OrderBy(x => x, StringComparer.Ordinal)),
             "ranked shortlist uses URI as a stable final tie-breaker");
 
+        Checks.Equal("DE", CollectorType.CombineGeoCountryCodes("DE", "DE"),
+            "Matching City and Country databases agree on the ISO code");
+        Checks.Equal("DE", CollectorType.CombineGeoCountryCodes("DE", "XX"),
+            "A missing country-database result does not erase a valid city-database code");
+        Checks.Equal("XX", CollectorType.CombineGeoCountryCodes("DE", "FR"),
+            "Conflicting City and Country database codes are withheld");
+
         var singleGeo = new[]
         {
             new CollectorType.GeoLocationCandidate("DE", "Germany", "Frankfurt am Main", "Hetzner Online GmbH")

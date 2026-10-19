@@ -18,6 +18,14 @@ URI_RE = re.compile(rf"^(?:{SCHEME_PATTERN})://\S+", re.IGNORECASE)
 REQUIRED = ("top.txt", "verified.txt", "everything.txt")
 MAX_TOP_LINES = 1000
 
+# Two malformed VLESS lines are repeated in checked-in generated snapshots. The
+# source feeds are cleaned in this PR and the collector now rejects this malformed
+# authority shape; keep the exception exact and visible until outputs are regenerated.
+LEGACY_BAD_AGGREGATE_LINES = {
+    "vless://My-chanel-Telegram-ATOVPN @136.148.64.242:443?security=tls&type=tcp#%F0%9F%87%B9%F0%9F%87%B7%20Istanbul%2C%20TR%20%C2%B7%20YottaSrc%20%7C%20136.148.64.242%20%3A443%C2%B7vless",
+    "vless://My-chanel-Telegram-ATOVPN @167.104.219.12:35671?security=tls&type=tcp#%F0%9F%87%B9%F0%9F%87%B7%20Istanbul%2C%20TR%20%C2%B7%20YottaSrc%20%7C%20167.104.219.12%20%3A35671%C2%B7vless",
+}
+
 
 class ValidationError(Exception):
     pass
@@ -54,7 +62,9 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
     malformed = [
         (i, line[:120])
         for i, line in enumerate(text.splitlines(), 1)
-        if line.strip() and not URI_RE.match(line.strip())
+        if line.strip()
+        and not URI_RE.fullmatch(line.strip())
+        and line.strip() not in LEGACY_BAD_AGGREGATE_LINES
     ]
     if malformed:
         sample = "; ".join(f"line {i}: {value!r}" for i, value in malformed[:5])
@@ -82,6 +92,14 @@ def validate_tree(root: pathlib.Path) -> list[str]:
         count, duplicates = validate_lines(path)
         rel = path.relative_to(root).as_posix()
         counts[rel] = count
+        legacy_count = sum(
+            1 for line in path.read_text(encoding="utf-8-sig").splitlines()
+            if line.strip() in LEGACY_BAD_AGGREGATE_LINES
+        )
+        if legacy_count:
+            report.append(
+                f"WARNING {rel}: {legacy_count} exact legacy malformed line(s) tolerated until output regeneration"
+            )
         if duplicates:
             report.append(f"WARNING {rel}: {duplicates} duplicate line(s)")
         if path.stat().st_size > 50 * 1024 * 1024:
@@ -113,10 +131,17 @@ def self_test() -> None:
         "vless://uuid@[2001:db8::1]:443?security=tls",
     ]
     for line in good:
-        if not URI_RE.match(line):
+        if not URI_RE.fullmatch(line):
             raise ValidationError(f"self-test rejected valid URI: {line}")
-    for line in ("https://example.com/subscription", "not a proxy URI", "<html>oops</html>"):
-        if URI_RE.match(line):
+    for line in (
+        "https://example.com/subscription",
+        "not a proxy URI",
+        "<html>oops</html>",
+        "vless://uuid@example.com:443 trailing-junk",
+        "vless://uuid@example.com:443 extra words",
+        "vless://user @example.com:443",
+    ):
+        if URI_RE.fullmatch(line):
             raise ValidationError(f"self-test accepted invalid subscription line: {line}")
 
     with tempfile.TemporaryDirectory() as tmp:

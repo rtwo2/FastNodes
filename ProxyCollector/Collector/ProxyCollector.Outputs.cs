@@ -135,8 +135,7 @@ namespace ProxyCollector.Collector
             // (alias collapse swaps v6 literals for hostnames, which literal-only
             // classification undercounted). Warm cache ⇒ ~free.
             await File.WriteAllLinesAsync(Path.Combine(sub, "ipv4_only.txt"), ipv4Proxies.Select(x => x.Link));
-            await File.WriteAllLinesAsync(Path.Combine(sub, "ipv6_only.txt"), ipv6Proxies.Select(x => x.Link));
-            LogSuccess($"Saved ipv4_only.txt ({ipv4Proxies.Count}) / ipv6_only.txt ({ipv6Proxies.Count})");
+            LogSuccess($"Saved ipv4_only.txt ({ipv4Proxies.Count})");
 
             // A focused shortlist for IPv6-capable endpoints. Keep the same evidence
             // gate and score ordering as top.txt, but rank across the full IPv6-capable
@@ -150,7 +149,20 @@ namespace ProxyCollector.Collector
                 .Take(1000)
                 .ToList();
             await File.WriteAllLinesAsync(Path.Combine(sub, "top_ipv6.txt"), topIpv6.Select(x => x.Link));
-            LogSuccess($"Saved top_ipv6.txt ({topIpv6.Count}) — IPv6-capable nodes with positive quality evidence");
+
+            // Publish the family feed after the shortlist is finalized, and include the
+            // shortlist as a defensive invariant. This is normally a no-op because
+            // topIpv6 is selected from ipv6Proxies, but prevents a stale/mismatched
+            // family file from ever being emitted if candidate selection changes later.
+            var ipv6OnlyLinks = ipv6Proxies.Select(x => x.Link)
+                .Concat(topIpv6.Select(x => x.Link))
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+            await File.WriteAllLinesAsync(Path.Combine(sub, "ipv6_only.txt"), ipv6OnlyLinks);
+            LogSuccess($"Saved ipv6_only.txt ({ipv6OnlyLinks.Count}) / top_ipv6.txt ({topIpv6.Count}) — shortlist membership guaranteed");
+
+            if (topIpv6.Any(x => !ipv6OnlyLinks.Contains(x.Link, StringComparer.Ordinal)))
+                throw new InvalidOperationException("top_ipv6.txt contains a node missing from ipv6_only.txt");
 
             foreach (var g in proxies.GroupBy(x => x.Proto))
             {

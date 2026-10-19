@@ -621,7 +621,7 @@ namespace ProxyCollector.Collector
             return false;
         }
 
-                private static bool IsWarpMetadata(string value)
+        private static bool IsWarpMetadata(string value)
         {
             try { value = Uri.UnescapeDataString(value ?? ""); }
             catch { }

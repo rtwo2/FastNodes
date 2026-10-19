@@ -55,6 +55,17 @@ internal static class Program
             "vless://My-chanel-Telegram-ATOVPN @167.104.219.12:35671?security=tls&type=tcp#bad") is null,
             "Literal whitespace inside a proxy URI is rejected");
 
+        var malformedSubscription = "vless://My-chanel-Telegram-ATOVPN @167.104.219.12:35671?security=tls&type=tcp#bad";
+        Checks.Equal(0, CollectorType.DecodeAndExtractLines(malformedSubscription, "https://example.com/sub").Count,
+            "Line extraction does not salvage a malformed URI prefix before whitespace-at");
+        Checks.Equal(0, CollectorType.DecodeAndExtractLines(
+            "<a href=\"vless://My-chanel-Telegram-ATOVPN @167.104.219.12:35671#bad\">proxy</a>",
+            "https://example.com/page.html").Count,
+            "HTML extraction does not salvage a malformed URI prefix before whitespace-at");
+        Checks.Equal(1, CollectorType.DecodeAndExtractLines(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443#good", "https://example.com/sub").Count,
+            "Valid subscription URI extraction remains enabled");
+
         var dualStack = new[]
         {
             System.Net.IPAddress.Parse("198.51.100.7"),

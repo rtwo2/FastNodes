@@ -26,6 +26,15 @@ jobs:
         with:
           dotnet-version: 9.x
 
+      - name: Run output-validator self-tests
+        run: python3 scripts/validate_outputs.py --self-test
+
+      - name: Build ProxyCollector
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet build ProxyCollector --configuration Release 2>&1 | tee /tmp/fastnodes-build.log
+
       - name: Setup xray-core (pinned for reproducible verification)
         env:
           XRAY_VERSION: 26.3.27
@@ -40,7 +49,11 @@ jobs:
           /tmp/xraybin/xray version
 
       - name: Run ProxyCollector
-        run: ulimit -n 65535 2>/dev/null || true; dotnet run --configuration Release --project ProxyCollector
+        shell: bash
+        run: |
+          set -o pipefail
+          ulimit -n 65535 2>/dev/null || true
+          dotnet run --no-build --configuration Release --project ProxyCollector 2>&1 | tee /tmp/fastnodes-run.log
         env:
           XRAY_BIN: /tmp/xraybin/xray
           WORKER_URL: ${{ secrets.WORKER_URL }}
@@ -865,6 +878,9 @@ jobs:
           fi
           echo "Validated top.txt=$top_count verified.txt=$verified_count everything.txt=$(wc -l < sub/everything.txt)"
 
+      - name: Validate every generated text subscription
+        run: python3 scripts/validate_outputs.py sub
+
       - name: Final Cloudflare/WARP endpoint audit
         shell: bash
         run: |
@@ -942,6 +958,17 @@ jobs:
           PYCF
           find sub -type f -size +50M -printf '::warning::Large generated file (>50 MiB): %p (%s bytes)\n'
 
+      - name: Upload build and collector logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fastnodes-build-and-run-logs
+          path: |
+            /tmp/fastnodes-build.log
+            /tmp/fastnodes-run.log
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Commit & push (single-commit history)
         run: |
           git config user.name "GitHub Actions"
@@ -953,24 +980,19 @@ jobs:
           fi
 
           PROXY_COUNT=$(wc -l < sub/everything.txt 2>/dev/null || echo 0)
+          # Remember the exact main revision checked out at the start of this run.
+          BASE_SHA=$(git rev-parse HEAD)
 
           git checkout --orphan fastnodes-tip
           git rm -rf --cached -q -- 'ProxyCollector/*.mmdb' 2>/dev/null || true
           git add -A -- . ':(exclude)ProxyCollector/*.mmdb'
           git commit -m "FastNodes auto-update $(date +'%Y-%m-%d %H:%M UTC') — ${PROXY_COUNT} proxies"
 
-          # Retry if another update changes main while GitHub processes the push.
-          for attempt in 1 2 3; do
-            echo "Push attempt ${attempt}/3"
-            git fetch origin main || true
-            if git push --force origin fastnodes-tip:main; then
-              echo "Push succeeded"
-              exit 0
-            fi
-            if [ "$attempt" -lt 3 ]; then
-              sleep $((attempt * 5))
-            fi
-          done
-
-          echo "Push failed after 3 attempts"
-          exit 1
+          # Never overwrite a main revision created after this run checked out.
+          git fetch origin main
+          if git push --force-with-lease="refs/heads/main:${BASE_SHA}" origin fastnodes-tip:main; then
+            echo "Push succeeded"
+          else
+            echo "::error::main changed during collection; refusing to overwrite newer commits. Rerun the workflow."
+            exit 1
+          fi

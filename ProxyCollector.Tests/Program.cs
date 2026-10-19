@@ -6,6 +6,14 @@ internal static class Program
 {
     private static void Main()
     {
+        Checks.Equal(3, ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c" }, 0).Length,
+            "zero source limit preserves full production source list");
+        Checks.That(ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c", "d" }, 2)
+                .SequenceEqual(new[] { "a", "b" }),
+            "positive source limit selects only the first N sources in priority order");
+        Checks.Equal(3, ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c" }, 10).Length,
+            "source limit larger than the list keeps all available sources");
+
         Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.IPv6Any),
             "IPv6 unspecified address is rejected as a public proxy endpoint");
         Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("ff02::1")),

@@ -498,6 +498,8 @@ namespace ProxyCollector.Collector
 
         private static bool IsFireholBlacklisted(IPAddress ip)
         {
+            // Normalize mapped IPv4 literals before consulting the IPv4-only blacklist.
+            if (ip.IsIPv4MappedToIPv6) ip = ip.MapToIPv4();
             if (ip.AddressFamily != AddressFamily.InterNetwork || FireholCidrs.Length == 0)
                 return false;
 

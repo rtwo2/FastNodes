@@ -120,15 +120,13 @@ namespace ProxyCollector.Collector
         // check by parsing as IPv6; TEST-NETs (the IP equivalent of example.com),
         // 198.18.0.0/15, 192.0.0.0/24, the entire multicast/reserved block (224+), and
         // 2001:db8::/32 (documentation) are now covered too.
-        private static bool IsPrivateOrReservedIp(IPAddress ip)
+        internal static bool IsPrivateOrReservedIp(IPAddress ip)
         {
             var b = ip.GetAddressBytes();
 
             // IPv4-mapped IPv6 (::ffff:a.b.c.d): bytes [10] and [11] are both 0xFF,
-            // with the embedded IPv4 in bytes [12..16]. Detected manually (IPAddress
-            // has no IsIPv4MappedIPv6 property) and re-checked as plain IPv4 —
-            // otherwise ::ffff:192.168.1.1 parses as IPv6 and slips past every
-            // IPv4 range check below.
+            // with the embedded IPv4 in bytes [12..16]. Re-check as plain IPv4 so
+            // mapped private, multicast, and reserved IPv4 ranges cannot slip through.
             if (ip.AddressFamily == AddressFamily.InterNetworkV6 && b.Length == 16
                 && b[10] == 0xFF && b[11] == 0xFF)
             {
@@ -151,6 +149,10 @@ namespace ProxyCollector.Collector
             }
             if (ip.AddressFamily == AddressFamily.InterNetworkV6)
             {
+                // ::/96 (except mapped IPv4, handled above) is unspecified, loopback,
+                // or deprecated IPv4-compatible space, none of which is a public endpoint.
+                if (b.Take(12).All(value => value == 0)) return true;
+                if (b[0] == 0xFF) return true;                                          // ff00::/8 multicast
                 if (IPAddress.IsLoopback(ip) || ip.IsIPv6LinkLocal || ip.IsIPv6SiteLocal) return true;
                 if ((b[0] & 0xFE) == 0xFC) return true;                                 // fc00::/7 unique local
                 if (b[0] == 0x20 && b[1] == 0x01 && b[2] == 0x0D && b[3] == 0xB8) return true; // 2001:db8::/32 docs

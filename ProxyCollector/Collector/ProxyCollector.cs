@@ -674,8 +674,10 @@ namespace ProxyCollector.Collector
                     {
                         try
                         {
-                            var ip = await Resolver.ResolveAsync(host);
-                            resolved[host] = ip != null && IsCloudflareIp(ip);
+                            // A hostname may have both public and Cloudflare A/AAAA
+                            // answers. Exclude it if ANY address is in an official CF range.
+                            var addresses = await Resolver.ResolveAllAsync(host);
+                            resolved[host] = addresses.Any(IsCloudflareIp);
                         }
                         catch { resolved[host] = false; }
                     }
@@ -1953,10 +1955,10 @@ namespace ProxyCollector.Collector
                 // through — they'll fail at the Worker as timeouts, correct outcome.
                 if (CfCidrs.Length > 0)
                 {
-                    IPAddress? ip = IPAddress.TryParse(p.Host, out var literal)
-                        ? literal
-                        : await Resolver.ResolveAsync(p.Host);
-                    if (ip != null && IsCloudflareIp(ip)) { cfSkipped++; return; }
+                    var addresses = IPAddress.TryParse(p.Host, out var literal)
+                        ? new[] { literal }
+                        : await Resolver.ResolveAllAsync(p.Host);
+                    if (addresses.Any(IsCloudflareIp)) { cfSkipped++; return; }
                 }
                 string sni = string.IsNullOrEmpty(p.Sni) ? p.Host : p.Sni;
                 if (seen.Add((p.Host.Trim().ToLowerInvariant(), int.Parse(p.Port), sni.Trim().ToLowerInvariant())))
@@ -2225,14 +2227,13 @@ namespace ProxyCollector.Collector
             int cfSkippedTls = 0;
             foreach (var p in candidates)
             {
-                var ip = await Resolver.ResolveAsync(p.Host);   // warm cache
-                if (ip == null) continue;
-                // CF-fronted hosts: a TLS handshake with a Cloudflare edge SUCCEEDS even
-                // when the proxy backend behind it is dead — the handshake terminates at
-                // the edge and never reaches the origin. That's junk evidence, and it was
-                // flooding top.txt with +20 "verified" CF nodes that never work. These
-                // nodes must prove life via the Xray roundtrip instead.
-                if (CfCidrs.Length > 0 && IsCloudflareIp(ip)) { cfSkippedTls++; continue; }
+                var addresses = await Resolver.ResolveAllAsync(p.Host); // warm full A/AAAA cache
+                if (addresses.Length == 0) continue;
+                var ip = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork) ?? addresses[0];
+                // CF-fronted hosts: a TLS handshake with ANY Cloudflare answer can succeed
+                // at the edge without proving the proxy origin. Exclude the whole hostname
+                // if any A/AAAA answer is in an official Cloudflare range.
+                if (CfCidrs.Length > 0 && addresses.Any(IsCloudflareIp)) { cfSkippedTls++; continue; }
                 int port = int.Parse(p.Port);
                 string sni = string.IsNullOrEmpty(p.Sni) ? p.Host : p.Sni;
                 string ipStr = ip.ToString();

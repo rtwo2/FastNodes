@@ -621,6 +621,14 @@ namespace ProxyCollector.Collector
             return false;
         }
 
+        private static bool IsWarpMetadata(string value)
+        {
+            try { value = Uri.UnescapeDataString(value ?? ""); }
+            catch { }
+            // Match WARP/WARP+ as a distinct label, not ordinary words such as "warpath".
+            return Regex.IsMatch(value, @"(?<![a-z0-9])warp(?:\\+)?(?![a-z0-9])", RegexOptions.IgnoreCase);
+        }
+
         private static bool IsCloudflareMetadata(ParsedProxy p)
         {
             static bool IsCfDomain(string value)
@@ -660,9 +668,9 @@ namespace ProxyCollector.Collector
                 catch { }
             }
             if (remark.Contains("cloudflare", StringComparison.OrdinalIgnoreCase)) return true;
+            if (IsWarpMetadata(remark)) return true;
             return NormalizeProto(p.Protocol) == "wireguard" &&
-                   (remark.Contains("warp", StringComparison.OrdinalIgnoreCase) ||
-                    link.Contains("cloudflareclient", StringComparison.OrdinalIgnoreCase));
+                   link.Contains("cloudflareclient", StringComparison.OrdinalIgnoreCase);
         }
 
         private async Task<List<ParsedProxy>> DropCloudflareNodesAsync(List<ParsedProxy> proxies)
@@ -1250,7 +1258,7 @@ namespace ProxyCollector.Collector
                 return text.Contains("cloudflare") || text.Contains("cloudflareclient") ||
                        text.Contains("workers.dev") || text.Contains("pages.dev") ||
                        text.Contains("trycloudflare.com") || text.Contains("warp://") ||
-                       (p.Proto.Equals("wireguard", StringComparison.OrdinalIgnoreCase) && text.Contains("warp"));
+                       IsWarpMetadata(p.Remark ?? "");
             }
             int finalCloudflareDropped = finalProxies.RemoveAll(IsCloudflareFinal);
             if (finalCloudflareDropped > 0)

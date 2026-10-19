@@ -160,6 +160,14 @@ def self_test() -> None:
         (root / "verified.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "everything.txt").write_text("\n".join(good) + "\n", encoding="utf-8")
         (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
+        (root / "malformed_source.txt").write_text(next(iter(LEGACY_BAD_AGGREGATE_LINES)) + "\n", encoding="utf-8")
+        try:
+            validate_lines(root / "malformed_source.txt")
+        except ValidationError:
+            pass
+        else:
+            raise ValidationError("self-test allowed a legacy malformed URI outside generated aggregate files")
+        (root / "malformed_source.txt").unlink()
         yaml = 'proxies:\n  - name: "WG test"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n'
         (root / "wireguard.txt").write_text(yaml, encoding="utf-8")
         validate_tree(root)

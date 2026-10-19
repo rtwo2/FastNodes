@@ -47,6 +47,12 @@ namespace ProxyCollector.Collector
             foreach (var d in new[] { "protocols", "countries", "continents" })
                 Directory.CreateDirectory(Path.Combine(sub, d));
 
+            // Resolve family once per staged snapshot, then reuse the result for /top,
+            // /verified ordering, and the dedicated IPv4/IPv6 feeds.
+            var ipv4Proxies = await FilterByFamilyAsync(proxies, AddressFamily.InterNetwork);
+            var ipv6Proxies = await FilterByFamilyAsync(proxies, AddressFamily.InterNetworkV6);
+            var ipv6Links = new HashSet<string>(ipv6Proxies.Select(x => x.Link), StringComparer.Ordinal);
+
             await File.WriteAllLinesAsync(Path.Combine(sub, "everything.txt"), proxies.Select(x => x.Link));
             LogSuccess($"Saved everything.txt ({proxies.Count})");
 
@@ -64,7 +70,14 @@ namespace ProxyCollector.Collector
             // The runner can only establish success from its own vantage, but the
             // resulting evidence is still valid globally. Do not silently exclude
             // working nodes merely because their server is outside a preferred region.
-            var xrayVerified = proxies.Where(x => x.XrayVerified).ToList();
+            // Keep this file strictly roundtrip-verified; among those verified nodes,
+            // put native-IPv6-capable endpoints first without promoting unverified nodes.
+            var xrayVerified = proxies.Where(x => x.XrayVerified)
+                .OrderByDescending(x => ipv6Links.Contains(x.Link))
+                .ThenByDescending(x => x.Score)
+                .ThenByDescending(x => x.XrayStreak)
+                .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
+                .ToList();
             string lastVerifiedPath = Path.Combine("state", "verified_last.txt");
             int previousVerifiedCount = File.Exists(lastVerifiedPath)
                 ? (await File.ReadAllLinesAsync(lastVerifiedPath)).Count(line => !string.IsNullOrWhiteSpace(line))
@@ -112,16 +125,16 @@ namespace ProxyCollector.Collector
                 .ThenByDescending(x => x.TlsVerified)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
                 .ToList();
-            var top = topCandidates.Take(1000).ToList();
+            var top = SelectTopWithIpv6Diversity(topCandidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 20);
             await File.WriteAllLinesAsync(Path.Combine(sub, "top.txt"), top.Select(x => x.Link));
-            LogSuccess($"Saved top.txt ({top.Count}) — global ranking; gate: TLS-verified or source-tested; " +
+            int topIpv6Count = top.Count(x => ipv6Links.Contains(x.Link));
+            LogSuccess($"Saved top.txt ({top.Count}) — global ranking with IPv6 diversity " +
+                       $"({topIpv6Count} IPv6-capable); gate: TLS-verified or source-tested; " +
                        $"score range {top.LastOrDefault()?.Score ?? 0}–{top.FirstOrDefault()?.Score ?? 0}");
 
             // v6.13: IPv4/IPv6 by RESOLVED family — hostname nodes now classify too
             // (alias collapse swaps v6 literals for hostnames, which literal-only
             // classification undercounted). Warm cache ⇒ ~free.
-            var ipv4Proxies = await FilterByFamilyAsync(proxies, AddressFamily.InterNetwork);
-            var ipv6Proxies = await FilterByFamilyAsync(proxies, AddressFamily.InterNetworkV6);
             await File.WriteAllLinesAsync(Path.Combine(sub, "ipv4_only.txt"), ipv4Proxies.Select(x => x.Link));
             await File.WriteAllLinesAsync(Path.Combine(sub, "ipv6_only.txt"), ipv6Proxies.Select(x => x.Link));
             LogSuccess($"Saved ipv4_only.txt ({ipv4Proxies.Count}) / ipv6_only.txt ({ipv6Proxies.Count})");
@@ -335,6 +348,48 @@ namespace ProxyCollector.Collector
 
             return safe.Where(link => !string.IsNullOrWhiteSpace(link))
                 .Select(link => link!)
+                .ToList();
+        }
+
+        internal static List<FinalProxy> SelectTopWithIpv6Diversity(
+            IReadOnlyList<FinalProxy> rankedCandidates,
+            ISet<string> ipv6Links,
+            int maxCount = 1000,
+            int ipv6SharePercent = 20)
+        {
+            if (maxCount <= 0 || rankedCandidates.Count == 0) return new List<FinalProxy>();
+            if (ipv6SharePercent is < 0 or > 100)
+                throw new ArgumentOutOfRangeException(nameof(ipv6SharePercent));
+
+            int outputCount = Math.Min(maxCount, rankedCandidates.Count);
+            int ipv6Target = (int)Math.Ceiling(outputCount * (ipv6SharePercent / 100.0));
+            var selected = new List<FinalProxy>(outputCount);
+            var selectedLinks = new HashSet<string>(StringComparer.Ordinal);
+
+            void AddCandidates(IEnumerable<FinalProxy> candidates, int limit)
+            {
+                int added = 0;
+                foreach (var candidate in candidates)
+                {
+                    if (selected.Count >= maxCount || added >= limit) break;
+                    if (!selectedLinks.Add(candidate.Link)) continue;
+                    selected.Add(candidate);
+                    added++;
+                }
+            }
+
+            // Preserve the global score ranking within each family: take the best
+            // IPv6-capable nodes first, fill the remainder from the global pool,
+            // then backfill any shortage without duplicates.
+            AddCandidates(rankedCandidates.Where(x => ipv6Links.Contains(x.Link)), ipv6Target);
+            AddCandidates(rankedCandidates.Where(x => !ipv6Links.Contains(x.Link)), maxCount - selected.Count);
+            AddCandidates(rankedCandidates, maxCount - selected.Count);
+
+            return selected
+                .OrderByDescending(x => x.Score)
+                .ThenByDescending(x => x.XrayVerified)
+                .ThenByDescending(x => x.TlsVerified)
+                .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
                 .ToList();
         }
 

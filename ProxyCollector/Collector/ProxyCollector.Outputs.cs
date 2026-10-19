@@ -251,15 +251,18 @@ namespace ProxyCollector.Collector
         }
 
         // v6.13: family by RESOLVED address — warm cache makes this ~free.
+        internal static bool HasAddressFamily(IEnumerable<IPAddress> addresses, AddressFamily family)
+            => addresses.Any(ip => ip.AddressFamily == family);
+
         private async Task<List<FinalProxy>> FilterByFamilyAsync(List<FinalProxy> proxies, AddressFamily family)
         {
             var result = new List<FinalProxy>();
             foreach (var x in proxies)
             {
-                IPAddress? ip = IPAddress.TryParse(x.Host, out var literal)
-                    ? literal
-                    : await Resolver.ResolveAsync(x.Host);   // cache hit from GeoIP stage
-                if (ip != null && ip.AddressFamily == family) result.Add(x);
+                var addresses = IPAddress.TryParse(x.Host, out var literal)
+                    ? new[] { literal }
+                    : await Resolver.ResolveAllAsync(x.Host); // cached full A/AAAA set from GeoIP stage
+                if (HasAddressFamily(addresses, family)) result.Add(x);
             }
             return result;
         }

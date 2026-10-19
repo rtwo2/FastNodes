@@ -63,14 +63,46 @@ namespace ProxyCollector.Configuration
             }
 
             int beforeDedup = urls.Count;
-            Sources = urls
+            var uniqueSources = urls
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToArray();
+
+            // Optional bounded collection for manual smoke tests. Zero or an invalid
+            // value keeps production behavior unchanged; only the first N unique
+            // sources are used, preserving the workflow's curated priority order.
+            int sourceLimit = 0;
+            var sourceLimitValue = Environment.GetEnvironmentVariable("SourcesLimit");
+            if (!string.IsNullOrWhiteSpace(sourceLimitValue) &&
+                !int.TryParse(sourceLimitValue, out sourceLimit))
+            {
+                Console.WriteLine($"[WARN] Ignoring invalid SourcesLimit value: '{sourceLimitValue}'.");
+                sourceLimit = 0;
+            }
+
+            if (sourceLimit < 0)
+            {
+                Console.WriteLine($"[WARN] Ignoring negative SourcesLimit value: {sourceLimit}.");
+                sourceLimit = 0;
+            }
+
+            Sources = ApplySourceLimit(uniqueSources, sourceLimit);
 
             Console.WriteLine(
                 $"[INFO] Loaded {Sources.Length} sources " +
                 $"({commentLines} comment lines, {nonUrlLines} non-URL lines, " +
-                $"{beforeDedup - Sources.Length} duplicates collapsed).");
+                $"{beforeDedup - uniqueSources.Length} duplicates collapsed" +
+                (sourceLimit > 0 ? $", limited from {uniqueSources.Length} unique sources" : "") +
+                ").");
+        }
+
+        /// <summary>
+        /// Applies a positive source cap while preserving curated source order.
+        /// A zero or negative cap means no limit.
+        /// </summary>
+        public static string[] ApplySourceLimit(IEnumerable<string> sources, int sourceLimit)
+        {
+            var materialized = sources.ToArray();
+            return sourceLimit > 0 ? materialized.Take(sourceLimit).ToArray() : materialized;
         }
 
         /// <summary>

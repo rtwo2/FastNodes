@@ -13,6 +13,16 @@ on:
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:
+    inputs:
+      source_limit:
+        description: "Sources for a non-publishing smoke test (0 = full production collection)"
+        type: choice
+        required: true
+        default: "0"
+        options:
+          - "0"
+          - "5"
+          - "10"
 
 concurrency:
   group: collect
@@ -70,6 +80,7 @@ jobs:
           XRAY_BIN: /tmp/xraybin/xray
           WORKER_URL: ${{ secrets.WORKER_URL }}
           WORKER_AUTH: ${{ secrets.WORKER_AUTH }}
+          SourcesLimit: ${{ inputs.source_limit || '0' }}
           Sources: |
             # ================================================================
             # TIER 1 — HIGH-VOLUME CONTRIBUTORS
@@ -861,6 +872,7 @@ jobs:
             https://raw.githubusercontent.com/liketolivefree/kobabi/main/singbox_l.json
             https://raw.githubusercontent.com/liketolivefree/kobabi/main/singbox_rs.json
       - name: Drop malformed VLESS lines before validating outputs
+        if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -883,6 +895,7 @@ jobs:
           PY
 
       - name: Validate generated subscriptions before publishing
+        if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -913,9 +926,11 @@ jobs:
           echo "Validated top.txt=$top_count verified.txt=$verified_count everything.txt=$(wc -l < sub/everything.txt)"
 
       - name: Validate every generated text subscription
+        if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
         run: python3 scripts/validate_outputs.py sub
 
       - name: Final Cloudflare/WARP endpoint audit
+        if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -1044,6 +1059,7 @@ jobs:
           find sub -type f -size +50M -printf '::warning::Large generated file (>50 MiB): %p (%s bytes)\n'
 
       - name: Revalidate final output tree before commit
+        if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
         run: python3 scripts/validate_outputs.py sub
 
       - name: Upload build and collector logs
@@ -1058,6 +1074,7 @@ jobs:
           retention-days: 7
 
       - name: Commit & push (single-commit history)
+        if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"

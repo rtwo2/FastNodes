@@ -32,6 +32,15 @@ internal static class Program
         foreach (var address in new[] { "1.1.1.1", "8.8.8.8", "2001:4860:4860::8888" })
             Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse(address)),
                 $"public address {address} remains eligible");
+        Checks.That(!CollectorType.HasUnsafeResolvedAddress(new[]
+            { IPAddress.Parse("1.1.1.1"), IPAddress.Parse("2001:4860:4860::8888") }),
+            "a hostname resolving only to public addresses remains eligible");
+        Checks.That(CollectorType.HasUnsafeResolvedAddress(new[]
+            { IPAddress.Parse("1.1.1.1"), IPAddress.Parse("10.0.0.1") }),
+            "a mixed public/private DNS answer is rejected if any address is unsafe");
+        Checks.That(CollectorType.HasUnsafeResolvedAddress(new[]
+            { IPAddress.Parse("2001:4860:4860::8888"), IPAddress.Parse("::ffff:127.0.0.1") }),
+            "an IPv4-mapped private answer is rejected alongside a public IPv6 answer");
 
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");

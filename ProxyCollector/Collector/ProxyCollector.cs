@@ -621,12 +621,12 @@ namespace ProxyCollector.Collector
             return false;
         }
 
-        private static bool IsWarpMetadata(string value)
+                private static bool IsWarpMetadata(string value)
         {
             try { value = Uri.UnescapeDataString(value ?? ""); }
             catch { }
             // Match WARP/WARP+ as a distinct label, not ordinary words such as "warpath".
-            return Regex.IsMatch(value, @"(?<![a-z0-9])warp(?:\\+)?(?![a-z0-9])", RegexOptions.IgnoreCase);
+            return Regex.IsMatch(value, @"(?<![a-z0-9])warp(?:\+)?(?![a-z0-9])", RegexOptions.IgnoreCase);
         }
 
         private static bool IsCloudflareMetadata(ParsedProxy p)

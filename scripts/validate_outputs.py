@@ -59,12 +59,17 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
                 raise ValidationError(f"{path}: YAML proxy entry {index} has invalid port")
         return len(blocks), 0
 
+    allowed_legacy_lines = (
+        LEGACY_BAD_AGGREGATE_LINES
+        if path.parent.name == "sub" and path.name in {"everything.txt", "stable.txt", "ipv4_only.txt"}
+        else set()
+    )
     malformed = [
         (i, line[:120])
         for i, line in enumerate(text.splitlines(), 1)
         if line.strip()
         and not URI_RE.fullmatch(line.strip())
-        and line.strip() not in LEGACY_BAD_AGGREGATE_LINES
+        and line.strip() not in allowed_legacy_lines
     ]
     if malformed:
         sample = "; ".join(f"line {i}: {value!r}" for i, value in malformed[:5])
@@ -92,9 +97,14 @@ def validate_tree(root: pathlib.Path) -> list[str]:
         count, duplicates = validate_lines(path)
         rel = path.relative_to(root).as_posix()
         counts[rel] = count
+        allowed_legacy_lines = (
+            LEGACY_BAD_AGGREGATE_LINES
+            if path.parent.name == "sub" and path.name in {"everything.txt", "stable.txt", "ipv4_only.txt"}
+            else set()
+        )
         legacy_count = sum(
             1 for line in path.read_text(encoding="utf-8-sig").splitlines()
-            if line.strip() in LEGACY_BAD_AGGREGATE_LINES
+            if line.strip() in allowed_legacy_lines
         )
         if legacy_count:
             report.append(
@@ -150,6 +160,14 @@ def self_test() -> None:
         (root / "verified.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "everything.txt").write_text("\n".join(good) + "\n", encoding="utf-8")
         (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
+        (root / "malformed_source.txt").write_text(next(iter(LEGACY_BAD_AGGREGATE_LINES)) + "\n", encoding="utf-8")
+        try:
+            validate_lines(root / "malformed_source.txt")
+        except ValidationError:
+            pass
+        else:
+            raise ValidationError("self-test allowed a legacy malformed URI outside generated aggregate files")
+        (root / "malformed_source.txt").unlink()
         yaml = 'proxies:\n  - name: "WG test"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n'
         (root / "wireguard.txt").write_text(yaml, encoding="utf-8")
         validate_tree(root)

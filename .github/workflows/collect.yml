@@ -1004,7 +1004,7 @@ jobs:
           if hits:
               for path, lineno, endpoint in hits[:100]:
                   print(f'::error::Cloudflare/WARP entry in generated output: {path}:{lineno}: {endpoint}')
-              sys.exit(f'Refusing to publish: {len(hits)} Cloudflare endpoint occurrence(s) detected')
+              sys.exit(f'Refusing to publish: {len(hits)} Cloudflare/WARP issue(s) detected')
           print('Cloudflare/WARP audit passed: no Cloudflare endpoints or WARP-labeled nodes in generated outputs.')
           PYCF
           find sub -type f -size +50M -printf '::warning::Large generated file (>50 MiB): %p (%s bytes)\n'

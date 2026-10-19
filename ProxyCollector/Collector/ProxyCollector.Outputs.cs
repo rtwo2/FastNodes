@@ -76,6 +76,7 @@ namespace ProxyCollector.Collector
                 .OrderByDescending(x => ipv6Links.Contains(x.Link))
                 .ThenByDescending(x => x.Score)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .ToList();
             string lastVerifiedPath = Path.Combine("state", "verified_last.txt");
             int previousVerifiedCount = File.Exists(lastVerifiedPath)
@@ -123,6 +124,7 @@ namespace ProxyCollector.Collector
                 .ThenByDescending(x => x.XrayVerified)
                 .ThenByDescending(x => x.TlsVerified)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .ToList();
             var top = SelectTopWithIpv6Diversity(topCandidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 20);
             await File.WriteAllLinesAsync(Path.Combine(sub, "top.txt"), top.Select(x => x.Link));
@@ -146,6 +148,7 @@ namespace ProxyCollector.Collector
                 .ThenByDescending(x => x.XrayVerified)
                 .ThenByDescending(x => x.TlsVerified)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .Take(1000)
                 .ToList();
             await File.WriteAllLinesAsync(Path.Combine(sub, "top_ipv6.txt"), topIpv6.Select(x => x.Link));
@@ -418,6 +421,7 @@ namespace ProxyCollector.Collector
                 .ThenByDescending(x => x.XrayVerified)
                 .ThenByDescending(x => x.TlsVerified)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .ToList();
         }
 

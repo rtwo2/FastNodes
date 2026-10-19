@@ -259,7 +259,20 @@ namespace ProxyCollector.Collector
 
         // v6.13: family by RESOLVED address — warm cache makes this ~free.
         internal static bool HasAddressFamily(IEnumerable<IPAddress> addresses, AddressFamily family)
-            => addresses.Any(ip => ip.AddressFamily == family);
+        {
+            // IPv4-mapped IPv6 literals (for example ::ffff:65.109.219.162) are
+            // IPv4 endpoints expressed in IPv6 syntax, not native IPv6 reachability.
+            // Keep them in IPv4-capable outputs and exclude them from ipv6_only.txt.
+            return addresses.Any(ip =>
+            {
+                bool isMappedV4 = ip.IsIPv4MappedToIPv6;
+                if (family == AddressFamily.InterNetwork)
+                    return ip.AddressFamily == AddressFamily.InterNetwork || isMappedV4;
+                if (family == AddressFamily.InterNetworkV6)
+                    return ip.AddressFamily == AddressFamily.InterNetworkV6 && !isMappedV4;
+                return ip.AddressFamily == family;
+            });
+        }
 
         private async Task<List<string>> FilterSafeLastGoodLinksAsync(IReadOnlyList<string> links)
         {

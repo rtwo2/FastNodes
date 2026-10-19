@@ -105,7 +105,7 @@ https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/protocols/wireguard.t
 | IPv4-capable candidates | `ipv4_only.txt` |
 | WireGuard-compatible output | `protocols/wireguard.txt` |
 
-Verification results are snapshots from the latest successful run, not guarantees of current availability. Your ISP, location, client, and protocol support affect whether a node connects.
+Verification results are snapshots, not guarantees of current availability. `verified.txt` normally refreshes from nodes that passed a full Xray round-trip in the current run; when too few nodes pass, it retains the last-good snapshot only after filtering malformed links, placeholder credentials/hosts, private or reserved addresses, known blacklist ranges, and Cloudflare/WARP-related entries. If neither the current run nor the sanitized snapshot provides a safe entry, publication fails rather than replacing the last published output tree with an unsafe or empty verified list. `stable.txt` tracks nodes seen across consecutive runs, while `verified_tls.txt` and `curated.txt` represent different evidence tiers. Your ISP, location, client, and protocol support affect whether a node connects.
 
 ## Import
 

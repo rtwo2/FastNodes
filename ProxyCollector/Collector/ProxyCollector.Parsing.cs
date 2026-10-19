@@ -24,7 +24,7 @@ namespace ProxyCollector.Collector
 {
     public partial class ProxyCollector
     {
-        private static ParsedProxy? ParseProxyLine(string line)
+        internal static ParsedProxy? ParseProxyLine(string line)
         {
             line = line.Trim();
             if (line.Length < 10) return null;

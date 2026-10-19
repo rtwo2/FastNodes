@@ -59,11 +59,11 @@ namespace ProxyCollector.Collector
             string.Join("|", ValidProtocols.OrderByDescending(s => s.Length));
 
         private static readonly Regex SchemeLineRegex = new(
-            $@"(?<![a-zA-Z])({SchemeAlternation})://\S+",
+            $@"(?<![a-zA-Z])({SchemeAlternation})://(?>\S+)(?!\s*@)",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly Regex SchemeHtmlRegex = new(
-            $@"(?<![a-zA-Z])({SchemeAlternation})://[^\s""'<>\[\]]+",
+            $@"(?<![a-zA-Z])({SchemeAlternation})://(?>[^\s""'<>\[\]]+)(?!\s*@)",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         // ====================== HOST FILTER (EXACT/SUFFIX ONLY) ======================

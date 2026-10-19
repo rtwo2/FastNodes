@@ -16,6 +16,7 @@ SCHEMES = (
 SCHEME_PATTERN = "|".join(sorted((re.escape(s) for s in SCHEMES), key=len, reverse=True))
 URI_RE = re.compile(rf"^(?:{SCHEME_PATTERN})://\S+", re.IGNORECASE)
 REQUIRED = ("top.txt", "verified.txt", "everything.txt")
+EXPECTED_FILES = ("top_ipv6.txt",)
 MAX_TOP_LINES = 1000
 
 class ValidationError(Exception):
@@ -75,6 +76,13 @@ def validate_tree(root: pathlib.Path) -> list[str]:
         path = root / name
         if not path.is_file() or path.stat().st_size == 0:
             raise ValidationError(f"required subscription is missing or empty: {path}")
+
+    # The IPv6 shortlist may be empty if no eligible candidates exist, but the
+    # generator must always publish the file so consumers have a stable URL.
+    for name in EXPECTED_FILES:
+        path = root / name
+        if not path.is_file():
+            raise ValidationError(f"expected subscription file is missing: {path}")
 
     report: list[str] = []
     counts: dict[str, int] = {}
@@ -137,6 +145,14 @@ def self_test() -> None:
         yaml = 'proxies:\n  - name: "WG test"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n'
         (root / "wireguard.txt").write_text(yaml, encoding="utf-8")
         validate_tree(root)
+        (root / "top_ipv6.txt").unlink()
+        try:
+            validate_tree(root)
+        except ValidationError:
+            pass
+        else:
+            raise ValidationError("self-test failed to catch a missing top_ipv6.txt")
+        (root / "top_ipv6.txt").write_text(good[4] + "\n", encoding="utf-8")
         if validate_lines(root / "wireguard.txt")[0] != 1:
             raise ValidationError("self-test failed to count YAML proxy entries")
         (root / "protocols").mkdir()

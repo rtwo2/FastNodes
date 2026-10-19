@@ -940,9 +940,32 @@ jobs:
           assert in_cf(f'::ffff:{sample_v4}'), 'IPv4-mapped IPv6 Cloudflare endpoint missed'
           assert not in_cf('example.com:443'), 'hostname:port incorrectly treated as a Cloudflare IP'
 
+          warp_pattern = re.compile(r'(?i)(?<![a-z0-9])warp\+?(?![a-z0-9])')
+          def is_warp_metadata(line):
+              # Check explicit node labels/remarks, not arbitrary path or SNI text.
+              name = re.search(r'(?i)^\s*name\s*[:=]\s*(.+)$', line)
+              if name and warp_pattern.search(unquote(name.group(1).strip().strip('"').strip("'"))):
+                  return True
+              if line.lower().startswith('vmess://'):
+                  token = line[8:].split('#', 1)[0].split('?', 1)[0]
+                  try:
+                      token += '=' * ((4 - len(token) % 4) % 4)
+                      obj = json.loads(base64.urlsafe_b64decode(token).decode('utf-8', 'ignore'))
+                      if warp_pattern.search(str(obj.get('ps', ''))):
+                          return True
+                  except Exception:
+                      pass
+              if '#' in line and warp_pattern.search(unquote(line.split('#', 1)[1])):
+                  return True
+              return False
+
+          assert is_warp_metadata('vless://uuid@example.com:443#WARP+'), 'WARP remark missed'
+          assert is_warp_metadata('name: "WARP tunnel"'), 'WARP YAML name missed'
+          assert not is_warp_metadata('vless://uuid@example.com:443#warpath'), 'non-WARP word falsely matched'
+
           def uri_endpoint(line):
               # Check the proxy's connection endpoint only, not resolver IPs in query parameters.
-              m = re.search(r'(?i)\b(vless|vmess|trojan|ss|ssr|hysteria2?|hy2|tuic|socks5?|wireguard)://([^\s<>\"\']+)', line)
+              m = re.search(r'(?i)\b(vless|vmess|trojan|ss|ssr|hysteria2?|hy2|tuic|socks5?|wireguard)://([^\s<>"\']+)', line)
               if not m:
                   return []
               scheme, raw = m.group(1).lower(), m.group(2).rstrip('),;')
@@ -968,6 +991,8 @@ jobs:
               except OSError:
                   continue
               for lineno, line in enumerate(lines, 1):
+                  if is_warp_metadata(line):
+                      hits.append((str(path), lineno, 'WARP metadata'))
                   endpoints = uri_endpoint(line)
                   # Converted Clash/WireGuard files expose endpoints as server/address fields.
                   if not endpoints and re.search(r'(?i)^\s*(?:server|server-host|server_host|endpoint|address|remote)\s*[:=]', line):
@@ -978,9 +1003,9 @@ jobs:
                           hits.append((str(path), lineno, endpoint))
           if hits:
               for path, lineno, endpoint in hits[:100]:
-                  print(f'::error::Cloudflare proxy endpoint in generated output: {path}:{lineno}: {endpoint}')
-              sys.exit(f'Refusing to publish: {len(hits)} Cloudflare endpoint occurrence(s) detected')
-          print('Cloudflare endpoint audit passed: no proxy endpoints in official Cloudflare ranges.')
+                  print(f'::error::Cloudflare/WARP entry in generated output: {path}:{lineno}: {endpoint}')
+              sys.exit(f'Refusing to publish: {len(hits)} Cloudflare/WARP issue(s) detected')
+          print('Cloudflare/WARP audit passed: no Cloudflare endpoints or WARP-labeled nodes in generated outputs.')
           PYCF
           find sub -type f -size +50M -printf '::warning::Large generated file (>50 MiB): %p (%s bytes)\n'
 

@@ -41,6 +41,22 @@ internal static class Program
         Checks.That(CollectorType.HasUnsafeResolvedAddress(new[]
             { IPAddress.Parse("2001:4860:4860::8888"), IPAddress.Parse("::ffff:127.0.0.1") }),
             "an IPv4-mapped private answer is rejected alongside a public IPv6 answer");
+        var refusedEndpoints = new HashSet<(string Ip, int Port)>
+        {
+            ("198.51.100.7", 443)
+        };
+        var dualStackEndpoints = new[]
+        {
+            IPAddress.Parse("198.51.100.7"),
+            IPAddress.Parse("2001:db8::7")
+        };
+        Checks.That(!CollectorType.AllResolvedEndpointsRefused(dualStackEndpoints, 443, refusedEndpoints),
+            "one refused DNS answer does not mark a multi-address host dead");
+        refusedEndpoints.Add(("2001:db8::7", 443));
+        Checks.That(CollectorType.AllResolvedEndpointsRefused(dualStackEndpoints, 443, refusedEndpoints),
+            "a multi-address host is dead only when every resolved endpoint refuses");
+        Checks.That(!CollectorType.AllResolvedEndpointsRefused(Array.Empty<IPAddress>(), 443, refusedEndpoints),
+            "an empty DNS answer is inconclusive, not evidence of a refused endpoint");
 
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");

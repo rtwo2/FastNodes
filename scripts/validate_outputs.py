@@ -54,7 +54,7 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
     malformed = [
         (i, line[:120])
         for i, line in enumerate(text.splitlines(), 1)
-        if line.strip() and not URI_RE.match(line.strip())
+        if line.strip() and not URI_RE.fullmatch(line.strip())
     ]
     if malformed:
         sample = "; ".join(f"line {i}: {value!r}" for i, value in malformed[:5])
@@ -113,10 +113,16 @@ def self_test() -> None:
         "vless://uuid@[2001:db8::1]:443?security=tls",
     ]
     for line in good:
-        if not URI_RE.match(line):
+        if not URI_RE.fullmatch(line):
             raise ValidationError(f"self-test rejected valid URI: {line}")
-    for line in ("https://example.com/subscription", "not a proxy URI", "<html>oops</html>"):
-        if URI_RE.match(line):
+    for line in (
+        "https://example.com/subscription",
+        "not a proxy URI",
+        "<html>oops</html>",
+        "vless://uuid@example.com:443 trailing-junk",
+        "vless://uuid@example.com:443 extra words",
+    ):
+        if URI_RE.fullmatch(line):
             raise ValidationError(f"self-test accepted invalid subscription line: {line}")
 
     with tempfile.TemporaryDirectory() as tmp:

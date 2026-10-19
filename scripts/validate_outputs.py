@@ -64,7 +64,7 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
         for i, line in enumerate(text.splitlines(), 1)
         if line.strip()
         and not URI_RE.fullmatch(line.strip())
-        and line.strip() not in LEGACY_BAD_AGGREGATE_LINES
+        and not (path.name == "everything.txt" and line.strip() in LEGACY_BAD_AGGREGATE_LINES)
     ]
     if malformed:
         sample = "; ".join(f"line {i}: {value!r}" for i, value in malformed[:5])
@@ -96,7 +96,7 @@ def validate_tree(root: pathlib.Path) -> list[str]:
             1 for line in path.read_text(encoding="utf-8-sig").splitlines()
             if line.strip() in LEGACY_BAD_AGGREGATE_LINES
         )
-        if legacy_count:
+        if path.name == "everything.txt" and legacy_count:
             report.append(
                 f"WARNING {rel}: {legacy_count} exact legacy malformed line(s) tolerated until output regeneration"
             )

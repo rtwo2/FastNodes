@@ -89,7 +89,7 @@ namespace ProxyCollector.Collector
                                   ? s : q.GetValueOrDefault("host", "");
                     return new ParsedProxy
                     {
-                        Protocol = "vmess", Host = uri.Host,
+                        Protocol = "vmess", Host = NormalizeUriHost(uri.Host),
                         Port = (uri.Port > 0 ? uri.Port : 443).ToString(),
                         Credential = uri.UserInfo ?? "",
                         Network = net, Security = sec,
@@ -113,9 +113,10 @@ namespace ProxyCollector.Collector
                 string scheme = uri.Scheme.ToLowerInvariant();
                 if (!ValidProtocols.Contains(scheme)) return null;
 
-                // Uri.Host returns IPv6 literals WITHOUT brackets — no manual stripping
-                // needed on this path (the ss parser splits host:port by hand and does).
-                string h = uri.Host;
+                // Uri.Host returns bracketed IPv6 literals on .NET. Normalize to a
+                // bare IP here so DNS, GeoIP, reserved-range and Cloudflare checks agree
+                // with the host spelling used by the Shadowsocks parser.
+                string h = NormalizeUriHost(uri.Host);
                 // Per-scheme default port when the link omits one — "socks5://host" means
                 // 1080, not 443. Uri.Port is -1 when the link carries no port.
                 int p = uri.Port > 0 ? uri.Port
@@ -325,6 +326,13 @@ namespace ProxyCollector.Collector
                 };
             }
             catch { return null; }
+        }
+
+        private static string NormalizeUriHost(string host)
+        {
+            return host.Length >= 2 && host[0] == '[' && host[^1] == ']'
+                ? host[1..^1]
+                : host;
         }
 
         private static string NormalizeProto(string proto)

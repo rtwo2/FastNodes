@@ -22,6 +22,12 @@ internal static class Program
         Checks.Equal("ws", vmess.Network, "VMess transport");
         Checks.Equal("sni.example.com", vmess.Sni, "VMess SNI");
 
+        var vmessIpv6 = CollectorType.ParseProxyLine(
+            "vmess://01234567-89ab-cdef-0123-456789abcdef@[2001:4860:4860::8888]:443?security=tls");
+        Checks.That(vmessIpv6 is not null, "VMess URI-form IPv6 link parses");
+        Checks.Equal("2001:4860:4860::8888", vmessIpv6!.Host,
+            "VMess URI-form IPv6 host is normalized without brackets");
+
         var ssUser = Convert.ToBase64String(Encoding.UTF8.GetBytes("aes-128-gcm:CaseSensitive"));
         var ss = CollectorType.ParseProxyLine($"ss://{ssUser}@[2001:4860:4860::8888]:8388#ss");
         Checks.That(ss is not null, "Shadowsocks SIP002 IPv6 link parses");

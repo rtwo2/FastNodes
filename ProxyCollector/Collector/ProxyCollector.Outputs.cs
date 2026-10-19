@@ -105,14 +105,14 @@ namespace ProxyCollector.Collector
             // /top is a globally ranked precision file. Require at least one affirmative
             // signal, then rank by converging evidence; geography contributes only a
             // modest prior. Keep the single unchunked 1000-node contract.
-            var top = proxies
+            var topCandidates = proxies
                 .Where(x => x.TlsVerified || x.IranTested || x.XrayVerified || x.EdgeVerified)
                 .OrderByDescending(x => x.Score)
                 .ThenByDescending(x => x.XrayVerified)
                 .ThenByDescending(x => x.TlsVerified)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
-                .Take(1000)
                 .ToList();
+            var top = topCandidates.Take(1000).ToList();
             await File.WriteAllLinesAsync(Path.Combine(sub, "top.txt"), top.Select(x => x.Link));
             LogSuccess($"Saved top.txt ({top.Count}) — global ranking; gate: TLS-verified or source-tested; " +
                        $"score range {top.LastOrDefault()?.Score ?? 0}–{top.FirstOrDefault()?.Score ?? 0}");
@@ -125,6 +125,20 @@ namespace ProxyCollector.Collector
             await File.WriteAllLinesAsync(Path.Combine(sub, "ipv4_only.txt"), ipv4Proxies.Select(x => x.Link));
             await File.WriteAllLinesAsync(Path.Combine(sub, "ipv6_only.txt"), ipv6Proxies.Select(x => x.Link));
             LogSuccess($"Saved ipv4_only.txt ({ipv4Proxies.Count}) / ipv6_only.txt ({ipv6Proxies.Count})");
+
+            // A focused shortlist for IPv6-capable endpoints. Keep the same evidence
+            // gate and score ordering as top.txt, but rank across the full IPv6-capable
+            // candidate pool instead of only intersecting the global top 1,000.
+            var topIpv6 = ipv6Proxies
+                .Where(x => x.TlsVerified || x.IranTested || x.XrayVerified || x.EdgeVerified)
+                .OrderByDescending(x => x.Score)
+                .ThenByDescending(x => x.XrayVerified)
+                .ThenByDescending(x => x.TlsVerified)
+                .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
+                .Take(1000)
+                .ToList();
+            await File.WriteAllLinesAsync(Path.Combine(sub, "top_ipv6.txt"), topIpv6.Select(x => x.Link));
+            LogSuccess($"Saved top_ipv6.txt ({topIpv6.Count}) — IPv6-capable nodes with positive quality evidence");
 
             foreach (var g in proxies.GroupBy(x => x.Proto))
             {

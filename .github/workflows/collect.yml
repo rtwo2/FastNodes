@@ -848,6 +848,28 @@ jobs:
             https://raw.githubusercontent.com/liketolivefree/kobabi/main/singbox.json
             https://raw.githubusercontent.com/liketolivefree/kobabi/main/singbox_l.json
             https://raw.githubusercontent.com/liketolivefree/kobabi/main/singbox_rs.json
+      - name: Drop malformed VLESS lines before validating outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          # Reject the malformed authority shape "vless://user @host:port".
+          # Keep this narrowly scoped: valid links and YAML/config entries are untouched.
+          bad = re.compile(r"^vless://\\S+\\s+@", re.IGNORECASE)
+          removed = 0
+          for path in Path("sub").rglob("*.txt"):
+              original = path.read_text(encoding="utf-8-sig")
+              lines = original.splitlines(keepends=True)
+              kept = [line for line in lines if not bad.match(line.rstrip("\\r\\n"))]
+              removed += len(lines) - len(kept)
+              if len(lines) != len(kept):
+                  path.write_text("".join(kept), encoding="utf-8")
+          print(f"Removed {removed} malformed VLESS line(s) before output validation.")
+          PY
+
       - name: Validate generated subscriptions before publishing
         shell: bash
         run: |

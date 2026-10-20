@@ -2949,7 +2949,35 @@ namespace ProxyCollector.Collector
 
                         string flow = ob.TryGetProperty("flow", out var fl) ? fl.GetString() ?? "" : "";
                         string transport = "tcp", path = "", hostHeader = "", serviceName = "", earlyDataHeaderName = "";
+                        string obfsType = "", obfsPassword = "", upMpbs = "", downMpbs = "";
+                        bool zeroRttHandshake = false;
                         int earlyData = 0;
+
+                        string Query(params (string Key, string Value)[] options) =>
+                            string.Join("&", options.Where(x => !string.IsNullOrEmpty(x.Value))
+                                .Select(x => x.Key + "=" + Uri.EscapeDataString(x.Value)));
+                        string OptionalQuery(params (string Key, string Value)[] options)
+                        {
+                            string query = Query(options);
+                            return query.Length == 0 ? "" : "?" + query;
+                        }
+
+                        if (ob.TryGetProperty("obfs", out var obfsEl))
+                        {
+                            if (obfsEl.ValueKind == JsonValueKind.Object)
+                            {
+                                if (obfsEl.TryGetProperty("type", out var obfsTypeEl)) obfsType = obfsTypeEl.GetString() ?? "";
+                                if (obfsEl.TryGetProperty("password", out var obfsPasswordEl)) obfsPassword = obfsPasswordEl.GetString() ?? "";
+                            }
+                            else if (obfsEl.ValueKind == JsonValueKind.String)
+                            {
+                                obfsType = obfsEl.GetString() ?? "";
+                            }
+                        }
+                        if (ob.TryGetProperty("up_mbps", out var upEl)) upMpbs = upEl.ToString();
+                        if (ob.TryGetProperty("down_mbps", out var downEl)) downMpbs = downEl.ToString();
+                        if (ob.TryGetProperty("zero_rtt_handshake", out var zrt) && zrt.ValueKind == JsonValueKind.True)
+                            zeroRttHandshake = true;
                         if (ob.TryGetProperty("transport", out var tEl) && tEl.ValueKind == JsonValueKind.Object)
                         {
                             if (tEl.TryGetProperty("type", out var ttEl)) transport = ttEl.GetString() ?? "tcp";
@@ -2984,13 +3012,15 @@ namespace ProxyCollector.Collector
                                     hostHeader, fingerprint, alpn, vmessCipher,
                                     serviceName, earlyData, earlyDataHeaderName, allowInsecure),
                             "vless" when !string.IsNullOrEmpty(uuid) =>
-                                $"vless://{uuid}@{uriServer}:{port}?security={(realityPbk.Length > 0 ? "reality" : tls ? "tls" : "none")}&type={transport}&sni={Uri.EscapeDataString(sni)}&path={Uri.EscapeDataString(path)}&flow={Uri.EscapeDataString(flow)}&pbk={Uri.EscapeDataString(realityPbk)}&sid={Uri.EscapeDataString(realitySid)}#{remark}",
+                                $"vless://{Uri.EscapeDataString(uuid)}@{uriServer}:{port}?{Query(("security", realityPbk.Length > 0 ? "reality" : tls ? "tls" : "none"), ("type", transport), ("sni", sni), ("path", path), ("host", hostHeader), ("flow", flow), ("fp", fingerprint), ("alpn", alpn), ("pbk", realityPbk), ("sid", realitySid), ("serviceName", serviceName), ("allowInsecure", allowInsecure ? "1" : ""))}#{remark}",
                             "trojan" when !string.IsNullOrEmpty(password) =>
-                                $"trojan://{Uri.EscapeDataString(password)}@{uriServer}:{port}?sni={Uri.EscapeDataString(sni)}&type={transport}#{remark}",
-                            "hysteria2" when !string.IsNullOrEmpty(password) =>
-                                $"hysteria2://{Uri.EscapeDataString(password)}@{uriServer}:{port}?sni={Uri.EscapeDataString(sni)}#{remark}",
+                                $"trojan://{Uri.EscapeDataString(password)}@{uriServer}:{port}?{Query(("security", realityPbk.Length > 0 ? "reality" : tls ? "tls" : "none"), ("sni", sni), ("type", transport), ("path", path), ("host", hostHeader), ("fp", fingerprint), ("alpn", alpn), ("pbk", realityPbk), ("sid", realitySid), ("serviceName", serviceName), ("allowInsecure", allowInsecure ? "1" : ""))}#{remark}",
+                            "hysteria2" or "hy2" when !string.IsNullOrEmpty(password) =>
+                                $"hysteria2://{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("sni", sni), ("obfs", obfsType), ("obfs-password", obfsPassword), ("alpn", alpn), ("fp", fingerprint), ("upmbps", upMpbs), ("downmbps", downMpbs), ("allowInsecure", allowInsecure ? "1" : ""))}#{remark}",
+                            "hysteria" when !string.IsNullOrEmpty(password) =>
+                                $"hysteria://{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("peer", sni), ("sni", sni), ("alpn", alpn), ("obfs", obfsType), ("obfs-password", obfsPassword), ("upmbps", upMpbs), ("downmbps", downMpbs), ("allowInsecure", allowInsecure ? "1" : ""))}#{remark}",
                             "tuic" when !string.IsNullOrEmpty(uuid) =>
-                                $"tuic://{Uri.EscapeDataString(uuid)}:{Uri.EscapeDataString(password)}@{uriServer}:{port}?sni={Uri.EscapeDataString(sni)}#{remark}",
+                                $"tuic://{Uri.EscapeDataString(uuid)}:{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("congestion_control", GetJsonString(ob, "congestion_control", "bbr")), ("udp_relay_mode", GetJsonString(ob, "udp_relay_mode", "native")), ("alpn", alpn), ("sni", sni), ("allowInsecure", allowInsecure ? "1" : ""), ("zero_rtt_handshake", zeroRttHandshake ? "1" : ""))}#{remark}",
                             "shadowsocks" => BuildSsLinkFromJson(ob, uriServer, port, remark),
                             _ => null
                         };
@@ -3001,6 +3031,17 @@ namespace ProxyCollector.Collector
             }
             catch { }
             return results;
+        }
+
+        private static string GetJsonString(JsonElement element, string property, string fallback = "")
+        {
+            if (!element.TryGetProperty(property, out var value)) return fallback;
+            return value.ValueKind switch
+            {
+                JsonValueKind.String => value.GetString() ?? fallback,
+                JsonValueKind.Number or JsonValueKind.True or JsonValueKind.False => value.ToString(),
+                _ => fallback
+            };
         }
 
         // SIP002 plugin options must be preserved. Omitting them produces a syntactically
@@ -3237,53 +3278,6 @@ namespace ProxyCollector.Collector
                 default:
                     return null;
             }
-        }
-
-        private static string? ClashFieldsToLink(Dictionary<string, string> f)
-        {
-            if (!f.TryGetValue("type", out var type)) return null;
-            type = type.ToLowerInvariant();
-            if (!f.TryGetValue("server", out var server) || !f.TryGetValue("port", out var port)) return null;
-            if (string.IsNullOrEmpty(server) || string.IsNullOrEmpty(port)) return null;
-            string uriServer = FormatUriHost(server);
-
-            string remark = Uri.EscapeDataString(f.GetValueOrDefault("name", ""));
-            bool tls = f.GetValueOrDefault("tls", "false").Equals("true", StringComparison.OrdinalIgnoreCase);
-            string sni = f.GetValueOrDefault("servername", f.GetValueOrDefault("sni", ""));
-            string network = f.GetValueOrDefault("network", "tcp");
-            string hostHeader = f.GetValueOrDefault("ws-opts.headers.Host", f.GetValueOrDefault("host", ""));
-            string fingerprint = f.GetValueOrDefault("client-fingerprint", f.GetValueOrDefault("fp", ""));
-            string alpn = f.GetValueOrDefault("alpn", "");
-            string serviceName = f.GetValueOrDefault("grpc-opts.grpc-service-name", "");
-            int.TryParse(f.GetValueOrDefault("ws-opts.max-early-data", "0"), out int earlyData);
-            string earlyDataHeaderName = f.GetValueOrDefault("ws-opts.early-data-header-name", "");
-            string cipher = f.GetValueOrDefault("cipher", "auto");
-
-            return type switch
-            {
-                // vmess routes through BuildVmessLink — same bug as sing-box: the old
-                // "vmess://uuid@host:port?..." form is not a valid vmess link and every
-                // one of these nodes was silently dropped at parse time.
-                "vmess" when f.ContainsKey("uuid") =>
-                    BuildVmessLink(server, port, f["uuid"], network,
-                        tls ? "tls" : "", sni, f.GetValueOrDefault("ws-path", ""),
-                        f.GetValueOrDefault("alterId", f.GetValueOrDefault("aid", "0")),
-                        f.GetValueOrDefault("name", ""), hostHeader, fingerprint, alpn, cipher,
-                        serviceName, earlyData, earlyDataHeaderName,
-                        f.GetValueOrDefault("skip-cert-verify", "").Equals("true", StringComparison.OrdinalIgnoreCase)),
-                "vless" when f.ContainsKey("uuid") =>
-                    $"vless://{f["uuid"]}@{uriServer}:{port}?security={(tls ? "tls" : "none")}&type={network}&sni={Uri.EscapeDataString(sni)}#{remark}",
-                "trojan" when f.ContainsKey("password") =>
-                    $"trojan://{Uri.EscapeDataString(f["password"])}@{uriServer}:{port}?sni={Uri.EscapeDataString(sni)}#{remark}",
-                "hysteria2" or "hy2" when f.ContainsKey("password") =>
-                    $"hysteria2://{Uri.EscapeDataString(f["password"])}@{uriServer}:{port}?sni={Uri.EscapeDataString(sni)}#{remark}",
-                // Standard base64 userinfo now — was URL-safe, which the parser couldn't
-                // decode for nearly all real base64 payloads.
-                "ss" or "shadowsocks" when f.ContainsKey("cipher") && f.ContainsKey("password") =>
-                    BuildSsLinkFromClashFields(f["cipher"], f["password"], uriServer, port, remark,
-                        BuildClashShadowsocksPlugin(f)),
-                _ => null
-            };
         }
 
         private static string BuildSsLinkFromClashFields(

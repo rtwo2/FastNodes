@@ -442,6 +442,12 @@ internal static class Program
             "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?type=h2&path=%2F")!;
         Checks.That(h2ImplicitHostA.EndpointKey("192.0.2.1") != h2ImplicitHostB.EndpointKey("192.0.2.1"),
             "different implicit H2 host values remain distinct when SNI is omitted");
+        var upgradeImplicitHostA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@one.example.net:443?type=httpupgrade&path=%2F")!;
+        var upgradeImplicitHostB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?type=httpupgrade&path=%2F")!;
+        Checks.That(upgradeImplicitHostA.EndpointKey("192.0.2.1") != upgradeImplicitHostB.EndpointKey("192.0.2.1"),
+            "different implicit HTTP-upgrade Host values remain distinct");
 
         var dualStack = new[]
         {

@@ -14,6 +14,18 @@ internal static class Program
             "positive source limit selects only the first N sources in priority order");
         Checks.Equal(3, ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c" }, 10).Length,
             "source limit larger than the list keeps all available sources");
+        var distinctSources = ProxyCollector.Configuration.CollectorConfig.NormalizeAndDeduplicateSources(new[]
+        {
+            "https://EXAMPLE.com/Main.txt?channel=ABC",
+            "https://example.com/Main.txt?channel=ABC",
+            "https://example.com/main.txt?channel=ABC",
+            "https://example.com/Main.txt?channel=abc",
+            "https://github.com/Owner/Repo/raw/main/Feed.txt",
+            "https://RAW.githubusercontent.com/Owner/Repo/main/Feed.txt"
+        });
+        Checks.Equal(4, distinctSources.Length,
+            "source dedup normalizes host case and equivalent GitHub raw URLs without folding path or query-value case");
+
 
         Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.IPv6Any),
             "IPv6 unspecified address is rejected as a public proxy endpoint");

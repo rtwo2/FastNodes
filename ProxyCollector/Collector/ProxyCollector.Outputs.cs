@@ -436,9 +436,9 @@ namespace ProxyCollector.Collector
             catch { /* keep the original remark if it has malformed escapes */ }
 
             // Already-renamed snapshots can be normalized without consulting GeoIP again.
-            int closeParen = remark.LastIndexOf(')');
+            int dash = remark.IndexOf(" - ", StringComparison.Ordinal);
+            int closeParen = dash >= 0 ? remark.LastIndexOf(')', dash) : -1;
             int openParen = closeParen > 0 ? remark.LastIndexOf('(', closeParen) : -1;
-            int dash = closeParen >= 0 ? remark.IndexOf(" - ", closeParen, StringComparison.Ordinal) : -1;
             int pipe = dash >= 0 ? remark.IndexOf(" | ", dash + 3, StringComparison.Ordinal) : -1;
             if (openParen >= 0 && closeParen > openParen && dash > closeParen && pipe > dash)
             {

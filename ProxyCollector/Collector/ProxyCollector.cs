@@ -216,6 +216,12 @@ namespace ProxyCollector.Collector
         internal static bool HasUnsafeResolvedAddress(IEnumerable<IPAddress> addresses)
             => addresses.Any(ip => IsPrivateOrReservedIp(ip) || IsFireholBlacklisted(ip));
 
+        internal static bool IsSafeDnsCanaryAnswer(IEnumerable<IPAddress> addresses)
+        {
+            var materialized = addresses.ToArray();
+            return materialized.Length > 0 && !HasUnsafeResolvedAddress(materialized);
+        }
+
         private static bool IsPlaceholderCredential(string credential)
             => !string.IsNullOrEmpty(credential) && PlaceholderCredentialPattern.IsMatch(credential.Trim());
 
@@ -1687,7 +1693,8 @@ namespace ProxyCollector.Collector
                 {
                     try
                     {
-                        if (await Resolver.ResolveAsync(host) != null)
+                        var addresses = await Resolver.ResolveAllAsync(host);
+                        if (IsSafeDnsCanaryAnswer(addresses))
                             Interlocked.Increment(ref resolved);
                     }
                     catch
@@ -1747,6 +1754,9 @@ namespace ProxyCollector.Collector
         // resolved IP (already cached from the GeoIP stage) goes through the same
         // two checks. Affirmative by definition — an endpoint inside 10/8 or a
         // hijacked range can never be a public proxy, whatever it's called.
+        internal static bool UnsafeResolvedIpSetRequiresAbort(int badHostCount, int totalHostCount)
+            => totalHostCount > 0 && badHostCount > totalHostCount * MaxDnsDropFraction;
+
         private async Task<List<ParsedProxy>> DropBadResolvedIpsAsync(List<ParsedProxy> proxies)
         {
             var hosts = proxies.Select(p => p.Host)
@@ -1769,10 +1779,15 @@ namespace ProxyCollector.Collector
             if (bad.IsEmpty) return proxies;
 
             var badSet = bad.ToHashSet(StringComparer.OrdinalIgnoreCase);
-            if (badSet.Count > hosts.Count * MaxDnsDropFraction)   // same breaker discipline as DNS
+            if (UnsafeResolvedIpSetRequiresAbort(badSet.Count, hosts.Count))
             {
-                LogWarning($"Resolved-IP filter: {badSet.Count}/{hosts.Count} flagged — over {MaxDnsDropFraction:P0} breaker, keeping all.");
-                return proxies;
+                // Unlike NXDOMAIN, a private/reserved/blacklisted IP is affirmative unsafe
+                // evidence. Keeping every host when the threshold trips would let the next
+                // TCP/Xray stages actively probe internal addresses. Abort the run instead;
+                // the workflow will preserve the last committed publication.
+                LogError($"Resolved-IP filter: {badSet.Count}/{hosts.Count} hostnames resolved to unsafe addresses (over {MaxDnsDropFraction:P0}); refusing to probe or publish this run.");
+                throw new InvalidOperationException(
+                    "Too many proxy hostnames resolved to private/reserved/blacklisted addresses; aborting before active probes.");
             }
 
             int before = proxies.Count;

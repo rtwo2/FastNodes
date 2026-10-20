@@ -521,14 +521,18 @@ namespace ProxyCollector.Collector
                     try
                     {
                         if (File.Exists(tempFile)) File.Delete(tempFile);
+                        // ResponseHeadersRead ends HttpClient's timeout when headers arrive.
+                        // This per-mirror token must also cover the streamed database body,
+                        // otherwise a stalled CDN can hang the workflow indefinitely.
+                        using var mirrorCts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
                         using var resp = await http.GetAsync(
-                            host + label, HttpCompletionOption.ResponseHeadersRead);
+                            host + label, HttpCompletionOption.ResponseHeadersRead, mirrorCts.Token);
                         resp.EnsureSuccessStatusCode();
                         await using (var fs = new FileStream(
                             tempFile, FileMode.CreateNew, FileAccess.Write, FileShare.None))
                         {
-                            await resp.Content.CopyToAsync(fs);
-                            await fs.FlushAsync();
+                            await resp.Content.CopyToAsync(fs, mirrorCts.Token);
+                            await fs.FlushAsync(mirrorCts.Token);
                         }
 
                         if (!IsValidGeoIpDatabase(tempFile))
@@ -959,6 +963,72 @@ namespace ProxyCollector.Collector
                 .ToArray();
             string countryName = countryNames.Length == 1 ? countryNames[0] : cc;
             return ($"{flag} {countryName}{orgSuffix}", cc);
+        }
+
+        // Client labels are deliberately fixed-width: the geo prefix is always flag + ISO
+        // code, followed by fixed-width location and host tags and a stable short ID.
+        // This keeps subscription lists aligned while keeping ports/protocol names out of
+        // the visible label. The complete connection identity makes names stable per node.
+        internal static string BuildClientNodeName(
+            string countryCode, string location, string host, string connectionIdentity)
+        {
+            string cc = NormalizeGeoCountryCode(countryCode);
+            string flag = Flags.TryGetValue(cc, out var foundFlag) ? foundFlag : "🌐";
+            string geo = "Unknown";
+
+            if (cc != "XX")
+            {
+                string sourceLocation = NormalizeGeoText(location);
+                if (sourceLocation.StartsWith(flag, StringComparison.Ordinal))
+                {
+                    geo = sourceLocation[flag.Length..].Trim();
+                    int providerAt = geo.IndexOf(" · ", StringComparison.Ordinal);
+                    if (providerAt >= 0) geo = geo[..providerAt].Trim();
+                    string countrySuffix = ", " + cc;
+                    if (geo.EndsWith(countrySuffix, StringComparison.OrdinalIgnoreCase))
+                        geo = geo[..^countrySuffix.Length].Trim();
+                }
+                else
+                {
+                    geo = cc;
+                }
+            }
+
+            string geoField = FitClientNameField(geo, 12);
+            string hostField = FitClientNameField(BuildClientHostTag(host), 10);
+            byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(connectionIdentity ?? ""));
+            string stableId = Convert.ToHexString(digest.AsSpan(0, 5));
+            return $"{flag} {cc} · {geoField} · {hostField} · {stableId}";
+        }
+
+        private static string FitClientNameField(string value, int width)
+        {
+            value = NormalizeGeoText(value);
+            if (value.Length > width)
+                return value[..(width - 1)] + "…";
+            return value.PadRight(width);
+        }
+
+        private static string BuildClientHostTag(string host)
+        {
+            string value = (host ?? "").Trim().Trim('[', ']');
+            if (IPAddress.TryParse(value, out var ip))
+            {
+                value = ip.AddressFamily == AddressFamily.InterNetworkV6
+                    ? ip.ToString().Replace(':', '-').Trim('-')
+                    : ip.ToString();
+            }
+            else
+            {
+                value = value.TrimEnd('.');
+                if (value.StartsWith("www.", StringComparison.OrdinalIgnoreCase))
+                    value = value[4..];
+                int dot = value.IndexOf('.');
+                if (dot > 0) value = value[..dot];
+            }
+
+            value = Regex.Replace(value, @"[^\p{L}\p{N}.-]+", "-").Trim('-', '.');
+            return string.IsNullOrWhiteSpace(value) ? "node" : value;
         }
 
         private async Task<(string Location, string CountryCode)> GetLocationAndCountryAsync(string host)
@@ -1424,63 +1494,21 @@ namespace ProxyCollector.Collector
             catch (Exception ex) { LogWarning($"Stability tracking failed (non-fatal): {ex.Message}"); }
             GroupEnd();
 
-            GroupStart("💾 Step 5/5 — Rename + save output files");
-            // Remark assignment runs AFTER the filters — a dropped node must not consume
-            // an #N suffix, or every surviving duplicate's number would shift between runs.
+            GroupStart("💾 Step 5/5 — Name + save output files");
             string Loc(string h) => locationCache.TryGetValue(h, out var l) ? l : "🌐 Unknown";
             string Cc(string h) => countryCache.TryGetValue(h, out var c) ? c : "XX";
 
-            // A bare IPv6 literal next to " | " reads ambiguously (colons collide visually
-            // with the separator) — bracket it for display, same as how IPv6 is normally
-            // written next to a port. This only affects the remark text, not the link itself.
-            string DisplayHost(string h) =>
-                h.Contains(':') && IPAddress.TryParse(h, out var ip) &&
-                ip.AddressFamily == AddressFamily.InterNetworkV6
-                    ? $"[{h}]" : h;
-
             var finalProxies = new List<FinalProxy>();
 
-            // Pass 1: count total occurrences of each base remark using frozen locations.
-            var remarkTotal = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            foreach (var p in alive)
-            {
-                string baseRemark = $"{Loc(p.Host)} | {DisplayHost(p.Host)}";
-                remarkTotal.TryGetValue(baseRemark, out int cnt);
-                remarkTotal[baseRemark] = cnt + 1;
-            }
-
-            // Pass 2: assign remarks. Unique nodes: no suffix. Nodes sharing a base
-            // remark (same server, multiple inbounds) get disambiguated by PORT, then
-            // port·proto — replacing the old bare "#N" counter. "Frankfurt #7" told the
-            // user nothing; "Frankfurt :8443" says exactly which inbound it is.
-            // Deterministic: alive is sorted host→port→proto, so suffix assignment is
-            // stable across runs.
-            var suffixUsed = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+            // Every client label uses the same field widths and geo-first pattern.
+            // A stable short fingerprint distinguishes different inbounds without exposing
+            // noisy ":port" or ".protocol" suffixes.
             foreach (var p in alive)
             {
                 string proto = NormalizeProto(p.Protocol);
-                string baseRemark = $"{Loc(p.Host)} | {DisplayHost(p.Host)}";
-                remarkTotal.TryGetValue(baseRemark, out int total);
-
-                string remark;
-                if (total <= 1)
-                {
-                    remark = baseRemark;
-                }
-                else
-                {
-                    if (!suffixUsed.TryGetValue(baseRemark, out var used))
-                        suffixUsed[baseRemark] = used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-                    string suffix = $" :{p.Port}";
-                    if (used.Contains(suffix)) suffix = $" :{p.Port}·{proto}";
-                    if (used.Contains(suffix)) suffix = $" :{p.Port}·{proto}·#{used.Count + 1}";
-                    used.Add(suffix);
-                    remark = baseRemark + suffix;
-                }
-
-                string cleanLink = BuildCleanLink(p, remark);
                 string cc = Cc(p.Host);
+                string remark = BuildClientNodeName(cc, Loc(p.Host), p.Host, p.DeduplicationKey);
+                string cleanLink = BuildCleanLink(p, remark);
                 string continent = GetContinent(cc);
 
                 // v6.14 composite score — the /top ranking. Only signals whose vantage
@@ -2630,19 +2658,36 @@ namespace ProxyCollector.Collector
         // that's exactly what the Clash/sing-box extractors used to emit, and
         // ParseProxyLine then failed to base64-decode it and silently dropped every one
         // of those nodes. This helper is now the single way any code path builds a vmess link.
-        private static string BuildVmessLink(string host, string port, string uuid, string net,
-            string tls, string sni, string path, string aid, string remark)
+        private static string BuildVmessLink(
+            string host, string port, string uuid, string net,
+            string tls, string sni, string path, string aid, string remark,
+            string hostHeader = "", string fingerprint = "", string alpn = "",
+            string cipher = "auto", string serviceName = "", int earlyData = 0,
+            string earlyDataHeaderName = "", bool allowInsecure = false)
         {
+            string actualNet = string.IsNullOrEmpty(net) ? "tcp" : net;
+            string actualPath = actualNet.Equals("grpc", StringComparison.OrdinalIgnoreCase) &&
+                                !string.IsNullOrEmpty(serviceName)
+                ? serviceName : path ?? "";
             var obj = new Dictionary<string, object?>
             {
                 ["v"] = "2", ["ps"] = remark, ["add"] = host, ["port"] = port, ["id"] = uuid,
                 ["aid"] = string.IsNullOrEmpty(aid) ? "0" : aid,
-                ["net"] = string.IsNullOrEmpty(net) ? "tcp" : net,
+                ["net"] = actualNet,
                 ["type"] = "none",
-                ["host"] = sni ?? "",
-                ["path"] = path ?? "",
-                ["tls"] = tls == "tls" ? "tls" : ""
+                // "host" is the HTTP/WebSocket Host header. Keep SNI separate if available;
+                // using SNI as host remains a backward-compatible fallback for old clients.
+                ["host"] = string.IsNullOrEmpty(hostHeader) ? sni ?? "" : hostHeader,
+                ["path"] = actualPath,
+                ["tls"] = tls == "tls" ? "tls" : "",
+                ["scy"] = string.IsNullOrWhiteSpace(cipher) ? "auto" : cipher
             };
+            if (!string.IsNullOrEmpty(sni)) obj["sni"] = sni;
+            if (!string.IsNullOrEmpty(fingerprint)) obj["fp"] = fingerprint;
+            if (!string.IsNullOrEmpty(alpn)) obj["alpn"] = alpn;
+            if (earlyData > 0) obj["ed"] = earlyData;
+            if (!string.IsNullOrEmpty(earlyDataHeaderName)) obj["eh"] = earlyDataHeaderName;
+            if (allowInsecure) obj["allowInsecure"] = true;
             return "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(obj)));
         }
 

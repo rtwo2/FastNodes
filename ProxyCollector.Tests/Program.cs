@@ -164,6 +164,26 @@ internal static class Program
         Checks.That(!CollectorType.AllResolvedEndpointsRefused(Array.Empty<IPAddress>(), 443, refusedEndpoints),
             "an empty DNS answer is inconclusive, not evidence of a refused endpoint");
 
+        Checks.That(!CollectorType.IsValidWireguardLink(
+                "wireguard://privatekey@wg.example.net:51820?pk=not-a-key"),
+            "WireGuard links with invalid key material are rejected before entering output feeds");
+        string validWgPrivateKey = Convert.ToBase64String(Enumerable.Range(1, 32).Select(i => (byte)i).ToArray());
+        string validWgPublicKey = Convert.ToBase64String(Enumerable.Range(33, 32).Select(i => (byte)i).ToArray());
+        string validWgLink = $"wireguard://{Uri.EscapeDataString(validWgPrivateKey)}@wg.example.net:51820?pk={Uri.EscapeDataString(validWgPublicKey)}&ip=10.0.0.2%2F32";
+        Checks.That(CollectorType.IsValidWireguardLink(validWgLink),
+            "valid WireGuard key material remains eligible for output feeds");
+
+        var wireguardDefaultPort = CollectorType.ParseProxyLine(
+            "wireguard://privatekey@wg.example.net?pk=serverpub");
+        Checks.That(wireguardDefaultPort is not null, "portless WireGuard URI parses");
+        Checks.Equal("51820", wireguardDefaultPort!.Port,
+            "portless WireGuard URI uses the protocol default rather than generic TLS port 443");
+        var wgAliasDefaultPort = CollectorType.ParseProxyLine(
+            "wg://privatekey@wg.example.net?pk=serverpub");
+        Checks.That(wgAliasDefaultPort is not null, "portless wg alias parses");
+        Checks.Equal("51820", wgAliasDefaultPort!.Port,
+            "portless wg alias uses the WireGuard protocol default");
+
         string ssrPasswordB64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("secret"))
             .TrimEnd('=').Replace('+', '-').Replace('/', '_');
         string ssrIpv6Payload = $"[2001:4860:4860::8888]:443:origin:aes-128-cfb:plain:{ssrPasswordB64}/?remarks=ssr-v6";

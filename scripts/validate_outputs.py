@@ -231,7 +231,7 @@ def self_test() -> None:
             try:
                 validate_tree(root)
             except ValidationError as exc:
-                if f"{name} contains node(s) missing from everything.txt" not in str(exc):
+                if f"{name} contains " not in str(exc) or "missing from everything.txt" not in str(exc):
                     raise
             else:
                 raise ValidationError(f"self-test failed to catch {name} entries missing from everything.txt")

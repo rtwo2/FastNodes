@@ -696,32 +696,6 @@ namespace ProxyCollector.Collector
             }
         }
 
-        internal static string EscapeYamlDoubleQuoted(string value)
-        {
-            var sb = new StringBuilder(value?.Length ?? 0);
-            foreach (char ch in value ?? "")
-            {
-                switch (ch)
-                {
-                    case '\\': sb.Append("\\\\"); break;
-                    case '"': sb.Append("\\\""); break;
-                    case '\0': sb.Append("\\0"); break;
-                    case '\b': sb.Append("\\b"); break;
-                    case '\t': sb.Append("\\t"); break;
-                    case '\n': sb.Append("\\n"); break;
-                    case '\f': sb.Append("\\f"); break;
-                    case '\r': sb.Append("\\r"); break;
-                    default:
-                        if (char.IsControl(ch))
-                            sb.Append("\\x").Append(((int)ch).ToString("X2"));
-                        else
-                            sb.Append(ch);
-                        break;
-                }
-            }
-            return sb.ToString();
-        }
-
         internal static string FormatWireguardEndpoint(string host, int port)
         {
             string normalizedHost = (host ?? "").Trim().Trim('[', ']');

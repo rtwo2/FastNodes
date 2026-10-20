@@ -194,7 +194,7 @@ internal static class Program
                 "enabled": true, "server_name": "tls-vless.example.net",
                 "alpn": ["h2"],
                 "utls": { "enabled": true, "fingerprint": "chrome" },
-                "reality": { "enabled": true, "public_key": "reality-public-key", "short_id": "01" }
+                "reality": { "enabled": true, "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", "short_id": "01" }
               },
               "transport": {
                 "type": "ws", "path": "/entry",
@@ -255,7 +255,7 @@ internal static class Program
         Checks.That(convertedVless.Contains("host=ws-vless.example.net", StringComparison.Ordinal) &&
                     convertedVless.Contains("fp=chrome", StringComparison.Ordinal) &&
                     convertedVless.Contains("alpn=h2", StringComparison.Ordinal) &&
-                    convertedVless.Contains("pbk=reality-public-key", StringComparison.Ordinal) &&
+                    convertedVless.Contains("pbk=AAAAAAAA", StringComparison.Ordinal) &&
                     convertedVless.Contains("sid=01", StringComparison.Ordinal) &&
                     convertedVless.Contains("flow=xtls-rprx-vision", StringComparison.Ordinal),
             "sing-box VLESS conversion retains WS Host, fingerprint, ALPN, REALITY keys and flow");

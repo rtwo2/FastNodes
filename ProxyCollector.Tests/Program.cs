@@ -150,6 +150,11 @@ internal static class Program
         Checks.Equal("2001:4860:4860::8888", ssrIpv6!.Host,
             "SSR IPv6 endpoint is normalized without brackets");
         Checks.Equal("443", ssrIpv6.Port, "SSR IPv6 endpoint port is preserved");
+        string ssrEmptyPasswordPayload = "edge.example.net:443:origin:aes-128-cfb:plain:";
+        string ssrEmptyPasswordLink = "ssr://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(ssrEmptyPasswordPayload))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        Checks.That(CollectorType.ParseProxyLine(ssrEmptyPasswordLink) is null,
+            "SSR links without a password are rejected instead of entering output feeds");
 
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");

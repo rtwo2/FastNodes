@@ -68,6 +68,10 @@ internal static class Program
             "placeholder TUIC password is detected after the UUID separator");
         Checks.That(CollectorType.IsPlaceholderCredential("socks5", "user:your-password"),
             "placeholder SOCKS password is detected after the username separator");
+        Checks.That(CollectorType.IsPlaceholderCredential("trojan", "password%31%32%33"),
+            "percent-encoded placeholder credentials are detected after URI decoding");
+        Checks.That(CollectorType.IsPlaceholderCredential("ss", "aes-128-gcm:password%31%32%33"),
+            "percent-encoded placeholder passwords are detected inside composite credentials");
         Checks.That(!CollectorType.IsPlaceholderCredential("ss", "aes-128-gcm:real-secret"),
             "valid composite Shadowsocks credentials are not rejected");
 

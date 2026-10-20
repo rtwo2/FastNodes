@@ -217,17 +217,49 @@ namespace ProxyCollector.Collector
                     if (qIdx >= 0) query = decoded[(qIdx + 1)..];
                 }
 
-                // host:port:protocol:method:obfs:base64(password)
-                var parts = main.Split(':');
-                if (parts.Length < 6) return null;
+                // host:port:protocol:method:obfs:base64(password). IPv6 literals
+                // must be bracketed in this colon-delimited format; split after the
+                // closing bracket so the address's own colons aren't mistaken for fields.
+                string host, port, protocol, method, obfs, encodedPassword;
+                if (main.StartsWith("[", StringComparison.Ordinal))
+                {
+                    int closeBracket = main.IndexOf(']');
+                    if (closeBracket <= 1 || closeBracket + 1 >= main.Length ||
+                        main[closeBracket + 1] != ':')
+                        return null;
 
-                string host = parts[0];
-                string port = parts[1];
-                string protocol = parts[2];
-                string method = parts[3];
-                string obfs = parts[4];
-                string password = Base64UrlDecode(parts[5]);
-                if (string.IsNullOrEmpty(host) || host == "0.0.0.0") return null;
+                    host = main[1..closeBracket];
+                    if (!IPAddress.TryParse(host, out var ipv6Host) ||
+                        ipv6Host.AddressFamily != AddressFamily.InterNetworkV6)
+                        return null;
+                    host = ipv6Host.ToString();
+
+                    var parts = main[(closeBracket + 2)..].Split(':');
+                    if (parts.Length != 5) return null;
+                    port = parts[0];
+                    protocol = parts[1];
+                    method = parts[2];
+                    obfs = parts[3];
+                    encodedPassword = parts[4];
+                }
+                else
+                {
+                    var parts = main.Split(':');
+                    if (parts.Length != 6) return null;
+                    host = parts[0];
+                    port = parts[1];
+                    protocol = parts[2];
+                    method = parts[3];
+                    obfs = parts[4];
+                    encodedPassword = parts[5];
+                }
+
+                string password = Base64UrlDecode(encodedPassword);
+                if (string.IsNullOrEmpty(host) || host == "0.0.0.0" ||
+                    string.IsNullOrWhiteSpace(protocol) || string.IsNullOrWhiteSpace(method) ||
+                    string.IsNullOrWhiteSpace(obfs) || string.IsNullOrEmpty(password) ||
+                    !int.TryParse(port, out int portNumber) || portNumber is < 1 or > 65535)
+                    return null;
 
                 var q = ParseQuery(query);
                 // obfsparam/protoparam are per-connection secrets too — different values

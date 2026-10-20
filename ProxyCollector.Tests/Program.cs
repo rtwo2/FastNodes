@@ -164,6 +164,22 @@ internal static class Program
         Checks.That(!CollectorType.AllResolvedEndpointsRefused(Array.Empty<IPAddress>(), 443, refusedEndpoints),
             "an empty DNS answer is inconclusive, not evidence of a refused endpoint");
 
+        string ssrPasswordB64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("secret"))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        string ssrIpv6Payload = $"[2001:4860:4860::8888]:443:origin:aes-128-cfb:plain:{ssrPasswordB64}/?remarks=ssr-v6";
+        string ssrIpv6Link = "ssr://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(ssrIpv6Payload))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var ssrIpv6 = CollectorType.ParseProxyLine(ssrIpv6Link);
+        Checks.That(ssrIpv6 is not null, "SSR link with a bracketed IPv6 endpoint parses");
+        Checks.Equal("2001:4860:4860::8888", ssrIpv6!.Host,
+            "SSR IPv6 endpoint is normalized without brackets");
+        Checks.Equal("443", ssrIpv6.Port, "SSR IPv6 endpoint port is preserved");
+        string ssrEmptyPasswordPayload = "edge.example.net:443:origin:aes-128-cfb:plain:";
+        string ssrEmptyPasswordLink = "ssr://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(ssrEmptyPasswordPayload))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        Checks.That(CollectorType.ParseProxyLine(ssrEmptyPasswordLink) is null,
+            "SSR links without a password are rejected instead of entering output feeds");
+
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");
         Checks.That(ipv6 is not null, "VLESS IPv6 link parses");

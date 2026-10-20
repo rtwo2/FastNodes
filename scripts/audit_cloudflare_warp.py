@@ -95,7 +95,7 @@ def label_is_forbidden(value):
 def is_forbidden_label(line):
     if re.search(r"(?i)\bwarp://", line):
         return True
-    name = re.search(r"(?i)^\s*name\s*[:=]\s*(.*?)\s*$", line)
+    name = re.search(r"(?i)^\s*(?:-\s*)?(?:\{\s*)?name\s*[:=]\s*([^,}\r\n]+)", line)
     if name and label_is_forbidden(name.group(1)):
         return True
     vmess = re.match(r"(?i)^\s*vmess://([^\s]+)", line)
@@ -162,6 +162,8 @@ def self_test():
     assert not endpoint_is_forbidden("198.51.100.4", ranges)
     assert is_forbidden_label("vless://uuid@example.net:443#WARP+")
     assert is_forbidden_label('name: "Cloudflare WARP"')
+    assert is_forbidden_label("- name: Cloudflare WARP")
+    assert is_forbidden_label("- {name: Cloudflare, type: wireguard}")
     assert not is_forbidden_label("vless://uuid@example.net:443#warpath")
     assert not is_forbidden_label("vless://uuid@example.net:443?sni=www.cloudflare.com#US")
     assert not has_forbidden_transport_host("vless://uuid@example.net:443?sni=www.cloudflare.com&host=www.cloudflare.com#US")

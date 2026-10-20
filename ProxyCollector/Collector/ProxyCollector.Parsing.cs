@@ -116,7 +116,7 @@ namespace ProxyCollector.Collector
                         Network = net, Security = sec,
                         Sni = sni, Path = q.GetValueOrDefault("path", "").TrimEnd('/'),
                         Aid = int.TryParse(q.GetValueOrDefault("aid", "0"), out var a) ? a : 0,
-                        BaseLink = baseLink, ConnectionOptionsKey = BuildQueryIdentityKey(q)
+                        BaseLink = baseLink, ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                     };
                 }
                 catch { return null; }
@@ -189,7 +189,7 @@ namespace ProxyCollector.Collector
                     Flow       = flow,
                     ObfsPassword = obfsPwd,
                     BaseLink   = baseLink,
-                    ConnectionOptionsKey = BuildQueryIdentityKey(q)
+                    ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                 };
             }
             catch { return null; }
@@ -239,7 +239,7 @@ namespace ProxyCollector.Collector
                     Network = protocol, Security = obfs,
                     Sni = "", Path = extra,
                     BaseLink = baseLink,
-                    ConnectionOptionsKey = BuildQueryIdentityKey(q, "remarks", "remarks_base64")
+                    ConnectionOptionsKey = BuildQueryIdentityKey(query, "remarks", "remarks_base64")
                 };
             }
             catch { return null; }
@@ -316,7 +316,7 @@ namespace ProxyCollector.Collector
                         Credential = $"{method}:{password}",
                         Network = "tcp", Security = "",
                         Sni = q.GetValueOrDefault("host", ""), Path = "",
-                        BaseLink = baseLink, ConnectionOptionsKey = BuildQueryIdentityKey(q)
+                        BaseLink = baseLink, ConnectionOptionsKey = BuildQueryIdentityKey(query)
                     };
                 }
 
@@ -353,19 +353,32 @@ namespace ProxyCollector.Collector
             catch { return null; }
         }
 
-        private static string BuildQueryIdentityKey(
-            IReadOnlyDictionary<string, string> query,
-            params string[] excludedKeys)
+        private static string BuildQueryIdentityKey(string query, params string[] excludedKeys)
         {
-            if (query.Count == 0) return "";
+            if (string.IsNullOrEmpty(query)) return "";
             var excluded = new HashSet<string>(excludedKeys, StringComparer.OrdinalIgnoreCase);
-            // Serialize a sorted list of key/value pairs rather than concatenating with
-            // delimiters, so encoded separators in values cannot create key collisions.
-            var canonical = query
+
+            // Preserve repeated parameters and their order within each key. ParseQuery's
+            // dictionary is convenient for known fields, but keeps only the last duplicate
+            // value; different plugins/transports may assign meaning to repeated options.
+            // Sorting by key removes irrelevant ordering differences between separate names
+            // while retaining the original order of repeated values for the same name.
+            var canonical = query.TrimStart('?')
+                .Split('&', StringSplitOptions.RemoveEmptyEntries)
+                .Select(pair =>
+                {
+                    int equals = pair.IndexOf('=');
+                    string rawKey = equals < 0 ? pair : pair[..equals];
+                    string rawValue = equals < 0 ? "" : pair[(equals + 1)..];
+                    return new
+                    {
+                        Key = Uri.UnescapeDataString(rawKey).ToLowerInvariant(),
+                        Value = Uri.UnescapeDataString(rawValue)
+                    };
+                })
                 .Where(item => !excluded.Contains(item.Key))
-                .OrderBy(item => item.Key, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(item => item.Key, StringComparer.Ordinal)
-                .Select(item => new[] { item.Key.ToLowerInvariant(), item.Value })
+                .OrderBy(item => item.Key, StringComparer.Ordinal)
+                .Select(item => new[] { item.Key, item.Value })
                 .ToArray();
             return JsonSerializer.Serialize(canonical);
         }

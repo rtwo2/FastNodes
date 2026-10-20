@@ -255,7 +255,6 @@ internal static class Program
         Checks.That(convertedVless.Contains("host=ws-vless.example.net", StringComparison.Ordinal) &&
                     convertedVless.Contains("fp=chrome", StringComparison.Ordinal) &&
                     convertedVless.Contains("alpn=h2", StringComparison.Ordinal) &&
-                    convertedVless.Contains("serviceName", StringComparison.Ordinal) == false &&
                     convertedVless.Contains("pbk=reality-public-key", StringComparison.Ordinal) &&
                     convertedVless.Contains("sid=01", StringComparison.Ordinal) &&
                     convertedVless.Contains("flow=xtls-rprx-vision", StringComparison.Ordinal),

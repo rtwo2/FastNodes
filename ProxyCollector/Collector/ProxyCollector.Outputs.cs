@@ -639,6 +639,9 @@ namespace ProxyCollector.Collector
             return new SerializerBuilder().Build().Serialize(document);
         }
 
+        internal static bool IsValidWireguardLink(string link)
+            => TryParseWireguardInfo(link) is not null;
+
         private static WgInfo? TryParseWireguardInfo(string link)
         {
             try
@@ -704,7 +707,7 @@ namespace ProxyCollector.Collector
                     if (uri.Port == 0) return null;
                     var q = ParseQuery(uri.Query);
 
-                    info.PrivateKey = uri.UserInfo ?? "";
+                    info.PrivateKey = Uri.UnescapeDataString(uri.UserInfo ?? "");
                     if (string.IsNullOrEmpty(info.PrivateKey))
                         info.PrivateKey = q.GetValueOrDefault("privatekey", q.GetValueOrDefault("private_key", ""));
 

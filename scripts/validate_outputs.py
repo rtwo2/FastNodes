@@ -36,13 +36,18 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
     # URI per line (currently protocols/wireguard.txt). Validate each proxy block
     # structurally instead of misclassifying YAML keys as malformed proxy links.
     if lines and lines[0].lower() == "proxies:":
-        # Split on list-item markers using horizontal whitespace only. "\s*" also
-        # matches newlines, which can bleed across adjacent mapping blocks and make a
-        # valid second/third proxy appear to have no type.
+        # Split only on top-level list items. WireGuard nodes can contain a nested
+        # "reserved" sequence; treating its indented "- 0" entries as proxy boundaries
+        # produced the reported false "entry 2 has missing type" validation failure.
+        # Capture the first list indentation and ignore deeper list items.
         blocks: list[str] = []
         current: list[str] = []
+        item_indent: str | None = None
         for line in text.splitlines():
-            if re.match(r"^[ \t]*-[ \t]+", line):
+            marker = re.match(r"^(?P<indent>[ \t]*)-[ \t]+", line)
+            if marker and (item_indent is None or marker.group("indent") == item_indent):
+                if item_indent is None:
+                    item_indent = marker.group("indent")
                 if current:
                     blocks.append("\n".join(current))
                 current = [line]
@@ -192,7 +197,7 @@ def self_test() -> None:
         (root / "ipv4_only.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
         yaml = ('proxies:\n'
-                '  - name: "WG test 1"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n'
+                '  - name: "WG test 1"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n    reserved:\n      - 0\n      - 0\n      - 0\n'
                 '  - name: "WG test 2"\n    type: wireguard\n    server: "198.51.100.2"\n    port: 123\n')
         (root / "wireguard.txt").write_text(yaml, encoding="utf-8")
         validate_tree(root)

@@ -26,6 +26,20 @@ namespace ProxyCollector.Collector
     {
         internal static ParsedProxy? ParseProxyLine(string line)
         {
+            var parsed = ParseProxyLineCore(line);
+            if (parsed is null ||
+                !int.TryParse(parsed.Port, out int port) ||
+                port is < 1 or > 65535)
+                return null;
+
+            // Store a canonical numeric port for deduplication and probes. The published
+            // URI remains the source form, but invalid source ports are never accepted.
+            parsed.Port = port.ToString();
+            return parsed;
+        }
+
+        private static ParsedProxy? ParseProxyLineCore(string line)
+        {
             line = line.Trim();
             if (line.Length < 10) return null;
 
@@ -84,6 +98,8 @@ namespace ProxyCollector.Collector
                 try
                 {
                     var uri = new Uri(baseLink);
+                    // Do not silently turn an explicit port 0 into a default port.
+                    if (uri.Port == 0) return null;
                     var q = ParseQuery(uri.Query);
                     string net = q.GetValueOrDefault("type", "tcp");
                     if (string.IsNullOrEmpty(net)) net = "tcp";
@@ -114,6 +130,8 @@ namespace ProxyCollector.Collector
             try
             {
                 var uri = new Uri(baseLink);
+                // Do not silently turn an explicit port 0 into a default port.
+                if (uri.Port == 0) return null;
                 string scheme = uri.Scheme.ToLowerInvariant();
                 if (!ValidProtocols.Contains(scheme)) return null;
 

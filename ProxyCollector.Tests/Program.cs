@@ -62,6 +62,15 @@ internal static class Program
             "IPv6 unspecified address is rejected as a public proxy endpoint");
         Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("ff02::1")),
             "IPv6 multicast address is rejected as a public proxy endpoint");
+        Checks.That(CollectorType.IsPlaceholderCredential("ss", "aes-128-gcm:password123"),
+            "placeholder Shadowsocks password is detected after the cipher separator");
+        Checks.That(CollectorType.IsPlaceholderCredential("tuic", "123e4567-e89b-12d3-a456-426614174000:123456"),
+            "placeholder TUIC password is detected after the UUID separator");
+        Checks.That(CollectorType.IsPlaceholderCredential("socks5", "user:your-password"),
+            "placeholder SOCKS password is detected after the username separator");
+        Checks.That(!CollectorType.IsPlaceholderCredential("ss", "aes-128-gcm:real-secret"),
+            "valid composite Shadowsocks credentials are not rejected");
+
         Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("2001:4860:4860::8888")),
             "public IPv6 unicast address remains eligible");
         Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("2001:4860:4860:4860:4860:ffff:a00:1")),

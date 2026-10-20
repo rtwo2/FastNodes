@@ -352,6 +352,22 @@ internal static class Program
         Checks.That(!CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
             { Host = "example.com", Link = "vless://uuid@example.com:443?sni=cloudflare.com", Remark = "🇺🇸 Germany" }),
             "Cloudflare camouflage SNI alone does not exclude a non-Cloudflare endpoint");
+
+        Checks.That(!CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
+            { Host = "example.com", Link = "vless://uuid@example.com:443?sni=www.cloudflare.com&host=www.cloudflare.com#US", Remark = "US" }),
+            "valid Cloudflare host and SNI camouflage remain usable");
+        Checks.That(CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
+            { Host = "example.com", Link = "ss://auth@example.com:443?plugin=v2ray-plugin%3Bmode%3Dwebsocket%3Bhost%3Dedge.pages.dev#US", Remark = "US" }),
+            "Cloudflare Pages transport host metadata is excluded even when nested in SS plugin options");
+        Checks.That(CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
+            { Host = "example.com", Link = "vless://uuid@example.com:443?host=www.speedtest.net.ns.cloudflare.com.try.cloudflare.com.attacker.test#US", Remark = "US" }),
+            "lookalike Cloudflare host metadata is excluded");
+        Checks.That(!CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
+            { Host = "example.com", Link = "vless://uuid@example.com:443?ech=cloudflare-ech.com#US", Remark = "US" }),
+            "ECH resolver references are not mistaken for Cloudflare proxy endpoints");
+        Checks.That(CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
+            { Host = "foo.cloudflare.com.attacker.test", Link = "vless://uuid@example.com:443#US", Remark = "US" }),
+            "Cloudflare lookalike endpoint names are rejected");
         Checks.That(CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
             { Host = "example.com", Link = "vless://uuid@example.com:443#Cloudflare", Remark = "Cloudflare" }),
             "Cloudflare-labelled proxy remarks remain excluded");

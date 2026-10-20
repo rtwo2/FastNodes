@@ -686,6 +686,29 @@ namespace ProxyCollector.Collector
                    link.Contains("cloudflareclient", StringComparison.OrdinalIgnoreCase);
         }
 
+        internal static bool IsCloudflareFinal(FinalProxy p)
+        {
+            string host = (p.Host ?? "").Trim().Trim('[', ']');
+            if (IPAddress.TryParse(host, out var ip) && IsCloudflareIp(ip)) return true;
+
+            static bool IsServiceDomain(string host, string domain) =>
+                host.Equals(domain, StringComparison.OrdinalIgnoreCase) ||
+                host.EndsWith("." + domain, StringComparison.OrdinalIgnoreCase);
+
+            if (IsServiceDomain(host, "cloudflare.com") ||
+                IsServiceDomain(host, "cloudflareclient.com") ||
+                IsServiceDomain(host, "workers.dev") ||
+                IsServiceDomain(host, "pages.dev") ||
+                IsServiceDomain(host, "trycloudflare.com"))
+                return true;
+
+            // Metadata policy applies to the display label, not arbitrary SNI/query text:
+            // a legitimate origin may use cloudflare.com as its TLS camouflage SNI.
+            string remark = p.Remark ?? "";
+            return remark.Contains("cloudflare", StringComparison.OrdinalIgnoreCase) ||
+                   IsWarpMetadata(remark);
+        }
+
         private async Task<List<ParsedProxy>> DropCloudflareNodesAsync(List<ParsedProxy> proxies)
         {
             var resolved = new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
@@ -1356,21 +1379,6 @@ namespace ProxyCollector.Collector
             // This catches converted YAML/WireGuard entries whose source metadata was not
             // represented identically by the initial URI parser. All output files, including
             // per-protocol files and both WireGuard export formats, are built from this list.
-            bool IsCloudflareFinal(FinalProxy p)
-            {
-                string host = (p.Host ?? "").Trim().Trim('[', ']');
-                string text = ((p.Link ?? "") + " " + (p.Remark ?? "")).ToLowerInvariant();
-                if (IPAddress.TryParse(host, out var ip) && IsCloudflareIp(ip)) return true;
-                if (host.EndsWith(".cloudflare.com", StringComparison.OrdinalIgnoreCase) ||
-                    host.EndsWith(".cloudflareclient.com", StringComparison.OrdinalIgnoreCase) ||
-                    host.EndsWith(".workers.dev", StringComparison.OrdinalIgnoreCase) ||
-                    host.EndsWith(".pages.dev", StringComparison.OrdinalIgnoreCase) ||
-                    host.EndsWith(".trycloudflare.com", StringComparison.OrdinalIgnoreCase)) return true;
-                return text.Contains("cloudflare") || text.Contains("cloudflareclient") ||
-                       text.Contains("workers.dev") || text.Contains("pages.dev") ||
-                       text.Contains("trycloudflare.com") || text.Contains("warp://") ||
-                       IsWarpMetadata(p.Remark ?? "");
-            }
             int finalCloudflareDropped = finalProxies.RemoveAll(IsCloudflareFinal);
             if (finalCloudflareDropped > 0)
                 LogWarning($"Final-output Cloudflare/WARP safety filter dropped {finalCloudflareDropped} converted entries before any files were written.");

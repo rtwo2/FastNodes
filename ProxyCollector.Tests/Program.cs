@@ -191,7 +191,7 @@ internal static class Program
               "server_port": 443, "uuid": "01234567-89ab-cdef-0123-456789abcdef",
               "flow": "xtls-rprx-vision",
               "tls": {
-                "enabled": true, "server_name": "tls-vless.example.net",
+                "enabled": true, "server_name": "tls-vless.example.net", "insecure": true,
                 "alpn": ["h2"],
                 "utls": { "enabled": true, "fingerprint": "chrome" },
                 "reality": { "enabled": true, "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", "short_id": "01" }
@@ -207,7 +207,7 @@ internal static class Program
               "obfs": { "type": "salamander", "password": "obfs-secret" },
               "up_mbps": 30, "down_mbps": 50,
               "tls": {
-                "enabled": true, "server_name": "hy2-tls.example.net",
+                "enabled": true, "server_name": "hy2-tls.example.net", "insecure": true,
                 "alpn": ["h3"],
                 "utls": { "enabled": true, "fingerprint": "chrome" }
               }
@@ -257,6 +257,7 @@ internal static class Program
                     convertedVless.Contains("alpn=h2", StringComparison.Ordinal) &&
                     convertedVless.Contains("pbk=AAAAAAAA", StringComparison.Ordinal) &&
                     convertedVless.Contains("sid=01", StringComparison.Ordinal) &&
+                    convertedVless.Contains("allowInsecure=1", StringComparison.Ordinal) &&
                     convertedVless.Contains("flow=xtls-rprx-vision", StringComparison.Ordinal),
             "sing-box VLESS conversion retains WS Host, fingerprint, ALPN, REALITY keys and flow");
         var convertedVlessParsed = CollectorType.ParseProxyLine(convertedVless);
@@ -268,7 +269,8 @@ internal static class Program
                     convertedHy2.Contains("obfs-password=obfs-secret", StringComparison.Ordinal) &&
                     convertedHy2.Contains("upmbps=30", StringComparison.Ordinal) &&
                     convertedHy2.Contains("downmbps=50", StringComparison.Ordinal) &&
-                    convertedHy2.Contains("alpn=h3", StringComparison.Ordinal),
+                    convertedHy2.Contains("alpn=h3", StringComparison.Ordinal) &&
+                    convertedHy2.Contains("insecure=1", StringComparison.Ordinal),
             "sing-box Hysteria2 conversion retains obfuscation, ALPN and bandwidth options");
 
 
@@ -556,7 +558,7 @@ internal static class Program
 
         var flatClash = """
         proxies:
-          - {name: flow-vmess, type: vmess, server: vmess.example.net, port: 443, uuid: 01234567-89ab-cdef-0123-456789abcdef, network: ws, tls: true, sni: tls.example.net, ws-path: /socket, ws-host: ws.example.net, client-fingerprint: chrome, alpn: h2, cipher: chacha20-poly1305}
+          - {name: flow-vmess, type: vmess, server: vmess.example.net, port: 443, uuid: 01234567-89ab-cdef-0123-456789abcdef, network: ws, tls: true, skip-cert-verify: true, sni: tls.example.net, ws-path: /socket, ws-host: ws.example.net, client-fingerprint: chrome, alpn: h2, cipher: chacha20-poly1305}
           - {name: flow-ss, type: ss, server: ss.example.net, port: 8388, cipher: aes-128-gcm, password: secret, plugin: obfs-local, plugin-opts: "obfs=http;obfs-host=example.org"}
         """;
         var convertedFlatClash = CollectorType.DecodeAndExtractLines(flatClash, "https://example.net/config.yaml");
@@ -575,6 +577,8 @@ internal static class Program
                 "flow-style Clash VMess keeps client fingerprint");
             Checks.Equal("chacha20-poly1305", root.GetProperty("scy").GetString(),
                 "flow-style Clash VMess keeps cipher choice");
+            Checks.That(root.GetProperty("allowInsecure").GetBoolean(),
+                "flow-style Clash VMess keeps the certificate-verification policy");
         }
         string flatSs = convertedFlatClash.Single(x => x.StartsWith("ss://", StringComparison.Ordinal));
         Checks.That(flatSs.Contains("plugin=obfs-local", StringComparison.Ordinal) &&

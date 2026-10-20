@@ -217,6 +217,12 @@ namespace ProxyCollector.Collector
         internal static bool HasUnsafeResolvedAddress(IEnumerable<IPAddress> addresses)
             => addresses.Any(ip => IsPrivateOrReservedIp(ip) || IsFireholBlacklisted(ip));
 
+        internal static bool IsSafeDnsCanaryAnswer(IEnumerable<IPAddress> addresses)
+        {
+            var materialized = addresses.ToArray();
+            return materialized.Length > 0 && !HasUnsafeResolvedAddress(materialized);
+        }
+
         private static bool IsPlaceholderCredential(string credential)
         {
             if (string.IsNullOrEmpty(credential)) return false;
@@ -1693,7 +1699,8 @@ namespace ProxyCollector.Collector
                 {
                     try
                     {
-                        if (await Resolver.ResolveAsync(host) != null)
+                        var addresses = await Resolver.ResolveAllAsync(host);
+                        if (IsSafeDnsCanaryAnswer(addresses))
                             Interlocked.Increment(ref resolved);
                     }
                     catch
@@ -1719,7 +1726,16 @@ namespace ProxyCollector.Collector
                 .Where(h => !IPAddress.TryParse(h, out _))
                 .ToList();
             if (hosts.Count == 0) return proxies;
-            if (!await IsDnsResolverHealthyAsync()) return proxies;
+            if (!await IsDnsResolverHealthyAsync())
+            {
+                // Continuing would let later resolved-IP/TCP/Xray stages act on an
+                // untrustworthy DNS view. Abort before active probes; the workflow keeps
+                // the last committed publication instead of publishing a mass-filtered or
+                // potentially unsafe snapshot.
+                LogWarning("DNS resolver health check failed; aborting before active endpoint probes to preserve the last publication.");
+                throw new InvalidOperationException(
+                    "DNS resolver health check failed; refusing to probe or publish this run.");
+            }
 
             var dead = new ConcurrentBag<string>();
             await Parallel.ForEachAsync(hosts, new ParallelOptions { MaxDegreeOfParallelism = 100 },
@@ -1753,6 +1769,9 @@ namespace ProxyCollector.Collector
         // resolved IP (already cached from the GeoIP stage) goes through the same
         // two checks. Affirmative by definition — an endpoint inside 10/8 or a
         // hijacked range can never be a public proxy, whatever it's called.
+        internal static bool ResolvedIpFilterExceedsWarningThreshold(int badHostCount, int totalHostCount)
+            => totalHostCount > 0 && badHostCount > totalHostCount * MaxDnsDropFraction;
+
         private async Task<List<ParsedProxy>> DropBadResolvedIpsAsync(List<ParsedProxy> proxies)
         {
             var hosts = proxies.Select(p => p.Host)
@@ -1775,10 +1794,12 @@ namespace ProxyCollector.Collector
             if (bad.IsEmpty) return proxies;
 
             var badSet = bad.ToHashSet(StringComparer.OrdinalIgnoreCase);
-            if (badSet.Count > hosts.Count * MaxDnsDropFraction)   // same breaker discipline as DNS
+            if (ResolvedIpFilterExceedsWarningThreshold(badSet.Count, hosts.Count))
             {
-                LogWarning($"Resolved-IP filter: {badSet.Count}/{hosts.Count} flagged — over {MaxDnsDropFraction:P0} breaker, keeping all.");
-                return proxies;
+                // This threshold is diagnostic only. Unlike NXDOMAIN, a private/reserved/
+                // blacklisted IP is affirmative unsafe evidence, so never bypass this filter
+                // or allow the following TCP/Xray stages to probe those hosts.
+                LogWarning($"Resolved-IP filter: {badSet.Count}/{hosts.Count} hostnames resolved to unsafe addresses (over {MaxDnsDropFraction:P0}); dropping unsafe hosts and continuing only with safe endpoints.");
             }
 
             int before = proxies.Count;

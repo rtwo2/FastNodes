@@ -132,7 +132,7 @@ def validate_tree(root: pathlib.Path) -> list[str]:
             ]
             if len(lines) != len(set(lines)):
                 raise ValidationError(f"{name} contains duplicate entries")
-    for name in ("verified.txt", "everything.txt"):
+    for name in ("top.txt", "verified.txt", "everything.txt"):
         if counts.get(name, 0) == 0:
             raise ValidationError(f"{name} is empty; refusing to publish")
 
@@ -156,6 +156,27 @@ def validate_tree(root: pathlib.Path) -> list[str]:
             f"top_ipv6.txt contains {len(missing_ipv6_links)} node(s) missing from "
             f"ipv6_only.txt; sample: {sample!r}"
         )
+
+    # These feeds are all derived from the current-run final proxy pool. Unlike
+    # verified.txt, which may intentionally use a last-good snapshot, none of them
+    # should contain a link absent from everything.txt.
+    everything_links = {
+        line.strip() for line in (root / "everything.txt").read_text(encoding="utf-8-sig").splitlines()
+        if line.strip()
+    }
+    for name in ("top.txt", "ipv4_only.txt", "ipv6_only.txt"):
+        path = root / name
+        links = {
+            line.strip() for line in path.read_text(encoding="utf-8-sig").splitlines()
+            if line.strip()
+        }
+        missing = links - everything_links
+        if missing:
+            sample = next(iter(missing))[:120]
+            raise ValidationError(
+                f"{name} contains {len(missing)} node(s) missing from everything.txt; "
+                f"sample: {sample!r}"
+            )
 
     report.insert(0, "Validated subscriptions: " + " ".join(
         f"{name}={counts.get(name, 0)}" for name in REQUIRED
@@ -201,6 +222,34 @@ def self_test() -> None:
                 '  - name: "WG test 2"\n    type: wireguard\n    server: "198.51.100.2"\n    port: 123\n')
         (root / "wireguard.txt").write_text(yaml, encoding="utf-8")
         validate_tree(root)
+
+        rogue_link = "vless://rogue@example.net:443?security=tls"
+        for name in ("top.txt", "ipv4_only.txt", "ipv6_only.txt"):
+            path = root / name
+            original = path.read_text(encoding="utf-8")
+            path.write_text(original + rogue_link + "\n", encoding="utf-8")
+            try:
+                validate_tree(root)
+            except ValidationError as exc:
+                if f"{name} contains " not in str(exc) or "missing from everything.txt" not in str(exc):
+                    raise
+            else:
+                raise ValidationError(f"self-test failed to catch {name} entries missing from everything.txt")
+            finally:
+                path.write_text(original, encoding="utf-8")
+
+        original_top = (root / "top.txt").read_text(encoding="utf-8")
+        (root / "top.txt").write_text("\n  \n", encoding="utf-8")
+        try:
+            validate_tree(root)
+        except ValidationError as exc:
+            if "top.txt is empty" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to catch a blank-only top.txt")
+        finally:
+            (root / "top.txt").write_text(original_top, encoding="utf-8")
+
         (root / "ipv6_only.txt").write_text(good[0] + "\n", encoding="utf-8")
         try:
             validate_tree(root)

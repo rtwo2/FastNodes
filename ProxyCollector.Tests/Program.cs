@@ -490,6 +490,18 @@ internal static class Program
         Checks.Equal("🌐 Unknown (XX) - Unknown | [2001:4860:4860::8888]:443",
             CollectorType.BuildClientNodeName("XX", "🌐 Unknown", "2001:4860:4860::8888", "443"),
             "unknown GeoIP labels and IPv6 endpoints remain well-formed");
+        Checks.Equal("🇩🇪 Germany (DE) - Frankfurt am Main | edge.example.net:443",
+            CollectorType.BuildFallbackNodeName("🇩🇪 Frankfurt am Main, DE · Hetzner Online · abc123",
+                "edge.example.net", "443"),
+            "legacy verified snapshot remarks migrate to the new country-city-endpoint format");
+        Checks.Equal("🇩🇪 Germany (DE) - Unknown | edge.example.net:443",
+            CollectorType.BuildFallbackNodeName("🇩🇪 Germany · Hetzner Online",
+                "edge.example.net", "443"),
+            "country-level legacy remarks do not invent a city");
+        Checks.Equal("🇩🇪 Germany (DE) - Frankfurt am Main | edge.example.net:443",
+            CollectorType.BuildFallbackNodeName("🇩🇪 Germany (DE) - Frankfurt am Main | old.example.net:8443",
+                "edge.example.net", "443"),
+            "already-renamed fallback remarks are normalized to the current endpoint");
 
 
         var multiCityGeo = new[]

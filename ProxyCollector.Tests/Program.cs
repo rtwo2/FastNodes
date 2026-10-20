@@ -411,6 +411,10 @@ internal static class Program
             "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?security=tls&sni=front.example.net")!;
         Checks.Equal(explicitSniA.EndpointKey("192.0.2.1"), explicitSniB.EndpointKey("192.0.2.1"),
             "aliases with the same explicit TLS SNI remain eligible for collapse");
+        var nonTlsAliasA = CollectorType.ParseProxyLine("socks5://one.example.net:1080")!;
+        var nonTlsAliasB = CollectorType.ParseProxyLine("socks5://two.example.net:1080")!;
+        Checks.Equal(nonTlsAliasA.EndpointKey("192.0.2.1"), nonTlsAliasB.EndpointKey("192.0.2.1"),
+            "non-TLS aliases remain eligible for collapse when their resolved endpoint matches");
 
         var dualStack = new[]
         {

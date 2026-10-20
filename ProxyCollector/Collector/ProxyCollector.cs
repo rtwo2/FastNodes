@@ -1519,7 +1519,7 @@ namespace ProxyCollector.Collector
             // possible set — alias-merged spelling variants never get probed twice.
             alive = await DropDnsDeadHostsAsync(alive);
             alive = await DropBadResolvedIpsAsync(alive);
-            alive = await CollapseHostAliasesAsync(alive);
+            alive = await CollapseHostAliasesAsync(alive, keySources);
             alive = await DropTcpRefusedAsync(alive);
             LogInfo($"After dead-node & alias filters: {alive.Count} remain");
             GroupEnd();
@@ -1776,37 +1776,87 @@ namespace ProxyCollector.Collector
         //   - different ports on one host (separate inbounds; one may survive when
         //     the censor blocks the other)
         //   - different credentials on one host:port (different access)
-        //   - different SNI/path/REALITY keys (fronting & transport variants)
-        private async Task<List<ParsedProxy>> CollapseHostAliasesAsync(List<ParsedProxy> proxies)
+        //   - different effective SNI or implicit WS/H2 Host values, paths, or REALITY keys
+        internal static string BuildAliasCanonicalHost(
+            string host, IEnumerable<IPAddress> resolvedAddresses)
+        {
+            static string NormalizeAddress(IPAddress address) =>
+                address.IsIPv4MappedToIPv6 ? address.MapToIPv4().ToString() : address.ToString();
+
+            if (IPAddress.TryParse(host, out var literal))
+                return NormalizeAddress(literal);
+
+            // Only treat a hostname as an alias of a literal when its complete resolved
+            // address set contains exactly that one address. Sharing just one A/AAAA
+            // record is not enough: multi-homed hosts may lead to different backends.
+            var addresses = resolvedAddresses
+                .Select(NormalizeAddress)
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(address => address, StringComparer.Ordinal)
+                .ToArray();
+            if (addresses.Length == 0)
+                return "unresolved|" + (host ?? "").Trim().ToLowerInvariant();
+            if (addresses.Length == 1)
+                return addresses[0];
+            return "multi[" + string.Join(",", addresses) + "]";
+        }
+
+        internal static void MergeAliasMetadata(
+            ParsedProxy kept, ParsedProxy duplicate, IEnumerable<string> combinedSources)
+        {
+            int distinctSources = combinedSources.Distinct(StringComparer.OrdinalIgnoreCase).Count();
+            kept.SourceCount = Math.Max(Math.Max(kept.SourceCount, duplicate.SourceCount), distinctSources);
+            kept.IranTested |= duplicate.IranTested;
+        }
+
+        private async Task<List<ParsedProxy>> CollapseHostAliasesAsync(
+            List<ParsedProxy> proxies,
+            IReadOnlyDictionary<string, HashSet<string>> keySources)
         {
             var index = new Dictionary<string, int>(StringComparer.Ordinal);
+            var aliasSources = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
             var kept = new List<ParsedProxy>();
             int collapsed = 0;
 
             foreach (var p in proxies)   // input is deterministically sorted
             {
-                string canonical;
-                if (IPAddress.TryParse(p.Host, out var literal))
-                    canonical = literal.ToString();
-                else
-                {
-                    var ip = await Resolver.ResolveAsync(p.Host);   // cache hit — GeoIP resolved these
-                    canonical = ip?.ToString() ?? "unresolved|" + p.Host.Trim().ToLowerInvariant();
-                }
+                IPAddress[] addresses = IPAddress.TryParse(p.Host, out var literal)
+                    ? new[] { literal }
+                    : await Resolver.ResolveAllAsync(p.Host); // full cached A/AAAA set
+                string canonical = BuildAliasCanonicalHost(p.Host, addresses);
 
                 string key = p.EndpointKey(canonical);
                 if (index.TryGetValue(key, out var pos))
                 {
                     collapsed++;
-                    // Upgrade: if the kept form is a bare IP and this one is a hostname,
-                    // swap it in — the hostname spelling is strictly better for clients.
-                    if (IPAddress.TryParse(kept[pos].Host, out _) && !IPAddress.TryParse(p.Host, out _))
+                    if (!aliasSources.TryGetValue(key, out var sources))
+                        aliasSources[key] = sources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    if (keySources.TryGetValue(p.DeduplicationKey, out var duplicateSources))
+                        sources.UnionWith(duplicateSources);
+
+                    // Alias collapse must preserve metadata gathered before DNS canonicalization:
+                    // otherwise source consensus and source-tested evidence disappear with the
+                    // discarded spelling variant. Union exact source URLs to avoid double counts.
+                    var keptProxy = kept[pos];
+                    if (IPAddress.TryParse(keptProxy.Host, out _) && !IPAddress.TryParse(p.Host, out _))
+                    {
+                        MergeAliasMetadata(p, keptProxy, sources);
                         kept[pos] = p;
+                    }
+                    else
+                    {
+                        MergeAliasMetadata(keptProxy, p, sources);
+                    }
                 }
                 else
                 {
                     index[key] = kept.Count;
                     kept.Add(p);
+                    var sources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    if (keySources.TryGetValue(p.DeduplicationKey, out var nodeSources))
+                        sources.UnionWith(nodeSources);
+                    aliasSources[key] = sources;
+                    p.SourceCount = Math.Max(p.SourceCount, sources.Count);
                 }
             }
 
@@ -3502,8 +3552,28 @@ namespace ProxyCollector.Collector
         public string EndpointKey(string canonicalHost)
         {
             string portKey = int.TryParse(Port, out int pn) ? pn.ToString() : Port.Trim();
-            string sniKey  = string.IsNullOrEmpty(Sni) ? canonicalHost : Sni.Trim().ToLowerInvariant();
-            return $"{NP(Protocol)}:{canonicalHost.ToLowerInvariant()}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";        }
+            string protocol = NP(Protocol);
+            bool implicitTlsSni = !string.IsNullOrEmpty(Security) ||
+                protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
+            // When TLS is enabled and SNI is omitted, clients use the original host as
+            // the effective SNI. Do not merge different TLS hostnames just because they
+            // resolve to the same IP; that can silently discard a working TLS virtual host.
+            string sniKey = !string.IsNullOrEmpty(Sni)
+                ? Sni.Trim().ToLowerInvariant()
+                : implicitTlsSni ? Host.Trim().ToLowerInvariant() : canonicalHost;
+            // WebSocket/HTTP-upgrade Host defaults to the endpoint hostname; H2 also
+            // uses it when SNI/host is omitted. Keep those implicit host identities distinct
+            // to avoid merging different virtual hosts. For WS/HTTP-upgrade this is
+            // conservative even when an explicit Host override is present.
+            bool implicitTransportHost =
+                Network.Equals("ws", StringComparison.OrdinalIgnoreCase) ||
+                Network.Equals("httpupgrade", StringComparison.OrdinalIgnoreCase) ||
+                (Network.Equals("h2", StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(Sni));
+            string endpointKeyHost = implicitTransportHost
+                ? Host.Trim().ToLowerInvariant()
+                : canonicalHost.ToLowerInvariant();
+            return $"{protocol}:{endpointKeyHost}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";
+        }
 
         // Case handling in the credential part of the dedup key. The old blanket
         // Credential.ToLowerInvariant() was right for UUIDs (hex, case-insensitive) but

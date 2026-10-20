@@ -428,6 +428,56 @@ internal static class Program
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443#good", "https://example.com/sub").Count,
             "Valid subscription URI extraction remains enabled");
 
+        var aliasMetadataKept = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@192.0.2.1:443?security=tls")!;
+        var aliasMetadataDuplicate = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@node.example.net:443?security=tls")!;
+        aliasMetadataKept.SourceCount = 1;
+        aliasMetadataDuplicate.SourceCount = 1;
+        aliasMetadataDuplicate.IranTested = true;
+        CollectorType.MergeAliasMetadata(aliasMetadataKept, aliasMetadataDuplicate,
+            new[] { "source-a", "source-b", "source-a" });
+        Checks.Equal(2, aliasMetadataKept.SourceCount,
+            "alias collapse retains distinct-source consensus without double-counting overlapping sources");
+        Checks.That(aliasMetadataKept.IranTested,
+            "alias collapse preserves source-tested evidence from either spelling");
+
+        var implicitSniA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@one.example.net:443?security=tls")!;
+        var implicitSniB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?security=tls")!;
+        Checks.That(implicitSniA.EndpointKey("192.0.2.1") != implicitSniB.EndpointKey("192.0.2.1"),
+            "alias identity preserves different implicit TLS SNI hostnames sharing one resolved IP");
+        var explicitSniA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@one.example.net:443?security=tls&sni=front.example.net")!;
+        var explicitSniB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?security=tls&sni=front.example.net")!;
+        Checks.Equal(explicitSniA.EndpointKey("192.0.2.1"), explicitSniB.EndpointKey("192.0.2.1"),
+            "aliases with the same explicit TLS SNI remain eligible for collapse");
+        var nonTlsAliasA = CollectorType.ParseProxyLine("socks5://one.example.net:1080")!;
+        var nonTlsAliasB = CollectorType.ParseProxyLine("socks5://two.example.net:1080")!;
+        Checks.Equal(nonTlsAliasA.EndpointKey("192.0.2.1"), nonTlsAliasB.EndpointKey("192.0.2.1"),
+            "non-TLS aliases remain eligible for collapse when their resolved endpoint matches");
+
+        var wsImplicitHostA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@one.example.net:443?security=tls&type=ws&sni=front.example.net&path=%2Fws")!;
+        var wsImplicitHostB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?security=tls&type=ws&sni=front.example.net&path=%2Fws")!;
+        Checks.That(wsImplicitHostA.EndpointKey("192.0.2.1") != wsImplicitHostB.EndpointKey("192.0.2.1"),
+            "different implicit WebSocket Host values remain distinct even with the same explicit TLS SNI");
+        var h2ImplicitHostA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@one.example.net:443?type=h2&path=%2F")!;
+        var h2ImplicitHostB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?type=h2&path=%2F")!;
+        Checks.That(h2ImplicitHostA.EndpointKey("192.0.2.1") != h2ImplicitHostB.EndpointKey("192.0.2.1"),
+            "different implicit H2 host values remain distinct when SNI is omitted");
+        var upgradeImplicitHostA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@one.example.net:443?type=httpupgrade&path=%2F")!;
+        var upgradeImplicitHostB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?type=httpupgrade&path=%2F")!;
+        Checks.That(upgradeImplicitHostA.EndpointKey("192.0.2.1") != upgradeImplicitHostB.EndpointKey("192.0.2.1"),
+            "different implicit HTTP-upgrade Host values remain distinct");
+
         var dualStack = new[]
         {
             System.Net.IPAddress.Parse("198.51.100.7"),
@@ -440,6 +490,26 @@ internal static class Program
         Checks.That(!CollectorType.HasAddressFamily(new[] { System.Net.IPAddress.Parse("198.51.100.7") },
                 System.Net.Sockets.AddressFamily.InterNetworkV6),
             "IPv4-only host is not included in IPv6-capable outputs");
+
+        var singleAliasAddress = System.Net.IPAddress.Parse("192.0.2.1");
+        string singleAliasKey = CollectorType.BuildAliasCanonicalHost(
+            "single.example.net", new[] { singleAliasAddress });
+        string literalAliasKey = CollectorType.BuildAliasCanonicalHost(
+            "192.0.2.1", new[] { singleAliasAddress });
+        Checks.Equal(literalAliasKey, singleAliasKey,
+            "a single-address hostname and its IP literal remain eligible for alias collapse");
+        var dualStackAliasAddresses = new[]
+        {
+            System.Net.IPAddress.Parse("192.0.2.1"),
+            System.Net.IPAddress.Parse("2001:db8::1")
+        };
+        string dualStackAliasKey = CollectorType.BuildAliasCanonicalHost(
+            "dual.example.net", dualStackAliasAddresses);
+        Checks.That(dualStackAliasKey != literalAliasKey,
+            "a multi-homed hostname is not collapsed into a literal that matches only one of its addresses");
+        Checks.Equal(dualStackAliasKey, CollectorType.BuildAliasCanonicalHost(
+                "another-dual.example.net", dualStackAliasAddresses.Reverse()),
+            "multi-homed alias identity is stable regardless of DNS answer ordering");
 
         var mappedV4 = System.Net.IPAddress.Parse("::ffff:65.109.219.162");
         Checks.That(CollectorType.HasAddressFamily(new[] { mappedV4 },

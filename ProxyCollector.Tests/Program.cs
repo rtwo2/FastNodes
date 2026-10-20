@@ -231,7 +231,7 @@ internal static class Program
         var convertedSingbox = CollectorType.DecodeAndExtractLines(
             singboxJson, "https://example.net/config.json");
         Checks.Equal(6, convertedSingbox.Count,
-            "sing-box conversion preserves VMess, VLESS, Hysteria2 and plugin-based Shadowsocks outbounds");
+            "sing-box conversion preserves VMess, VLESS, Hysteria2, plugin-based Shadowsocks and authenticated/unauthenticated SOCKS outbounds");
         string convertedVmess = convertedSingbox.Single(x => x.StartsWith("vmess://", StringComparison.Ordinal));
         string convertedVmessJson = Encoding.UTF8.GetString(Convert.FromBase64String(convertedVmess["vmess://".Length..]));
         using (var convertedVmessDoc = JsonDocument.Parse(convertedVmessJson))

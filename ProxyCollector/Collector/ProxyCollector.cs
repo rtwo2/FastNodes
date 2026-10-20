@@ -1929,7 +1929,7 @@ namespace ProxyCollector.Collector
         {
             if (maxCount <= 0) return new List<ParsedProxy>();
 
-            // Evidence first: current independent liveness, then source consensus.
+            // Evidence first: current liveness evidence, then distinct-source consensus.
             // Geography is only a tie-breaker, so a nearby single-source node cannot
             // outrank a far-away node supported by substantially more independent feeds.
             return proxies

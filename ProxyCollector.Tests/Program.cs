@@ -140,6 +140,15 @@ internal static class Program
         Checks.That(!CollectorType.AllResolvedEndpointsRefused(Array.Empty<IPAddress>(), 443, refusedEndpoints),
             "an empty DNS answer is inconclusive, not evidence of a refused endpoint");
 
+        Checks.That(!CollectorType.IsValidWireguardLink(
+                "wireguard://privatekey@wg.example.net:51820?pk=not-a-key"),
+            "WireGuard links with invalid key material are rejected before entering output feeds");
+        string validWgPrivateKey = Convert.ToBase64String(Enumerable.Range(1, 32).Select(i => (byte)i).ToArray());
+        string validWgPublicKey = Convert.ToBase64String(Enumerable.Range(33, 32).Select(i => (byte)i).ToArray());
+        string validWgLink = $"wireguard://{Uri.EscapeDataString(validWgPrivateKey)}@wg.example.net:51820?pk={Uri.EscapeDataString(validWgPublicKey)}&ip=10.0.0.2%2F32";
+        Checks.That(CollectorType.IsValidWireguardLink(validWgLink),
+            "valid WireGuard key material remains eligible for output feeds");
+
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");
         Checks.That(ipv6 is not null, "VLESS IPv6 link parses");

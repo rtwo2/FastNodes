@@ -28,7 +28,8 @@ namespace ProxyCollector.Collector
             string finalDirectory, string stagingDirectory, string backupDirectory,
             Action<string, string>? moveDirectory = null)
         {
-            Action<string, string> move = moveDirectory ?? Directory.Move;
+            Action<string, string> move = moveDirectory;
+            if (move is null) move = Directory.Move;
             bool movedOldTree = false;
             if (Directory.Exists(finalDirectory))
             {

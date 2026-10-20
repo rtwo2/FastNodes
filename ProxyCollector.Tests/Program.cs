@@ -20,6 +20,8 @@ internal static class Program
             "IPv6 multicast address is rejected as a public proxy endpoint");
         Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("2001:4860:4860::8888")),
             "public IPv6 unicast address remains eligible");
+        Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("2001:4860:4860:4860:4860:ffff:a00:1")),
+            "a global IPv6 address containing an ffff hextet is not mistaken for IPv4-mapped private space");
         foreach (var address in new[]
         {
             "0.0.0.0", "10.1.2.3", "100.64.0.1", "127.0.0.1", "169.254.1.1",
@@ -95,6 +97,26 @@ internal static class Program
         Checks.That(flowA is not null && flowB is not null, "VLESS flow variants parse");
         Checks.That(flowA!.DeduplicationKey != flowB!.DeduplicationKey,
             "Deduplication preserves materially different VLESS flow values");
+        var upperPath = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&type=ws&path=%2FABC&pbk=AbCd");
+        var lowerPath = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&type=ws&path=%2Fabc&pbk=AbCd");
+        Checks.That(upperPath is not null && lowerPath is not null &&
+                    upperPath.DeduplicationKey != lowerPath.DeduplicationKey &&
+                    upperPath.EndpointKey("203.0.113.10") != lowerPath.EndpointKey("203.0.113.10"),
+            "Deduplication preserves case-sensitive transport paths");
+        var upperPbk = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&pbk=AbCd");
+        var lowerPbk = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&pbk=abcd");
+        Checks.That(upperPbk is not null && lowerPbk is not null &&
+                    upperPbk.DeduplicationKey != lowerPbk.DeduplicationKey &&
+                    upperPbk.EndpointKey("203.0.113.10") != lowerPbk.EndpointKey("203.0.113.10"),
+            "Deduplication preserves case-sensitive REALITY public keys");
+        Checks.That(CollectorType.HasWarpRemark("vless://uuid@example.com:443#WARP+"),
+            "WARP-labelled subscription remarks are detected during fallback sanitization");
+        Checks.That(!CollectorType.HasWarpRemark("vless://uuid@example.com:443#warpath"),
+            "ordinary words containing warp are not treated as WARP labels");
 
         var passwordA = CollectorType.ParseProxyLine("trojan://CaseSensitive@example.com:443?sni=example.com");
         var passwordB = CollectorType.ParseProxyLine("trojan://casesensitive@example.com:443?sni=example.com");
@@ -115,6 +137,10 @@ internal static class Program
             "<a href=\"vless://My-chanel-Telegram-ATOVPN @167.104.219.12:35671#bad\">proxy</a>",
             "https://example.com/page.html").Count,
             "HTML extraction does not salvage a malformed URI prefix before whitespace-at");
+        Checks.Equal(1, CollectorType.DecodeAndExtractLines(
+            "<a href=\"vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=tls#ipv6\">proxy</a>",
+            "https://example.com/page.html").Count,
+            "HTML extraction preserves bracketed IPv6 proxy endpoints");
         Checks.Equal(1, CollectorType.DecodeAndExtractLines(
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443#good", "https://example.com/sub").Count,
             "Valid subscription URI extraction remains enabled");

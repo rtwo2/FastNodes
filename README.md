@@ -11,6 +11,8 @@
 A global collection of public V2Ray/Xray-compatible configurations.  
 **Pick a subscription, copy the URL, and import it into your client.**
 
+Generated node names use `flag Country (CC) - City | host:port`, with the two-letter ISO country code in parentheses. IPv6 literals are bracketed, and duplicate visible names receive a trailing `2`, `3`, and so on.
+
 [Subscriptions](#subscriptions) · [Choose a list](#which-list-should-i-use) · [Import guide](#import) · [All outputs](#more-subscriptions)
 
 </div>

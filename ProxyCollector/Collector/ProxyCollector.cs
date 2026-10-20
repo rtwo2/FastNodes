@@ -63,7 +63,7 @@ namespace ProxyCollector.Collector
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly Regex SchemeHtmlRegex = new(
-            $@"(?<![a-zA-Z])({SchemeAlternation})://(?>[^\s""'<>\[\]]+)(?!\s*@)",
+            $@"(?<![a-zA-Z])({SchemeAlternation})://(?>[^\s""'<>]+)(?!\s*@)",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         // ====================== HOST FILTER (EXACT/SUFFIX ONLY) ======================
@@ -124,14 +124,11 @@ namespace ProxyCollector.Collector
         {
             var b = ip.GetAddressBytes();
 
-            // IPv4-mapped IPv6 (::ffff:a.b.c.d): bytes [10] and [11] are both 0xFF,
-            // with the embedded IPv4 in bytes [12..16]. Re-check as plain IPv4 so
-            // mapped private, multicast, and reserved IPv4 ranges cannot slip through.
-            if (ip.AddressFamily == AddressFamily.InterNetworkV6 && b.Length == 16
-                && b[10] == 0xFF && b[11] == 0xFF)
-            {
+            // Only the actual ::ffff:0:0/96 IPv4-mapped range should be mapped.
+            // Checking bytes 10–11 alone misclassifies unrelated global IPv6 addresses
+            // whose sixth hextet happens to be ffff.
+            if (ip.IsIPv4MappedToIPv6)
                 return IsPrivateOrReservedIp(ip.MapToIPv4());
-            }
 
             if (ip.AddressFamily == AddressFamily.InterNetwork)
             {
@@ -637,6 +634,12 @@ namespace ProxyCollector.Collector
             catch { }
             // Match WARP/WARP+ as a distinct label, not ordinary words such as "warpath".
             return Regex.IsMatch(value, @"(?<![a-z0-9])warp(?:\+)?(?![a-z0-9])", RegexOptions.IgnoreCase);
+        }
+
+        internal static bool HasWarpRemark(string link)
+        {
+            int hash = (link ?? "").IndexOf('#');
+            return hash >= 0 && IsWarpMetadata(link[(hash + 1)..]);
         }
 
         private static bool IsCloudflareMetadata(ParsedProxy p)
@@ -3076,7 +3079,7 @@ namespace ProxyCollector.Collector
                 // v6.12: Flow and ObfsPassword appended — see ParseProxyLine. Without them,
                 // "vless://u@h:443?flow=xtls-rprx-vision" and "vless://u@h:443" collapsed
                 // into one key and one variant was silently lost.
-                return $"{NP(Protocol)}:{hostKey}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path.Trim().ToLowerInvariant()}:{Pbk.ToLowerInvariant()}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}";
+                return $"{NP(Protocol)}:{hostKey}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}";
             }
         }
 		
@@ -3087,7 +3090,7 @@ namespace ProxyCollector.Collector
         {
             string portKey = int.TryParse(Port, out int pn) ? pn.ToString() : Port.Trim();
             string sniKey  = string.IsNullOrEmpty(Sni) ? canonicalHost : Sni.Trim().ToLowerInvariant();
-            return $"{NP(Protocol)}:{canonicalHost.ToLowerInvariant()}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path.Trim().ToLowerInvariant()}:{Pbk.ToLowerInvariant()}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}";        }
+            return $"{NP(Protocol)}:{canonicalHost.ToLowerInvariant()}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}";        }
 
         // Case handling in the credential part of the dedup key. The old blanket
         // Credential.ToLowerInvariant() was right for UUIDs (hex, case-insensitive) but

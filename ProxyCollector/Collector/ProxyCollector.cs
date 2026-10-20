@@ -1366,7 +1366,7 @@ namespace ProxyCollector.Collector
             // and REALITY public keys.
             var seen = new HashSet<string>(StringComparer.Ordinal);
             var uniqueProxies = new List<ParsedProxy>();
-            int processed = 0, badHostFiltered = 0, placeholderFiltered = 0, emptyCredFiltered = 0;
+            int processed = 0, badHostFiltered = 0, placeholderFiltered = 0, emptyCredFiltered = 0, invalidWireguardFiltered = 0;
 
             // v6.13: byKey maps dedup key → kept node, so a DUPLICATE arriving from an
             // explicitly Iran-tested source can upgrade the kept node's trust flag.
@@ -1401,6 +1401,11 @@ namespace ProxyCollector.Collector
                 if (CredentialRequiredProtocols.Contains(NormalizeProto(p.Protocol)) &&
                     string.IsNullOrEmpty(p.Credential)) { emptyCredFiltered++; continue; }
                 if (!int.TryParse(p.Port, out int portNum) || portNum <= 0 || portNum > 65535) { badHostFiltered++; continue; }
+                if (NormalizeProto(p.Protocol) == "wireguard" && !IsValidWireguardLink(p.BaseLink))
+                {
+                    invalidWireguardFiltered++;
+                    continue;
+                }
 
                 string key = p.DeduplicationKey;
                 if (seen.Add(key))
@@ -1426,7 +1431,7 @@ namespace ProxyCollector.Collector
                         keptTrust.IranTested = true;   // duplicate from a tested source — trust upgrades the kept node
                 }
             }
-            LogInfo($"After smart dedup: {uniqueProxies.Count} unique ({badHostFiltered} bad host/port, {placeholderFiltered} placeholder credential, {emptyCredFiltered} empty credential filtered)");
+            LogInfo($"After smart dedup: {uniqueProxies.Count} unique ({badHostFiltered} bad host/port, {placeholderFiltered} placeholder credential, {emptyCredFiltered} empty credential, {invalidWireguardFiltered} invalid WireGuard filtered)");
             GroupEnd();
 
             // v6.12: source yield report. Turns source-list maintenance from guesswork

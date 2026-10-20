@@ -26,6 +26,18 @@ internal static class Program
         Checks.Equal(4, distinctSources.Length,
             "source dedup normalizes host case and equivalent GitHub raw URLs without folding path or query-value case");
 
+        var invalidDatabasePath = Path.Combine(Path.GetTempPath(), $"fastnodes-invalid-{Guid.NewGuid():N}.mmdb");
+        try
+        {
+            File.WriteAllText(invalidDatabasePath, "interrupted download or HTML error body");
+            Checks.That(!CollectorType.IsValidGeoIpDatabase(invalidDatabasePath),
+                "a non-empty invalid GeoIP file must not be treated as a valid cached database");
+        }
+        finally
+        {
+            if (File.Exists(invalidDatabasePath)) File.Delete(invalidDatabasePath);
+        }
+
 
         Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.IPv6Any),
             "IPv6 unspecified address is rejected as a public proxy endpoint");

@@ -419,7 +419,7 @@ namespace ProxyCollector.Collector
             {
                 var parsed = ParseProxyLine(link);
                 if (parsed is null) continue;
-                string baseName = BuildFallbackNodeName(parsed.Remark, parsed.Host, parsed.Port);
+                string baseName = BuildFallbackNodeName(GetLinkRemark(link), parsed.Host, parsed.Port);
                 occurrences.TryGetValue(baseName, out int occurrence);
                 occurrence++;
                 occurrences[baseName] = occurrence;
@@ -427,6 +427,15 @@ namespace ProxyCollector.Collector
                 renamed.Add(BuildCleanLink(parsed, remark));
             }
             return renamed;
+        }
+
+        internal static string GetLinkRemark(string link)
+        {
+            int hash = link.IndexOf('#');
+            if (hash < 0 || hash == link.Length - 1) return string.Empty;
+            string fragment = link[(hash + 1)..];
+            try { return Uri.UnescapeDataString(fragment); }
+            catch { return fragment; }
         }
 
         internal static string BuildFallbackNodeName(string oldRemark, string host, string port)

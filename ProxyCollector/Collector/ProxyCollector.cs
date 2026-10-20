@@ -217,7 +217,13 @@ namespace ProxyCollector.Collector
             => addresses.Any(ip => IsPrivateOrReservedIp(ip) || IsFireholBlacklisted(ip));
 
         private static bool IsPlaceholderCredential(string credential)
-            => !string.IsNullOrEmpty(credential) && PlaceholderCredentialPattern.IsMatch(credential.Trim());
+        {
+            if (string.IsNullOrEmpty(credential)) return false;
+            string normalized = credential.Trim();
+            try { normalized = Uri.UnescapeDataString(normalized); }
+            catch { /* malformed escapes remain subject to the ordinary pattern check */ }
+            return PlaceholderCredentialPattern.IsMatch(normalized);
+        }
 
         internal static bool IsPlaceholderCredential(string protocol, string credential)
         {

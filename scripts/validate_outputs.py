@@ -132,7 +132,7 @@ def validate_tree(root: pathlib.Path) -> list[str]:
             ]
             if len(lines) != len(set(lines)):
                 raise ValidationError(f"{name} contains duplicate entries")
-    for name in ("verified.txt", "everything.txt"):
+    for name in ("top.txt", "verified.txt", "everything.txt"):
         if counts.get(name, 0) == 0:
             raise ValidationError(f"{name} is empty; refusing to publish")
 
@@ -237,6 +237,18 @@ def self_test() -> None:
                 raise ValidationError(f"self-test failed to catch {name} entries missing from everything.txt")
             finally:
                 path.write_text(original, encoding="utf-8")
+
+        original_top = (root / "top.txt").read_text(encoding="utf-8")
+        (root / "top.txt").write_text("\n  \n", encoding="utf-8")
+        try:
+            validate_tree(root)
+        except ValidationError as exc:
+            if "top.txt is empty" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to catch a blank-only top.txt")
+        finally:
+            (root / "top.txt").write_text(original_top, encoding="utf-8")
 
         (root / "ipv6_only.txt").write_text(good[0] + "\n", encoding="utf-8")
         try:

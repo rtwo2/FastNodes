@@ -216,14 +216,30 @@ internal static class Program
               "type": "shadowsocks", "tag": "ss-plugin", "server": "ss.example.net",
               "server_port": 8388, "method": "aes-128-gcm", "password": "secret",
               "plugin": "obfs-local", "plugin_opts": "obfs=http;obfs-host=example.org"
+            },
+            {
+              "type": "socks", "tag": "socks-auth", "server": "socks.example.net",
+              "server_port": 1080, "username": "user", "password": "p@ss"
+            },
+            {
+              "type": "socks", "tag": "socks-open", "server": "open-socks.example.net",
+              "server_port": 1081
+            },
+            {
+              "type": "socks", "tag": "socks4-user", "server": "socks4.example.net",
+              "server_port": 1082, "version": "4", "username": "legacy-user"
+            },
+            {
+              "type": "socks", "tag": "socks-v6", "server": "2001:4860:4860::8888",
+              "server_port": 1083
             }
           ]
         }
         """;
         var convertedSingbox = CollectorType.DecodeAndExtractLines(
             singboxJson, "https://example.net/config.json");
-        Checks.Equal(4, convertedSingbox.Count,
-            "sing-box conversion preserves VMess, VLESS, Hysteria2 and plugin-based Shadowsocks outbounds");
+        Checks.Equal(8, convertedSingbox.Count,
+            "sing-box conversion preserves VMess, VLESS, Hysteria2, plugin-based Shadowsocks, SOCKS4 and SOCKS5 outbounds including IPv6");
         string convertedVmess = convertedSingbox.Single(x => x.StartsWith("vmess://", StringComparison.Ordinal));
         string convertedVmessJson = Encoding.UTF8.GetString(Convert.FromBase64String(convertedVmess["vmess://".Length..]));
         using (var convertedVmessDoc = JsonDocument.Parse(convertedVmessJson))
@@ -251,6 +267,19 @@ internal static class Program
             "Shadowsocks SIP002 plugin and plugin options survive sing-box conversion");
         Checks.That(CollectorType.ParseProxyLine(convertedSs) is not null,
             "converted plugin-based Shadowsocks link remains parseable");
+        string convertedSocksAuth = convertedSingbox.Single(x => x.StartsWith("socks5://user:p%40ss@", StringComparison.Ordinal));
+        Checks.That(CollectorType.ParseProxyLine(convertedSocksAuth) is not null &&
+                    convertedSocksAuth.Contains("socks.example.net:1080", StringComparison.Ordinal),
+            "sing-box authenticated SOCKS outbound preserves credentials and endpoint");
+        string convertedSocksOpen = convertedSingbox.Single(x => x.StartsWith("socks5://open-socks.example.net:1081", StringComparison.Ordinal));
+        Checks.That(CollectorType.ParseProxyLine(convertedSocksOpen) is not null,
+            "sing-box credential-less SOCKS outbound remains supported");
+        string convertedSocks4 = convertedSingbox.Single(x => x.StartsWith("socks4://legacy-user@socks4.example.net:1082", StringComparison.Ordinal));
+        Checks.That(CollectorType.ParseProxyLine(convertedSocks4) is not null,
+            "sing-box version-4 SOCKS outbound retains SOCKS4 semantics and user ID");
+        string convertedSocksV6 = convertedSingbox.Single(x => x.StartsWith("socks5://[2001:4860:4860::8888]:1083", StringComparison.Ordinal));
+        Checks.That(CollectorType.ParseProxyLine(convertedSocksV6) is not null,
+            "sing-box SOCKS conversion brackets IPv6 endpoints so the generated URI remains parseable");
         string convertedVless = convertedSingbox.Single(x => x.StartsWith("vless://", StringComparison.Ordinal));
         Checks.That(convertedVless.Contains("host=ws-vless.example.net", StringComparison.Ordinal) &&
                     convertedVless.Contains("fp=chrome", StringComparison.Ordinal) &&

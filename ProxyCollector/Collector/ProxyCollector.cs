@@ -3112,6 +3112,7 @@ namespace ProxyCollector.Collector
                             "tuic" when !string.IsNullOrEmpty(uuid) && !string.IsNullOrEmpty(password) =>
                                 $"tuic://{Uri.EscapeDataString(uuid)}:{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("congestion_control", GetJsonString(ob, "congestion_control", "bbr")), ("udp_relay_mode", GetJsonString(ob, "udp_relay_mode", "native")), ("alpn", alpn), ("sni", sni), ("allowInsecure", allowInsecure ? "1" : ""), ("zero_rtt_handshake", zeroRttHandshake ? "1" : ""))}#{remark}",
                             "shadowsocks" => BuildSsLinkFromJson(ob, uriServer, port, remark),
+                            "socks" => BuildSocksLinkFromJson(ob, uriServer, port, remark),
                             _ => null
                         };
                         if (link != null) results.Add(link);
@@ -3132,6 +3133,39 @@ namespace ProxyCollector.Collector
                 JsonValueKind.Number or JsonValueKind.True or JsonValueKind.False => value.ToString(),
                 _ => fallback
             };
+        }
+
+        // sing-box represents SOCKS outbounds as structured fields rather than a URI.
+        // Convert them to the collector's accepted socks5:// form, preserving optional
+        // authentication and the outbound tag. A credential-less SOCKS proxy is valid.
+        private static string? BuildSocksLinkFromJson(JsonElement ob, string server, int port, string remark)
+        {
+            // sing-box defaults SOCKS to version 5, but version 4 is also supported.
+            // Preserve that distinction; a SOCKS4 URI must not silently become SOCKS5.
+            string version = GetJsonString(ob, "version", "5").Trim();
+            string scheme = version switch { "4" => "socks4", "5" => "socks5", _ => "" };
+            if (scheme.Length == 0) return null;
+
+            string username = GetJsonString(ob, "username");
+            string password = GetJsonString(ob, "password");
+            string auth;
+            if (scheme == "socks4")
+            {
+                // SOCKS4 supports a user ID, not a password. Do not emit a broken or
+                // semantically altered link if the source supplies an unsupported password.
+                if (password.Length > 0) return null;
+                auth = username.Length == 0 ? "" : Uri.EscapeDataString(username) + "@";
+            }
+            else
+            {
+                // SOCKS5 username/password authentication requires the pair.
+                if ((username.Length == 0) != (password.Length == 0)) return null;
+                auth = username.Length == 0
+                    ? ""
+                    : Uri.EscapeDataString(username) + ":" + Uri.EscapeDataString(password) + "@";
+            }
+
+            return $"{scheme}://{auth}{server}:{port}#{remark}";
         }
 
         // SIP002 plugin options must be preserved. Omitting them produces a syntactically

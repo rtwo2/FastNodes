@@ -147,7 +147,8 @@ namespace ProxyCollector.Collector
                 // 1080, not 443. Uri.Port is -1 when the link carries no port.
                 int p = uri.Port > 0 ? uri.Port
                     : scheme switch { "socks" or "socks5" or "socks4" => 1080,
-                                      "brook" => 9999, "snell" => 61825, _ => 443 };
+                                      "brook" => 9999, "snell" => 61825,
+                                      "wireguard" or "wg" => 51820, _ => 443 };
                 if (string.IsNullOrEmpty(h) || h == "0.0.0.0") return null;
 
                 var q = ParseQuery(uri.Query);

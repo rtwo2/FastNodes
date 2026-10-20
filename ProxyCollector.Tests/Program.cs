@@ -412,6 +412,26 @@ internal static class Program
                 System.Net.Sockets.AddressFamily.InterNetworkV6),
             "IPv4-only host is not included in IPv6-capable outputs");
 
+        var singleAliasAddress = System.Net.IPAddress.Parse("192.0.2.1");
+        string singleAliasKey = CollectorType.BuildAliasCanonicalHost(
+            "single.example.net", new[] { singleAliasAddress });
+        string literalAliasKey = CollectorType.BuildAliasCanonicalHost(
+            "192.0.2.1", new[] { singleAliasAddress });
+        Checks.Equal(literalAliasKey, singleAliasKey,
+            "a single-address hostname and its IP literal remain eligible for alias collapse");
+        var dualStackAliasAddresses = new[]
+        {
+            System.Net.IPAddress.Parse("192.0.2.1"),
+            System.Net.IPAddress.Parse("2001:db8::1")
+        };
+        string dualStackAliasKey = CollectorType.BuildAliasCanonicalHost(
+            "dual.example.net", dualStackAliasAddresses);
+        Checks.That(dualStackAliasKey != literalAliasKey,
+            "a multi-homed hostname is not collapsed into a literal that matches only one of its addresses");
+        Checks.Equal(dualStackAliasKey, CollectorType.BuildAliasCanonicalHost(
+                "another-dual.example.net", dualStackAliasAddresses.Reverse()),
+            "multi-homed alias identity is stable regardless of DNS answer ordering");
+
         var mappedV4 = System.Net.IPAddress.Parse("::ffff:65.109.219.162");
         Checks.That(CollectorType.HasAddressFamily(new[] { mappedV4 },
                 System.Net.Sockets.AddressFamily.InterNetwork),

@@ -399,6 +399,20 @@ internal static class Program
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443#good", "https://example.com/sub").Count,
             "Valid subscription URI extraction remains enabled");
 
+        var aliasMetadataKept = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@192.0.2.1:443?security=tls")!;
+        var aliasMetadataDuplicate = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@node.example.net:443?security=tls")!;
+        aliasMetadataKept.SourceCount = 1;
+        aliasMetadataDuplicate.SourceCount = 2;
+        aliasMetadataDuplicate.IranTested = true;
+        CollectorType.MergeAliasMetadata(aliasMetadataKept, aliasMetadataDuplicate,
+            new[] { "source-a", "source-b", "source-a" });
+        Checks.Equal(2, aliasMetadataKept.SourceCount,
+            "alias collapse retains distinct-source consensus without double-counting overlapping sources");
+        Checks.That(aliasMetadataKept.IranTested,
+            "alias collapse preserves source-tested evidence from either spelling");
+
         var implicitSniA = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@one.example.net:443?security=tls")!;
         var implicitSniB = CollectorType.ParseProxyLine(

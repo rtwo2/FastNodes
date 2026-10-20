@@ -404,7 +404,7 @@ internal static class Program
         var aliasMetadataDuplicate = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@node.example.net:443?security=tls")!;
         aliasMetadataKept.SourceCount = 1;
-        aliasMetadataDuplicate.SourceCount = 2;
+        aliasMetadataDuplicate.SourceCount = 1;
         aliasMetadataDuplicate.IranTested = true;
         CollectorType.MergeAliasMetadata(aliasMetadataKept, aliasMetadataDuplicate,
             new[] { "source-a", "source-b", "source-a" });

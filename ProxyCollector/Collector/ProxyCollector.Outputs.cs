@@ -444,6 +444,8 @@ namespace ProxyCollector.Collector
             {
                 string code = remark[(openParen + 1)..closeParen].Trim().ToUpperInvariant();
                 string city = remark[(dash + 3)..pipe].Trim();
+                if (code == "XX")
+                    return BuildClientNodeName("XX", $"🌐 {city}, XX", host, port);
                 if (Flags.TryGetValue(code, out var knownFlag))
                     return BuildClientNodeName(code, $"{knownFlag} {city}, {code}", host, port);
             }

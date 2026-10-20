@@ -3020,9 +3020,9 @@ namespace ProxyCollector.Collector
                             "trojan" when !string.IsNullOrEmpty(password) =>
                                 $"trojan://{Uri.EscapeDataString(password)}@{uriServer}:{port}?{Query(("security", realityPbk.Length > 0 ? "reality" : tls ? "tls" : "none"), ("sni", sni), ("type", transport), ("path", path), ("host", hostHeader), ("fp", fingerprint), ("alpn", alpn), ("pbk", realityPbk), ("sid", realitySid), ("serviceName", serviceName), ("allowInsecure", allowInsecure ? "1" : ""))}#{remark}",
                             "hysteria2" or "hy2" when !string.IsNullOrEmpty(password) =>
-                                $"hysteria2://{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("sni", sni), ("obfs", obfsType), ("obfs-password", obfsPassword), ("alpn", alpn), ("fp", fingerprint), ("upmbps", upMpbs), ("downmbps", downMpbs), ("allowInsecure", allowInsecure ? "1" : ""))}#{remark}",
+                                $"hysteria2://{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("sni", sni), ("obfs", obfsType), ("obfs-password", obfsPassword), ("alpn", alpn), ("fp", fingerprint), ("upmbps", upMpbs), ("downmbps", downMpbs), ("insecure", allowInsecure ? "1" : ""))}#{remark}",
                             "hysteria" when !string.IsNullOrEmpty(password) =>
-                                $"hysteria://{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("peer", sni), ("sni", sni), ("alpn", alpn), ("obfs", obfsType), ("obfs-password", obfsPassword), ("upmbps", upMpbs), ("downmbps", downMpbs), ("allowInsecure", allowInsecure ? "1" : ""))}#{remark}",
+                                $"hysteria://{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("peer", sni), ("sni", sni), ("alpn", alpn), ("obfs", obfsType), ("obfs-password", obfsPassword), ("upmbps", upMpbs), ("downmbps", downMpbs), ("insecure", allowInsecure ? "1" : ""))}#{remark}",
                             "tuic" when !string.IsNullOrEmpty(uuid) && !string.IsNullOrEmpty(password) =>
                                 $"tuic://{Uri.EscapeDataString(uuid)}:{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("congestion_control", GetJsonString(ob, "congestion_control", "bbr")), ("udp_relay_mode", GetJsonString(ob, "udp_relay_mode", "native")), ("alpn", alpn), ("sni", sni), ("allowInsecure", allowInsecure ? "1" : ""), ("zero_rtt_handshake", zeroRttHandshake ? "1" : ""))}#{remark}",
                             "shadowsocks" => BuildSsLinkFromJson(ob, uriServer, port, remark),
@@ -3205,6 +3205,8 @@ namespace ProxyCollector.Collector
             string sid     = f.GetValueOrDefault("reality-opts.short-id", "");
             string grpc    = f.GetValueOrDefault("grpc-opts.grpc-service-name", "");
             string alpn    = f.GetValueOrDefault("alpn", "");
+            bool allowInsecure = f.GetValueOrDefault("skip-cert-verify", "false")
+                .Equals("true", StringComparison.OrdinalIgnoreCase);
             int.TryParse(f.GetValueOrDefault("ws-opts.max-early-data", "0"), out int earlyData);
             string earlyDataHeaderName = f.GetValueOrDefault("ws-opts.early-data-header-name", "");
             string cipher = f.GetValueOrDefault("cipher", "auto");
@@ -3222,6 +3224,7 @@ namespace ProxyCollector.Collector
                     Q("type", network); Q("sni", sni); Q("path", path); Q("host", hostHdr);
                     Q("flow", flow); Q("fp", fp); Q("pbk", pbk); Q("sid", sid);
                     Q("serviceName", grpc); Q("alpn", alpn);
+                    Q("allowInsecure", allowInsecure ? "1" : "");
                     return $"vless://{f["uuid"]}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
                 }
                 case "trojan" when f.ContainsKey("password"):
@@ -3229,6 +3232,7 @@ namespace ProxyCollector.Collector
                     q.Add($"security={(pbk.Length > 0 ? "reality" : tls ? "tls" : "none")}");
                     Q("type", network); Q("sni", sni); Q("flow", flow); Q("fp", fp);
                     Q("pbk", pbk); Q("sid", sid); Q("serviceName", grpc);
+                    Q("allowInsecure", allowInsecure ? "1" : "");
                     return $"trojan://{Uri.EscapeDataString(f["password"])}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
                 }
                 case "hysteria2" or "hy2" when f.ContainsKey("password"):
@@ -3236,6 +3240,9 @@ namespace ProxyCollector.Collector
                     Q("sni", sni); Q("obfs", f.GetValueOrDefault("obfs", ""));
                     Q("obfs-password", f.GetValueOrDefault("obfs-password", ""));
                     Q("alpn", alpn); Q("fp", fp);
+                    Q("insecure", allowInsecure ? "1" : "");
+                    Q("upmbps", f.GetValueOrDefault("up", f.GetValueOrDefault("upmbps", "")));
+                    Q("downmbps", f.GetValueOrDefault("down", f.GetValueOrDefault("downmbps", "")));
                     return $"hysteria2://{Uri.EscapeDataString(f["password"])}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
                 }
                 case "vmess" when f.ContainsKey("uuid"):
@@ -3249,12 +3256,14 @@ namespace ProxyCollector.Collector
                     Q("congestion_control", f.GetValueOrDefault("congestion-controller", f.GetValueOrDefault("congestion_control", "bbr")));
                     Q("udp_relay_mode", f.GetValueOrDefault("udp-relay-mode", f.GetValueOrDefault("udp_relay_mode", "native")));
                     Q("alpn", alpn); Q("sni", sni);
+                    Q("allowInsecure", allowInsecure ? "1" : "");
                     return $"tuic://{Uri.EscapeDataString(f["uuid"])}:{Uri.EscapeDataString(f["password"])}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
                 }
                 case "hysteria" when f.ContainsKey("password") || f.ContainsKey("auth"):
                 {
                     string auth = f.GetValueOrDefault("password", f.GetValueOrDefault("auth", ""));
                     Q("peer", sni); Q("sni", sni); Q("alpn", alpn);
+                    Q("insecure", allowInsecure ? "1" : "");
                     Q("obfs", f.GetValueOrDefault("obfs", ""));
                     Q("upmbps", f.GetValueOrDefault("up", f.GetValueOrDefault("upmbps", "")));
                     Q("downmbps", f.GetValueOrDefault("down", f.GetValueOrDefault("downmbps", "")));
@@ -3263,6 +3272,7 @@ namespace ProxyCollector.Collector
                 case "anytls" when f.ContainsKey("password"):
                 {
                     q.Add($"security={(tls ? "tls" : "none")}"); Q("sni", sni); Q("fp", fp); Q("alpn", alpn);
+                    Q("insecure", allowInsecure ? "1" : "");
                     return $"anytls://{Uri.EscapeDataString(f["password"])}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
                 }
                 case "socks5" or "socks" or "socks4":

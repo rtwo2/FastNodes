@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -1051,71 +1052,49 @@ namespace ProxyCollector.Collector
             return ($"{flag} {countryName}{orgSuffix}", cc);
         }
 
-        // Client labels are deliberately fixed-width: the geo prefix is always flag + ISO
-        // code, followed by fixed-width location and host tags and a stable short ID.
-        // This keeps subscription lists aligned while keeping ports/protocol names out of
-        // the visible label. The complete connection identity makes names stable per node.
+        // Client labels use the requested readable format. Repeated base names are
+        // disambiguated in the output loop with a trailing " 2", " 3", etc.
         internal static string BuildClientNodeName(
-            string countryCode, string location, string host, string connectionIdentity)
+            string countryCode, string location, string host, string port)
         {
             string cc = NormalizeGeoCountryCode(countryCode);
             string flag = Flags.TryGetValue(cc, out var foundFlag) ? foundFlag : "🌐";
-            string geo = "Unknown";
-
+            string countryName = "Unknown";
             if (cc != "XX")
             {
-                string sourceLocation = NormalizeGeoText(location);
-                if (sourceLocation.StartsWith(flag, StringComparison.Ordinal))
-                {
-                    geo = sourceLocation[flag.Length..].Trim();
-                    int providerAt = geo.IndexOf(" · ", StringComparison.Ordinal);
-                    if (providerAt >= 0) geo = geo[..providerAt].Trim();
-                    string countrySuffix = ", " + cc;
-                    if (geo.EndsWith(countrySuffix, StringComparison.OrdinalIgnoreCase))
-                        geo = geo[..^countrySuffix.Length].Trim();
-                }
-                else
-                {
-                    geo = cc;
-                }
+                try { countryName = new RegionInfo(cc).EnglishName; }
+                catch { countryName = cc; }
             }
 
-            string geoField = FitClientNameField(geo, 12);
-            string hostField = FitClientNameField(BuildClientHostTag(host), 10);
-            byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(connectionIdentity ?? ""));
-            string stableId = Convert.ToHexString(digest.AsSpan(0, 6));
-            return $"{flag} {cc} · {geoField} · {hostField} · {stableId}";
-        }
-
-        private static string FitClientNameField(string value, int width)
-        {
-            value = NormalizeGeoText(value);
-            if (value.Length > width)
-                return value[..(width - 1)] + "…";
-            return value.PadRight(width);
-        }
-
-        private static string BuildClientHostTag(string host)
-        {
-            string value = (host ?? "").Trim().Trim('[', ']');
-            if (IPAddress.TryParse(value, out var ip))
+            string city = "Unknown";
+            string sourceLocation = NormalizeGeoText(location);
+            if (sourceLocation.StartsWith(flag, StringComparison.Ordinal))
             {
-                value = ip.AddressFamily == AddressFamily.InterNetworkV6
-                    ? ip.ToString().Replace(':', '-').Trim('-')
-                    : ip.ToString();
-            }
-            else
-            {
-                value = value.TrimEnd('.');
-                if (value.StartsWith("www.", StringComparison.OrdinalIgnoreCase))
-                    value = value[4..];
-                int dot = value.IndexOf('.');
-                if (dot > 0) value = value[..dot];
+                string candidate = sourceLocation[flag.Length..].Trim();
+                int providerAt = candidate.IndexOf(" · ", StringComparison.Ordinal);
+                if (providerAt >= 0) candidate = candidate[..providerAt].Trim();
+                string countrySuffix = ", " + cc;
+                if (candidate.EndsWith(countrySuffix, StringComparison.OrdinalIgnoreCase))
+                    candidate = candidate[..^countrySuffix.Length].Trim();
+
+                // Country-level GeoIP agreement has no reliable city to display.
+                if (candidate.Length > 0 &&
+                    !candidate.Equals(countryName, StringComparison.OrdinalIgnoreCase) &&
+                    !candidate.Equals(cc, StringComparison.OrdinalIgnoreCase) &&
+                    !candidate.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
+                    city = candidate;
             }
 
-            value = Regex.Replace(value, @"[^\p{L}\p{N}.-]+", "-").Trim('-', '.');
-            return string.IsNullOrWhiteSpace(value) ? "node" : value;
+            string cleanHost = (host ?? "").Trim().Trim('[', ']');
+            if (IPAddress.TryParse(cleanHost, out var ip) &&
+                ip.AddressFamily == AddressFamily.InterNetworkV6)
+                cleanHost = "[" + ip + "]";
+            string endpoint = $"{cleanHost}:{port}";
+            return $"{flag} {countryName} ({cc}) - {city} | {endpoint}";
         }
+
+        internal static string ApplyDuplicateNameSuffix(string baseName, int occurrence)
+            => occurrence <= 1 ? baseName : $"{baseName} {occurrence}";
 
         private async Task<(string Location, string CountryCode)> GetLocationAndCountryAsync(string host)
         {
@@ -1586,14 +1565,18 @@ namespace ProxyCollector.Collector
 
             var finalProxies = new List<FinalProxy>();
 
-            // Every client label uses the same field widths and geo-first pattern.
-            // A stable short fingerprint distinguishes different inbounds without exposing
-            // noisy ":port" or ".protocol" suffixes.
+            // Preserve the requested human-readable endpoint label. If different
+            // connections would have the same visible name, suffix them 2, 3, ... .
+            var nameOccurrences = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             foreach (var p in alive)
             {
                 string proto = NormalizeProto(p.Protocol);
                 string cc = Cc(p.Host);
-                string remark = BuildClientNodeName(cc, Loc(p.Host), p.Host, p.DeduplicationKey);
+                string baseRemark = BuildClientNodeName(cc, Loc(p.Host), p.Host, p.Port);
+                nameOccurrences.TryGetValue(baseRemark, out int occurrence);
+                occurrence++;
+                nameOccurrences[baseRemark] = occurrence;
+                string remark = ApplyDuplicateNameSuffix(baseRemark, occurrence);
                 string cleanLink = BuildCleanLink(p, remark);
                 string continent = GetContinent(cc);
 

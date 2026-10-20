@@ -608,6 +608,15 @@ namespace ProxyCollector.Collector
             }
         }
 
+        internal static string FormatWireguardEndpoint(string host, int port)
+        {
+            string normalizedHost = (host ?? "").Trim().Trim('[', ']');
+            if (IPAddress.TryParse(normalizedHost, out var ip) &&
+                ip.AddressFamily == AddressFamily.InterNetworkV6)
+                return $"[{normalizedHost}]:{port}";
+            return $"{normalizedHost}:{port}";
+        }
+
         private static string BuildWireguardConf(WgInfo info)
         {
             var sb = new StringBuilder();
@@ -620,7 +629,7 @@ namespace ProxyCollector.Collector
             sb.AppendLine($"PublicKey = {info.PublicKey}");
             if (!string.IsNullOrEmpty(info.PresharedKey))
                 sb.AppendLine($"PresharedKey = {info.PresharedKey}");
-            sb.AppendLine($"Endpoint = {info.Host}:{info.Port}");
+            sb.AppendLine($"Endpoint = {FormatWireguardEndpoint(info.Host, info.Port)}");
             sb.AppendLine($"AllowedIPs = {info.AllowedIPs}");
             sb.AppendLine("PersistentKeepalive = 25");
             return sb.ToString();

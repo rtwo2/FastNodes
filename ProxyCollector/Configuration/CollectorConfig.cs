@@ -59,13 +59,11 @@ namespace ProxyCollector.Configuration
                     continue;
                 }
 
-                urls.Add(NormalizeUrl(line));
+                urls.Add(line);
             }
 
             int beforeDedup = urls.Count;
-            var uniqueSources = urls
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToArray();
+            var uniqueSources = NormalizeAndDeduplicateSources(urls);
 
             // Optional bounded collection for manual smoke tests. Zero or an invalid
             // value keeps production behavior unchanged; only the first N unique
@@ -103,6 +101,32 @@ namespace ProxyCollector.Configuration
         {
             var materialized = sources.ToArray();
             return sourceLimit > 0 ? materialized.Take(sourceLimit).ToArray() : materialized;
+        }
+
+        internal static string[] NormalizeAndDeduplicateSources(IEnumerable<string> sources)
+        {
+            // URL schemes/hostnames are case-insensitive, but paths and query values are
+            // not. OrdinalIgnoreCase here used to drop distinct feeds like /Main.txt and
+            // /main.txt, or queries whose parameter values differed only by case.
+            return sources
+                .Select(NormalizeUrl)
+                .Select(CanonicalizeSourceAuthority)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+        }
+
+        private static string CanonicalizeSourceAuthority(string url)
+        {
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
+                (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+                return url;
+
+            // Normalize only the scheme and host. Never case-fold the path or query.
+            return new UriBuilder(uri)
+            {
+                Scheme = uri.Scheme.ToLowerInvariant(),
+                Host = uri.IdnHost.ToLowerInvariant()
+            }.Uri.AbsoluteUri;
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 using System.Net;
+using YamlDotNet.RepresentationModel;
 using System.Text;
 using CollectorType = ProxyCollector.Collector.ProxyCollector;
 
@@ -13,6 +14,48 @@ internal static class Program
             "positive source limit selects only the first N sources in priority order");
         Checks.Equal(3, ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c" }, 10).Length,
             "source limit larger than the list keeps all available sources");
+        var distinctSources = ProxyCollector.Configuration.CollectorConfig.NormalizeAndDeduplicateSources(new[]
+        {
+            "https://EXAMPLE.com/Main.txt?channel=ABC",
+            "https://example.com/Main.txt?channel=ABC",
+            "https://example.com/main.txt?channel=ABC",
+            "https://example.com/Main.txt?channel=abc",
+            "https://github.com/Owner/Repo/raw/main/Feed.txt",
+            "https://RAW.githubusercontent.com/Owner/Repo/main/Feed.txt"
+        });
+        Checks.Equal(4, distinctSources.Length,
+            "source dedup normalizes host case and equivalent GitHub raw URLs without folding path or query-value case");
+
+        using (var exactContent = new ByteArrayContent(Encoding.UTF8.GetBytes("12345678")))
+        {
+            Checks.Equal("12345678",
+                CollectorType.ReadContentLimitedAsync(exactContent, 8, CancellationToken.None).GetAwaiter().GetResult(),
+                "bounded HTTP reader accepts a body exactly at its byte limit");
+        }
+        var oversizedContent = new ByteArrayContent(Encoding.UTF8.GetBytes("123456789"));
+        bool oversizedBodyRejected = false;
+        try
+        {
+            _ = CollectorType.ReadContentLimitedAsync(oversizedContent, 8, CancellationToken.None)
+                .GetAwaiter().GetResult();
+        }
+        catch (InvalidDataException) { oversizedBodyRejected = true; }
+        finally { oversizedContent.Dispose(); }
+        Checks.That(oversizedBodyRejected,
+            "bounded HTTP reader rejects bodies larger than its byte limit");
+
+        var invalidDatabasePath = Path.Combine(Path.GetTempPath(), $"fastnodes-invalid-{Guid.NewGuid():N}.mmdb");
+        try
+        {
+            File.WriteAllText(invalidDatabasePath, "interrupted download or HTML error body");
+            Checks.That(!CollectorType.IsValidGeoIpDatabase(invalidDatabasePath),
+                "a non-empty invalid GeoIP file must not be treated as a valid cached database");
+        }
+        finally
+        {
+            if (File.Exists(invalidDatabasePath)) File.Delete(invalidDatabasePath);
+        }
+
 
         Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.IPv6Any),
             "IPv6 unspecified address is rejected as a public proxy endpoint");
@@ -20,6 +63,44 @@ internal static class Program
             "IPv6 multicast address is rejected as a public proxy endpoint");
         Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("2001:4860:4860::8888")),
             "public IPv6 unicast address remains eligible");
+        Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("2001:4860:4860:4860:4860:ffff:a00:1")),
+            "a global IPv6 address containing an ffff hextet is not mistaken for IPv4-mapped private space");
+        Checks.Equal("[2001:db8::1]:51820", CollectorType.FormatWireguardEndpoint("2001:db8::1", 51820),
+            "WireGuard .conf endpoint formatting brackets IPv6 literals");
+        Checks.Equal("192.0.2.1:51820", CollectorType.FormatWireguardEndpoint("192.0.2.1", 51820),
+            "WireGuard .conf endpoint formatting leaves IPv4 literals unbracketed");
+        Checks.That(CollectorType.IsValidWireguardIpList("10.0.0.2/32, fd00::2/128", false),
+            "WireGuard interface address validation accepts valid IPv4 and IPv6 CIDRs");
+        Checks.That(!CollectorType.IsValidWireguardIpList("10.0.0.2/32\nPostUp=touch /tmp/pwned", false),
+            "WireGuard interface addresses reject newline directive injection");
+        Checks.That(!CollectorType.IsValidWireguardDns("1.1.1.1\nPostUp=touch /tmp/pwned"),
+            "WireGuard DNS settings reject newline directive injection");
+        Checks.That(!CollectorType.IsValidWireguardIpList("0.0.0.0/0, :::/0", true),
+            "WireGuard AllowedIPs validation rejects malformed CIDRs");
+        Checks.That(!CollectorType.IsValidWireguardOutputFields("example.com", 0, "10.0.0.2/32", "1.1.1.1", "0.0.0.0/0"),
+            "WireGuard output field validation rejects port zero");
+        Checks.That(!CollectorType.IsValidWireguardOutputFields("example.com\nPostUp=bad", 51820, "10.0.0.2/32", "1.1.1.1", "0.0.0.0/0"),
+            "WireGuard output field validation rejects directive injection in endpoint host");
+        Checks.That(!CollectorType.IsValidWireguardOutputFields("example.com", 51820, "10.0.0.2/32", "1.1.1.1", "0.0.0.0/0", new[] { "1", "2", "300" }),
+            "WireGuard reserved bytes must be three values in byte range");
+        var hostileName = "node\"\n  - type: trojan\n    server: injected.example";
+        var safeYaml = CollectorType.SerializeWireguardClashYaml(new[]
+        {
+            new Dictionary<string, object?>
+            {
+                ["name"] = hostileName, ["type"] = "wireguard", ["server"] = "example.com",
+                ["port"] = 51820, ["ip"] = "10.0.0.2/32", ["allowed-ips"] = "0.0.0.0/0, ::/0"
+            }
+        });
+        var yamlDocument = new YamlStream();
+        yamlDocument.Load(new StringReader(safeYaml));
+        var yamlRoot = (YamlMappingNode)yamlDocument.Documents[0].RootNode;
+        var yamlNodes = (YamlSequenceNode)yamlRoot.Children[new YamlScalarNode("proxies")];
+        Checks.Equal(1, yamlNodes.Children.Count,
+            "untrusted WireGuard YAML scalars cannot inject extra proxy nodes");
+        var yamlNode = (YamlMappingNode)yamlNodes.Children[0];
+        Checks.Equal(hostileName, ((YamlScalarNode)yamlNode.Children[new YamlScalarNode("name")]).Value,
+            "safe YAML serialization preserves the original display name");
         foreach (var address in new[]
         {
             "0.0.0.0", "10.1.2.3", "100.64.0.1", "127.0.0.1", "169.254.1.1",
@@ -41,6 +122,22 @@ internal static class Program
         Checks.That(CollectorType.HasUnsafeResolvedAddress(new[]
             { IPAddress.Parse("2001:4860:4860::8888"), IPAddress.Parse("::ffff:127.0.0.1") }),
             "an IPv4-mapped private answer is rejected alongside a public IPv6 answer");
+        var refusedEndpoints = new HashSet<(string Ip, int Port)>
+        {
+            ("198.51.100.7", 443)
+        };
+        var dualStackEndpoints = new[]
+        {
+            IPAddress.Parse("198.51.100.7"),
+            IPAddress.Parse("2001:db8::7")
+        };
+        Checks.That(!CollectorType.AllResolvedEndpointsRefused(dualStackEndpoints, 443, refusedEndpoints),
+            "one refused DNS answer does not mark a multi-address host dead");
+        refusedEndpoints.Add(("2001:db8::7", 443));
+        Checks.That(CollectorType.AllResolvedEndpointsRefused(dualStackEndpoints, 443, refusedEndpoints),
+            "a multi-address host is dead only when every resolved endpoint refuses");
+        Checks.That(!CollectorType.AllResolvedEndpointsRefused(Array.Empty<IPAddress>(), 443, refusedEndpoints),
+            "an empty DNS answer is inconclusive, not evidence of a refused endpoint");
 
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");
@@ -51,6 +148,18 @@ internal static class Program
         Checks.Equal("xtls-rprx-vision", ipv6.Flow, "VLESS flow");
 
         var vmessJson = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"sni.example.com","path":"/ws","aid":"0"}""";
+        var vmessWithFastCrypto = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"sni.example.com","path":"/ws","aid":0,"scy":"auto","fp":"chrome","ps":"name A"}""";
+        var vmessWithDifferentCrypto = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"sni.example.com","path":"/ws","aid":0,"scy":"chacha20-poly1305","fp":"chrome","ps":"name B"}""";
+        var vmessExtraA = CollectorType.ParseProxyLine("vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessWithFastCrypto)));
+        var vmessExtraB = CollectorType.ParseProxyLine("vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessWithDifferentCrypto)));
+        Checks.That(vmessExtraA is not null && vmessExtraB is not null &&
+                    vmessExtraA.DeduplicationKey != vmessExtraB.DeduplicationKey,
+            "VMess connection options not modeled by the collector remain distinct during deduplication");
+        var vmessDifferentRemark = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"sni.example.com","path":"/ws","aid":0,"scy":"auto","fp":"chrome","ps":"name C"}""";
+        var vmessRemarkVariant = CollectorType.ParseProxyLine("vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessDifferentRemark)));
+        Checks.That(vmessExtraA is not null && vmessRemarkVariant is not null &&
+                    vmessExtraA.DeduplicationKey == vmessRemarkVariant.DeduplicationKey,
+            "VMess display remark alone does not split otherwise identical connection entries");
         var vmessPayload = Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessJson));
         var vmess = CollectorType.ParseProxyLine("vmess://" + vmessPayload + "#vmess");
         Checks.That(vmess is not null, "VMess base64 JSON link parses");
@@ -64,6 +173,21 @@ internal static class Program
         Checks.That(vmessIpv6 is not null, "VMess URI-form IPv6 link parses");
         Checks.Equal("2001:4860:4860::8888", vmessIpv6!.Host,
             "VMess URI-form IPv6 host is normalized without brackets");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:0?security=tls") is null,
+            "port zero is rejected instead of being rewritten to a protocol default");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:65536?security=tls") is null,
+            "out-of-range proxy ports are rejected");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vmess://123e4567-e89b-12d3-a456-426614174000@example.com:0?security=tls") is null,
+            "VMess URI-form port zero is rejected");
+        var encodedInvalidSs = Convert.ToBase64String(Encoding.UTF8.GetBytes("aes-128-gcm:pw"));
+        Checks.That(CollectorType.ParseProxyLine($"ss://{encodedInvalidSs}@example.com:0") is null,
+            "Shadowsocks port zero is rejected by common port validation");
+        var socksDefault = CollectorType.ParseProxyLine("socks5://example.com");
+        Checks.That(socksDefault is not null && socksDefault.Port == "1080",
+            "a valid omitted SOCKS port still receives its protocol default");
 
         var ssUser = Convert.ToBase64String(Encoding.UTF8.GetBytes("aes-128-gcm:CaseSensitive"));
         var ss = CollectorType.ParseProxyLine($"ss://{ssUser}@[2001:4860:4860::8888]:8388#ss");
@@ -79,6 +203,51 @@ internal static class Program
         Checks.That(flowA is not null && flowB is not null, "VLESS flow variants parse");
         Checks.That(flowA!.DeduplicationKey != flowB!.DeduplicationKey,
             "Deduplication preserves materially different VLESS flow values");
+        var pluginA = CollectorType.ParseProxyLine("ss://YWVzLTEyOC1nY206cHc=@example.com:8388?plugin=obfs-local");
+        var pluginB = CollectorType.ParseProxyLine("ss://YWVzLTEyOC1nY206cHc=@example.com:8388?plugin=obfs-simple");
+        Checks.That(pluginA is not null && pluginB is not null &&
+                    pluginA.DeduplicationKey != pluginB.DeduplicationKey,
+            "unmodeled Shadowsocks plugin options remain distinct during deduplication");
+        var unknownOptionA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&custom-mode=alpha");
+        var unknownOptionB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&custom-mode=beta");
+        Checks.That(unknownOptionA is not null && unknownOptionB is not null &&
+                    unknownOptionA.DeduplicationKey != unknownOptionB.DeduplicationKey,
+            "unmodeled URI options remain distinct instead of being lost to deduplication");
+        var repeatedOptionsA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&mode=alpha&mode=beta");
+        var repeatedOptionsB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&mode=beta&mode=alpha");
+        Checks.That(repeatedOptionsA is not null && repeatedOptionsB is not null &&
+                    repeatedOptionsA.DeduplicationKey != repeatedOptionsB.DeduplicationKey,
+            "repeated query options preserve value ordering in the deduplication identity");
+        var upperPath = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&type=ws&path=%2FABC&pbk=AbCd");
+        var lowerPath = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&type=ws&path=%2Fabc&pbk=AbCd");
+        Checks.That(upperPath is not null && lowerPath is not null &&
+                    upperPath.DeduplicationKey != lowerPath.DeduplicationKey &&
+                    upperPath.EndpointKey("203.0.113.10") != lowerPath.EndpointKey("203.0.113.10"),
+            "Deduplication preserves case-sensitive transport paths");
+        var upperPbk = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&pbk=AbCd");
+        var lowerPbk = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&pbk=abcd");
+        Checks.That(upperPbk is not null && lowerPbk is not null &&
+                    upperPbk.DeduplicationKey != lowerPbk.DeduplicationKey &&
+                    upperPbk.EndpointKey("203.0.113.10") != lowerPbk.EndpointKey("203.0.113.10"),
+            "Deduplication preserves case-sensitive REALITY public keys");
+        Checks.That(CollectorType.HasWarpRemark("vless://uuid@example.com:443#WARP+"),
+            "WARP-labelled subscription remarks are detected during fallback sanitization");
+        Checks.That(!CollectorType.HasWarpRemark("vless://uuid@example.com:443#warpath"),
+            "ordinary words containing warp are not treated as WARP labels");
+        Checks.That(!CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
+            { Host = "example.com", Link = "vless://uuid@example.com:443?sni=cloudflare.com", Remark = "🇺🇸 Germany" }),
+            "Cloudflare camouflage SNI alone does not exclude a non-Cloudflare endpoint");
+        Checks.That(CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
+            { Host = "example.com", Link = "vless://uuid@example.com:443#Cloudflare", Remark = "Cloudflare" }),
+            "Cloudflare-labelled proxy remarks remain excluded");
 
         var passwordA = CollectorType.ParseProxyLine("trojan://CaseSensitive@example.com:443?sni=example.com");
         var passwordB = CollectorType.ParseProxyLine("trojan://casesensitive@example.com:443?sni=example.com");
@@ -99,6 +268,10 @@ internal static class Program
             "<a href=\"vless://My-chanel-Telegram-ATOVPN @167.104.219.12:35671#bad\">proxy</a>",
             "https://example.com/page.html").Count,
             "HTML extraction does not salvage a malformed URI prefix before whitespace-at");
+        Checks.Equal(1, CollectorType.DecodeAndExtractLines(
+            "<a href=\"vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=tls#ipv6\">proxy</a>",
+            "https://example.com/page.html").Count,
+            "HTML extraction preserves bracketed IPv6 proxy endpoints");
         Checks.Equal(1, CollectorType.DecodeAndExtractLines(
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443#good", "https://example.com/sub").Count,
             "Valid subscription URI extraction remains enabled");

@@ -26,6 +26,20 @@ namespace ProxyCollector.Collector
     {
         internal static ParsedProxy? ParseProxyLine(string line)
         {
+            var parsed = ParseProxyLineCore(line);
+            if (parsed is null ||
+                !int.TryParse(parsed.Port, out int port) ||
+                port is < 1 or > 65535)
+                return null;
+
+            // Store a canonical numeric port for deduplication and probes. The published
+            // URI remains the source form, but invalid source ports are never accepted.
+            parsed.Port = port.ToString();
+            return parsed;
+        }
+
+        private static ParsedProxy? ParseProxyLineCore(string line)
+        {
             line = line.Trim();
             if (line.Length < 10) return null;
 
@@ -71,7 +85,8 @@ namespace ProxyCollector.Collector
                     {
                         Protocol = "vmess", Host = host, Port = port,
                         Credential = uuid, Network = net, Security = tls,
-                        Sni = sni, Path = path, Aid = aid, BaseLink = baseLink
+                        Sni = sni, Path = path, Aid = aid, BaseLink = baseLink,
+                        ConnectionOptionsKey = BuildJsonIdentityKey(r)
                     };
                 }
                 catch { /* fall through to URI-form attempt below */ }
@@ -84,6 +99,8 @@ namespace ProxyCollector.Collector
                 try
                 {
                     var uri = new Uri(baseLink);
+                    // Do not silently turn an explicit port 0 into a default port.
+                    if (uri.Port == 0) return null;
                     var q = ParseQuery(uri.Query);
                     string net = q.GetValueOrDefault("type", "tcp");
                     if (string.IsNullOrEmpty(net)) net = "tcp";
@@ -99,7 +116,7 @@ namespace ProxyCollector.Collector
                         Network = net, Security = sec,
                         Sni = sni, Path = q.GetValueOrDefault("path", "").TrimEnd('/'),
                         Aid = int.TryParse(q.GetValueOrDefault("aid", "0"), out var a) ? a : 0,
-                        BaseLink = baseLink
+                        BaseLink = baseLink, ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                     };
                 }
                 catch { return null; }
@@ -114,6 +131,8 @@ namespace ProxyCollector.Collector
             try
             {
                 var uri = new Uri(baseLink);
+                // Do not silently turn an explicit port 0 into a default port.
+                if (uri.Port == 0) return null;
                 string scheme = uri.Scheme.ToLowerInvariant();
                 if (!ValidProtocols.Contains(scheme)) return null;
 
@@ -169,7 +188,8 @@ namespace ProxyCollector.Collector
                     Sid        = sid,
                     Flow       = flow,
                     ObfsPassword = obfsPwd,
-                    BaseLink   = baseLink
+                    BaseLink   = baseLink,
+                    ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                 };
             }
             catch { return null; }
@@ -218,7 +238,8 @@ namespace ProxyCollector.Collector
                     Credential = $"{method}:{password}",
                     Network = protocol, Security = obfs,
                     Sni = "", Path = extra,
-                    BaseLink = baseLink
+                    BaseLink = baseLink,
+                    ConnectionOptionsKey = BuildQueryIdentityKey(query, "remarks", "remarks_base64")
                 };
             }
             catch { return null; }
@@ -295,7 +316,7 @@ namespace ProxyCollector.Collector
                         Credential = $"{method}:{password}",
                         Network = "tcp", Security = "",
                         Sni = q.GetValueOrDefault("host", ""), Path = "",
-                        BaseLink = baseLink
+                        BaseLink = baseLink, ConnectionOptionsKey = BuildQueryIdentityKey(query)
                     };
                 }
 
@@ -330,6 +351,53 @@ namespace ProxyCollector.Collector
                 };
             }
             catch { return null; }
+        }
+
+        private static string BuildQueryIdentityKey(string query, params string[] excludedKeys)
+        {
+            if (string.IsNullOrEmpty(query)) return "";
+            var excluded = new HashSet<string>(excludedKeys, StringComparer.OrdinalIgnoreCase);
+
+            // Preserve repeated parameters and their order within each key. ParseQuery's
+            // dictionary is convenient for known fields, but keeps only the last duplicate
+            // value; different plugins/transports may assign meaning to repeated options.
+            // Sorting by key removes irrelevant ordering differences between separate names
+            // while retaining the original order of repeated values for the same name.
+            var canonical = query.TrimStart('?')
+                .Split('&', StringSplitOptions.RemoveEmptyEntries)
+                .Select(pair =>
+                {
+                    int equals = pair.IndexOf('=');
+                    string rawKey = equals < 0 ? pair : pair[..equals];
+                    string rawValue = equals < 0 ? "" : pair[(equals + 1)..];
+                    return new
+                    {
+                        Key = Uri.UnescapeDataString(rawKey).ToLowerInvariant(),
+                        Value = Uri.UnescapeDataString(rawValue)
+                    };
+                })
+                .Where(item => !excluded.Contains(item.Key))
+                .OrderBy(item => item.Key, StringComparer.Ordinal)
+                .Select(item => new[] { item.Key, item.Value })
+                .ToArray();
+            return JsonSerializer.Serialize(canonical);
+        }
+
+        private static string BuildJsonIdentityKey(JsonElement root)
+        {
+            if (root.ValueKind != JsonValueKind.Object) return "";
+            // VMess "ps" is its display remark, not a connection setting. Preserve every
+            // other property—including fields this collector does not yet understand.
+            var canonical = root.EnumerateObject()
+                .Where(property => !property.Name.Equals("ps", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(property => property.Name, StringComparer.Ordinal)
+                .Select(property => new
+                {
+                    Name = property.Name,
+                    Value = property.Value.Clone()
+                })
+                .ToArray();
+            return JsonSerializer.Serialize(canonical);
         }
 
         private static string NormalizeUriHost(string host)

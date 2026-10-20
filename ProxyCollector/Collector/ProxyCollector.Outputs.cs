@@ -220,8 +220,7 @@ namespace ProxyCollector.Collector
                 var wgDir = Path.Combine(sub, "wireguard");
                 Directory.CreateDirectory(wgDir);
 
-                var sb = new StringBuilder();
-                sb.AppendLine("proxies:");
+                var clashProxies = new List<Dictionary<string, object?>>();
                 int ok = 0;
                 foreach (var node in wgNodes)
                 {
@@ -237,29 +236,32 @@ namespace ProxyCollector.Collector
                     if (string.IsNullOrEmpty(safe)) safe = $"wg{ok:D3}";
                     await File.WriteAllTextAsync(Path.Combine(wgDir, $"{ok:D3} {safe}.conf"), BuildWireguardConf(wgInfo));
 
-                    // Build Clash YAML format (quote strings to ensure IPv6/special chars don't break YAML)
-                    string remark = node.Remark.Replace("\"", "\\\"");
-                    sb.AppendLine($"  - name: \"{remark}\"");
-                    sb.AppendLine($"    type: wireguard");
-                    sb.AppendLine($"    server: \"{wgInfo.Host}\"");
-                    sb.AppendLine($"    port: {wgInfo.Port}");
-                    sb.AppendLine($"    ip: \"{wgInfo.Address}\"");
-                    sb.AppendLine($"    public-key: \"{wgInfo.PublicKey}\"");
-                    sb.AppendLine($"    private-key: \"{wgInfo.PrivateKey}\"");
-                    sb.AppendLine($"    allowed-ips: \"{wgInfo.AllowedIPs}\"");
-                    if (!string.IsNullOrEmpty(wgInfo.Dns)) sb.AppendLine($"    dns: \"{wgInfo.Dns}\"");
-                    if (!string.IsNullOrEmpty(wgInfo.PresharedKey)) sb.AppendLine($"    preshared-key: \"{wgInfo.PresharedKey}\"");
-                    sb.AppendLine($"    mtu: 1280");
-                    if (wgInfo.Reserved.Length == 3)
+                    // Build the Clash node as data. YamlDotNet handles quoting and
+                    // line breaks in every source-controlled scalar; string concatenation
+                    // here would allow newline/quote injection into downloadable configs.
+                    var clashNode = new Dictionary<string, object?>
                     {
-                        sb.AppendLine($"    reserved: [{string.Join(",", wgInfo.Reserved.Select(r => r.Trim()))}]");
-                    }
-                    sb.AppendLine();
+                        ["name"] = node.Remark,
+                        ["type"] = "wireguard",
+                        ["server"] = wgInfo.Host,
+                        ["port"] = wgInfo.Port,
+                        ["ip"] = wgInfo.Address,
+                        ["public-key"] = wgInfo.PublicKey,
+                        ["private-key"] = wgInfo.PrivateKey,
+                        ["allowed-ips"] = wgInfo.AllowedIPs,
+                        ["mtu"] = 1280
+                    };
+                    if (!string.IsNullOrEmpty(wgInfo.Dns)) clashNode["dns"] = wgInfo.Dns;
+                    if (!string.IsNullOrEmpty(wgInfo.PresharedKey)) clashNode["preshared-key"] = wgInfo.PresharedKey;
+                    if (wgInfo.Reserved.Length == 3)
+                        clashNode["reserved"] = wgInfo.Reserved.Select(r => (int)byte.Parse(r.Trim())).ToArray();
+                    clashProxies.Add(clashNode);
                 }
 
                 if (ok > 0)
                 {
-                    await File.WriteAllTextAsync(Path.Combine(sub, "protocols", "wireguard.txt"), sb.ToString());
+                    await File.WriteAllTextAsync(Path.Combine(sub, "protocols", "wireguard.txt"),
+                        SerializeWireguardClashYaml(clashProxies));
                 }
                 else
                 {
@@ -362,6 +364,7 @@ namespace ProxyCollector.Collector
                         lower.Contains("pages.dev") ||
                         lower.Contains("trycloudflare.com") ||
                         lower.Contains("warp://") ||
+                        HasWarpRemark(link) ||
                         (NormalizeProto(parsed.Protocol) == "wireguard" && lower.Contains("warp")))
                         return;
 
@@ -473,6 +476,87 @@ namespace ProxyCollector.Collector
             public string[] Reserved = Array.Empty<string>();
         }
 
+        internal static bool IsValidWireguardIpList(string value, bool requirePrefix)
+        {
+            if (string.IsNullOrWhiteSpace(value) || value.Any(char.IsControl)) return false;
+            var entries = value.Split(',', StringSplitOptions.TrimEntries);
+            if (entries.Length == 0 || entries.Any(string.IsNullOrEmpty)) return false;
+
+            foreach (var entry in entries)
+            {
+                int slash = entry.IndexOf('/');
+                if (slash < 0)
+                {
+                    if (requirePrefix || !IPAddress.TryParse(entry, out _)) return false;
+                    continue;
+                }
+
+                if (slash == 0 || slash != entry.LastIndexOf('/') ||
+                    !IPAddress.TryParse(entry[..slash], out var address))
+                    return false;
+
+                string prefixText = entry[(slash + 1)..];
+                if (prefixText.Length == 0 ||
+                    prefixText.Any(ch => ch < '0' || ch > '9') ||
+                    !int.TryParse(prefixText, out int prefix))
+                    return false;
+
+                int maxPrefix = address.AddressFamily == AddressFamily.InterNetwork ? 32 :
+                    address.AddressFamily == AddressFamily.InterNetworkV6 ? 128 : 0;
+                if (prefix < 0 || prefix > maxPrefix) return false;
+            }
+            return true;
+        }
+
+        internal static bool IsValidWireguardDns(string value)
+        {
+            if (value.Any(char.IsControl)) return false;
+            if (string.IsNullOrWhiteSpace(value)) return true;
+            var entries = value.Split(',', StringSplitOptions.TrimEntries);
+            return entries.Length > 0 &&
+                entries.All(entry => !string.IsNullOrEmpty(entry) && IPAddress.TryParse(entry, out _));
+        }
+
+        internal static bool IsValidWireguardHost(string host)
+        {
+            if (string.IsNullOrWhiteSpace(host) || host.Any(char.IsControl) || host.Any(char.IsWhiteSpace))
+                return false;
+
+            string normalized = host.Trim().Trim('[', ']').TrimEnd('.');
+            if (IPAddress.TryParse(normalized, out _)) return true;
+            return normalized.Length <= 253 &&
+                normalized.Contains('.') &&
+                Uri.CheckHostName(normalized) == UriHostNameType.Dns;
+        }
+
+        internal static bool IsValidWireguardOutputFields(
+            string host, int port, string address, string dns, string allowedIps,
+            IEnumerable<string>? reserved = null)
+        {
+            if (port is < 1 or > 65535 ||
+                !IsValidWireguardHost(host) ||
+                !IsValidWireguardIpList(address, requirePrefix: false) ||
+                !IsValidWireguardDns(dns) ||
+                !IsValidWireguardIpList(allowedIps, requirePrefix: true))
+                return false;
+
+            var reservedValues = (reserved ?? Array.Empty<string>())
+                .Select(value => value.Trim())
+                .ToArray();
+            return reservedValues.Length == 0 ||
+                (reservedValues.Length == 3 && reservedValues.All(value => byte.TryParse(value, out _)));
+        }
+
+        internal static string SerializeWireguardClashYaml(
+            IEnumerable<Dictionary<string, object?>> proxies)
+        {
+            var document = new Dictionary<string, object?>
+            {
+                ["proxies"] = proxies.ToList()
+            };
+            return new SerializerBuilder().Build().Serialize(document);
+        }
+
         private static WgInfo? TryParseWireguardInfo(string link)
         {
             try
@@ -535,6 +619,7 @@ namespace ProxyCollector.Collector
                 if (string.IsNullOrEmpty(info.PrivateKey) || string.IsNullOrEmpty(info.PublicKey))
                 {
                     var uri = new Uri(baseLink);
+                    if (uri.Port == 0) return null;
                     var q = ParseQuery(uri.Query);
 
                     info.PrivateKey = uri.UserInfo ?? "";
@@ -561,8 +646,12 @@ namespace ProxyCollector.Collector
                 info.PublicKey = SanitizeWgKey(info.PublicKey);
                 info.PresharedKey = SanitizeWgKey(info.PresharedKey); // Can be null if not present
 
-                if (info.PrivateKey == null || info.PublicKey == null ||
-                    string.IsNullOrEmpty(info.Host) || (!info.Host.Contains('.') && !info.Host.Contains(':')))
+                if (info.PrivateKey == null || info.PublicKey == null)
+                    return null;
+
+                info.Host = info.Host.Trim().Trim('[', ']');
+                if (!IsValidWireguardOutputFields(
+                        info.Host, info.Port, info.Address, info.Dns, info.AllowedIPs, info.Reserved))
                     return null;
 
                 return info;
@@ -607,6 +696,15 @@ namespace ProxyCollector.Collector
             }
         }
 
+        internal static string FormatWireguardEndpoint(string host, int port)
+        {
+            string normalizedHost = (host ?? "").Trim().Trim('[', ']');
+            if (IPAddress.TryParse(normalizedHost, out var ip) &&
+                ip.AddressFamily == AddressFamily.InterNetworkV6)
+                return $"[{normalizedHost}]:{port}";
+            return $"{normalizedHost}:{port}";
+        }
+
         private static string BuildWireguardConf(WgInfo info)
         {
             var sb = new StringBuilder();
@@ -619,7 +717,7 @@ namespace ProxyCollector.Collector
             sb.AppendLine($"PublicKey = {info.PublicKey}");
             if (!string.IsNullOrEmpty(info.PresharedKey))
                 sb.AppendLine($"PresharedKey = {info.PresharedKey}");
-            sb.AppendLine($"Endpoint = {info.Host}:{info.Port}");
+            sb.AppendLine($"Endpoint = {FormatWireguardEndpoint(info.Host, info.Port)}");
             sb.AppendLine($"AllowedIPs = {info.AllowedIPs}");
             sb.AppendLine("PersistentKeepalive = 25");
             return sb.ToString();

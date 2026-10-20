@@ -357,7 +357,7 @@ namespace ProxyCollector.Collector
                     if (parsed is null ||
                         IsCloudflareMetadata(parsed) ||
                         IsBadHost(parsed.Host) ||
-                        IsPlaceholderCredential(parsed.Credential) ||
+                        IsPlaceholderCredential(parsed.Protocol, parsed.Credential) ||
                         (CredentialRequiredProtocols.Contains(NormalizeProto(parsed.Protocol)) &&
                          string.IsNullOrEmpty(parsed.Credential)))
                         return;

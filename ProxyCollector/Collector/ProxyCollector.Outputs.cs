@@ -404,9 +404,74 @@ namespace ProxyCollector.Collector
                     if (!isUnsafeAddress) safe[index] = link;
                 });
 
-            return safe.Where(link => !string.IsNullOrWhiteSpace(link))
+            var filtered = safe.Where(link => !string.IsNullOrWhiteSpace(link))
                 .Select(link => link!)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(link => link, StringComparer.OrdinalIgnoreCase)
                 .ToList();
+
+            // A last-good snapshot may still contain the old provider/hash-heavy remarks.
+            // Rebuild fallback labels with the current naming format too, so verified.txt
+            // does not revert to legacy names when a small run uses the safe snapshot.
+            var occurrences = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var renamed = new List<string>(filtered.Count);
+            foreach (string link in filtered)
+            {
+                var parsed = ParseProxyLine(link);
+                if (parsed is null) continue;
+                string baseName = BuildFallbackNodeName(parsed.Remark, parsed.Host, parsed.Port);
+                occurrences.TryGetValue(baseName, out int occurrence);
+                occurrence++;
+                occurrences[baseName] = occurrence;
+                string remark = ApplyDuplicateNameSuffix(baseName, occurrence);
+                renamed.Add(BuildCleanLink(parsed, remark));
+            }
+            return renamed;
+        }
+
+        internal static string BuildFallbackNodeName(string oldRemark, string host, string port)
+        {
+            string remark = oldRemark ?? string.Empty;
+            try { remark = Uri.UnescapeDataString(remark); }
+            catch { /* keep the original remark if it has malformed escapes */ }
+
+            // Already-renamed snapshots can be normalized without consulting GeoIP again.
+            int closeParen = remark.LastIndexOf(')');
+            int openParen = closeParen > 0 ? remark.LastIndexOf('(', closeParen) : -1;
+            int dash = closeParen >= 0 ? remark.IndexOf(" - ", closeParen, StringComparison.Ordinal) : -1;
+            int pipe = dash >= 0 ? remark.IndexOf(" | ", dash + 3, StringComparison.Ordinal) : -1;
+            if (openParen >= 0 && closeParen > openParen && dash > closeParen && pipe > dash)
+            {
+                string code = remark[(openParen + 1)..closeParen].Trim().ToUpperInvariant();
+                string city = remark[(dash + 3)..pipe].Trim();
+                if (Flags.TryGetValue(code, out var knownFlag))
+                    return BuildClientNodeName(code, $"{knownFlag} {city}, {code}", host, port);
+            }
+
+            string countryCode = "XX";
+            string flag = "🌐";
+            string location = "Unknown";
+            if (remark.StartsWith("🌐 ", StringComparison.Ordinal))
+            {
+                location = remark[2..];
+            }
+            else
+            {
+                foreach (var pair in Flags)
+                {
+                    string prefix = pair.Value + " ";
+                    if (!remark.StartsWith(prefix, StringComparison.Ordinal)) continue;
+                    countryCode = pair.Key;
+                    flag = pair.Value;
+                    location = remark[prefix.Length..];
+                    break;
+                }
+            }
+
+            int providerAt = location.IndexOf(" · ", StringComparison.Ordinal);
+            if (providerAt >= 0) location = location[..providerAt].Trim();
+            if (location.Length == 0) location = "Unknown";
+            return BuildClientNodeName(countryCode, $"{flag} {location}", host, port);
         }
 
         internal static List<FinalProxy> SelectTopWithIpv6Diversity(

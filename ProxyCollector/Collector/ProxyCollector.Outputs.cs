@@ -455,7 +455,7 @@ namespace ProxyCollector.Collector
             string location = "Unknown";
             if (remark.StartsWith("🌐 ", StringComparison.Ordinal))
             {
-                location = remark[2..];
+                location = remark["🌐 ".Length..];
             }
             else
             {

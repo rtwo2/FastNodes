@@ -3492,8 +3492,17 @@ namespace ProxyCollector.Collector
         public string EndpointKey(string canonicalHost)
         {
             string portKey = int.TryParse(Port, out int pn) ? pn.ToString() : Port.Trim();
-            string sniKey  = string.IsNullOrEmpty(Sni) ? canonicalHost : Sni.Trim().ToLowerInvariant();
-            return $"{NP(Protocol)}:{canonicalHost.ToLowerInvariant()}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";        }
+            string protocol = NP(Protocol);
+            bool implicitTlsSni = !string.IsNullOrEmpty(Security) ||
+                protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
+            // When TLS is enabled and SNI is omitted, clients use the original host as
+            // the effective SNI. Do not merge different TLS hostnames just because they
+            // resolve to the same IP; that can silently discard a working TLS virtual host.
+            string sniKey = !string.IsNullOrEmpty(Sni)
+                ? Sni.Trim().ToLowerInvariant()
+                : implicitTlsSni ? Host.Trim().ToLowerInvariant() : canonicalHost;
+            return $"{protocol}:{canonicalHost.ToLowerInvariant()}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";
+        }
 
         // Case handling in the credential part of the dedup key. The old blanket
         // Credential.ToLowerInvariant() was right for UUIDs (hex, case-insensitive) but

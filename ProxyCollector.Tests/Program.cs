@@ -422,6 +422,12 @@ internal static class Program
             "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?security=tls&type=ws&sni=front.example.net&path=%2Fws")!;
         Checks.That(wsImplicitHostA.EndpointKey("192.0.2.1") != wsImplicitHostB.EndpointKey("192.0.2.1"),
             "different implicit WebSocket Host values remain distinct even with the same explicit TLS SNI");
+        var h2ImplicitHostA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@one.example.net:443?type=h2&path=%2F")!;
+        var h2ImplicitHostB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?type=h2&path=%2F")!;
+        Checks.That(h2ImplicitHostA.EndpointKey("192.0.2.1") != h2ImplicitHostB.EndpointKey("192.0.2.1"),
+            "different implicit H2 host values remain distinct when SNI is omitted");
 
         var dualStack = new[]
         {

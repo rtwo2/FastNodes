@@ -1794,6 +1794,30 @@ namespace ProxyCollector.Collector
         //     the censor blocks the other)
         //   - different credentials on one host:port (different access)
         //   - different SNI/path/REALITY keys (fronting & transport variants)
+        internal static string BuildAliasCanonicalHost(
+            string host, IEnumerable<IPAddress> resolvedAddresses)
+        {
+            static string NormalizeAddress(IPAddress address) =>
+                address.IsIPv4MappedToIPv6 ? address.MapToIPv4().ToString() : address.ToString();
+
+            if (IPAddress.TryParse(host, out var literal))
+                return NormalizeAddress(literal);
+
+            // Only treat a hostname as an alias of a literal when its complete resolved
+            // address set contains exactly that one address. Sharing just one A/AAAA
+            // record is not enough: multi-homed hosts may lead to different backends.
+            var addresses = resolvedAddresses
+                .Select(NormalizeAddress)
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(address => address, StringComparer.Ordinal)
+                .ToArray();
+            if (addresses.Length == 0)
+                return "unresolved|" + (host ?? "").Trim().ToLowerInvariant();
+            if (addresses.Length == 1)
+                return addresses[0];
+            return "multi[" + string.Join(",", addresses) + "]";
+        }
+
         private async Task<List<ParsedProxy>> CollapseHostAliasesAsync(List<ParsedProxy> proxies)
         {
             var index = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -1802,14 +1826,10 @@ namespace ProxyCollector.Collector
 
             foreach (var p in proxies)   // input is deterministically sorted
             {
-                string canonical;
-                if (IPAddress.TryParse(p.Host, out var literal))
-                    canonical = literal.ToString();
-                else
-                {
-                    var ip = await Resolver.ResolveAsync(p.Host);   // cache hit — GeoIP resolved these
-                    canonical = ip?.ToString() ?? "unresolved|" + p.Host.Trim().ToLowerInvariant();
-                }
+                IPAddress[] addresses = IPAddress.TryParse(p.Host, out var literal)
+                    ? new[] { literal }
+                    : await Resolver.ResolveAllAsync(p.Host); // full cached A/AAAA set
+                string canonical = BuildAliasCanonicalHost(p.Host, addresses);
 
                 string key = p.EndpointKey(canonical);
                 if (index.TryGetValue(key, out var pos))

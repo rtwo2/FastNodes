@@ -1039,7 +1039,10 @@ namespace ProxyCollector.Collector
 
             GroupStart("🧹 Step 2/5 — Parsing & smart dedup");
             LogInfo("🧹 Parsing & smart dedup...");
-            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            // Identity keys normalize only fields that are semantically case-insensitive.
+            // Ordinal comparison is required to preserve case-sensitive credentials, paths,
+            // and REALITY public keys.
+            var seen = new HashSet<string>(StringComparer.Ordinal);
             var uniqueProxies = new List<ParsedProxy>();
             int processed = 0, badHostFiltered = 0, placeholderFiltered = 0, emptyCredFiltered = 0;
 
@@ -1047,8 +1050,8 @@ namespace ProxyCollector.Collector
             // explicitly Iran-tested source can upgrade the kept node's trust flag.
             // (Which source's line wins the dedup race is bag-order nondeterminism —
             // this makes trust "ANY tested source contributed it", not "the winner".)
-            var byKey = new Dictionary<string, ParsedProxy>(StringComparer.OrdinalIgnoreCase);
-            var keySources = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+            var byKey = new Dictionary<string, ParsedProxy>(StringComparer.Ordinal);
+            var keySources = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
             var testedSrcCache = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             bool SrcTested(string u)
             {
@@ -1536,7 +1539,7 @@ namespace ProxyCollector.Collector
         //   - different SNI/path/REALITY keys (fronting & transport variants)
         private async Task<List<ParsedProxy>> CollapseHostAliasesAsync(List<ParsedProxy> proxies)
         {
-            var index = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var index = new Dictionary<string, int>(StringComparer.Ordinal);
             var kept = new List<ParsedProxy>();
             int collapsed = 0;
 
@@ -1633,7 +1636,7 @@ namespace ProxyCollector.Collector
             var deadNodeKeys = nodeEndpoints
                 .Where(ne => AllResolvedEndpointsRefused(ne.Addresses, ne.Port, deadSet))
                 .Select(ne => ne.Node.DeduplicationKey)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                .ToHashSet(StringComparer.Ordinal);
             var result = proxies.Where(p => !deadNodeKeys.Contains(p.DeduplicationKey)).ToList();
             LogWarning($"TCP-refused: dropped {proxies.Count - result.Count} nodes across {deadSet.Count} refused endpoints (all resolved addresses refused).");
             return result;

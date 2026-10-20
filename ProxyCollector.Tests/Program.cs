@@ -121,6 +121,12 @@ internal static class Program
             "WARP-labelled subscription remarks are detected during fallback sanitization");
         Checks.That(!CollectorType.HasWarpRemark("vless://uuid@example.com:443#warpath"),
             "ordinary words containing warp are not treated as WARP labels");
+        Checks.That(!CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
+            { Host = "example.com", Link = "vless://uuid@example.com:443?sni=cloudflare.com", Remark = "🇺🇸 Germany" }),
+            "Cloudflare camouflage SNI alone does not exclude a non-Cloudflare endpoint");
+        Checks.That(CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
+            { Host = "example.com", Link = "vless://uuid@example.com:443#Cloudflare", Remark = "Cloudflare" }),
+            "Cloudflare-labelled proxy remarks remain excluded");
 
         var passwordA = CollectorType.ParseProxyLine("trojan://CaseSensitive@example.com:443?sni=example.com");
         var passwordB = CollectorType.ParseProxyLine("trojan://casesensitive@example.com:443?sni=example.com");

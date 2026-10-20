@@ -184,7 +184,7 @@ namespace ProxyCollector.Collector
             await File.WriteAllLinesAsync(Path.Combine(sub, "top.txt"), top.Select(x => x.Link));
             int topIpv6Count = top.Count(x => ipv6Links.Contains(x.Link));
             LogSuccess($"Saved top.txt ({top.Count}) — global ranking with IPv6 diversity " +
-                       $"({topIpv6Count} IPv6-capable); gate: TLS-verified or source-tested; " +
+                       $"({topIpv6Count} IPv6-capable); gate: TLS/Xray/edge-verified or source-tested; " +
                        $"score range {top.LastOrDefault()?.Score ?? 0}–{top.FirstOrDefault()?.Score ?? 0}");
 
             // v6.13: IPv4/IPv6 by RESOLVED family — hostname nodes now classify too

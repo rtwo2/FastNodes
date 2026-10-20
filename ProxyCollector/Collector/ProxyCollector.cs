@@ -1754,7 +1754,7 @@ namespace ProxyCollector.Collector
         // resolved IP (already cached from the GeoIP stage) goes through the same
         // two checks. Affirmative by definition — an endpoint inside 10/8 or a
         // hijacked range can never be a public proxy, whatever it's called.
-        internal static bool UnsafeResolvedIpSetRequiresAbort(int badHostCount, int totalHostCount)
+        internal static bool ResolvedIpFilterExceedsWarningThreshold(int badHostCount, int totalHostCount)
             => totalHostCount > 0 && badHostCount > totalHostCount * MaxDnsDropFraction;
 
         private async Task<List<ParsedProxy>> DropBadResolvedIpsAsync(List<ParsedProxy> proxies)
@@ -1779,15 +1779,12 @@ namespace ProxyCollector.Collector
             if (bad.IsEmpty) return proxies;
 
             var badSet = bad.ToHashSet(StringComparer.OrdinalIgnoreCase);
-            if (UnsafeResolvedIpSetRequiresAbort(badSet.Count, hosts.Count))
+            if (ResolvedIpFilterExceedsWarningThreshold(badSet.Count, hosts.Count))
             {
-                // Unlike NXDOMAIN, a private/reserved/blacklisted IP is affirmative unsafe
-                // evidence. Keeping every host when the threshold trips would let the next
-                // TCP/Xray stages actively probe internal addresses. Abort the run instead;
-                // the workflow will preserve the last committed publication.
-                LogError($"Resolved-IP filter: {badSet.Count}/{hosts.Count} hostnames resolved to unsafe addresses (over {MaxDnsDropFraction:P0}); refusing to probe or publish this run.");
-                throw new InvalidOperationException(
-                    "Too many proxy hostnames resolved to private/reserved/blacklisted addresses; aborting before active probes.");
+                // This threshold is diagnostic only. Unlike NXDOMAIN, a private/reserved/
+                // blacklisted IP is affirmative unsafe evidence, so never bypass this filter
+                // or allow the following TCP/Xray stages to probe those hosts.
+                LogWarning($"Resolved-IP filter: {badSet.Count}/{hosts.Count} hostnames resolved to unsafe addresses (over {MaxDnsDropFraction:P0}); dropping unsafe hosts and continuing only with safe endpoints.");
             }
 
             int before = proxies.Count;

@@ -1093,6 +1093,9 @@ namespace ProxyCollector.Collector
             return $"{flag} {countryName} ({cc}) - {city} | {endpoint}";
         }
 
+        internal static string ApplyDuplicateNameSuffix(string baseName, int occurrence)
+            => occurrence <= 1 ? baseName : $"{baseName} {occurrence}";
+
         private async Task<(string Location, string CountryCode)> GetLocationAndCountryAsync(string host)
         {
             try
@@ -1573,7 +1576,7 @@ namespace ProxyCollector.Collector
                 nameOccurrences.TryGetValue(baseRemark, out int occurrence);
                 occurrence++;
                 nameOccurrences[baseRemark] = occurrence;
-                string remark = occurrence == 1 ? baseRemark : $"{baseRemark} {occurrence}";
+                string remark = ApplyDuplicateNameSuffix(baseRemark, occurrence);
                 string cleanLink = BuildCleanLink(p, remark);
                 string continent = GetContinent(cc);
 

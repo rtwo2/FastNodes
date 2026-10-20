@@ -36,15 +36,32 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
     # URI per line (currently protocols/wireguard.txt). Validate each proxy block
     # structurally instead of misclassifying YAML keys as malformed proxy links.
     if lines and lines[0].lower() == "proxies:":
-        blocks = re.split(r"(?m)^\s*-\s+", text)[1:]
+        # Split on list-item markers using horizontal whitespace only. "\s*" also
+        # matches newlines, which can bleed across adjacent mapping blocks and make a
+        # valid second/third proxy appear to have no type.
+        blocks: list[str] = []
+        current: list[str] = []
+        for line in text.splitlines():
+            if re.match(r"^[ \t]*-[ \t]+", line):
+                if current:
+                    blocks.append("\n".join(current))
+                current = [line]
+            elif current:
+                current.append(line)
+        if current:
+            blocks.append("\n".join(current))
         if not blocks:
             raise ValidationError(f"{path}: YAML subscription has no proxy entries")
+
         for index, block in enumerate(blocks, 1):
-            kind = re.search(r"""(?m)^\s*type\s*:\s*['"]?([a-z0-9_-]+)""", block, re.IGNORECASE)
-            server = re.search(r"""(?m)^\s*(?:server|server-host|endpoint|address)\s*:\s*([^#\n]+)""", block, re.IGNORECASE)
-            port = re.search(r"""(?m)^\s*port\s*:\s*['"]?(\d+)""", block, re.IGNORECASE)
-            if not kind or kind.group(1).lower() not in SCHEMES:
-                raise ValidationError(f"{path}: YAML proxy entry {index} has missing/unsupported type")
+            kind = re.search(r"""(?m)^[ \t]*type[ \t]*:[ \t]*['"]?([a-z0-9_-]+)""", block, re.IGNORECASE)
+            server = re.search(r"""(?m)^[ \t]*(?:server|server-host|endpoint|address)[ \t]*:[ \t]*([^#\n]+)""", block, re.IGNORECASE)
+            port = re.search(r"""(?m)^[ \t]*port[ \t]*:[ \t]*['"]?(\d+)""", block, re.IGNORECASE)
+            actual_type = kind.group(1).lower() if kind else "<missing>"
+            if not kind or actual_type not in SCHEMES:
+                raise ValidationError(
+                    f"{path}: YAML proxy entry {index} has missing/unsupported type {actual_type!r}"
+                )
             if not server or not server.group(1).strip().strip("'\""):
                 raise ValidationError(f"{path}: YAML proxy entry {index} has no server endpoint")
             if not port or not (1 <= int(port.group(1)) <= 65535):
@@ -174,7 +191,9 @@ def self_test() -> None:
         (root / "everything.txt").write_text("\n".join(good) + "\n", encoding="utf-8")
         (root / "ipv4_only.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
-        yaml = 'proxies:\n  - name: "WG test"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n'
+        yaml = ('proxies:\n'
+                '  - name: "WG test 1"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n'
+                '  - name: "WG test 2"\n    type: wireguard\n    server: "198.51.100.2"\n    port: 123\n')
         (root / "wireguard.txt").write_text(yaml, encoding="utf-8")
         validate_tree(root)
         (root / "ipv6_only.txt").write_text(good[0] + "\n", encoding="utf-8")
@@ -203,8 +222,8 @@ def self_test() -> None:
         else:
             raise ValidationError("self-test failed to catch a missing top_ipv6.txt")
         (root / "top_ipv6.txt").write_text(good[4] + "\n", encoding="utf-8")
-        if validate_lines(root / "wireguard.txt")[0] != 1:
-            raise ValidationError("self-test failed to count YAML proxy entries")
+        if validate_lines(root / "wireguard.txt")[0] != 2:
+            raise ValidationError("self-test failed to count multiple YAML proxy entries")
         (root / "protocols").mkdir()
         (root / "protocols" / "vless.txt").write_text("not a proxy URI\n", encoding="utf-8")
         try:

@@ -997,7 +997,7 @@ namespace ProxyCollector.Collector
             string geoField = FitClientNameField(geo, 12);
             string hostField = FitClientNameField(BuildClientHostTag(host), 10);
             byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(connectionIdentity ?? ""));
-            string stableId = Convert.ToHexString(digest.AsSpan(0, 5));
+            string stableId = Convert.ToHexString(digest.AsSpan(0, 6));
             return $"{flag} {cc} · {geoField} · {hostField} · {stableId}";
         }
 
@@ -2915,6 +2915,8 @@ namespace ProxyCollector.Collector
 
                         string uuid = ob.TryGetProperty("uuid", out var u) ? u.GetString() ?? "" : "";
                         string password = ob.TryGetProperty("password", out var pw) ? pw.GetString() ?? "" : "";
+                        if (type == "hysteria" && string.IsNullOrEmpty(password))
+                            password = GetJsonString(ob, "auth");
                         string name = ob.TryGetProperty("tag", out var tag) ? tag.GetString() ?? "" : "";
                         string remark = Uri.EscapeDataString(name);
 
@@ -3021,7 +3023,7 @@ namespace ProxyCollector.Collector
                                 $"hysteria2://{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("sni", sni), ("obfs", obfsType), ("obfs-password", obfsPassword), ("alpn", alpn), ("fp", fingerprint), ("upmbps", upMpbs), ("downmbps", downMpbs), ("allowInsecure", allowInsecure ? "1" : ""))}#{remark}",
                             "hysteria" when !string.IsNullOrEmpty(password) =>
                                 $"hysteria://{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("peer", sni), ("sni", sni), ("alpn", alpn), ("obfs", obfsType), ("obfs-password", obfsPassword), ("upmbps", upMpbs), ("downmbps", downMpbs), ("allowInsecure", allowInsecure ? "1" : ""))}#{remark}",
-                            "tuic" when !string.IsNullOrEmpty(uuid) =>
+                            "tuic" when !string.IsNullOrEmpty(uuid) && !string.IsNullOrEmpty(password) =>
                                 $"tuic://{Uri.EscapeDataString(uuid)}:{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("congestion_control", GetJsonString(ob, "congestion_control", "bbr")), ("udp_relay_mode", GetJsonString(ob, "udp_relay_mode", "native")), ("alpn", alpn), ("sni", sni), ("allowInsecure", allowInsecure ? "1" : ""), ("zero_rtt_handshake", zeroRttHandshake ? "1" : ""))}#{remark}",
                             "shadowsocks" => BuildSsLinkFromJson(ob, uriServer, port, remark),
                             _ => null

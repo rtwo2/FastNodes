@@ -29,19 +29,19 @@ internal static class Program
             "WireGuard .conf endpoint formatting leaves IPv4 literals unbracketed");
         Checks.That(CollectorType.IsValidWireguardIpList("10.0.0.2/32, fd00::2/128", false),
             "WireGuard interface address validation accepts valid IPv4 and IPv6 CIDRs");
-        Checks.That(!CollectorType.IsValidWireguardIpList("10.0.0.2/32\\nPostUp=touch /tmp/pwned", false),
+        Checks.That(!CollectorType.IsValidWireguardIpList("10.0.0.2/32\nPostUp=touch /tmp/pwned", false),
             "WireGuard interface addresses reject newline directive injection");
-        Checks.That(!CollectorType.IsValidWireguardDns("1.1.1.1\\nPostUp=touch /tmp/pwned"),
+        Checks.That(!CollectorType.IsValidWireguardDns("1.1.1.1\nPostUp=touch /tmp/pwned"),
             "WireGuard DNS settings reject newline directive injection");
         Checks.That(!CollectorType.IsValidWireguardIpList("0.0.0.0/0, :::/0", true),
             "WireGuard AllowedIPs validation rejects malformed CIDRs");
         Checks.That(!CollectorType.IsValidWireguardOutputFields("example.com", 0, "10.0.0.2/32", "1.1.1.1", "0.0.0.0/0"),
             "WireGuard output field validation rejects port zero");
-        Checks.That(!CollectorType.IsValidWireguardOutputFields("example.com\\nPostUp=bad", 51820, "10.0.0.2/32", "1.1.1.1", "0.0.0.0/0"),
+        Checks.That(!CollectorType.IsValidWireguardOutputFields("example.com\nPostUp=bad", 51820, "10.0.0.2/32", "1.1.1.1", "0.0.0.0/0"),
             "WireGuard output field validation rejects directive injection in endpoint host");
         Checks.That(!CollectorType.IsValidWireguardOutputFields("example.com", 51820, "10.0.0.2/32", "1.1.1.1", "0.0.0.0/0", new[] { "1", "2", "300" }),
             "WireGuard reserved bytes must be three values in byte range");
-        var hostileName = "node\\\"\\n  - type: trojan\\n    server: injected.example";
+        var hostileName = "node\"\n  - type: trojan\n    server: injected.example";
         var safeYaml = CollectorType.SerializeWireguardClashYaml(new[]
         {
             new Dictionary<string, object?>

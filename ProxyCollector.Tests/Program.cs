@@ -416,6 +416,13 @@ internal static class Program
         Checks.Equal(nonTlsAliasA.EndpointKey("192.0.2.1"), nonTlsAliasB.EndpointKey("192.0.2.1"),
             "non-TLS aliases remain eligible for collapse when their resolved endpoint matches");
 
+        var wsImplicitHostA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@one.example.net:443?security=tls&type=ws&sni=front.example.net&path=%2Fws")!;
+        var wsImplicitHostB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?security=tls&type=ws&sni=front.example.net&path=%2Fws")!;
+        Checks.That(wsImplicitHostA.EndpointKey("192.0.2.1") != wsImplicitHostB.EndpointKey("192.0.2.1"),
+            "different implicit WebSocket Host values remain distinct even with the same explicit TLS SNI");
+
         var dualStack = new[]
         {
             System.Net.IPAddress.Parse("198.51.100.7"),

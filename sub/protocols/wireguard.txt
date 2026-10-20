@@ -1,0 +1,71 @@
+proxies:
+- name: "\U0001F1E9\U0001F1EA DE · Düsseldorf   · 176.113.6… · DC30C749BED1"
+  type: wireguard
+  server: 176.113.68.6
+  port: 51820
+  ip: 10.0.125.43/32,2a0e:1c80:1337:1:10:0:125:43/128
+  public-key: EyBJUawu49A1d9e03Fa0xSMzw2NBEF+8y0DuFu9SF1M=
+  private-key: SD9lIFsItASmL3HhjrN3xkOQQdwLpLdjYgK2RW40hGo=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EB\U0001F1F7 FR · France       · 5.196.64.… · 3D2D800A5C5E"
+  type: wireguard
+  server: 5.196.64.231
+  port: 123
+  ip: 10.104.2.96/32
+  public-key: 26kgTMAJsQmfCVu/2m6T+X1CCjl07EeBUHzBwulFPHo=
+  private-key: oBYiq7qDl8zH2m+PW1qFhB4L9+QcgzR6CQbcxKdjpFk=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,1.0.0.1,2606:4700:4700::1111,2606:4700:4700::1001
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EC\U0001F1F7 GR · Athens       · 79.127.21… · F2FEE950179C"
+  type: wireguard
+  server: 79.127.218.5
+  port: 51820
+  ip: 10.0.125.43/32,2a0e:1c80:1337:1:10:0:125:43/128
+  public-key: dyzLMM5cxozi4XhKSkT9s+a7DUhO8akNQlFkU7XFWyo=
+  private-key: SD9lIFsItASmL3HhjrN3xkOQQdwLpLdjYgK2RW40hGo=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F310 XX · Unknown      · 8.6.112.2… · 2E1E1EBC9D0B"
+  type: wireguard
+  server: 8.6.112.253
+  port: 1843
+  ip: 172.16.0.2/32
+  public-key: bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
+  private-key: KNOyCvJdN4OrgWjcGyyuGcF+3zNBuZKn2xGnmPhViEM=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F310 XX · Unknown      · 8.6.112.96 · D0033A64F96A"
+  type: wireguard
+  server: 8.6.112.96
+  port: 2408
+  ip: 172.16.0.2/32
+  public-key: bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
+  private-key: OI2WZB3lb9hyxcezeN6STYgntx0WRI9hlza5CNaB1Xo=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  reserved:
+  - 0
+  - 0
+  - 0

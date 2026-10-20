@@ -22,6 +22,10 @@ internal static class Program
             "public IPv6 unicast address remains eligible");
         Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("2001:4860:4860:4860:4860:ffff:a00:1")),
             "a global IPv6 address containing an ffff hextet is not mistaken for IPv4-mapped private space");
+        Checks.Equal("[2001:db8::1]:51820", CollectorType.FormatWireguardEndpoint("2001:db8::1", 51820),
+            "WireGuard .conf endpoint formatting brackets IPv6 literals");
+        Checks.Equal("192.0.2.1:51820", CollectorType.FormatWireguardEndpoint("192.0.2.1", 51820),
+            "WireGuard .conf endpoint formatting leaves IPv4 literals unbracketed");
         foreach (var address in new[]
         {
             "0.0.0.0", "10.1.2.3", "100.64.0.1", "127.0.0.1", "169.254.1.1",

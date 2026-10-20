@@ -238,21 +238,23 @@ namespace ProxyCollector.Collector
                     await File.WriteAllTextAsync(Path.Combine(wgDir, $"{ok:D3} {safe}.conf"), BuildWireguardConf(wgInfo));
 
                     // Build Clash YAML format (quote strings to ensure IPv6/special chars don't break YAML)
-                    string remark = node.Remark.Replace("\"", "\\\"");
+                    string remark = EscapeYamlDoubleQuoted(node.Remark);
                     sb.AppendLine($"  - name: \"{remark}\"");
                     sb.AppendLine($"    type: wireguard");
-                    sb.AppendLine($"    server: \"{wgInfo.Host}\"");
+                    sb.AppendLine($"    server: \"{EscapeYamlDoubleQuoted(wgInfo.Host)}\"");
                     sb.AppendLine($"    port: {wgInfo.Port}");
-                    sb.AppendLine($"    ip: \"{wgInfo.Address}\"");
-                    sb.AppendLine($"    public-key: \"{wgInfo.PublicKey}\"");
-                    sb.AppendLine($"    private-key: \"{wgInfo.PrivateKey}\"");
-                    sb.AppendLine($"    allowed-ips: \"{wgInfo.AllowedIPs}\"");
-                    if (!string.IsNullOrEmpty(wgInfo.Dns)) sb.AppendLine($"    dns: \"{wgInfo.Dns}\"");
-                    if (!string.IsNullOrEmpty(wgInfo.PresharedKey)) sb.AppendLine($"    preshared-key: \"{wgInfo.PresharedKey}\"");
+                    sb.AppendLine($"    ip: \"{EscapeYamlDoubleQuoted(wgInfo.Address)}\"");
+                    sb.AppendLine($"    public-key: \"{EscapeYamlDoubleQuoted(wgInfo.PublicKey)}\"");
+                    sb.AppendLine($"    private-key: \"{EscapeYamlDoubleQuoted(wgInfo.PrivateKey)}\"");
+                    sb.AppendLine($"    allowed-ips: \"{EscapeYamlDoubleQuoted(wgInfo.AllowedIPs)}\"");
+                    if (!string.IsNullOrEmpty(wgInfo.Dns)) sb.AppendLine($"    dns: \"{EscapeYamlDoubleQuoted(wgInfo.Dns)}\"");
+                    if (!string.IsNullOrEmpty(wgInfo.PresharedKey)) sb.AppendLine($"    preshared-key: \"{EscapeYamlDoubleQuoted(wgInfo.PresharedKey)}\"");
                     sb.AppendLine($"    mtu: 1280");
-                    if (wgInfo.Reserved.Length == 3)
+                    // Reserved is exactly three integer bytes; never interpolate source text as YAML.
+                    if (wgInfo.Reserved.Length == 3 &&
+                        wgInfo.Reserved.All(r => byte.TryParse(r.Trim(), out _)))
                     {
-                        sb.AppendLine($"    reserved: [{string.Join(",", wgInfo.Reserved.Select(r => r.Trim()))}]");
+                        sb.AppendLine($"    reserved: [{string.Join(",", wgInfo.Reserved.Select(r => byte.Parse(r.Trim())))}]");
                     }
                     sb.AppendLine();
                 }
@@ -362,6 +364,7 @@ namespace ProxyCollector.Collector
                         lower.Contains("pages.dev") ||
                         lower.Contains("trycloudflare.com") ||
                         lower.Contains("warp://") ||
+                        HasWarpRemark(link) ||
                         (NormalizeProto(parsed.Protocol) == "wireguard" && lower.Contains("warp")))
                         return;
 
@@ -607,6 +610,41 @@ namespace ProxyCollector.Collector
             }
         }
 
+        internal static string EscapeYamlDoubleQuoted(string value)
+        {
+            var sb = new StringBuilder(value?.Length ?? 0);
+            foreach (char ch in value ?? "")
+            {
+                switch (ch)
+                {
+                    case '\\': sb.Append("\\\\"); break;
+                    case '"': sb.Append("\\\""); break;
+                    case '\0': sb.Append("\\0"); break;
+                    case '\b': sb.Append("\\b"); break;
+                    case '\t': sb.Append("\\t"); break;
+                    case '\n': sb.Append("\\n"); break;
+                    case '\f': sb.Append("\\f"); break;
+                    case '\r': sb.Append("\\r"); break;
+                    default:
+                        if (char.IsControl(ch))
+                            sb.Append("\\x").Append(((int)ch).ToString("X2"));
+                        else
+                            sb.Append(ch);
+                        break;
+                }
+            }
+            return sb.ToString();
+        }
+
+        internal static string FormatWireguardEndpoint(string host, int port)
+        {
+            string normalizedHost = (host ?? "").Trim().Trim('[', ']');
+            if (IPAddress.TryParse(normalizedHost, out var ip) &&
+                ip.AddressFamily == AddressFamily.InterNetworkV6)
+                return $"[{normalizedHost}]:{port}";
+            return $"{normalizedHost}:{port}";
+        }
+
         private static string BuildWireguardConf(WgInfo info)
         {
             var sb = new StringBuilder();
@@ -619,7 +657,7 @@ namespace ProxyCollector.Collector
             sb.AppendLine($"PublicKey = {info.PublicKey}");
             if (!string.IsNullOrEmpty(info.PresharedKey))
                 sb.AppendLine($"PresharedKey = {info.PresharedKey}");
-            sb.AppendLine($"Endpoint = {info.Host}:{info.Port}");
+            sb.AppendLine($"Endpoint = {FormatWireguardEndpoint(info.Host, info.Port)}");
             sb.AppendLine($"AllowedIPs = {info.AllowedIPs}");
             sb.AppendLine("PersistentKeepalive = 25");
             return sb.ToString();

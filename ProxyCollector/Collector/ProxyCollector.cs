@@ -2844,7 +2844,9 @@ namespace ProxyCollector.Collector
                     var m = SchemeLineRegex.Match(t);
                     if (m.Success) results.Add(CleanExtracted(m.Value));
                 }
-                return results;
+                // Both YAML extractors may recognize a flow-style node. Preserve each
+                // unique generated link only once before source-level scoring/deduplication.
+                return results.Distinct(StringComparer.Ordinal).ToList();
             }
 
             foreach (var rawLine in text.Split('\n', '\r'))

@@ -2029,9 +2029,9 @@ namespace ProxyCollector.Collector
                 Task<string> drainOut = proc.StandardOutput.ReadToEndAsync();
                 Task<string> drainErr = proc.StandardError.ReadToEndAsync();
 
-                // 90s: the pool is ~5000 inbounds (preferred regions alone fill it) —
-                // startup runs past the old 15s window. Last run xray was healthy but
-                // still binding when the window expired; the kill then zeroed verified.txt.
+                // 90s: startup may need to bind up to 3000 inbound/outbound pairs.
+                // Keep the readiness window generous; killing a healthy process too early
+                // would erase this run's verified evidence.
                 bool ready = false;
                 for (int i = 0; i < 900 && !ready; i++)
                 {

@@ -1,6 +1,7 @@
 using System.Net;
 using YamlDotNet.RepresentationModel;
 using System.Text;
+using System.Text.Json;
 using CollectorType = ProxyCollector.Collector.ProxyCollector;
 
 internal static class Program
@@ -167,6 +168,64 @@ internal static class Program
         Checks.Equal("8443", vmess.Port, "VMess port");
         Checks.Equal("ws", vmess.Network, "VMess transport");
         Checks.Equal("sni.example.com", vmess.Sni, "VMess SNI");
+
+        var singboxJson = """
+        {
+          "outbounds": [
+            {
+              "type": "vmess", "tag": "vmess-options", "server": "vmess.example.net",
+              "server_port": 443, "uuid": "01234567-89ab-cdef-0123-456789abcdef",
+              "security": "aes-128-gcm",
+              "tls": {
+                "enabled": true, "server_name": "tls.example.net",
+                "alpn": ["h2", "http/1.1"],
+                "utls": { "enabled": true, "fingerprint": "chrome" }
+              },
+              "transport": {
+                "type": "ws", "path": "/socket",
+                "headers": { "Host": "ws.example.net" }
+              }
+            },
+            {
+              "type": "shadowsocks", "tag": "ss-plugin", "server": "ss.example.net",
+              "server_port": 8388, "method": "aes-128-gcm", "password": "secret",
+              "plugin": "obfs-local", "plugin_opts": "obfs=http;obfs-host=example.org"
+            }
+          ]
+        }
+        """;
+        var convertedSingbox = CollectorType.DecodeAndExtractLines(
+            singboxJson, "https://example.net/config.json");
+        Checks.Equal(2, convertedSingbox.Count,
+            "sing-box conversion returns both VMess and plugin-based Shadowsocks outbounds");
+        string convertedVmess = convertedSingbox.Single(x => x.StartsWith("vmess://", StringComparison.Ordinal));
+        string convertedVmessJson = Encoding.UTF8.GetString(Convert.FromBase64String(convertedVmess["vmess://".Length..]));
+        using (var convertedVmessDoc = JsonDocument.Parse(convertedVmessJson))
+        {
+            var root = convertedVmessDoc.RootElement;
+            Checks.Equal("ws.example.net", root.GetProperty("host").GetString(),
+                "VMess WebSocket Host header survives conversion separately");
+            Checks.Equal("tls.example.net", root.GetProperty("sni").GetString(),
+                "VMess TLS SNI survives conversion separately from WebSocket Host");
+            Checks.Equal("chrome", root.GetProperty("fp").GetString(),
+                "VMess uTLS fingerprint survives structured conversion");
+            Checks.Equal("h2,http/1.1", root.GetProperty("alpn").GetString(),
+                "VMess ALPN list survives structured conversion");
+            Checks.Equal("aes-128-gcm", root.GetProperty("scy").GetString(),
+                "VMess cipher/security method survives structured conversion");
+        }
+        var convertedVmessParsed = CollectorType.ParseProxyLine(convertedVmess);
+        Checks.That(convertedVmessParsed is not null, "converted VMess link remains parseable");
+        Checks.Equal("tls.example.net", convertedVmessParsed!.Sni,
+            "VMess parser reads the separate SNI field rather than the WebSocket Host");
+        string convertedSs = convertedSingbox.Single(x => x.StartsWith("ss://", StringComparison.Ordinal));
+        Checks.That(convertedSs.Contains("plugin=obfs-local", StringComparison.Ordinal) &&
+                    convertedSs.Contains("obfs%3Dhttp", StringComparison.Ordinal) &&
+                    convertedSs.Contains("obfs-host%3Dexample.org", StringComparison.Ordinal),
+            "Shadowsocks SIP002 plugin and plugin options survive sing-box conversion");
+        Checks.That(CollectorType.ParseProxyLine(convertedSs) is not null,
+            "converted plugin-based Shadowsocks link remains parseable");
+
 
         var vmessIpv6 = CollectorType.ParseProxyLine(
             "vmess://01234567-89ab-cdef-0123-456789abcdef@[2001:4860:4860::8888]:443?security=tls");
@@ -344,6 +403,25 @@ internal static class Program
             "GeoIP location naming uses the matching flag and preserves trusted city casing");
         Checks.Equal("DE", singleLabel.CountryCode, "GeoIP returns normalized ISO country codes");
 
+        var germanNodeName = CollectorType.BuildClientNodeName(
+            "DE", "🇩🇪 Frankfurt am Main, DE · Hetzner Online", "edge-01.example.net", "vmess:server-a:443");
+        var usNodeName = CollectorType.BuildClientNodeName(
+            "US", "🇺🇸 San Francisco, US · Example ASN", "a-much-longer-node-name.example.org", "vless:server-b:8443");
+        Checks.Equal(germanNodeName.Length, usNodeName.Length,
+            "client node names keep the same width across country/city/host lengths");
+        Checks.That(germanNodeName.StartsWith("🇩🇪 DE · Frankfurt", StringComparison.Ordinal),
+            "client labels begin with a consistent flag + ISO geo prefix");
+        Checks.That(!germanNodeName.Contains(":443", StringComparison.Ordinal) &&
+                    !germanNodeName.EndsWith(".vless", StringComparison.OrdinalIgnoreCase),
+            "client labels do not append ugly explicit port or protocol suffixes");
+        Checks.Equal(germanNodeName, CollectorType.BuildClientNodeName(
+            "DE", "🇩🇪 Frankfurt am Main, DE · Hetzner Online", "edge-01.example.net", "vmess:server-a:443"),
+            "client labels are stable between runs for the same connection identity");
+        Checks.That(germanNodeName != CollectorType.BuildClientNodeName(
+            "DE", "🇩🇪 Frankfurt am Main, DE · Hetzner Online", "edge-01.example.net", "vless:server-a:443"),
+            "different inbounds remain distinguishable without showing their port or protocol");
+
+
         var multiCityGeo = new[]
         {
             new CollectorType.GeoLocationCandidate("DE", "Germany", "Frankfurt", "Hetzner GmbH"),
@@ -389,6 +467,45 @@ internal static class Program
         };
         Checks.Equal("🇺🇸 McLean, US", CollectorType.BuildGeoLocationLabel(properCaseGeo).Location,
             "GeoIP city names preserve meaningful internal capitalization");
+
+
+        string publishRoot = Path.Combine(Path.GetTempPath(), "FastNodes-publish-test-" + Guid.NewGuid().ToString("N"));
+        string finalTree = Path.Combine(publishRoot, "sub");
+        string stagingTree = Path.Combine(publishRoot, "sub.staging");
+        string backupTree = Path.Combine(publishRoot, "sub.previous");
+        Directory.CreateDirectory(finalTree);
+        Directory.CreateDirectory(stagingTree);
+        try
+        {
+            File.WriteAllText(Path.Combine(finalTree, "marker.txt"), "previous-complete-tree");
+            File.WriteAllText(Path.Combine(stagingTree, "marker.txt"), "new-tree");
+            bool failStageMoveOnce = true;
+            try
+            {
+                CollectorType.PublishStagedDirectory(finalTree, stagingTree, backupTree, (source, destination) =>
+                {
+                    if (failStageMoveOnce && source == stagingTree)
+                    {
+                        failStageMoveOnce = false;
+                        throw new IOException("injected stage publication failure");
+                    }
+                    Directory.Move(source, destination);
+                });
+                Checks.That(false, "failed staged publication must propagate its failure");
+            }
+            catch (IOException ex) when (ex.Message == "injected stage publication failure")
+            {
+                // The old output is restored before the exception escapes.
+            }
+            Checks.Equal("previous-complete-tree", File.ReadAllText(Path.Combine(finalTree, "marker.txt")),
+                "failed staged publication restores the last complete output tree");
+            Checks.That(!Directory.Exists(backupTree),
+                "rollback leaves no stranded backup directory after restoring the prior tree");
+        }
+        finally
+        {
+            if (Directory.Exists(publishRoot)) Directory.Delete(publishRoot, recursive: true);
+        }
 
         Console.WriteLine($"Parser regression tests passed ({Checks.Count} assertions).");
     }

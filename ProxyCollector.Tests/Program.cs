@@ -399,6 +399,19 @@ internal static class Program
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443#good", "https://example.com/sub").Count,
             "Valid subscription URI extraction remains enabled");
 
+        var implicitSniA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@one.example.net:443?security=tls")!;
+        var implicitSniB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?security=tls")!;
+        Checks.That(implicitSniA.EndpointKey("192.0.2.1") != implicitSniB.EndpointKey("192.0.2.1"),
+            "alias identity preserves different implicit TLS SNI hostnames sharing one resolved IP");
+        var explicitSniA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@one.example.net:443?security=tls&sni=front.example.net")!;
+        var explicitSniB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@two.example.net:443?security=tls&sni=front.example.net")!;
+        Checks.Equal(explicitSniA.EndpointKey("192.0.2.1"), explicitSniB.EndpointKey("192.0.2.1"),
+            "aliases with the same explicit TLS SNI remain eligible for collapse");
+
         var dualStack = new[]
         {
             System.Net.IPAddress.Parse("198.51.100.7"),

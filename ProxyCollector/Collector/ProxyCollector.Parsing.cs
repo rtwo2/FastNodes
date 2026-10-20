@@ -85,7 +85,8 @@ namespace ProxyCollector.Collector
                     {
                         Protocol = "vmess", Host = host, Port = port,
                         Credential = uuid, Network = net, Security = tls,
-                        Sni = sni, Path = path, Aid = aid, BaseLink = baseLink
+                        Sni = sni, Path = path, Aid = aid, BaseLink = baseLink,
+                        ConnectionOptionsKey = BuildJsonIdentityKey(r)
                     };
                 }
                 catch { /* fall through to URI-form attempt below */ }
@@ -115,7 +116,7 @@ namespace ProxyCollector.Collector
                         Network = net, Security = sec,
                         Sni = sni, Path = q.GetValueOrDefault("path", "").TrimEnd('/'),
                         Aid = int.TryParse(q.GetValueOrDefault("aid", "0"), out var a) ? a : 0,
-                        BaseLink = baseLink
+                        BaseLink = baseLink, ConnectionOptionsKey = BuildQueryIdentityKey(q)
                     };
                 }
                 catch { return null; }
@@ -187,7 +188,8 @@ namespace ProxyCollector.Collector
                     Sid        = sid,
                     Flow       = flow,
                     ObfsPassword = obfsPwd,
-                    BaseLink   = baseLink
+                    BaseLink   = baseLink,
+                    ConnectionOptionsKey = BuildQueryIdentityKey(q)
                 };
             }
             catch { return null; }
@@ -236,7 +238,8 @@ namespace ProxyCollector.Collector
                     Credential = $"{method}:{password}",
                     Network = protocol, Security = obfs,
                     Sni = "", Path = extra,
-                    BaseLink = baseLink
+                    BaseLink = baseLink,
+                    ConnectionOptionsKey = BuildQueryIdentityKey(q, "remarks", "remarks_base64")
                 };
             }
             catch { return null; }
@@ -313,7 +316,7 @@ namespace ProxyCollector.Collector
                         Credential = $"{method}:{password}",
                         Network = "tcp", Security = "",
                         Sni = q.GetValueOrDefault("host", ""), Path = "",
-                        BaseLink = baseLink
+                        BaseLink = baseLink, ConnectionOptionsKey = BuildQueryIdentityKey(q)
                     };
                 }
 
@@ -348,6 +351,40 @@ namespace ProxyCollector.Collector
                 };
             }
             catch { return null; }
+        }
+
+        private static string BuildQueryIdentityKey(
+            IReadOnlyDictionary<string, string> query,
+            params string[] excludedKeys)
+        {
+            if (query.Count == 0) return "";
+            var excluded = new HashSet<string>(excludedKeys, StringComparer.OrdinalIgnoreCase);
+            // Serialize a sorted list of key/value pairs rather than concatenating with
+            // delimiters, so encoded separators in values cannot create key collisions.
+            var canonical = query
+                .Where(item => !excluded.Contains(item.Key))
+                .OrderBy(item => item.Key, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(item => item.Key, StringComparer.Ordinal)
+                .Select(item => new[] { item.Key.ToLowerInvariant(), item.Value })
+                .ToArray();
+            return JsonSerializer.Serialize(canonical);
+        }
+
+        private static string BuildJsonIdentityKey(JsonElement root)
+        {
+            if (root.ValueKind != JsonValueKind.Object) return "";
+            // VMess "ps" is its display remark, not a connection setting. Preserve every
+            // other property—including fields this collector does not yet understand.
+            var canonical = root.EnumerateObject()
+                .Where(property => !property.Name.Equals("ps", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(property => property.Name, StringComparer.Ordinal)
+                .Select(property => new
+                {
+                    Name = property.Name,
+                    Value = property.Value.Clone()
+                })
+                .ToArray();
+            return JsonSerializer.Serialize(canonical);
         }
 
         private static string NormalizeUriHost(string host)

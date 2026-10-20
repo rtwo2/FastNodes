@@ -215,6 +215,13 @@ internal static class Program
         Checks.That(unknownOptionA is not null && unknownOptionB is not null &&
                     unknownOptionA.DeduplicationKey != unknownOptionB.DeduplicationKey,
             "unmodeled URI options remain distinct instead of being lost to deduplication");
+        var repeatedOptionsA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&mode=alpha&mode=beta");
+        var repeatedOptionsB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&mode=beta&mode=alpha");
+        Checks.That(repeatedOptionsA is not null && repeatedOptionsB is not null &&
+                    repeatedOptionsA.DeduplicationKey != repeatedOptionsB.DeduplicationKey,
+            "repeated query options preserve value ordering in the deduplication identity");
         var upperPath = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&type=ws&path=%2FABC&pbk=AbCd");
         var lowerPath = CollectorType.ParseProxyLine(

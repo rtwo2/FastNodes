@@ -74,7 +74,10 @@ namespace ProxyCollector.Collector
                     if (string.IsNullOrEmpty(net)) net = "tcp";
                     string tls  = r.TryGetProperty("tls",  out var tlsEl)  ? (tlsEl.GetString()  ?? "") : "";
                     if (tls.Equals("none", StringComparison.OrdinalIgnoreCase)) tls = "";
-                    string sni  = r.TryGetProperty("host", out var sniEl)  ? (sniEl.GetString()  ?? "") : "";
+                    string sni = r.TryGetProperty("sni", out var sniEl)
+                        ? (sniEl.GetString() ?? "") : "";
+                    if (string.IsNullOrEmpty(sni) && r.TryGetProperty("host", out var hostHeaderEl))
+                        sni = hostHeaderEl.GetString() ?? "";
                     string path = r.TryGetProperty("path", out var pathEl) ? (pathEl.GetString() ?? "").TrimEnd('/') : "";
                     int aid     = r.TryGetProperty("aid",  out var aidEl)
                         ? (aidEl.ValueKind == JsonValueKind.Number ? aidEl.GetInt32() : 0) : 0;

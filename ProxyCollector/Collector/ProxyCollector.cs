@@ -1540,7 +1540,7 @@ namespace ProxyCollector.Collector
             // possible set — alias-merged spelling variants never get probed twice.
             alive = await DropDnsDeadHostsAsync(alive);
             alive = await DropBadResolvedIpsAsync(alive);
-            alive = await CollapseHostAliasesAsync(alive);
+            alive = await CollapseHostAliasesAsync(alive, keySources);
             alive = await DropTcpRefusedAsync(alive);
             LogInfo($"After dead-node & alias filters: {alive.Count} remain");
             GroupEnd();
@@ -1818,9 +1818,20 @@ namespace ProxyCollector.Collector
             return "multi[" + string.Join(",", addresses) + "]";
         }
 
-        private async Task<List<ParsedProxy>> CollapseHostAliasesAsync(List<ParsedProxy> proxies)
+        internal static void MergeAliasMetadata(
+            ParsedProxy kept, ParsedProxy duplicate, IEnumerable<string> combinedSources)
+        {
+            int distinctSources = combinedSources.Distinct(StringComparer.OrdinalIgnoreCase).Count();
+            kept.SourceCount = Math.Max(Math.Max(kept.SourceCount, duplicate.SourceCount), distinctSources);
+            kept.IranTested |= duplicate.IranTested;
+        }
+
+        private async Task<List<ParsedProxy>> CollapseHostAliasesAsync(
+            List<ParsedProxy> proxies,
+            IReadOnlyDictionary<string, HashSet<string>> keySources)
         {
             var index = new Dictionary<string, int>(StringComparer.Ordinal);
+            var aliasSources = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
             var kept = new List<ParsedProxy>();
             int collapsed = 0;
 
@@ -1835,15 +1846,34 @@ namespace ProxyCollector.Collector
                 if (index.TryGetValue(key, out var pos))
                 {
                     collapsed++;
-                    // Upgrade: if the kept form is a bare IP and this one is a hostname,
-                    // swap it in — the hostname spelling is strictly better for clients.
-                    if (IPAddress.TryParse(kept[pos].Host, out _) && !IPAddress.TryParse(p.Host, out _))
+                    if (!aliasSources.TryGetValue(key, out var sources))
+                        aliasSources[key] = sources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    if (keySources.TryGetValue(p.DeduplicationKey, out var duplicateSources))
+                        sources.UnionWith(duplicateSources);
+
+                    // Alias collapse must preserve metadata gathered before DNS canonicalization:
+                    // otherwise source consensus and source-tested evidence disappear with the
+                    // discarded spelling variant. Union exact source URLs to avoid double counts.
+                    var keptProxy = kept[pos];
+                    if (IPAddress.TryParse(keptProxy.Host, out _) && !IPAddress.TryParse(p.Host, out _))
+                    {
+                        MergeAliasMetadata(p, keptProxy, sources);
                         kept[pos] = p;
+                    }
+                    else
+                    {
+                        MergeAliasMetadata(keptProxy, p, sources);
+                    }
                 }
                 else
                 {
                     index[key] = kept.Count;
                     kept.Add(p);
+                    var sources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    if (keySources.TryGetValue(p.DeduplicationKey, out var nodeSources))
+                        sources.UnionWith(nodeSources);
+                    aliasSources[key] = sources;
+                    p.SourceCount = Math.Max(p.SourceCount, sources.Count);
                 }
             }
 

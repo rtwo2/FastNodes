@@ -219,6 +219,23 @@ namespace ProxyCollector.Collector
         private static bool IsPlaceholderCredential(string credential)
             => !string.IsNullOrEmpty(credential) && PlaceholderCredentialPattern.IsMatch(credential.Trim());
 
+        internal static bool IsPlaceholderCredential(string protocol, string credential)
+        {
+            if (IsPlaceholderCredential(credential)) return true;
+
+            // Several share-link formats store two fields in Credential. Checking only
+            // the beginning misses placeholder passwords after the separator (for
+            // example "aes-128-gcm:password123" or "uuid:123456").
+            string proto = NormalizeProto(protocol);
+            if (proto is not ("ss" or "ssr" or "tuic" or "juicity" or "naive" or "socks" or "socks4" or "socks5"))
+                return false;
+
+            int separator = credential.IndexOf(':');
+            return separator >= 0 &&
+                (IsPlaceholderCredential(credential[..separator]) ||
+                 IsPlaceholderCredential(credential[(separator + 1)..]));
+        }
+
         private static readonly Dictionary<string, string> Flags = new(StringComparer.OrdinalIgnoreCase)
         {
             {"AD","🇦🇩"},{"AE","🇦🇪"},{"AF","🇦🇫"},{"AG","🇦🇬"},{"AI","🇦🇮"},{"AL","🇦🇱"},{"AM","🇦🇲"},
@@ -1389,7 +1406,7 @@ namespace ProxyCollector.Collector
                 sourceStats[url].Parsed++;   // sequential loop — no Interlocked needed
 
                 if (IsBadHost(p.Host)) { badHostFiltered++; continue; }
-                if (IsPlaceholderCredential(p.Credential)) { placeholderFiltered++; continue; }
+                if (IsPlaceholderCredential(p.Protocol, p.Credential)) { placeholderFiltered++; continue; }
                 if (CredentialRequiredProtocols.Contains(NormalizeProto(p.Protocol)) &&
                     string.IsNullOrEmpty(p.Credential)) { emptyCredFiltered++; continue; }
                 if (!int.TryParse(p.Port, out int portNum) || portNum <= 0 || portNum > 65535) { badHostFiltered++; continue; }

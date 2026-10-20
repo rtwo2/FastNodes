@@ -1720,7 +1720,16 @@ namespace ProxyCollector.Collector
                 .Where(h => !IPAddress.TryParse(h, out _))
                 .ToList();
             if (hosts.Count == 0) return proxies;
-            if (!await IsDnsResolverHealthyAsync()) return proxies;
+            if (!await IsDnsResolverHealthyAsync())
+            {
+                // Continuing would let later resolved-IP/TCP/Xray stages act on an
+                // untrustworthy DNS view. Abort before active probes; the workflow keeps
+                // the last committed publication instead of publishing a mass-filtered or
+                // potentially unsafe snapshot.
+                LogWarning("DNS resolver health check failed; aborting before active endpoint probes to preserve the last publication.");
+                throw new InvalidOperationException(
+                    "DNS resolver health check failed; refusing to probe or publish this run.");
+            }
 
             var dead = new ConcurrentBag<string>();
             await Parallel.ForEachAsync(hosts, new ParallelOptions { MaxDegreeOfParallelism = 100 },

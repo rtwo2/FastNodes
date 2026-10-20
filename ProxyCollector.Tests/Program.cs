@@ -26,6 +26,24 @@ internal static class Program
         Checks.Equal(4, distinctSources.Length,
             "source dedup normalizes host case and equivalent GitHub raw URLs without folding path or query-value case");
 
+        using (var exactContent = new ByteArrayContent(Encoding.UTF8.GetBytes("12345678")))
+        {
+            Checks.Equal("12345678",
+                CollectorType.ReadContentLimitedAsync(exactContent, 8, CancellationToken.None).GetAwaiter().GetResult(),
+                "bounded HTTP reader accepts a body exactly at its byte limit");
+        }
+        var oversizedContent = new ByteArrayContent(Encoding.UTF8.GetBytes("123456789"));
+        bool oversizedBodyRejected = false;
+        try
+        {
+            _ = CollectorType.ReadContentLimitedAsync(oversizedContent, 8, CancellationToken.None)
+                .GetAwaiter().GetResult();
+        }
+        catch (InvalidDataException) { oversizedBodyRejected = true; }
+        finally { oversizedContent.Dispose(); }
+        Checks.That(oversizedBodyRejected,
+            "bounded HTTP reader rejects bodies larger than its byte limit");
+
         var invalidDatabasePath = Path.Combine(Path.GetTempPath(), $"fastnodes-invalid-{Guid.NewGuid():N}.mmdb");
         try
         {

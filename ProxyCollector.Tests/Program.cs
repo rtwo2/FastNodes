@@ -451,6 +451,24 @@ internal static class Program
         Checks.That(tiedTop.Select(x => x.Link).SequenceEqual(tied.Select(x => x.Link).OrderBy(x => x, StringComparer.Ordinal)),
             "ranked shortlist uses URI as a stable final tie-breaker");
 
+        var nearbySingleSource = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@nearby.example.net:443?security=tls")!;
+        nearbySingleSource.TlsVerified = true;
+        nearbySingleSource.SourceCount = 1;
+        var distantMultiSource = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@distant.example.net:443?security=tls")!;
+        distantMultiSource.TlsVerified = true;
+        distantMultiSource.SourceCount = 5;
+        var xrayCountryCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["nearby.example.net"] = "IR",
+            ["distant.example.net"] = "US"
+        };
+        var xrayRanked = CollectorType.RankXrayCandidates(
+            new[] { nearbySingleSource, distantMultiSource }, xrayCountryCache, maxCount: 1);
+        Checks.That(xrayRanked.Count == 1 && xrayRanked[0].Host == "distant.example.net",
+            "Xray verification pool prioritizes independent source consensus before geography");
+
         Checks.Equal("DE", CollectorType.CombineGeoCountryCodes("DE", "DE"),
             "Matching City and Country databases agree on the ISO code");
         Checks.Equal("DE", CollectorType.CombineGeoCountryCodes("DE", "XX"),

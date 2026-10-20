@@ -20,6 +20,12 @@ internal static class Program
             "IPv6 multicast address is rejected as a public proxy endpoint");
         Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("2001:4860:4860::8888")),
             "public IPv6 unicast address remains eligible");
+        Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse("2001:4860:4860:4860:4860:ffff:a00:1")),
+            "a global IPv6 address containing an ffff hextet is not mistaken for IPv4-mapped private space");
+        Checks.Equal("[2001:db8::1]:51820", CollectorType.FormatWireguardEndpoint("2001:db8::1", 51820),
+            "WireGuard .conf endpoint formatting brackets IPv6 literals");
+        Checks.Equal("192.0.2.1:51820", CollectorType.FormatWireguardEndpoint("192.0.2.1", 51820),
+            "WireGuard .conf endpoint formatting leaves IPv4 literals unbracketed");
         foreach (var address in new[]
         {
             "0.0.0.0", "10.1.2.3", "100.64.0.1", "127.0.0.1", "169.254.1.1",
@@ -41,6 +47,22 @@ internal static class Program
         Checks.That(CollectorType.HasUnsafeResolvedAddress(new[]
             { IPAddress.Parse("2001:4860:4860::8888"), IPAddress.Parse("::ffff:127.0.0.1") }),
             "an IPv4-mapped private answer is rejected alongside a public IPv6 answer");
+        var refusedEndpoints = new HashSet<(string Ip, int Port)>
+        {
+            ("198.51.100.7", 443)
+        };
+        var dualStackEndpoints = new[]
+        {
+            IPAddress.Parse("198.51.100.7"),
+            IPAddress.Parse("2001:db8::7")
+        };
+        Checks.That(!CollectorType.AllResolvedEndpointsRefused(dualStackEndpoints, 443, refusedEndpoints),
+            "one refused DNS answer does not mark a multi-address host dead");
+        refusedEndpoints.Add(("2001:db8::7", 443));
+        Checks.That(CollectorType.AllResolvedEndpointsRefused(dualStackEndpoints, 443, refusedEndpoints),
+            "a multi-address host is dead only when every resolved endpoint refuses");
+        Checks.That(!CollectorType.AllResolvedEndpointsRefused(Array.Empty<IPAddress>(), 443, refusedEndpoints),
+            "an empty DNS answer is inconclusive, not evidence of a refused endpoint");
 
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");
@@ -79,6 +101,32 @@ internal static class Program
         Checks.That(flowA is not null && flowB is not null, "VLESS flow variants parse");
         Checks.That(flowA!.DeduplicationKey != flowB!.DeduplicationKey,
             "Deduplication preserves materially different VLESS flow values");
+        var upperPath = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&type=ws&path=%2FABC&pbk=AbCd");
+        var lowerPath = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&type=ws&path=%2Fabc&pbk=AbCd");
+        Checks.That(upperPath is not null && lowerPath is not null &&
+                    upperPath.DeduplicationKey != lowerPath.DeduplicationKey &&
+                    upperPath.EndpointKey("203.0.113.10") != lowerPath.EndpointKey("203.0.113.10"),
+            "Deduplication preserves case-sensitive transport paths");
+        var upperPbk = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&pbk=AbCd");
+        var lowerPbk = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&pbk=abcd");
+        Checks.That(upperPbk is not null && lowerPbk is not null &&
+                    upperPbk.DeduplicationKey != lowerPbk.DeduplicationKey &&
+                    upperPbk.EndpointKey("203.0.113.10") != lowerPbk.EndpointKey("203.0.113.10"),
+            "Deduplication preserves case-sensitive REALITY public keys");
+        Checks.That(CollectorType.HasWarpRemark("vless://uuid@example.com:443#WARP+"),
+            "WARP-labelled subscription remarks are detected during fallback sanitization");
+        Checks.That(!CollectorType.HasWarpRemark("vless://uuid@example.com:443#warpath"),
+            "ordinary words containing warp are not treated as WARP labels");
+        Checks.That(!CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
+            { Host = "example.com", Link = "vless://uuid@example.com:443?sni=cloudflare.com", Remark = "🇺🇸 Germany" }),
+            "Cloudflare camouflage SNI alone does not exclude a non-Cloudflare endpoint");
+        Checks.That(CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
+            { Host = "example.com", Link = "vless://uuid@example.com:443#Cloudflare", Remark = "Cloudflare" }),
+            "Cloudflare-labelled proxy remarks remain excluded");
 
         var passwordA = CollectorType.ParseProxyLine("trojan://CaseSensitive@example.com:443?sni=example.com");
         var passwordB = CollectorType.ParseProxyLine("trojan://casesensitive@example.com:443?sni=example.com");
@@ -99,6 +147,10 @@ internal static class Program
             "<a href=\"vless://My-chanel-Telegram-ATOVPN @167.104.219.12:35671#bad\">proxy</a>",
             "https://example.com/page.html").Count,
             "HTML extraction does not salvage a malformed URI prefix before whitespace-at");
+        Checks.Equal(1, CollectorType.DecodeAndExtractLines(
+            "<a href=\"vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=tls#ipv6\">proxy</a>",
+            "https://example.com/page.html").Count,
+            "HTML extraction preserves bracketed IPv6 proxy endpoints");
         Checks.Equal(1, CollectorType.DecodeAndExtractLines(
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443#good", "https://example.com/sub").Count,
             "Valid subscription URI extraction remains enabled");

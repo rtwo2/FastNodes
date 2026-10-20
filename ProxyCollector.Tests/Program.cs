@@ -1,4 +1,5 @@
 using System.Net;
+using YamlDotNet.RepresentationModel;
 using System.Text;
 using CollectorType = ProxyCollector.Collector.ProxyCollector;
 
@@ -26,6 +27,38 @@ internal static class Program
             "WireGuard .conf endpoint formatting brackets IPv6 literals");
         Checks.Equal("192.0.2.1:51820", CollectorType.FormatWireguardEndpoint("192.0.2.1", 51820),
             "WireGuard .conf endpoint formatting leaves IPv4 literals unbracketed");
+        Checks.That(CollectorType.IsValidWireguardIpList("10.0.0.2/32, fd00::2/128", false),
+            "WireGuard interface address validation accepts valid IPv4 and IPv6 CIDRs");
+        Checks.That(!CollectorType.IsValidWireguardIpList("10.0.0.2/32\\nPostUp=touch /tmp/pwned", false),
+            "WireGuard interface addresses reject newline directive injection");
+        Checks.That(!CollectorType.IsValidWireguardDns("1.1.1.1\\nPostUp=touch /tmp/pwned"),
+            "WireGuard DNS settings reject newline directive injection");
+        Checks.That(!CollectorType.IsValidWireguardIpList("0.0.0.0/0, :::/0", true),
+            "WireGuard AllowedIPs validation rejects malformed CIDRs");
+        Checks.That(!CollectorType.IsValidWireguardOutputFields("example.com", 0, "10.0.0.2/32", "1.1.1.1", "0.0.0.0/0"),
+            "WireGuard output field validation rejects port zero");
+        Checks.That(!CollectorType.IsValidWireguardOutputFields("example.com\\nPostUp=bad", 51820, "10.0.0.2/32", "1.1.1.1", "0.0.0.0/0"),
+            "WireGuard output field validation rejects directive injection in endpoint host");
+        Checks.That(!CollectorType.IsValidWireguardOutputFields("example.com", 51820, "10.0.0.2/32", "1.1.1.1", "0.0.0.0/0", new[] { "1", "2", "300" }),
+            "WireGuard reserved bytes must be three values in byte range");
+        var hostileName = "node\\\"\\n  - type: trojan\\n    server: injected.example";
+        var safeYaml = CollectorType.SerializeWireguardClashYaml(new[]
+        {
+            new Dictionary<string, object?>
+            {
+                ["name"] = hostileName, ["type"] = "wireguard", ["server"] = "example.com",
+                ["port"] = 51820, ["ip"] = "10.0.0.2/32", ["allowed-ips"] = "0.0.0.0/0, ::/0"
+            }
+        });
+        var yamlDocument = new YamlStream();
+        yamlDocument.Load(new StringReader(safeYaml));
+        var yamlRoot = (YamlMappingNode)yamlDocument.Documents[0].RootNode;
+        var yamlNodes = (YamlSequenceNode)yamlRoot.Children[new YamlScalarNode("proxies")];
+        Checks.Equal(1, yamlNodes.Children.Count,
+            "untrusted WireGuard YAML scalars cannot inject extra proxy nodes");
+        var yamlNode = (YamlMappingNode)yamlNodes.Children[0];
+        Checks.Equal(hostileName, ((YamlScalarNode)yamlNode.Children[new YamlScalarNode("name")]).Value,
+            "safe YAML serialization preserves the original display name");
         foreach (var address in new[]
         {
             "0.0.0.0", "10.1.2.3", "100.64.0.1", "127.0.0.1", "169.254.1.1",
@@ -86,6 +119,21 @@ internal static class Program
         Checks.That(vmessIpv6 is not null, "VMess URI-form IPv6 link parses");
         Checks.Equal("2001:4860:4860::8888", vmessIpv6!.Host,
             "VMess URI-form IPv6 host is normalized without brackets");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:0?security=tls") is null,
+            "port zero is rejected instead of being rewritten to a protocol default");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:65536?security=tls") is null,
+            "out-of-range proxy ports are rejected");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vmess://123e4567-e89b-12d3-a456-426614174000@example.com:0?security=tls") is null,
+            "VMess URI-form port zero is rejected");
+        var encodedInvalidSs = Convert.ToBase64String(Encoding.UTF8.GetBytes("aes-128-gcm:pw"));
+        Checks.That(CollectorType.ParseProxyLine($"ss://{encodedInvalidSs}@example.com:0") is null,
+            "Shadowsocks port zero is rejected by common port validation");
+        var socksDefault = CollectorType.ParseProxyLine("socks5://example.com");
+        Checks.That(socksDefault is not null && socksDefault.Port == "1080",
+            "a valid omitted SOCKS port still receives its protocol default");
 
         var ssUser = Convert.ToBase64String(Encoding.UTF8.GetBytes("aes-128-gcm:CaseSensitive"));
         var ss = CollectorType.ParseProxyLine($"ss://{ssUser}@[2001:4860:4860::8888]:8388#ss");

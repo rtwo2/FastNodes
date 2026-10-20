@@ -510,8 +510,8 @@ namespace ProxyCollector.Collector
 
         internal static bool IsValidWireguardDns(string value)
         {
-            if (string.IsNullOrWhiteSpace(value)) return true;
             if (value.Any(char.IsControl)) return false;
+            if (string.IsNullOrWhiteSpace(value)) return true;
             var entries = value.Split(',', StringSplitOptions.TrimEntries);
             return entries.Length > 0 &&
                 entries.All(entry => !string.IsNullOrEmpty(entry) && IPAddress.TryParse(entry, out _));

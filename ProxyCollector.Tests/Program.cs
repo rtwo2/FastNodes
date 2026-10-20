@@ -502,6 +502,10 @@ internal static class Program
             CollectorType.BuildFallbackNodeName("🇩🇪 Germany (DE) - Frankfurt am Main | old.example.net:8443",
                 "edge.example.net", "443"),
             "already-renamed fallback remarks are normalized to the current endpoint");
+        Checks.Equal("🌐 Unknown (XX) - Unknown | edge.example.net:443",
+            CollectorType.BuildFallbackNodeName("🌐 Unknown (XX) - Unknown | old.example.net:8443",
+                "edge.example.net", "443"),
+            "already-renamed unknown-country fallback remarks remain well-formed");
 
 
         var multiCityGeo = new[]

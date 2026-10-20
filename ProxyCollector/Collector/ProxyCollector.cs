@@ -3080,6 +3080,11 @@ namespace ProxyCollector.Collector
         public bool   EdgeVerified   { get; set; }       // TLS verified from the CF edge vantage (this run)
         public string BaseLink    { get; set; } = "";
 
+        // Canonical signature of connection-affecting options not represented by the
+        // normalized fields above (for example VMess scy/fp/alpn and SS plugin options).
+        // Omitting these lets different functional links collapse as identical nodes.
+        public string ConnectionOptionsKey { get; set; } = "";
+
         public string DeduplicationKey
         {
             get
@@ -3090,7 +3095,7 @@ namespace ProxyCollector.Collector
                 // v6.12: Flow and ObfsPassword appended — see ParseProxyLine. Without them,
                 // "vless://u@h:443?flow=xtls-rprx-vision" and "vless://u@h:443" collapsed
                 // into one key and one variant was silently lost.
-                return $"{NP(Protocol)}:{hostKey}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}";
+                return $"{NP(Protocol)}:{hostKey}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";
             }
         }
 		
@@ -3101,7 +3106,7 @@ namespace ProxyCollector.Collector
         {
             string portKey = int.TryParse(Port, out int pn) ? pn.ToString() : Port.Trim();
             string sniKey  = string.IsNullOrEmpty(Sni) ? canonicalHost : Sni.Trim().ToLowerInvariant();
-            return $"{NP(Protocol)}:{canonicalHost.ToLowerInvariant()}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}";        }
+            return $"{NP(Protocol)}:{canonicalHost.ToLowerInvariant()}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";        }
 
         // Case handling in the credential part of the dedup key. The old blanket
         // Credential.ToLowerInvariant() was right for UUIDs (hex, case-insensitive) but

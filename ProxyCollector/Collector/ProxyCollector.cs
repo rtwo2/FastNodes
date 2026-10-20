@@ -983,6 +983,34 @@ namespace ProxyCollector.Collector
         private static string GetContinent(string cc)
             => CountryToContinent.TryGetValue(cc ?? "", out var c) ? c : "Unknown";
 
+        private const int MaxSourceResponseBytes = 64 * 1024 * 1024;
+        private const int MaxProviderResponseBytes = 16 * 1024 * 1024;
+
+        internal static async Task<string> ReadContentLimitedAsync(
+            HttpContent content, int maxBytes, CancellationToken cancellationToken)
+        {
+            if (maxBytes <= 0) throw new ArgumentOutOfRangeException(nameof(maxBytes));
+            long? declaredLength = content.Headers.ContentLength;
+            if (declaredLength.HasValue && declaredLength.Value > maxBytes)
+                throw new InvalidDataException(
+                    $"HTTP response declares {declaredLength.Value} bytes, above the {maxBytes}-byte limit.");
+
+            await using var stream = await content.ReadAsStreamAsync(cancellationToken);
+            using var buffer = new MemoryStream();
+            var chunk = new byte[81920];
+            while (true)
+            {
+                int read = await stream.ReadAsync(chunk.AsMemory(0, chunk.Length), cancellationToken);
+                if (read == 0) break;
+                if (buffer.Length + read > maxBytes)
+                    throw new InvalidDataException(
+                        $"HTTP response exceeded the {maxBytes}-byte limit while streaming.");
+                await buffer.WriteAsync(chunk.AsMemory(0, read), cancellationToken);
+            }
+
+            return Encoding.UTF8.GetString(buffer.GetBuffer(), 0, checked((int)buffer.Length));
+        }
+
         // ====================== ENTRY POINT ======================
         public async Task StartAsync()
         {
@@ -1027,7 +1055,11 @@ namespace ProxyCollector.Collector
                             // burning 40+1.5+40 ≈ 82s) can no longer define the whole
                             // fetch stage's duration.
                             using var reqCts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
-                            var text = await _http.GetStringAsync(url, reqCts.Token);
+                            using var sourceResponse = await _http.GetAsync(
+                                url, HttpCompletionOption.ResponseHeadersRead, reqCts.Token);
+                            sourceResponse.EnsureSuccessStatusCode();
+                            var text = await ReadContentLimitedAsync(
+                                sourceResponse.Content, MaxSourceResponseBytes, reqCts.Token);
                             Interlocked.Increment(ref st.FetchSuccesses);
                             Interlocked.Add(ref st.RawBytes, Encoding.UTF8.GetByteCount(text));
                             if (!string.IsNullOrEmpty(text))
@@ -1061,7 +1093,8 @@ namespace ProxyCollector.Collector
                                                 using var providerCts = new CancellationTokenSource(TimeSpan.FromSeconds(12));
                                                 using var providerResponse = await _http.GetAsync(fetchUrl, HttpCompletionOption.ResponseHeadersRead, providerCts.Token);
                                                 providerResponse.EnsureSuccessStatusCode();
-                                                var providerText = await providerResponse.Content.ReadAsStringAsync(providerCts.Token);
+                                                var providerText = await ReadContentLimitedAsync(
+                                                    providerResponse.Content, MaxProviderResponseBytes, providerCts.Token);
                                                 Interlocked.Increment(ref st.ProviderSuccesses);
                                                 var providerLines = DecodeAndExtractLines(providerText, fetchUrl);
                                                 if (providerLines.Count > 0)

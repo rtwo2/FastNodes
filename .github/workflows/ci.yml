@@ -30,6 +30,8 @@ jobs:
           python-version: "3.x"
       - name: Validate validator self-tests
         run: python3 scripts/validate_outputs.py --self-test
+      - name: Validate Cloudflare/WARP audit self-tests
+        run: python3 scripts/audit_cloudflare_warp.py --self-test
       - name: Validate committed subscription outputs
         run: python3 scripts/validate_outputs.py sub
       - name: Build ProxyCollector

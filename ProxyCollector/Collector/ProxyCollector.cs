@@ -744,8 +744,87 @@ namespace ProxyCollector.Collector
 
         internal static bool HasWarpRemark(string link)
         {
-            int hash = (link ?? "").IndexOf('#');
-            return hash >= 0 && IsWarpMetadata(link[(hash + 1)..]);
+            string safeLink = link ?? "";
+            int hash = safeLink.IndexOf('#');
+            return hash >= 0 && IsWarpMetadata(safeLink[(hash + 1)..]);
+        }
+
+        private static bool IsSuspiciousCloudflareTransportHost(string value)
+        {
+            string decoded = value ?? "";
+            try
+            {
+                decoded = Uri.UnescapeDataString(decoded);
+                decoded = Uri.UnescapeDataString(decoded);
+            }
+            catch { }
+
+            decoded = decoded.Trim().Trim('"').Trim((char)39);
+            if (Uri.TryCreate(decoded, UriKind.Absolute, out var absolute) &&
+                !string.IsNullOrEmpty(absolute.Host))
+                decoded = absolute.Host;
+            else if (Uri.TryCreate("https://" + decoded, UriKind.Absolute, out var parsed))
+                decoded = parsed.Host;
+
+            string host = decoded.Trim('[', ']').TrimEnd('.');
+            if (host.Length == 0 || IPAddress.TryParse(host, out _)) return false;
+
+            static bool MatchesDomain(string h, string domain) =>
+                h.Equals(domain, StringComparison.OrdinalIgnoreCase) ||
+                h.EndsWith("." + domain, StringComparison.OrdinalIgnoreCase);
+
+            if (MatchesDomain(host, "workers.dev") ||
+                MatchesDomain(host, "pages.dev") ||
+                MatchesDomain(host, "trycloudflare.com") ||
+                MatchesDomain(host, "cloudflareclient.com"))
+                return true;
+
+            // A genuine *.cloudflare.com SNI is allowed as camouflage. Catch
+            // deceptive names that embed the word across unrelated DNS labels.
+            return (host.Contains("cloudflare", StringComparison.OrdinalIgnoreCase) &&
+                    !MatchesDomain(host, "cloudflare.com")) || IsWarpMetadata(host);
+        }
+
+        private static bool HasSuspiciousCloudflareTransportReference(string link)
+        {
+            string safeLink = link ?? "";
+            int hash = safeLink.IndexOf('#');
+            if (hash >= 0) safeLink = safeLink[..hash];
+            safeLink = safeLink.Replace("&amp;", "&", StringComparison.OrdinalIgnoreCase);
+
+            if (safeLink.StartsWith("vmess://", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    string token = safeLink["vmess://".Length..].Replace('-', '+').Replace('_', '/');
+                    int pad = token.Length % 4;
+                    if (pad > 0) token += new string('=', 4 - pad);
+                    using var doc = JsonDocument.Parse(Encoding.UTF8.GetString(Convert.FromBase64String(token)));
+                    foreach (string key in new[] { "host", "sni", "server_name", "servername", "authority" })
+                    {
+                        if (doc.RootElement.TryGetProperty(key, out var field) &&
+                            field.ValueKind == JsonValueKind.String &&
+                            IsSuspiciousCloudflareTransportHost(field.GetString() ?? ""))
+                            return true;
+                    }
+                }
+                catch { }
+            }
+
+            string decoded = safeLink;
+            try
+            {
+                decoded = Uri.UnescapeDataString(decoded);
+                decoded = Uri.UnescapeDataString(decoded);
+            }
+            catch { }
+            foreach (Match match in Regex.Matches(decoded,
+                @"(?i)(?:[?&;])\s*(?:host|sni|server_name|servername|authority)\s*=\s*([^&;#\s]+)"))
+            {
+                if (IsSuspiciousCloudflareTransportHost(match.Groups[1].Value))
+                    return true;
+            }
+            return false;
         }
 
         private static bool IsCloudflareMetadata(ParsedProxy p)
@@ -758,7 +837,10 @@ namespace ProxyCollector.Collector
                        h.EndsWith(".cloudflareclient.com", StringComparison.OrdinalIgnoreCase) ||
                        h.EndsWith(".workers.dev", StringComparison.OrdinalIgnoreCase) ||
                        h.EndsWith(".pages.dev", StringComparison.OrdinalIgnoreCase) ||
-                       h.EndsWith(".trycloudflare.com", StringComparison.OrdinalIgnoreCase);
+                       h.EndsWith(".trycloudflare.com", StringComparison.OrdinalIgnoreCase) ||
+                       (h.Contains("cloudflare", StringComparison.OrdinalIgnoreCase) &&
+                        !h.Equals("cloudflare.com", StringComparison.OrdinalIgnoreCase) &&
+                        !h.EndsWith(".cloudflare.com", StringComparison.OrdinalIgnoreCase));
             }
 
             if (IsCfDomain(p.Host)) return true;
@@ -771,6 +853,7 @@ namespace ProxyCollector.Collector
                 sni.EndsWith(".cloudflareclient.com", StringComparison.OrdinalIgnoreCase)) return true;
             if (IPAddress.TryParse(p.Host.Trim('[', ']'), out var literal) && IsCloudflareIp(literal)) return true;
             string link = p.BaseLink ?? "";
+            if (HasSuspiciousCloudflareTransportReference(link)) return true;
             string remark = "";
             int hash = link.IndexOf('#');
             if (hash >= 0) remark = link[(hash + 1)..];
@@ -805,11 +888,14 @@ namespace ProxyCollector.Collector
                 IsServiceDomain(host, "cloudflareclient.com") ||
                 IsServiceDomain(host, "workers.dev") ||
                 IsServiceDomain(host, "pages.dev") ||
-                IsServiceDomain(host, "trycloudflare.com"))
+                IsServiceDomain(host, "trycloudflare.com") ||
+                (host.Contains("cloudflare", StringComparison.OrdinalIgnoreCase) &&
+                 !IsServiceDomain(host, "cloudflare.com")))
                 return true;
 
             // Metadata policy applies to the display label, not arbitrary SNI/query text:
             // a legitimate origin may use cloudflare.com as its TLS camouflage SNI.
+            if (HasSuspiciousCloudflareTransportReference(p.Link ?? "")) return true;
             string remark = p.Remark ?? "";
             return remark.Contains("cloudflare", StringComparison.OrdinalIgnoreCase) ||
                    IsWarpMetadata(remark);

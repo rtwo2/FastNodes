@@ -467,7 +467,7 @@ internal static class Program
         var xrayRanked = CollectorType.RankXrayCandidates(
             new[] { nearbySingleSource, distantMultiSource }, xrayCountryCache, maxCount: 1);
         Checks.That(xrayRanked.Count == 1 && xrayRanked[0].Host == "distant.example.net",
-            "Xray verification pool prioritizes independent source consensus before geography");
+            "Xray verification pool prioritizes distinct-source consensus before geography");
 
         Checks.Equal("DE", CollectorType.CombineGeoCountryCodes("DE", "DE"),
             "Matching City and Country databases agree on the ISO code");

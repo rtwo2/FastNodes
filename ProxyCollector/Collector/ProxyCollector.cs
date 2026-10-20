@@ -3501,10 +3501,14 @@ namespace ProxyCollector.Collector
             string sniKey = !string.IsNullOrEmpty(Sni)
                 ? Sni.Trim().ToLowerInvariant()
                 : implicitTlsSni ? Host.Trim().ToLowerInvariant() : canonicalHost;
-            // WebSocket Host defaults to the endpoint hostname when no explicit override
-            // exists. Keep WS hostnames distinct to avoid merging different virtual hosts;
-            // this is conservative even when an explicit Host override is present.
-            string endpointKeyHost = Network.Equals("ws", StringComparison.OrdinalIgnoreCase)
+            // WebSocket Host defaults to the endpoint hostname; H2 transport also uses
+            // the endpoint hostname when SNI/host is omitted. Keep those implicit host
+            // identities distinct to avoid merging different virtual hosts. For WS this
+            // is conservative even when an explicit Host override is present.
+            bool implicitTransportHost =
+                Network.Equals("ws", StringComparison.OrdinalIgnoreCase) ||
+                (Network.Equals("h2", StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(Sni));
+            string endpointKeyHost = implicitTransportHost
                 ? Host.Trim().ToLowerInvariant()
                 : canonicalHost.ToLowerInvariant();
             return $"{protocol}:{endpointKeyHost}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";

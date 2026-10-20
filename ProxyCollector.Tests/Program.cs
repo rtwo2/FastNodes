@@ -120,6 +120,17 @@ internal static class Program
         Checks.That(CollectorType.HasUnsafeResolvedAddress(new[]
             { IPAddress.Parse("1.1.1.1"), IPAddress.Parse("10.0.0.1") }),
             "a mixed public/private DNS answer is rejected if any address is unsafe");
+        Checks.That(CollectorType.IsSafeDnsCanaryAnswer(new[] { IPAddress.Parse("1.1.1.1") }),
+            "a DNS health canary with a public address is considered healthy");
+        Checks.That(!CollectorType.IsSafeDnsCanaryAnswer(new[] { IPAddress.Parse("127.0.0.1") }),
+            "a DNS sinkhole canary resolving to loopback is not considered healthy");
+        Checks.That(!CollectorType.IsSafeDnsCanaryAnswer(Array.Empty<IPAddress>()),
+            "a DNS health canary with no answers is not considered healthy");
+        Checks.That(!CollectorType.UnsafeResolvedIpSetRequiresAbort(80, 100),
+            "the unsafe-answer abort threshold allows exactly the configured maximum to be filtered");
+        Checks.That(CollectorType.UnsafeResolvedIpSetRequiresAbort(81, 100),
+            "widespread unsafe DNS answers abort before active probes instead of bypassing the filter");
+
         Checks.That(CollectorType.HasUnsafeResolvedAddress(new[]
             { IPAddress.Parse("2001:4860:4860::8888"), IPAddress.Parse("::ffff:127.0.0.1") }),
             "an IPv4-mapped private answer is rejected alongside a public IPv6 answer");

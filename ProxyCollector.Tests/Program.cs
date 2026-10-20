@@ -106,6 +106,18 @@ internal static class Program
         Checks.Equal("xtls-rprx-vision", ipv6.Flow, "VLESS flow");
 
         var vmessJson = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"sni.example.com","path":"/ws","aid":"0"}""";
+        var vmessWithFastCrypto = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"sni.example.com","path":"/ws","aid":0,"scy":"auto","fp":"chrome","ps":"name A"}""";
+        var vmessWithDifferentCrypto = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"sni.example.com","path":"/ws","aid":0,"scy":"chacha20-poly1305","fp":"chrome","ps":"name B"}""";
+        var vmessExtraA = CollectorType.ParseProxyLine("vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessWithFastCrypto)));
+        var vmessExtraB = CollectorType.ParseProxyLine("vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessWithDifferentCrypto)));
+        Checks.That(vmessExtraA is not null && vmessExtraB is not null &&
+                    vmessExtraA.DeduplicationKey != vmessExtraB.DeduplicationKey,
+            "VMess connection options not modeled by the collector remain distinct during deduplication");
+        var vmessDifferentRemark = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"sni.example.com","path":"/ws","aid":0,"scy":"auto","fp":"chrome","ps":"name C"}""";
+        var vmessRemarkVariant = CollectorType.ParseProxyLine("vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessDifferentRemark)));
+        Checks.That(vmessExtraA is not null && vmessRemarkVariant is not null &&
+                    vmessExtraA.DeduplicationKey == vmessRemarkVariant.DeduplicationKey,
+            "VMess display remark alone does not split otherwise identical connection entries");
         var vmessPayload = Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessJson));
         var vmess = CollectorType.ParseProxyLine("vmess://" + vmessPayload + "#vmess");
         Checks.That(vmess is not null, "VMess base64 JSON link parses");
@@ -149,6 +161,18 @@ internal static class Program
         Checks.That(flowA is not null && flowB is not null, "VLESS flow variants parse");
         Checks.That(flowA!.DeduplicationKey != flowB!.DeduplicationKey,
             "Deduplication preserves materially different VLESS flow values");
+        var pluginA = CollectorType.ParseProxyLine("ss://YWVzLTEyOC1nY206cHc=@example.com:8388?plugin=obfs-local");
+        var pluginB = CollectorType.ParseProxyLine("ss://YWVzLTEyOC1nY206cHc=@example.com:8388?plugin=obfs-simple");
+        Checks.That(pluginA is not null && pluginB is not null &&
+                    pluginA.DeduplicationKey != pluginB.DeduplicationKey,
+            "unmodeled Shadowsocks plugin options remain distinct during deduplication");
+        var unknownOptionA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&custom-mode=alpha");
+        var unknownOptionB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&custom-mode=beta");
+        Checks.That(unknownOptionA is not null && unknownOptionB is not null &&
+                    unknownOptionA.DeduplicationKey != unknownOptionB.DeduplicationKey,
+            "unmodeled URI options remain distinct instead of being lost to deduplication");
         var upperPath = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&type=ws&path=%2FABC&pbk=AbCd");
         var lowerPath = CollectorType.ParseProxyLine(

@@ -3112,6 +3112,7 @@ namespace ProxyCollector.Collector
                             "tuic" when !string.IsNullOrEmpty(uuid) && !string.IsNullOrEmpty(password) =>
                                 $"tuic://{Uri.EscapeDataString(uuid)}:{Uri.EscapeDataString(password)}@{uriServer}:{port}{OptionalQuery(("congestion_control", GetJsonString(ob, "congestion_control", "bbr")), ("udp_relay_mode", GetJsonString(ob, "udp_relay_mode", "native")), ("alpn", alpn), ("sni", sni), ("allowInsecure", allowInsecure ? "1" : ""), ("zero_rtt_handshake", zeroRttHandshake ? "1" : ""))}#{remark}",
                             "shadowsocks" => BuildSsLinkFromJson(ob, uriServer, port, remark),
+                            "socks" => BuildSocksLinkFromJson(ob, uriServer, port, remark),
                             _ => null
                         };
                         if (link != null) results.Add(link);
@@ -3132,6 +3133,19 @@ namespace ProxyCollector.Collector
                 JsonValueKind.Number or JsonValueKind.True or JsonValueKind.False => value.ToString(),
                 _ => fallback
             };
+        }
+
+        // sing-box represents SOCKS outbounds as structured fields rather than a URI.
+        // Convert them to the collector's accepted socks5:// form, preserving optional
+        // authentication and the outbound tag. A credential-less SOCKS proxy is valid.
+        private static string BuildSocksLinkFromJson(JsonElement ob, string server, int port, string remark)
+        {
+            string username = GetJsonString(ob, "username");
+            string password = GetJsonString(ob, "password");
+            string auth = username.Length == 0 && password.Length == 0
+                ? ""
+                : Uri.EscapeDataString(username) + ":" + Uri.EscapeDataString(password) + "@";
+            return $"socks5://{auth}{server}:{port}#{remark}";
         }
 
         // SIP002 plugin options must be preserved. Omitting them produces a syntactically

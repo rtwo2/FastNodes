@@ -256,6 +256,8 @@ namespace ProxyCollector.Collector
 
                 string password = Base64UrlDecode(encodedPassword);
                 if (string.IsNullOrEmpty(host) || host == "0.0.0.0" ||
+                    string.IsNullOrWhiteSpace(protocol) || string.IsNullOrWhiteSpace(method) ||
+                    string.IsNullOrWhiteSpace(obfs) || string.IsNullOrEmpty(password) ||
                     !int.TryParse(port, out int portNumber) || portNumber is < 1 or > 65535)
                     return null;
 

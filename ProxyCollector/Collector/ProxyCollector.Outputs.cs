@@ -54,7 +54,7 @@ namespace ProxyCollector.Collector
                 {
                     // If backup cleanup fails, fail the run rather than commit an
                     // ambiguous mix of the new publication and an old rollback tree.
-                    Console.Error.WriteLine($"Could not remove rollback directory: {ex.Message}");
+                    LogError($"Could not remove rollback directory: {ex.Message}");
                     throw;
                 }
             }

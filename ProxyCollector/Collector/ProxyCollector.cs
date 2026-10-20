@@ -3501,7 +3501,13 @@ namespace ProxyCollector.Collector
             string sniKey = !string.IsNullOrEmpty(Sni)
                 ? Sni.Trim().ToLowerInvariant()
                 : implicitTlsSni ? Host.Trim().ToLowerInvariant() : canonicalHost;
-            return $"{protocol}:{canonicalHost.ToLowerInvariant()}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";
+            // WebSocket Host defaults to the endpoint hostname when no explicit override
+            // exists. Keep WS hostnames distinct to avoid merging different virtual hosts;
+            // this is conservative even when an explicit Host override is present.
+            string endpointKeyHost = Network.Equals("ws", StringComparison.OrdinalIgnoreCase)
+                ? Host.Trim().ToLowerInvariant()
+                : canonicalHost.ToLowerInvariant();
+            return $"{protocol}:{endpointKeyHost}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";
         }
 
         // Case handling in the credential part of the dedup key. The old blanket

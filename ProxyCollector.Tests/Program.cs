@@ -478,9 +478,10 @@ internal static class Program
         Checks.Equal(germanNodeName, CollectorType.BuildClientNodeName(
             "DE", "🇩🇪 Frankfurt am Main, DE · Hetzner Online", "edge-01.example.net", "443"),
             "client labels are stable between runs for the same endpoint");
-        Checks.Equal(germanNodeName, CollectorType.BuildClientNodeName(
-            "DE", "🇩🇪 Frankfurt am Main, DE · Hetzner Online", "edge-01.example.net", "443"),
-            "same visible endpoint produces the same base name regardless of connection protocol");
+        var alternateEndpointName = CollectorType.BuildClientNodeName(
+            "DE", "🇩🇪 Frankfurt am Main, DE · Hetzner Online", "edge-02.example.net", "443");
+        Checks.That(alternateEndpointName != germanNodeName,
+            "different endpoints remain distinguishable before duplicate suffixing");
         Checks.Equal(germanNodeName + " 2", CollectorType.ApplyDuplicateNameSuffix(germanNodeName, 2),
             "second similarly named node gets suffix 2");
         Checks.Equal(germanNodeName + " 3", CollectorType.ApplyDuplicateNameSuffix(germanNodeName, 3),

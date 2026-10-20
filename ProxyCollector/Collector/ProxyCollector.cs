@@ -1931,7 +1931,7 @@ namespace ProxyCollector.Collector
 
             // Evidence first: current liveness evidence, then distinct-source consensus.
             // Geography is only a tie-breaker, so a nearby single-source node cannot
-            // outrank a far-away node supported by substantially more independent feeds.
+            // outrank a far-away node supported by substantially more distinct feeds.
             return proxies
                 .Where(p => IsXrayCandidate(p) && int.TryParse(p.Port, out _))
                 .OrderByDescending(p => p.TlsVerified)

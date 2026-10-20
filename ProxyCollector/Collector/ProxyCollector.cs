@@ -1200,7 +1200,21 @@ namespace ProxyCollector.Collector
             => CountryToContinent.TryGetValue(cc ?? "", out var c) ? c : "Unknown";
 
         private const int MaxSourceResponseBytes = 64 * 1024 * 1024;
+        private const int MaxLargeSourceResponseBytes = 256 * 1024 * 1024;
         private const int MaxProviderResponseBytes = 16 * 1024 * 1024;
+
+        // One high-volume source has legitimately grown beyond the ordinary 64 MiB
+        // cap. Keep the higher allowance narrowly scoped to that exact repository/feed
+        // so the general source limit still protects the other hundreds of URLs.
+        internal static int GetSourceResponseByteLimit(string url)
+        {
+            if (Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
+                uri.Host.Equals("raw.githubusercontent.com", StringComparison.OrdinalIgnoreCase) &&
+                uri.AbsolutePath.Equals("/sevcator/5ubscrpt10n/main/protocols/vl.txt", StringComparison.OrdinalIgnoreCase))
+                return MaxLargeSourceResponseBytes;
+
+            return MaxSourceResponseBytes;
+        }
 
         internal static async Task<string> ReadContentLimitedAsync(
             HttpContent content, int maxBytes, CancellationToken cancellationToken)
@@ -1275,7 +1289,7 @@ namespace ProxyCollector.Collector
                                 url, HttpCompletionOption.ResponseHeadersRead, reqCts.Token);
                             sourceResponse.EnsureSuccessStatusCode();
                             var text = await ReadContentLimitedAsync(
-                                sourceResponse.Content, MaxSourceResponseBytes, reqCts.Token);
+                                sourceResponse.Content, GetSourceResponseByteLimit(url), reqCts.Token);
                             Interlocked.Increment(ref st.FetchSuccesses);
                             Interlocked.Add(ref st.RawBytes, Encoding.UTF8.GetByteCount(text));
                             if (!string.IsNullOrEmpty(text))

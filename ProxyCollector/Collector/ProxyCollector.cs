@@ -16,6 +16,7 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MaxMind.GeoIP2;
 using ProxyCollector.Configuration;
 using ProxyCollector.Services;
 using YamlDotNet.Serialization;
@@ -411,6 +412,22 @@ namespace ProxyCollector.Collector
         // databases now fail the run loudly — a green run with no City/Country DB
         // silently published everything as 🌐 Unknown and dropped all country/continent
         // files, which is worse than a red run. ASN stays optional.
+        internal static bool IsValidGeoIpDatabase(string path)
+        {
+            if (!File.Exists(path) || new FileInfo(path).Length == 0) return false;
+            try
+            {
+                // Opening the reader validates the MaxMind database header/metadata. A
+                // non-empty HTTP error page or interrupted download is not a usable cache.
+                using var reader = new DatabaseReader(path);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private static async Task DownloadGeoIPDatabases(HttpClient http)
         {
             var dbs = new (string File, string Label, bool Required)[]
@@ -423,14 +440,26 @@ namespace ProxyCollector.Collector
 
             foreach (var (file, label, required) in dbs)
             {
-                if (File.Exists(file) && new FileInfo(file).Length > 0)
+                if (IsValidGeoIpDatabase(file))
                 {
-                    LogInfo($"{label} present (cache), skipping.");
+                    LogInfo($"{label} present and valid (cache), skipping.");
                     continue;
                 }
 
+                if (File.Exists(file))
+                    LogWarning($"{label} cache is empty or invalid; attempting a fresh download.");
+
                 LogInfo($"Downloading {label}...");
                 bool ok = false;
+                string tempFile = file + ".download.tmp";
+                try { Directory.CreateDirectory(Path.GetDirectoryName(file)!); }
+                catch (Exception ex)
+                {
+                    LogWarning($"Cannot prepare directory for {label}: {ex.Message}");
+                    if (required) failed.Add(label);
+                    continue;
+                }
+
                 foreach (var host in new[]
                 {
                     "https://github.com/P3TERX/GeoLite.mmdb/raw/download/",
@@ -439,22 +468,43 @@ namespace ProxyCollector.Collector
                 {
                     try
                     {
-                        var resp = await http.GetAsync(host + label);
+                        if (File.Exists(tempFile)) File.Delete(tempFile);
+                        using var resp = await http.GetAsync(
+                            host + label, HttpCompletionOption.ResponseHeadersRead);
                         resp.EnsureSuccessStatusCode();
-                        await using var fs = new FileStream(file, FileMode.Create);
-                        await resp.Content.CopyToAsync(fs);
-                        LogSuccess($"{label} downloaded.");
+                        await using (var fs = new FileStream(
+                            tempFile, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                        {
+                            await resp.Content.CopyToAsync(fs);
+                            await fs.FlushAsync();
+                        }
+
+                        if (!IsValidGeoIpDatabase(tempFile))
+                            throw new InvalidDataException($"{label} response is not a valid MaxMind database.");
+
+                        // Only replace the published/cache file after the full download
+                        // has been written and verified. A failed mirror never leaves a
+                        // truncated final file that the next run will mistake for a cache.
+                        File.Move(tempFile, file, overwrite: true);
+                        LogSuccess($"{label} downloaded and validated.");
                         ok = true;
                         break;
                     }
-                    catch (Exception ex) { LogWarning($"{label} mirror failed: {ex.Message}"); }
+                    catch (Exception ex)
+                    {
+                        LogWarning($"{label} mirror failed: {ex.Message}");
+                        try { if (File.Exists(tempFile)) File.Delete(tempFile); } catch { }
+                    }
                 }
+
                 if (!ok && required) failed.Add(label);
+                if (!ok && !required)
+                    LogWarning($"Optional {label} is unavailable; continuing without ASN metadata.");
             }
 
             if (failed.Count > 0)
                 throw new InvalidOperationException(
-                    $"Required GeoIP DB unavailable: {string.Join(", ", failed)}");
+                    $"Required GeoIP DB unavailable or invalid: {string.Join(", ", failed)}");
         }
 
         // ====================== HOST FILTERING ======================

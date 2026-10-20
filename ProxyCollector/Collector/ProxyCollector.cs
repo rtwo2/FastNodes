@@ -30,12 +30,64 @@ namespace ProxyCollector.Collector
             // Some non-GitHub sources always serve gzip regardless of Accept-Encoding;
             // without this the body arrives as raw gzip bytes containing no "://" —
             // the source yields zero nodes, silently.
-            AutomaticDecompression = DecompressionMethods.All
+            AutomaticDecompression = DecompressionMethods.All,
+            // Source lists and nested proxy-provider URLs are data from public feeds.
+            // Disable ambient proxies so the callback sees the destination itself, and
+            // validate every resolved address at connection time (including redirects).
+            UseProxy = false,
+            ConnectCallback = ConnectToPublicAddressAsync
         })
         {
             Timeout = TimeSpan.FromSeconds(40),
             DefaultRequestHeaders = { { "User-Agent", "FastNodes/6.21 (+https://github.com/rtwo2/FastNodes)" } }
         };
+        private static async ValueTask<Stream> ConnectToPublicAddressAsync(
+            SocketsHttpConnectionContext context, CancellationToken cancellationToken)
+        {
+            var endpoint = context.DnsEndPoint;
+            IPAddress[] addresses = IPAddress.TryParse(endpoint.Host, out var literal)
+                ? new[] { literal }
+                : await Dns.GetHostAddressesAsync(endpoint.Host, cancellationToken);
+
+            if (addresses.Length == 0)
+                throw new HttpRequestException($"Destination host has no addresses: {endpoint.Host}");
+
+            // Reject mixed answers rather than silently selecting only the public one.
+            // Connect to the exact validated IP below to avoid a second DNS lookup (and
+            // DNS-rebinding between validation and connection).
+            var unsafeAddress = addresses.FirstOrDefault(IsPrivateOrReservedIp);
+            if (unsafeAddress is not null)
+                throw new HttpRequestException(
+                    $"Blocked non-public HTTP destination {endpoint.Host} → {unsafeAddress}");
+
+            Exception? lastError = null;
+            foreach (var address in addresses)
+            {
+                var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+                {
+                    NoDelay = true
+                };
+                try
+                {
+                    await socket.ConnectAsync(new IPEndPoint(address, endpoint.Port), cancellationToken);
+                    return new NetworkStream(socket, ownsSocket: true);
+                }
+                catch (OperationCanceledException)
+                {
+                    socket.Dispose();
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    socket.Dispose();
+                    lastError = ex;
+                }
+            }
+
+            throw new HttpRequestException(
+                $"Could not connect to any public address for {endpoint.Host}:{endpoint.Port}", lastError);
+        }
+
         private readonly Lazy<IPToCountryResolver> _resolverLazy = new(() => new IPToCountryResolver());
         private IPToCountryResolver Resolver => _resolverLazy.Value;
 

@@ -3,7 +3,7 @@
 import base64, html, ipaddress, json, pathlib, re, sys
 from urllib.parse import unquote, urlsplit
 
-URI_RE = re.compile(r"(?i)\b(vless|vmess|trojan|ss|shadowsocks|ssr|hysteria2?|hy2|tuic|socks5?|socks4|wireguard|wg)://([^\s<>\"']+)")
+URI_RE = re.compile(r"(?i)\b(vless|vmess|trojan|ss|shadowsocks|ssr|hysteria2?|hy2|tuic|naive|anytls|brook|snell|juicity|mieru|socks5?|socks4?|wireguard|wg)://([^\s<>\"']+)")
 WARP_RE = re.compile(r"(?i)(?<![a-z0-9])warp(?:\+)?(?![a-z0-9])")
 TRANSPORT_RE = re.compile(r"(?i)(?:^|[?&;])\s*(host|sni|server_name|servername|authority)\s*=\s*([^&;#\s]+)")
 KV_RE = re.compile(r"(?i)^\s*(server|server-host|server_host|endpoint|address|remote|host|sni|server_name|servername|authority)\s*[:=]\s*(.*?)\s*$")
@@ -170,6 +170,8 @@ def self_test():
     assert has_forbidden_transport_host("ss://auth@example.net:443?plugin=v2ray-plugin%3Bmode%3Dwebsocket%3Bhost%3Dedge.pages.dev#US")
     assert has_forbidden_transport_host("vless://uuid@example.net:443?host=www.speedtest.net.ns.cloudflare.com.try.cloudflare.com.attacker.test#US")
     assert not has_forbidden_transport_host("vless://uuid@example.net:443?ech=cloudflare-ech.com#US")
+    for scheme in ("naive", "anytls", "brook", "snell", "juicity", "mieru", "socks", "socks4"):
+        assert uri_endpoints(f"{scheme}://user@example.net:443") == ["example.net"]
     vmess = base64.b64encode(json.dumps({"add": "example.net", "ps": "Cloudflare node"}).encode()).decode()
     assert is_forbidden_label("vmess://" + vmess)
     print("Cloudflare/WARP audit self-tests passed.")

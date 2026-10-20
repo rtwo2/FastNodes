@@ -63,7 +63,7 @@ namespace ProxyCollector.Collector
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly Regex SchemeHtmlRegex = new(
-            $@"(?<![a-zA-Z])({SchemeAlternation})://(?>[^\s""'<>\[\]]+)(?!\s*@)",
+            $@"(?<![a-zA-Z])({SchemeAlternation})://(?>[^\s""'<>]+)(?!\s*@)",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         // ====================== HOST FILTER (EXACT/SUFFIX ONLY) ======================
@@ -124,14 +124,11 @@ namespace ProxyCollector.Collector
         {
             var b = ip.GetAddressBytes();
 
-            // IPv4-mapped IPv6 (::ffff:a.b.c.d): bytes [10] and [11] are both 0xFF,
-            // with the embedded IPv4 in bytes [12..16]. Re-check as plain IPv4 so
-            // mapped private, multicast, and reserved IPv4 ranges cannot slip through.
-            if (ip.AddressFamily == AddressFamily.InterNetworkV6 && b.Length == 16
-                && b[10] == 0xFF && b[11] == 0xFF)
-            {
+            // Only the actual ::ffff:0:0/96 IPv4-mapped range should be mapped.
+            // Checking bytes 10–11 alone misclassifies unrelated global IPv6 addresses
+            // whose sixth hextet happens to be ffff.
+            if (ip.IsIPv4MappedToIPv6)
                 return IsPrivateOrReservedIp(ip.MapToIPv4());
-            }
 
             if (ip.AddressFamily == AddressFamily.InterNetwork)
             {
@@ -639,6 +636,12 @@ namespace ProxyCollector.Collector
             return Regex.IsMatch(value, @"(?<![a-z0-9])warp(?:\+)?(?![a-z0-9])", RegexOptions.IgnoreCase);
         }
 
+        internal static bool HasWarpRemark(string link)
+        {
+            int hash = (link ?? "").IndexOf('#');
+            return hash >= 0 && IsWarpMetadata(link[(hash + 1)..]);
+        }
+
         private static bool IsCloudflareMetadata(ParsedProxy p)
         {
             static bool IsCfDomain(string value)
@@ -681,6 +684,29 @@ namespace ProxyCollector.Collector
             if (IsWarpMetadata(remark)) return true;
             return NormalizeProto(p.Protocol) == "wireguard" &&
                    link.Contains("cloudflareclient", StringComparison.OrdinalIgnoreCase);
+        }
+
+        internal static bool IsCloudflareFinal(FinalProxy p)
+        {
+            string host = (p.Host ?? "").Trim().Trim('[', ']');
+            if (IPAddress.TryParse(host, out var ip) && IsCloudflareIp(ip)) return true;
+
+            static bool IsServiceDomain(string host, string domain) =>
+                host.Equals(domain, StringComparison.OrdinalIgnoreCase) ||
+                host.EndsWith("." + domain, StringComparison.OrdinalIgnoreCase);
+
+            if (IsServiceDomain(host, "cloudflare.com") ||
+                IsServiceDomain(host, "cloudflareclient.com") ||
+                IsServiceDomain(host, "workers.dev") ||
+                IsServiceDomain(host, "pages.dev") ||
+                IsServiceDomain(host, "trycloudflare.com"))
+                return true;
+
+            // Metadata policy applies to the display label, not arbitrary SNI/query text:
+            // a legitimate origin may use cloudflare.com as its TLS camouflage SNI.
+            string remark = p.Remark ?? "";
+            return remark.Contains("cloudflare", StringComparison.OrdinalIgnoreCase) ||
+                   IsWarpMetadata(remark);
         }
 
         private async Task<List<ParsedProxy>> DropCloudflareNodesAsync(List<ParsedProxy> proxies)
@@ -1036,7 +1062,10 @@ namespace ProxyCollector.Collector
 
             GroupStart("🧹 Step 2/5 — Parsing & smart dedup");
             LogInfo("🧹 Parsing & smart dedup...");
-            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            // Identity keys normalize only fields that are semantically case-insensitive.
+            // Ordinal comparison is required to preserve case-sensitive credentials, paths,
+            // and REALITY public keys.
+            var seen = new HashSet<string>(StringComparer.Ordinal);
             var uniqueProxies = new List<ParsedProxy>();
             int processed = 0, badHostFiltered = 0, placeholderFiltered = 0, emptyCredFiltered = 0;
 
@@ -1044,8 +1073,8 @@ namespace ProxyCollector.Collector
             // explicitly Iran-tested source can upgrade the kept node's trust flag.
             // (Which source's line wins the dedup race is bag-order nondeterminism —
             // this makes trust "ANY tested source contributed it", not "the winner".)
-            var byKey = new Dictionary<string, ParsedProxy>(StringComparer.OrdinalIgnoreCase);
-            var keySources = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+            var byKey = new Dictionary<string, ParsedProxy>(StringComparer.Ordinal);
+            var keySources = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
             var testedSrcCache = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             bool SrcTested(string u)
             {
@@ -1350,21 +1379,6 @@ namespace ProxyCollector.Collector
             // This catches converted YAML/WireGuard entries whose source metadata was not
             // represented identically by the initial URI parser. All output files, including
             // per-protocol files and both WireGuard export formats, are built from this list.
-            bool IsCloudflareFinal(FinalProxy p)
-            {
-                string host = (p.Host ?? "").Trim().Trim('[', ']');
-                string text = ((p.Link ?? "") + " " + (p.Remark ?? "")).ToLowerInvariant();
-                if (IPAddress.TryParse(host, out var ip) && IsCloudflareIp(ip)) return true;
-                if (host.EndsWith(".cloudflare.com", StringComparison.OrdinalIgnoreCase) ||
-                    host.EndsWith(".cloudflareclient.com", StringComparison.OrdinalIgnoreCase) ||
-                    host.EndsWith(".workers.dev", StringComparison.OrdinalIgnoreCase) ||
-                    host.EndsWith(".pages.dev", StringComparison.OrdinalIgnoreCase) ||
-                    host.EndsWith(".trycloudflare.com", StringComparison.OrdinalIgnoreCase)) return true;
-                return text.Contains("cloudflare") || text.Contains("cloudflareclient") ||
-                       text.Contains("workers.dev") || text.Contains("pages.dev") ||
-                       text.Contains("trycloudflare.com") || text.Contains("warp://") ||
-                       IsWarpMetadata(p.Remark ?? "");
-            }
             int finalCloudflareDropped = finalProxies.RemoveAll(IsCloudflareFinal);
             if (finalCloudflareDropped > 0)
                 LogWarning($"Final-output Cloudflare/WARP safety filter dropped {finalCloudflareDropped} converted entries before any files were written.");
@@ -1533,7 +1547,7 @@ namespace ProxyCollector.Collector
         //   - different SNI/path/REALITY keys (fronting & transport variants)
         private async Task<List<ParsedProxy>> CollapseHostAliasesAsync(List<ParsedProxy> proxies)
         {
-            var index = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var index = new Dictionary<string, int>(StringComparer.Ordinal);
             var kept = new List<ParsedProxy>();
             int collapsed = 0;
 
@@ -1572,33 +1586,27 @@ namespace ProxyCollector.Collector
         private async Task<List<ParsedProxy>> DropTcpRefusedAsync(List<ParsedProxy> proxies)
         {
             // RST on connect = the server's own TCP stack saying nothing listens on that
-            // port. This is the exact opposite of the removed v6-style check: there, a
-            // timeout meant "dead"; here a timeout means "unknown, keep". UDP-based
-            // protocols skip entirely — RST semantics don't apply to them (v6.4 lesson).
-            // Connects go to the pre-resolved IP from the resolver cache, so the 3s
-            // budget is purely the handshake — the v6.7 regression (DNS resolution
-            // eating the connect timeout) structurally cannot recur here.
+            // port. A timeout or other error is inconclusive and always keeps the node.
             var candidates = proxies
                 .Where(p => !UdpProtocols.Contains(p.Protocol) && int.TryParse(p.Port, out _))
                 .ToList();
             if (candidates.Count == 0) return proxies;
 
-            // v6.12: probe ENDPOINTS (resolved IP + port), not nodes. An RST is a
-            // property of the endpoint, not the credential — but the dedup key
-            // deliberately keeps cred/SNI/path variants apart, so one host:port with
-            // 3 nodes was probed 3 times, and CF-fronted hostnames collapse onto shared
-            // IPs on top of that. Sequential warm-cache lookups (~free), probe each
-            // endpoint once, refuse ⇒ drop every node mapped to it. Breaker still
-            // counts NODES (dropped / candidates), unchanged semantics.
+            // Probe every resolved address for each hostname. A multi-address hostname is
+            // dead only if every answer explicitly refuses the port; one refused A record
+            // must not discard a node whose AAAA/other A record can still serve clients.
             var endpointSet = new Dictionary<(string Ip, int Port), byte>();
-            var nodeEndpoints = new List<(ParsedProxy Node, string Ip, int Port)>(candidates.Count);
+            var nodeEndpoints = new List<(ParsedProxy Node, IPAddress[] Addresses, int Port)>(candidates.Count);
             foreach (var p in candidates)
             {
-                var ip = await Resolver.ResolveAsync(p.Host);   // cache hit from GeoIP stage
-                if (ip == null) continue;                       // unresolvable — DNS filter's territory
+                var addresses = (await Resolver.ResolveAllAsync(p.Host))
+                    .Distinct()
+                    .ToArray();
+                if (addresses.Length == 0) continue; // unresolvable = DNS filter's territory
                 int port = int.Parse(p.Port);
-                endpointSet.TryAdd((ip.ToString(), port), 0);
-                nodeEndpoints.Add((p, ip.ToString(), port));
+                foreach (var ip in addresses)
+                    endpointSet.TryAdd((ip.ToString(), port), 0);
+                nodeEndpoints.Add((p, addresses, port));
             }
             if (endpointSet.Count == 0) return proxies;
 
@@ -1607,27 +1615,26 @@ namespace ProxyCollector.Collector
                 async (ep, ct) =>
                 {
                     using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                    timeoutCts.CancelAfter(TimeSpan.FromSeconds(3));   // without this a
-                                                                      // blackholed SYN hangs
-                                                                      // ~2min on OS defaults
+                    timeoutCts.CancelAfter(TimeSpan.FromSeconds(3));
                     try
                     {
                         using var tcp = new TcpClient();
                         await tcp.ConnectAsync(IPAddress.Parse(ep.Ip), ep.Port, timeoutCts.Token);
-                        // connected — endpoint stays (we deliberately don't send anything)
+                        // Connected — this endpoint is alive (we deliberately send nothing).
                     }
                     catch (SocketException e) when (e.SocketErrorCode == SocketError.ConnectionRefused)
                     {
-                        deadEndpoints.Add(ep);        // affirmative death only
+                        deadEndpoints.Add(ep); // affirmative death for this address only
                     }
-                    catch (OperationCanceledException) { /* 3s timeout — inconclusive, keep */ }
+                    catch (OperationCanceledException) { /* timeout — inconclusive, keep */ }
                     catch { /* unreachable / no-v6-route / anything else — keep */ }
                 });
 
             if (deadEndpoints.IsEmpty) return proxies;
 
             var deadSet = deadEndpoints.ToHashSet();
-            int droppedNodes = nodeEndpoints.Count(ne => deadSet.Contains((ne.Ip, ne.Port)));
+            int droppedNodes = nodeEndpoints.Count(ne =>
+                AllResolvedEndpointsRefused(ne.Addresses, ne.Port, deadSet));
             if (droppedNodes > candidates.Count * MaxDropFraction)
             {
                 LogWarning($"TCP filter: {deadSet.Count} refused endpoints ({droppedNodes}/{candidates.Count} nodes) — over {MaxDropFraction:P0} circuit breaker, keeping all.");
@@ -1635,12 +1642,23 @@ namespace ProxyCollector.Collector
             }
 
             var deadNodeKeys = nodeEndpoints
-                .Where(ne => deadSet.Contains((ne.Ip, ne.Port)))
+                .Where(ne => AllResolvedEndpointsRefused(ne.Addresses, ne.Port, deadSet))
                 .Select(ne => ne.Node.DeduplicationKey)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                .ToHashSet(StringComparer.Ordinal);
             var result = proxies.Where(p => !deadNodeKeys.Contains(p.DeduplicationKey)).ToList();
-            LogWarning($"TCP-refused: dropped {proxies.Count - result.Count} nodes across {deadSet.Count} refused endpoints (RST received, port closed).");
+            LogWarning($"TCP-refused: dropped {proxies.Count - result.Count} nodes across {deadSet.Count} refused endpoints (all resolved addresses refused).");
             return result;
+        }
+
+        internal static bool AllResolvedEndpointsRefused(
+            IEnumerable<IPAddress> addresses,
+            int port,
+            ISet<(string Ip, int Port)> refusedEndpoints)
+        {
+            var unique = addresses.Select(ip => ip.ToString())
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            return unique.Length > 0 && unique.All(ip => refusedEndpoints.Contains((ip, port)));
         }
 
         // ====================== XRAY DEEP CHECK (v6.15) ======================
@@ -3072,7 +3090,7 @@ namespace ProxyCollector.Collector
                 // v6.12: Flow and ObfsPassword appended — see ParseProxyLine. Without them,
                 // "vless://u@h:443?flow=xtls-rprx-vision" and "vless://u@h:443" collapsed
                 // into one key and one variant was silently lost.
-                return $"{NP(Protocol)}:{hostKey}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path.Trim().ToLowerInvariant()}:{Pbk.ToLowerInvariant()}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}";
+                return $"{NP(Protocol)}:{hostKey}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}";
             }
         }
 		
@@ -3083,7 +3101,7 @@ namespace ProxyCollector.Collector
         {
             string portKey = int.TryParse(Port, out int pn) ? pn.ToString() : Port.Trim();
             string sniKey  = string.IsNullOrEmpty(Sni) ? canonicalHost : Sni.Trim().ToLowerInvariant();
-            return $"{NP(Protocol)}:{canonicalHost.ToLowerInvariant()}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path.Trim().ToLowerInvariant()}:{Pbk.ToLowerInvariant()}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}";        }
+            return $"{NP(Protocol)}:{canonicalHost.ToLowerInvariant()}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}";        }
 
         // Case handling in the credential part of the dedup key. The old blanket
         // Credential.ToLowerInvariant() was right for UUIDs (hex, case-insensitive) but

@@ -24,6 +24,42 @@ namespace ProxyCollector.Collector
 {
     public partial class ProxyCollector
     {
+        internal static void PublishStagedDirectory(
+            string finalDirectory, string stagingDirectory, string backupDirectory,
+            Action<string, string>? moveDirectory = null)
+        {
+            Action<string, string> move = moveDirectory ?? Directory.Move;
+            bool movedOldTree = false;
+            if (Directory.Exists(finalDirectory))
+            {
+                move(finalDirectory, backupDirectory);
+                movedOldTree = true;
+            }
+
+            try
+            {
+                move(stagingDirectory, finalDirectory);
+            }
+            catch
+            {
+                if (movedOldTree && !Directory.Exists(finalDirectory) && Directory.Exists(backupDirectory))
+                    move(backupDirectory, finalDirectory);
+                throw;
+            }
+
+            if (Directory.Exists(backupDirectory))
+            {
+                try { Directory.Delete(backupDirectory, recursive: true); }
+                catch (Exception ex)
+                {
+                    // If backup cleanup fails, fail the run rather than commit an
+                    // ambiguous mix of the new publication and an old rollback tree.
+                    Console.Error.WriteLine($"Could not remove rollback directory: {ex.Message}");
+                    throw;
+                }
+            }
+        }
+
         private async Task SaveAllCategories(List<FinalProxy> proxies, string sourceReportCsv)
         {
             var root = Directory.GetCurrentDirectory();
@@ -281,39 +317,9 @@ namespace ProxyCollector.Collector
                 sourceReportCsv, new UTF8Encoding(false));
             LogSuccess($"Saved source audit: sub/diagnostics/source-health.csv");
 
-            // Publish only after every output has been generated. Keep the old tree as
-            // a rollback copy until the staged tree is in place; if the second rename
-            // fails, restore the previous tree before surfacing the error.
-            bool movedOldTree = false;
-            if (Directory.Exists(finalSub))
-            {
-                Directory.Move(finalSub, backupSub);
-                movedOldTree = true;
-            }
-
-            try
-            {
-                Directory.Move(stagingSub, finalSub);
-            }
-            catch
-            {
-                if (movedOldTree && !Directory.Exists(finalSub) && Directory.Exists(backupSub))
-                    Directory.Move(backupSub, finalSub);
-                throw;
-            }
-
-            if (Directory.Exists(backupSub))
-            {
-                try { Directory.Delete(backupSub, recursive: true); }
-                catch (Exception ex)
-                {
-                    // The workflow stages all repository changes for publication. Never
-                    // leave an un-audited old output tree at the repo root and then return
-                    // success; fail the run so it cannot be committed alongside sub/.
-                    LogError($"Could not remove rollback directory; refusing to publish this run: {ex.Message}");
-                    throw;
-                }
-            }
+            // Publish the new tree atomically and restore the previous tree if the
+            // stage-to-final move fails. Keep this transaction isolated for regression tests.
+            PublishStagedDirectory(finalSub, stagingSub, backupSub);
 
             LogSuccess($"Published complete output tree: {finalSub}");
         }

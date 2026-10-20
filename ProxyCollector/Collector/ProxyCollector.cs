@@ -1793,7 +1793,7 @@ namespace ProxyCollector.Collector
         //   - different ports on one host (separate inbounds; one may survive when
         //     the censor blocks the other)
         //   - different credentials on one host:port (different access)
-        //   - different SNI/path/REALITY keys (fronting & transport variants)
+        //   - different effective SNI or implicit WS/H2 Host values, paths, or REALITY keys
         internal static string BuildAliasCanonicalHost(
             string host, IEnumerable<IPAddress> resolvedAddresses)
         {

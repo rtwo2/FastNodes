@@ -3052,7 +3052,15 @@ namespace ProxyCollector.Collector
                         fields[key] = val;
                     }
 
-                    var link = ClashFieldsToLink(fields);
+                    // Reuse the complete converter for flow-style YAML as well; normalize
+                    // its legacy flat aliases so VMess and Shadowsocks don't lose options.
+                    if (fields.TryGetValue("ws-path", out var legacyWsPath) &&
+                        !fields.ContainsKey("ws-opts.path"))
+                        fields["ws-opts.path"] = legacyWsPath;
+                    if (fields.TryGetValue("ws-host", out var legacyWsHost) &&
+                        !fields.ContainsKey("ws-opts.headers.Host"))
+                        fields["ws-opts.headers.Host"] = legacyWsHost;
+                    var link = ClashFieldsToLinkV2(fields);
                     if (link != null) results.Add(link);
                 }
                 catch { }
@@ -3142,8 +3150,10 @@ namespace ProxyCollector.Collector
             bool tls = f.GetValueOrDefault("tls", "").Equals("true", StringComparison.OrdinalIgnoreCase);
             string sni     = f.GetValueOrDefault("servername", f.GetValueOrDefault("sni", ""));
             string network = f.GetValueOrDefault("network", "tcp");
-            string path    = f.GetValueOrDefault("ws-opts.path", f.GetValueOrDefault("h2-opts.path", ""));
-            string hostHdr = f.GetValueOrDefault("ws-opts.headers.Host", "");
+            string path    = f.GetValueOrDefault("ws-opts.path",
+                f.GetValueOrDefault("h2-opts.path", f.GetValueOrDefault("ws-path", f.GetValueOrDefault("path", ""))));
+            string hostHdr = f.GetValueOrDefault("ws-opts.headers.Host",
+                f.GetValueOrDefault("ws-host", f.GetValueOrDefault("host", "")));
             string flow    = f.GetValueOrDefault("flow", "");
             string fp      = f.GetValueOrDefault("client-fingerprint", "");
             string pbk     = f.GetValueOrDefault("reality-opts.public-key", "");

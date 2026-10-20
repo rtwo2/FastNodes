@@ -2905,58 +2905,93 @@ namespace ProxyCollector.Collector
                         string type = typeEl.GetString()?.ToLowerInvariant() ?? "";
                         if (!ob.TryGetProperty("server", out var serverEl)) continue;
                         string server = serverEl.GetString() ?? "";
-                        int port = ob.TryGetProperty("server_port", out var portEl) && portEl.ValueKind == JsonValueKind.Number
+                        int port = ob.TryGetProperty("server_port", out var portEl) &&
+                                   portEl.ValueKind == JsonValueKind.Number
                             ? portEl.GetInt32() : 0;
-                        if (string.IsNullOrEmpty(server) || port <= 0) continue;
+                        if (string.IsNullOrEmpty(server) || port is < 1 or > 65535) continue;
+                        string uriServer = FormatUriHost(server);
 
                         string uuid = ob.TryGetProperty("uuid", out var u) ? u.GetString() ?? "" : "";
                         string password = ob.TryGetProperty("password", out var pw) ? pw.GetString() ?? "" : "";
                         string name = ob.TryGetProperty("tag", out var tag) ? tag.GetString() ?? "" : "";
+                        string remark = Uri.EscapeDataString(name);
 
                         string sni = "";
                         bool tls = false;
+                        bool allowInsecure = false;
+                        string alpn = "", fingerprint = "";
                         string realityPbk = "", realitySid = "";
                         if (ob.TryGetProperty("tls", out var tlsEl) && tlsEl.ValueKind == JsonValueKind.Object)
                         {
                             if (tlsEl.TryGetProperty("enabled", out var en) && en.ValueKind == JsonValueKind.True) tls = true;
                             if (tlsEl.TryGetProperty("server_name", out var sn)) sni = sn.GetString() ?? "";
-                            // sing-box nests REALITY under tls.reality — without this a
-                            // REALITY outbound was rebuilt as security=tls with no
-                            // pbk/sid: a link that can never connect.
+                            if (tlsEl.TryGetProperty("insecure", out var insecure) && insecure.ValueKind == JsonValueKind.True)
+                                allowInsecure = true;
+                            if (tlsEl.TryGetProperty("alpn", out var alpnEl))
+                            {
+                                if (alpnEl.ValueKind == JsonValueKind.Array)
+                                    alpn = string.Join(",", alpnEl.EnumerateArray()
+                                        .Where(v => v.ValueKind == JsonValueKind.String)
+                                        .Select(v => v.GetString() ?? ""));
+                                else if (alpnEl.ValueKind == JsonValueKind.String)
+                                    alpn = alpnEl.GetString() ?? "";
+                            }
+                            if (tlsEl.TryGetProperty("utls", out var utls) && utls.ValueKind == JsonValueKind.Object &&
+                                utls.TryGetProperty("fingerprint", out var fpEl))
+                                fingerprint = fpEl.GetString() ?? "";
+                            // sing-box nests REALITY under tls.reality.
                             if (tlsEl.TryGetProperty("reality", out var re) && re.ValueKind == JsonValueKind.Object)
                             {
                                 realityPbk = re.TryGetProperty("public_key", out var pk) ? pk.GetString() ?? "" : "";
                                 realitySid = re.TryGetProperty("short_id", out var si) ? si.GetString() ?? "" : "";
                             }
                         }
-                        string flow = ob.TryGetProperty("flow", out var fl) ? fl.GetString() ?? "" : "";
 
-                        string transport = "tcp", path = "";
+                        string flow = ob.TryGetProperty("flow", out var fl) ? fl.GetString() ?? "" : "";
+                        string transport = "tcp", path = "", hostHeader = "", serviceName = "", earlyDataHeaderName = "";
+                        int earlyData = 0;
                         if (ob.TryGetProperty("transport", out var tEl) && tEl.ValueKind == JsonValueKind.Object)
                         {
                             if (tEl.TryGetProperty("type", out var ttEl)) transport = ttEl.GetString() ?? "tcp";
                             if (tEl.TryGetProperty("path", out var pEl)) path = pEl.GetString() ?? "";
+                            if (tEl.TryGetProperty("service_name", out var serviceEl)) serviceName = serviceEl.GetString() ?? "";
+                            if (tEl.TryGetProperty("max_early_data", out var edEl) && edEl.TryGetInt32(out int ed) && ed > 0)
+                                earlyData = ed;
+                            if (tEl.TryGetProperty("early_data_header_name", out var ehEl))
+                                earlyDataHeaderName = ehEl.GetString() ?? "";
+                            if (tEl.TryGetProperty("headers", out var headers) && headers.ValueKind == JsonValueKind.Object)
+                                foreach (var header in headers.EnumerateObject())
+                                    if (header.Name.Equals("Host", StringComparison.OrdinalIgnoreCase) &&
+                                        header.Value.ValueKind == JsonValueKind.String)
+                                    {
+                                        hostHeader = header.Value.GetString() ?? "";
+                                        break;
+                                    }
                         }
 
-                        string remark = Uri.EscapeDataString(name);
+                        string vmessCipher = ob.TryGetProperty("security", out var cipherEl) &&
+                                             cipherEl.ValueKind == JsonValueKind.String
+                            ? cipherEl.GetString() ?? "auto" : "auto";
+                        string alterId = ob.TryGetProperty("alter_id", out var alterEl) &&
+                                         alterEl.ValueKind == JsonValueKind.Number
+                            ? alterEl.GetInt32().ToString() : "0";
+
                         string? link = type switch
                         {
-                            // vmess now goes through BuildVmessLink — it used to emit
-                            // "vmess://uuid@host:port?..." which is not a real vmess link
-                            // (those are base64 JSON) and ParseProxyLine silently dropped
-                            // every one of them.
                             "vmess" when !string.IsNullOrEmpty(uuid) =>
                                 BuildVmessLink(server, port.ToString(), uuid, transport,
-                                    tls ? "tls" : "", sni, path, "0", name),
+                                    tls ? "tls" : "", sni, path, alterId, name,
+                                    hostHeader, fingerprint, alpn, vmessCipher,
+                                    serviceName, earlyData, earlyDataHeaderName, allowInsecure),
                             "vless" when !string.IsNullOrEmpty(uuid) =>
-                                $"vless://{uuid}@{server}:{port}?security={(realityPbk.Length > 0 ? "reality" : tls ? "tls" : "none")}&type={transport}&sni={Uri.EscapeDataString(sni)}&path={Uri.EscapeDataString(path)}&flow={Uri.EscapeDataString(flow)}&pbk={Uri.EscapeDataString(realityPbk)}&sid={Uri.EscapeDataString(realitySid)}#{remark}",
+                                $"vless://{uuid}@{uriServer}:{port}?security={(realityPbk.Length > 0 ? "reality" : tls ? "tls" : "none")}&type={transport}&sni={Uri.EscapeDataString(sni)}&path={Uri.EscapeDataString(path)}&flow={Uri.EscapeDataString(flow)}&pbk={Uri.EscapeDataString(realityPbk)}&sid={Uri.EscapeDataString(realitySid)}#{remark}",
                             "trojan" when !string.IsNullOrEmpty(password) =>
-                                $"trojan://{password}@{server}:{port}?sni={Uri.EscapeDataString(sni)}&type={transport}#{remark}",
+                                $"trojan://{Uri.EscapeDataString(password)}@{uriServer}:{port}?sni={Uri.EscapeDataString(sni)}&type={transport}#{remark}",
                             "hysteria2" when !string.IsNullOrEmpty(password) =>
-                                $"hysteria2://{password}@{server}:{port}?sni={Uri.EscapeDataString(sni)}#{remark}",
+                                $"hysteria2://{Uri.EscapeDataString(password)}@{uriServer}:{port}?sni={Uri.EscapeDataString(sni)}#{remark}",
                             "tuic" when !string.IsNullOrEmpty(uuid) =>
-                                $"tuic://{uuid}:{password}@{server}:{port}?sni={Uri.EscapeDataString(sni)}#{remark}",
-                            "shadowsocks" => BuildSsLinkFromJson(ob, server, port, remark),
+                                $"tuic://{Uri.EscapeDataString(uuid)}:{Uri.EscapeDataString(password)}@{uriServer}:{port}?sni={Uri.EscapeDataString(sni)}#{remark}",
+                            "shadowsocks" => BuildSsLinkFromJson(ob, uriServer, port, remark),
                             _ => null
                         };
                         if (link != null) results.Add(link);
@@ -2968,18 +3003,30 @@ namespace ProxyCollector.Collector
             return results;
         }
 
-        // SIP002 userinfo is STANDARD base64 — the old version URL-safe'd it (- and _
-        // instead of + and /), which ParseShadowsocksLink then failed to decode for any
-        // base64 containing + or / (i.e. almost all of them), silently dropping the node.
+        // SIP002 plugin options must be preserved. Omitting them produces a syntactically
+        // valid but unusable link whenever the source Shadowsocks outbound requires a plugin.
         private static string? BuildSsLinkFromJson(JsonElement ob, string server, int port, string remark)
         {
             string method = ob.TryGetProperty("method", out var m) ? m.GetString() ?? "" : "";
             string password = ob.TryGetProperty("password", out var p) ? p.GetString() ?? "" : "";
             if (string.IsNullOrEmpty(method) || string.IsNullOrEmpty(password)) return null;
+
             string userinfo = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{method}:{password}"));
-            return $"ss://{userinfo}@{server}:{port}#{remark}";
+            string plugin = ob.TryGetProperty("plugin", out var pluginEl) &&
+                            pluginEl.ValueKind == JsonValueKind.String ? pluginEl.GetString() ?? "" : "";
+            string pluginOptions = ob.TryGetProperty("plugin_opts", out var optionsEl) &&
+                                   optionsEl.ValueKind == JsonValueKind.String ? optionsEl.GetString() ?? "" : "";
+            string pluginQuery = "";
+            if (!string.IsNullOrWhiteSpace(plugin))
+            {
+                string pluginValue = plugin.Trim();
+                if (!string.IsNullOrWhiteSpace(pluginOptions))
+                    pluginValue += ";" + pluginOptions.Trim().TrimStart(';');
+                pluginQuery = "?plugin=" + Uri.EscapeDataString(pluginValue);
+            }
+            return $"ss://{userinfo}@{server}:{port}{pluginQuery}#{remark}";
         }
-		
+
         // Parses flow-style Clash proxy entries: "- {name: x, type: vless, server: 1.2.3.4,
         // port: 443, uuid: ..., ...}" — this is the common machine-generated Clash YAML shape
         // used by most of the aggregator repos in the source list. Deliberately does NOT
@@ -3103,6 +3150,9 @@ namespace ProxyCollector.Collector
             string sid     = f.GetValueOrDefault("reality-opts.short-id", "");
             string grpc    = f.GetValueOrDefault("grpc-opts.grpc-service-name", "");
             string alpn    = f.GetValueOrDefault("alpn", "");
+            int.TryParse(f.GetValueOrDefault("ws-opts.max-early-data", "0"), out int earlyData);
+            string earlyDataHeaderName = f.GetValueOrDefault("ws-opts.early-data-header-name", "");
+            string cipher = f.GetValueOrDefault("cipher", "auto");
 
             var q = new List<string>();
             void Q(string k, string v) { if (!string.IsNullOrEmpty(v)) q.Add($"{k}={Uri.EscapeDataString(v)}"); }
@@ -3135,9 +3185,10 @@ namespace ProxyCollector.Collector
                 }
                 case "vmess" when f.ContainsKey("uuid"):
                     return BuildVmessLink(server, port, f["uuid"], network, tls ? "tls" : "",
-                        string.IsNullOrEmpty(sni) ? hostHdr : sni, path,
-                        f.GetValueOrDefault("alterId", f.GetValueOrDefault("aid", "0")),
-                        f.GetValueOrDefault("name", ""));
+                        sni, path, f.GetValueOrDefault("alterId", f.GetValueOrDefault("aid", "0")),
+                        f.GetValueOrDefault("name", ""), hostHdr, fp, alpn, cipher,
+                        grpc, earlyData, earlyDataHeaderName,
+                        f.GetValueOrDefault("skip-cert-verify", "").Equals("true", StringComparison.OrdinalIgnoreCase));
                 case "tuic" when f.ContainsKey("uuid") && f.ContainsKey("password"):
                 {
                     Q("congestion_control", f.GetValueOrDefault("congestion-controller", f.GetValueOrDefault("congestion_control", "bbr")));
@@ -3170,8 +3221,8 @@ namespace ProxyCollector.Collector
                 {
                     // SIP002: standard base64 userinfo (NOT URL-safe — the parser
                     // couldn't decode URL-safe base64 for nearly all payloads).
-                    string ui = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{f["cipher"]}:{f["password"]}"));
-                    return $"ss://{ui}@{server}:{port}#{remark}";
+                    return BuildSsLinkFromClashFields(f["cipher"], f["password"], uriServer, port, remark,
+                        BuildClashShadowsocksPlugin(f));
                 }
                 default:
                     return null;
@@ -3190,6 +3241,13 @@ namespace ProxyCollector.Collector
             bool tls = f.GetValueOrDefault("tls", "false").Equals("true", StringComparison.OrdinalIgnoreCase);
             string sni = f.GetValueOrDefault("servername", f.GetValueOrDefault("sni", ""));
             string network = f.GetValueOrDefault("network", "tcp");
+            string hostHeader = f.GetValueOrDefault("ws-opts.headers.Host", f.GetValueOrDefault("host", ""));
+            string fingerprint = f.GetValueOrDefault("client-fingerprint", f.GetValueOrDefault("fp", ""));
+            string alpn = f.GetValueOrDefault("alpn", "");
+            string serviceName = f.GetValueOrDefault("grpc-opts.grpc-service-name", "");
+            int.TryParse(f.GetValueOrDefault("ws-opts.max-early-data", "0"), out int earlyData);
+            string earlyDataHeaderName = f.GetValueOrDefault("ws-opts.early-data-header-name", "");
+            string cipher = f.GetValueOrDefault("cipher", "auto");
 
             return type switch
             {
@@ -3200,7 +3258,9 @@ namespace ProxyCollector.Collector
                     BuildVmessLink(server, port, f["uuid"], network,
                         tls ? "tls" : "", sni, f.GetValueOrDefault("ws-path", ""),
                         f.GetValueOrDefault("alterId", f.GetValueOrDefault("aid", "0")),
-                        f.GetValueOrDefault("name", "")),
+                        f.GetValueOrDefault("name", ""), hostHeader, fingerprint, alpn, cipher,
+                        serviceName, earlyData, earlyDataHeaderName,
+                        f.GetValueOrDefault("skip-cert-verify", "").Equals("true", StringComparison.OrdinalIgnoreCase)),
                 "vless" when f.ContainsKey("uuid") =>
                     $"vless://{f["uuid"]}@{uriServer}:{port}?security={(tls ? "tls" : "none")}&type={network}&sni={Uri.EscapeDataString(sni)}#{remark}",
                 "trojan" when f.ContainsKey("password") =>
@@ -3210,15 +3270,38 @@ namespace ProxyCollector.Collector
                 // Standard base64 userinfo now — was URL-safe, which the parser couldn't
                 // decode for nearly all real base64 payloads.
                 "ss" or "shadowsocks" when f.ContainsKey("cipher") && f.ContainsKey("password") =>
-                    BuildSsLinkFromClashFields(f["cipher"], f["password"], uriServer, port, remark),
+                    BuildSsLinkFromClashFields(f["cipher"], f["password"], uriServer, port, remark,
+                        BuildClashShadowsocksPlugin(f)),
                 _ => null
             };
         }
 
-        private static string BuildSsLinkFromClashFields(string cipher, string password, string server, string port, string remark)
+        private static string BuildSsLinkFromClashFields(
+            string cipher, string password, string server, string port, string remark, string pluginValue = "")
         {
             string userinfo = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{cipher}:{password}"));
-            return $"ss://{userinfo}@{server}:{port}#{remark}";
+            string pluginQuery = string.IsNullOrWhiteSpace(pluginValue)
+                ? "" : "?plugin=" + Uri.EscapeDataString(pluginValue);
+            return $"ss://{userinfo}@{server}:{port}{pluginQuery}#{remark}";
+        }
+
+        private static string BuildClashShadowsocksPlugin(Dictionary<string, string> fields)
+        {
+            string plugin = fields.GetValueOrDefault("plugin", "");
+            if (string.IsNullOrWhiteSpace(plugin)) return "";
+            string options = fields.GetValueOrDefault("plugin-opts", fields.GetValueOrDefault("plugin_opts", ""));
+            if (string.IsNullOrWhiteSpace(options))
+            {
+                var optionPairs = fields
+                    .Where(kv => kv.Key.StartsWith("plugin-opts.", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase)
+                    .Select(kv => kv.Key[(kv.Key.IndexOf('.') + 1)..] + "=" + kv.Value)
+                    .ToArray();
+                options = string.Join(";", optionPairs);
+            }
+            return string.IsNullOrWhiteSpace(options)
+                ? plugin.Trim()
+                : plugin.Trim() + ";" + options.Trim().TrimStart(';');
         }
 
         // ====================== SAVE OUTPUTS ======================

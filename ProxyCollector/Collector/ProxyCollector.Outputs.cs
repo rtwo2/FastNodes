@@ -563,6 +563,9 @@ namespace ProxyCollector.Collector
             return new SerializerBuilder().Build().Serialize(document);
         }
 
+        internal static bool IsValidWireguardLink(string link)
+            => TryParseWireguardInfo(link) is not null;
+
         private static WgInfo? TryParseWireguardInfo(string link)
         {
             try

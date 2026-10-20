@@ -187,6 +187,32 @@ internal static class Program
               }
             },
             {
+              "type": "vless", "tag": "vless-options", "server": "vless.example.net",
+              "server_port": 443, "uuid": "01234567-89ab-cdef-0123-456789abcdef",
+              "flow": "xtls-rprx-vision",
+              "tls": {
+                "enabled": true, "server_name": "tls-vless.example.net",
+                "alpn": ["h2"],
+                "utls": { "enabled": true, "fingerprint": "chrome" },
+                "reality": { "enabled": true, "public_key": "reality-public-key", "short_id": "01" }
+              },
+              "transport": {
+                "type": "ws", "path": "/entry",
+                "headers": { "Host": "ws-vless.example.net" }
+              }
+            },
+            {
+              "type": "hysteria2", "tag": "hy2-options", "server": "hy2.example.net",
+              "server_port": 8443, "password": "hy2-secret",
+              "obfs": { "type": "salamander", "password": "obfs-secret" },
+              "up_mbps": 30, "down_mbps": 50,
+              "tls": {
+                "enabled": true, "server_name": "hy2-tls.example.net",
+                "alpn": ["h3"],
+                "utls": { "enabled": true, "fingerprint": "chrome" }
+              }
+            },
+            {
               "type": "shadowsocks", "tag": "ss-plugin", "server": "ss.example.net",
               "server_port": 8388, "method": "aes-128-gcm", "password": "secret",
               "plugin": "obfs-local", "plugin_opts": "obfs=http;obfs-host=example.org"
@@ -196,8 +222,8 @@ internal static class Program
         """;
         var convertedSingbox = CollectorType.DecodeAndExtractLines(
             singboxJson, "https://example.net/config.json");
-        Checks.Equal(2, convertedSingbox.Count,
-            "sing-box conversion returns both VMess and plugin-based Shadowsocks outbounds");
+        Checks.Equal(4, convertedSingbox.Count,
+            "sing-box conversion preserves VMess, VLESS, Hysteria2 and plugin-based Shadowsocks outbounds");
         string convertedVmess = convertedSingbox.Single(x => x.StartsWith("vmess://", StringComparison.Ordinal));
         string convertedVmessJson = Encoding.UTF8.GetString(Convert.FromBase64String(convertedVmess["vmess://".Length..]));
         using (var convertedVmessDoc = JsonDocument.Parse(convertedVmessJson))
@@ -225,6 +251,27 @@ internal static class Program
             "Shadowsocks SIP002 plugin and plugin options survive sing-box conversion");
         Checks.That(CollectorType.ParseProxyLine(convertedSs) is not null,
             "converted plugin-based Shadowsocks link remains parseable");
+        string convertedVless = convertedSingbox.Single(x => x.StartsWith("vless://", StringComparison.Ordinal));
+        Checks.That(convertedVless.Contains("host=ws-vless.example.net", StringComparison.Ordinal) &&
+                    convertedVless.Contains("fp=chrome", StringComparison.Ordinal) &&
+                    convertedVless.Contains("alpn=h2", StringComparison.Ordinal) &&
+                    convertedVless.Contains("serviceName", StringComparison.Ordinal) == false &&
+                    convertedVless.Contains("pbk=reality-public-key", StringComparison.Ordinal) &&
+                    convertedVless.Contains("sid=01", StringComparison.Ordinal) &&
+                    convertedVless.Contains("flow=xtls-rprx-vision", StringComparison.Ordinal),
+            "sing-box VLESS conversion retains WS Host, fingerprint, ALPN, REALITY keys and flow");
+        var convertedVlessParsed = CollectorType.ParseProxyLine(convertedVless);
+        Checks.That(convertedVlessParsed is not null, "converted VLESS link remains parseable");
+        Checks.Equal("tls-vless.example.net", convertedVlessParsed!.Sni,
+            "converted VLESS retains the configured TLS SNI");
+        string convertedHy2 = convertedSingbox.Single(x => x.StartsWith("hysteria2://", StringComparison.Ordinal));
+        Checks.That(convertedHy2.Contains("obfs=salamander", StringComparison.Ordinal) &&
+                    convertedHy2.Contains("obfs-password=obfs-secret", StringComparison.Ordinal) &&
+                    convertedHy2.Contains("upmbps=30", StringComparison.Ordinal) &&
+                    convertedHy2.Contains("downmbps=50", StringComparison.Ordinal) &&
+                    convertedHy2.Contains("alpn=h3", StringComparison.Ordinal),
+            "sing-box Hysteria2 conversion retains obfuscation, ALPN and bandwidth options");
+
 
 
         var vmessIpv6 = CollectorType.ParseProxyLine(
@@ -506,6 +553,35 @@ internal static class Program
         {
             if (Directory.Exists(publishRoot)) Directory.Delete(publishRoot, recursive: true);
         }
+
+
+        var flatClash = """
+        proxies:
+          - {name: flow-vmess, type: vmess, server: vmess.example.net, port: 443, uuid: 01234567-89ab-cdef-0123-456789abcdef, network: ws, tls: true, sni: tls.example.net, ws-path: /socket, ws-host: ws.example.net, client-fingerprint: chrome, alpn: h2, cipher: chacha20-poly1305}
+          - {name: flow-ss, type: ss, server: ss.example.net, port: 8388, cipher: aes-128-gcm, password: secret, plugin: obfs-local, plugin-opts: "obfs=http;obfs-host=example.org"}
+        """;
+        var convertedFlatClash = CollectorType.DecodeAndExtractLines(flatClash, "https://example.net/config.yaml");
+        Checks.Equal(2, convertedFlatClash.Count,
+            "flow-style Clash YAML routes to the unified structured converter");
+        string flatVmess = convertedFlatClash.Single(x => x.StartsWith("vmess://", StringComparison.Ordinal));
+        string flatVmessJson = Encoding.UTF8.GetString(Convert.FromBase64String(flatVmess["vmess://".Length..]));
+        using (var flatVmessDoc = JsonDocument.Parse(flatVmessJson))
+        {
+            var root = flatVmessDoc.RootElement;
+            Checks.Equal("ws.example.net", root.GetProperty("host").GetString(),
+                "flow-style Clash VMess keeps the WebSocket Host header");
+            Checks.Equal("tls.example.net", root.GetProperty("sni").GetString(),
+                "flow-style Clash VMess keeps SNI distinct");
+            Checks.Equal("chrome", root.GetProperty("fp").GetString(),
+                "flow-style Clash VMess keeps client fingerprint");
+            Checks.Equal("chacha20-poly1305", root.GetProperty("scy").GetString(),
+                "flow-style Clash VMess keeps cipher choice");
+        }
+        string flatSs = convertedFlatClash.Single(x => x.StartsWith("ss://", StringComparison.Ordinal));
+        Checks.That(flatSs.Contains("plugin=obfs-local", StringComparison.Ordinal) &&
+                    flatSs.Contains("obfs%3Dhttp", StringComparison.Ordinal) &&
+                    flatSs.Contains("obfs-host%3Dexample.org", StringComparison.Ordinal),
+            "flow-style Clash Shadowsocks keeps plugin options");
 
         Console.WriteLine($"Parser regression tests passed ({Checks.Count} assertions).");
     }

@@ -27,6 +27,16 @@ internal static class Program
         Checks.Equal(4, distinctSources.Length,
             "source dedup normalizes host case and equivalent GitHub raw URLs without folding path or query-value case");
 
+        Checks.Equal(256 * 1024 * 1024,
+            CollectorType.GetSourceResponseByteLimit("https://raw.githubusercontent.com/sevcator/5ubscrpt10n/main/protocols/vl.txt"),
+            "the known oversized sevcator VLESS feed gets the larger response cap");
+        Checks.Equal(64 * 1024 * 1024,
+            CollectorType.GetSourceResponseByteLimit("https://raw.githubusercontent.com/example/proxies/main/list.txt"),
+            "ordinary source feeds retain the default 64 MiB response cap");
+        Checks.Equal(64 * 1024 * 1024,
+            CollectorType.GetSourceResponseByteLimit("https://raw.githubusercontent.com/sevcator/5ubscrpt10n/main/protocols/vmess.txt"),
+            "the larger response cap does not apply to unrelated files in the same repository");
+
         using (var exactContent = new ByteArrayContent(Encoding.UTF8.GetBytes("12345678")))
         {
             Checks.Equal("12345678",

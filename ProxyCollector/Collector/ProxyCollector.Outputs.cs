@@ -362,6 +362,7 @@ namespace ProxyCollector.Collector
                         lower.Contains("pages.dev") ||
                         lower.Contains("trycloudflare.com") ||
                         lower.Contains("warp://") ||
+                        HasWarpRemark(link) ||
                         (NormalizeProto(parsed.Protocol) == "wireguard" && lower.Contains("warp")))
                         return;
 

@@ -140,6 +140,17 @@ internal static class Program
         Checks.That(!CollectorType.AllResolvedEndpointsRefused(Array.Empty<IPAddress>(), 443, refusedEndpoints),
             "an empty DNS answer is inconclusive, not evidence of a refused endpoint");
 
+        var wireguardDefaultPort = CollectorType.ParseProxyLine(
+            "wireguard://privatekey@wg.example.net?pk=serverpub");
+        Checks.That(wireguardDefaultPort is not null, "portless WireGuard URI parses");
+        Checks.Equal("51820", wireguardDefaultPort!.Port,
+            "portless WireGuard URI uses the protocol default rather than generic TLS port 443");
+        var wgAliasDefaultPort = CollectorType.ParseProxyLine(
+            "wg://privatekey@wg.example.net?pk=serverpub");
+        Checks.That(wgAliasDefaultPort is not null, "portless wg alias parses");
+        Checks.Equal("51820", wgAliasDefaultPort!.Port,
+            "portless wg alias uses the WireGuard protocol default");
+
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");
         Checks.That(ipv6 is not null, "VLESS IPv6 link parses");

@@ -1922,6 +1922,26 @@ namespace ProxyCollector.Collector
         private static bool IsXrayCandidate(ParsedProxy p) =>
             NormalizeProto(p.Protocol) is "vless" or "vmess" or "trojan" or "ss";   // xray-supported only (no QUIC)
 
+        internal static List<ParsedProxy> RankXrayCandidates(
+            IEnumerable<ParsedProxy> proxies,
+            IReadOnlyDictionary<string, string> countryCache,
+            int maxCount = XrayTopN)
+        {
+            if (maxCount <= 0) return new List<ParsedProxy>();
+
+            // Evidence first: current independent liveness, then source consensus.
+            // Geography is only a tie-breaker, so a nearby single-source node cannot
+            // outrank a far-away node supported by substantially more independent feeds.
+            return proxies
+                .Where(p => IsXrayCandidate(p) && int.TryParse(p.Port, out _))
+                .OrderByDescending(p => p.TlsVerified)
+                .ThenByDescending(p => p.IranTested)
+                .ThenByDescending(p => p.SourceCount)
+                .ThenBy(p => countryCache.TryGetValue(p.Host, out var cc) ? ProximityTier(cc) : 9)
+                .Take(maxCount)
+                .ToList();
+        }
+
         private async Task XrayVerifyAsync(List<ParsedProxy> proxies,
             ConcurrentDictionary<string, string> countryCache)
         {
@@ -1937,14 +1957,7 @@ namespace ProxyCollector.Collector
             // evidence and source consensus first; geography is only a tie-breaker.
             // Streaks are updated after this stage, so do not rank this pool by stale or
             // not-yet-computed streak fields. Runner success is not the user's own test.
-            var candidates = proxies
-                .Where(p => IsXrayCandidate(p) && int.TryParse(p.Port, out _))
-                .OrderByDescending(p => p.TlsVerified)
-                .ThenByDescending(p => p.IranTested)
-                .ThenBy(p => countryCache.TryGetValue(p.Host, out var cc) ? ProximityTier(cc) : 9)
-                .ThenByDescending(p => p.SourceCount)
-                .Take(XrayTopN)
-                .ToList();
+            var candidates = RankXrayCandidates(proxies, countryCache, XrayTopN);
             if (candidates.Count == 0) { LogInfo("Xray deep check: no candidates."); return; }
 
             // ---- build one config: inbound[i] socks on port 21000+i → outbound ob{port} ----

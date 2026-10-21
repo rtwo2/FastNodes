@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# New pushes to the same PR cancel stale checks instead of queueing duplicate work.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.x
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.x"
+      - name: Validate validator self-tests
+        run: python3 scripts/validate_outputs.py --self-test
+      - name: Validate Cloudflare/WARP audit self-tests
+        run: python3 scripts/audit_cloudflare_warp.py --self-test
+      - name: Validate committed subscription outputs
+        run: python3 scripts/validate_outputs.py sub
+      - name: Build ProxyCollector
+        run: dotnet build ProxyCollector --configuration Release
+      - name: Run parser regression tests
+        run: dotnet run --configuration Release --project ProxyCollector.Tests

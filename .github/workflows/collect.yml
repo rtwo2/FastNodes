@@ -880,13 +880,10 @@ jobs:
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/itsyebekhe/reality.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/liketolivefree.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/maimengmeng/custom.yaml
-            https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/mfuu.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/peasoft.list/yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/proxypool.link.yaml
-            https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/pxypool.131433.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/roosterkid.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/snakem982-clash/meta-2.yaml
-            https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/snakem982-clash/meta.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/ts-sf.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/tt.vg.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/Telegram_Eag1e_YT.yaml
@@ -962,31 +959,15 @@ jobs:
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/liketolivefree_sub.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/masir-sefid/masir_sefid.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/muma16fx.netlify.app.yaml
-            https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/namira.dev.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/peasoft_list_raw.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/qiaomenzhuanfx.netlify.app.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/rb360full_Reza/2.yaml
-            https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/robin.nscl.ir.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/roosterkid/V2RAY_BASE64.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/shadowmere.xyz.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/tristan-deng_MyNodes.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/v2hub-configs/Sub_AutoUpdate.yaml
-            https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/subrostunnel_vercel_wl.yaml
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/whoahaow/rjsxrd_bypass_all.yaml
             # --- Additional user-provided subscription sources (not availability-tested) ---
-            https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/ss_configs.txt
-            https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/V2Ray-Config-By-EbraSha.txt
-            https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vmess_configs.txt
-            https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector_Py/refs/heads/main/sub/United%20States/config.txt
-            https://raw.githubusercontent.com/10ium/ScrapeAndCategorize/refs/heads/main/output_configs/Hysteria2.txt
-            https://raw.githubusercontent.com/aqayerez/MatnOfficial-VPN/refs/heads/main/MatnOfficial%23MatnOfficial
-            https://raw.githubusercontent.com/V2RAYCONFIGSPOOL/V2RAY_SUB/refs/heads/main/v2ray_configs.txt
-            https://raw.githubusercontent.com/mshojaei77/v2rayAuto/refs/heads/main/telegram/popular_channels_1
-            https://raw.githubusercontent.com/mshojaei77/v2rayAuto/refs/heads/main/telegram/popular_channels_2
-            https://raw.githubusercontent.com/mshojaei77/v2rayAuto/refs/heads/main/subs/hysteria
-            https://raw.githubusercontent.com/mshojaei77/v2rayAuto/refs/heads/main/subs/hy2
-            https://raw.githubusercontent.com/MrMohebi/xray-proxy-grabber-telegram/refs/heads/master/collected-proxies/xray-json-full/actives_all.json
-            https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/Sub9.txt
 
       - name: Drop malformed VLESS lines before validating outputs
         if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}

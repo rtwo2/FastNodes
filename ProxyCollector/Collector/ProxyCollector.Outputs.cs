@@ -608,12 +608,14 @@ namespace ProxyCollector.Collector
             int sourceCap = DiversityCap(ranked, x => x.SourceGroup, outputCount, 5);
             int providerCap = DiversityCap(ranked, x => x.ProviderGroup, outputCount, 10);
             int hostnameCap = DiversityCap(ranked, x => x.HostGroup, outputCount, 5);
+            int transportCap = DiversityCap(ranked, x => x.TransportGroup, outputCount, 25);
 
             var selected = new List<FinalProxy>(outputCount);
             var selectedLinks = new HashSet<string>(StringComparer.Ordinal);
             var sourceCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var providerCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var hostnameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var transportCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
             bool CanAdd(FinalProxy candidate, bool enforceCaps)
             {
@@ -623,7 +625,8 @@ namespace ProxyCollector.Collector
                     string.IsNullOrWhiteSpace(group) || !counts.TryGetValue(group, out int count) || count < cap;
                 return WithinCap(sourceCounts, candidate.SourceGroup, sourceCap)
                     && WithinCap(providerCounts, candidate.ProviderGroup, providerCap)
-                    && WithinCap(hostnameCounts, candidate.HostGroup, hostnameCap);
+                    && WithinCap(hostnameCounts, candidate.HostGroup, hostnameCap)
+                    && WithinCap(transportCounts, candidate.TransportGroup, transportCap);
             }
 
             void AddCandidates(IEnumerable<FinalProxy> candidates, int limit, bool enforceCaps = true)
@@ -645,6 +648,7 @@ namespace ProxyCollector.Collector
                     Bump(sourceCounts, candidate.SourceGroup);
                     Bump(providerCounts, candidate.ProviderGroup);
                     Bump(hostnameCounts, candidate.HostGroup);
+                    Bump(transportCounts, candidate.TransportGroup);
                 }
             }
 
@@ -682,7 +686,7 @@ namespace ProxyCollector.Collector
             var topLinks = top.Select(x => x.Link).ToHashSet(StringComparer.Ordinal);
             var topIpv6Links = topIpv6.Select(x => x.Link).ToHashSet(StringComparer.Ordinal);
             var csv = new StringBuilder();
-            csv.AppendLine("diagnostic_rank,node_id,host,port,protocol,evidence_tier,evidence_level,verification_status,score,tls_status,xray_status,edge_status,source_tested,source_count,source_group,provider_group,hostname_group,presence_streak,tls_success_streak,xray_success_streak,in_top_txt,in_top_ipv6_txt");
+            csv.AppendLine("diagnostic_rank,node_id,host,port,protocol,evidence_tier,evidence_level,verification_status,score,tls_status,xray_status,edge_status,source_tested,source_count,source_group,provider_group,hostname_group,transport_group,presence_streak,tls_success_streak,xray_success_streak,in_top_txt,in_top_ipv6_txt");
             for (int i = 0; i < rankedCandidates.Count; i++)
             {
                 var p = rankedCandidates[i];
@@ -699,7 +703,7 @@ namespace ProxyCollector.Collector
                     p.IranTested ? "true" : "false",
                     p.SourceCount.ToString(CultureInfo.InvariantCulture),
                     EscapeRankingCsv(p.SourceGroup), EscapeRankingCsv(p.ProviderGroup),
-                    EscapeRankingCsv(p.HostGroup),
+                    EscapeRankingCsv(p.HostGroup), EscapeRankingCsv(p.TransportGroup),
                     p.Streak.ToString(CultureInfo.InvariantCulture),
                     p.VerifiedStreak.ToString(CultureInfo.InvariantCulture),
                     p.XrayStreak.ToString(CultureInfo.InvariantCulture),

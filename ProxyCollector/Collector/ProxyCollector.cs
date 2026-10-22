@@ -1645,6 +1645,7 @@ namespace ProxyCollector.Collector
                     SourceCount = p.SourceCount, SourceGroup = p.SourceGroup,
                     ProviderGroup = GetProviderDiversityGroup(Loc(p.Host)),
                     HostGroup = GetHostnameDiversityGroup(p.Host),
+                    TransportGroup = $"{proto}:{p.Network.Trim().ToLowerInvariant()}:{p.Security.Trim().ToLowerInvariant()}",
                     Streak = p.Streak, VerifiedStreak = p.VerifiedStreak, XrayStreak = p.XrayStreak,
                     Score = score
                 });
@@ -2486,6 +2487,9 @@ namespace ProxyCollector.Collector
 
             int ok = 0, cfBlocked = 0, refused = 0, timeouts = 0, errors = 0, dnsFails = 0, tlsFails = 0;
             var edgeReasons = new ConcurrentDictionary<string, int>();
+            // Every node is now scheduled for a worker request. If the batch itself
+            // fails, these nodes were attempted—not skipped before testing.
+            foreach (var candidate in pool) candidate.EdgeTested = true;
             var batches = pool.Select((p, i) => (Node: p, Idx: i))
                 .GroupBy(x => x.Idx / EdgeBatchSize).ToList();
 
@@ -3699,6 +3703,7 @@ namespace ProxyCollector.Collector
         public string  SourceGroup      { get; set; } = "";
         public string  ProviderGroup    { get; set; } = "";
         public string  HostGroup        { get; set; } = "";
+        public string  TransportGroup    { get; set; } = "";
         public int     Streak           { get; set; }
         public int     VerifiedStreak   { get; set; }
         public int     XrayStreak       { get; set; }

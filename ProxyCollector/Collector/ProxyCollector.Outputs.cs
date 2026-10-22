@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -302,9 +303,15 @@ namespace ProxyCollector.Collector
             await File.WriteAllTextAsync(
                 Path.Combine(diagnosticsDir, "source-health.csv"),
                 sourceReportCsv, new UTF8Encoding(false));
+            var allNodesByEvidence = proxies
+                .OrderByDescending(x => x.EvidenceTier)
+                .ThenByDescending(x => x.Score)
+                .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
+                .ToList();
             await WriteVerificationReportAsync(
                 Path.Combine(diagnosticsDir, "verification-status.csv"),
-                topCandidates, top, topIpv6);
+                allNodesByEvidence, top, topIpv6);
             await WriteRankingCalibrationAsync(
                 Path.Combine(diagnosticsDir, "ranking-calibration.csv"),
                 Path.Combine(diagnosticsDir, "ranking-calibration-summary.csv"),
@@ -675,7 +682,7 @@ namespace ProxyCollector.Collector
             var topLinks = top.Select(x => x.Link).ToHashSet(StringComparer.Ordinal);
             var topIpv6Links = topIpv6.Select(x => x.Link).ToHashSet(StringComparer.Ordinal);
             var csv = new StringBuilder();
-            csv.AppendLine("candidate_rank,node_id,host,port,protocol,evidence_tier,evidence_level,verification_status,score,tls_status,xray_status,edge_status,source_tested,source_count,source_group,provider_group,hostname_group,presence_streak,tls_success_streak,xray_success_streak,in_top_txt,in_top_ipv6_txt");
+            csv.AppendLine("diagnostic_rank,node_id,host,port,protocol,evidence_tier,evidence_level,verification_status,score,tls_status,xray_status,edge_status,source_tested,source_count,source_group,provider_group,hostname_group,presence_streak,tls_success_streak,xray_success_streak,in_top_txt,in_top_ipv6_txt");
             for (int i = 0; i < rankedCandidates.Count; i++)
             {
                 var p = rankedCandidates[i];

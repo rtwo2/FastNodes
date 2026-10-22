@@ -157,24 +157,31 @@ def validate_tree(root: pathlib.Path) -> list[str]:
             f"ipv6_only.txt; sample: {sample!r}"
         )
 
-    # These feeds are all derived from the current-run final proxy pool. Unlike
-    # verified.txt, which may intentionally use a last-good snapshot, none of them
-    # should contain a link absent from everything.txt.
+    # Every current-run URI feed is derived from everything.txt. Checking only the
+    # global shortlist and family feeds missed mismatched protocol, country, continent,
+    # stable, TLS and curated outputs. verified.txt is the one intentional exception
+    # because it may retain a sanitized last-good snapshot.
     everything_links = {
         line.strip() for line in (root / "everything.txt").read_text(encoding="utf-8-sig").splitlines()
         if line.strip()
     }
-    for name in ("top.txt", "ipv4_only.txt", "ipv6_only.txt"):
-        path = root / name
-        links = {
-            line.strip() for line in path.read_text(encoding="utf-8-sig").splitlines()
+    for path in sorted(root.rglob("*.txt")):
+        rel = path.relative_to(root).as_posix()
+        if rel in {"everything.txt", "verified.txt"}:
+            continue
+        lines = [
+            line.strip()
+            for line in path.read_text(encoding="utf-8-sig").splitlines()
             if line.strip()
-        }
-        missing = links - everything_links
+        ]
+        # WireGuard is deliberately published as Clash YAML, not URI-per-line.
+        if lines and lines[0].lower() == "proxies:":
+            continue
+        missing = set(lines) - everything_links
         if missing:
             sample = next(iter(missing))[:120]
             raise ValidationError(
-                f"{name} contains {len(missing)} node(s) missing from everything.txt; "
+                f"{rel} contains {len(missing)} node(s) missing from everything.txt; "
                 f"sample: {sample!r}"
             )
 
@@ -217,6 +224,15 @@ def self_test() -> None:
         (root / "everything.txt").write_text("\n".join(good) + "\n", encoding="utf-8")
         (root / "ipv4_only.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
+        (root / "stable.txt").write_text(good[0] + "\n", encoding="utf-8")
+        (root / "verified_tls.txt").write_text(good[1] + "\n", encoding="utf-8")
+        (root / "curated.txt").write_text(good[2] + "\n", encoding="utf-8")
+        (root / "protocols").mkdir()
+        (root / "protocols" / "vless.txt").write_text(good[0] + "\n", encoding="utf-8")
+        (root / "countries").mkdir()
+        (root / "countries" / "DE.txt").write_text(good[0] + "\n", encoding="utf-8")
+        (root / "continents").mkdir()
+        (root / "continents" / "Europe.txt").write_text(good[1] + "\n", encoding="utf-8")
         yaml = ('proxies:\n'
                 '  - name: "WG test 1"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n    reserved:\n      - 0\n      - 0\n      - 0\n'
                 '  - name: "WG test 2"\n    type: wireguard\n    server: "198.51.100.2"\n    port: 123\n')
@@ -224,6 +240,22 @@ def self_test() -> None:
         validate_tree(root)
 
         rogue_link = "vless://rogue@example.net:443?security=tls"
+        for rel in (
+            "stable.txt", "verified_tls.txt", "curated.txt",
+            "protocols/vless.txt", "countries/DE.txt", "continents/Europe.txt"
+        ):
+            path = root / rel
+            original = path.read_text(encoding="utf-8")
+            path.write_text(original + rogue_link + "\n", encoding="utf-8")
+            try:
+                validate_tree(root)
+            except ValidationError as exc:
+                if f"{rel} contains " not in str(exc) or "missing from everything.txt" not in str(exc):
+                    raise
+            else:
+                raise ValidationError(f"self-test failed to catch {rel} entries missing from everything.txt")
+            finally:
+                path.write_text(original, encoding="utf-8")
         for name in ("top.txt", "ipv4_only.txt", "ipv6_only.txt"):
             path = root / name
             original = path.read_text(encoding="utf-8")
@@ -278,7 +310,7 @@ def self_test() -> None:
         (root / "top_ipv6.txt").write_text(good[4] + "\n", encoding="utf-8")
         if validate_lines(root / "wireguard.txt")[0] != 2:
             raise ValidationError("self-test failed to count multiple YAML proxy entries")
-        (root / "protocols").mkdir()
+        (root / "protocols").mkdir(exist_ok=True)
         (root / "protocols" / "vless.txt").write_text("not a proxy URI\n", encoding="utf-8")
         try:
             validate_tree(root)

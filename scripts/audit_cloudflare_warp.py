@@ -9,6 +9,8 @@ TRANSPORT_RE = re.compile(r"(?i)(?:^|[?&;])\s*(host|sni|server_name|servername|a
 KV_RE = re.compile(r"(?i)^\s*(server|server-host|server_host|endpoint|address|remote|host|sni|server_name|servername|authority)\s*[:=]\s*(.*?)\s*$")
 ENDPOINT_DOMAINS = ("cloudflare.com", "cloudflareclient.com", "workers.dev", "pages.dev", "trycloudflare.com")
 TRANSPORT_SERVICE_DOMAINS = ("cloudflareclient.com", "workers.dev", "pages.dev", "trycloudflare.com")
+MIN_IPV4_PREFIXES = 10
+MIN_IPV6_PREFIXES = 5
 
 def decode_text(value):
     value = html.unescape(str(value or ""))
@@ -143,13 +145,28 @@ def uri_endpoints(line):
 
 def read_ranges(ipv4_path, ipv6_path):
     ranges = []
-    for path in (ipv4_path, ipv6_path):
+    inputs = (
+        (ipv4_path, 4, MIN_IPV4_PREFIXES),
+        (ipv6_path, 6, MIN_IPV6_PREFIXES),
+    )
+    for path, expected_version, minimum_count in inputs:
+        parsed = []
         for line in pathlib.Path(path).read_text(encoding="utf-8").splitlines():
             line = line.strip()
-            if line:
-                ranges.append(ipaddress.ip_network(line, strict=False))
-    if not any(net.version == 4 for net in ranges) or not any(net.version == 6 for net in ranges):
-        raise ValueError("Official Cloudflare IPv4 and IPv6 range lists must both be non-empty")
+            if not line:
+                continue
+            network = ipaddress.ip_network(line, strict=False)
+            if network.version != expected_version:
+                raise ValueError(
+                    f"{path}: expected IPv{expected_version} prefixes, got {network}"
+                )
+            parsed.append(network)
+        if len(parsed) < minimum_count:
+            raise ValueError(
+                f"{path}: only {len(parsed)} valid IPv{expected_version} prefix(es); "
+                f"need at least {minimum_count} to guard against truncated range data"
+            )
+        ranges.extend(parsed)
     return ranges
 
 def self_test():
@@ -174,6 +191,32 @@ def self_test():
         assert uri_endpoints(f"{scheme}://user@example.net:443") == ["example.net"]
     vmess = base64.b64encode(json.dumps({"add": "example.net", "ps": "Cloudflare node"}).encode()).decode()
     assert is_forbidden_label("vmess://" + vmess)
+
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        ipv4_path = pathlib.Path(tmp) / "ips-v4"
+        ipv6_path = pathlib.Path(tmp) / "ips-v6"
+        ipv4_path.write_text("\n".join(f"10.{i}.0.0/16" for i in range(MIN_IPV4_PREFIXES)))
+        ipv6_path.write_text("\n".join(f"2001:db8:{i:x}::/48" for i in range(MIN_IPV6_PREFIXES)))
+        assert len(read_ranges(ipv4_path, ipv6_path)) == MIN_IPV4_PREFIXES + MIN_IPV6_PREFIXES
+
+        ipv4_path.write_text("203.0.113.0/24\n")
+        try:
+            read_ranges(ipv4_path, ipv6_path)
+        except ValueError as exc:
+            assert "need at least" in str(exc)
+        else:
+            raise AssertionError("truncated Cloudflare IPv4 list was accepted")
+
+        ipv4_path.write_text("\n".join(f"10.{i}.0.0/16" for i in range(MIN_IPV4_PREFIXES)))
+        ipv6_path.write_text("\n".join(f"10.{i}.0.0/16" for i in range(MIN_IPV6_PREFIXES)))
+        try:
+            read_ranges(ipv4_path, ipv6_path)
+        except ValueError as exc:
+            assert "expected IPv6 prefixes" in str(exc)
+        else:
+            raise AssertionError("IPv4 prefixes in the IPv6 range file were accepted")
+
     print("Cloudflare/WARP audit self-tests passed.")
 
 def audit(output_dir, ranges):

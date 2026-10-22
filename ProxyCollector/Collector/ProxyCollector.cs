@@ -206,10 +206,43 @@ namespace ProxyCollector.Collector
                 if (b[0] == 0xFF) return true;                                          // ff00::/8 multicast
                 if (IPAddress.IsLoopback(ip) || ip.IsIPv6LinkLocal || ip.IsIPv6SiteLocal) return true;
                 if ((b[0] & 0xFE) == 0xFC) return true;                                 // fc00::/7 unique local
-                if (b[0] == 0x20 && b[1] == 0x01 && b[2] == 0x0D && b[3] == 0xB8) return true; // 2001:db8::/32 docs
+                if (NonPublicIpv6Ranges.Any(range => IsWithinIpv6Prefix(b, range.Network, range.Prefix)))
+                    return true;
             }
             return false;
         }
+
+        // IANA special-purpose IPv6 blocks that must not be treated as public proxy
+        // endpoints. Keep this explicit list covered by regression tests when the registry
+        // changes.
+        private static readonly (byte[] Network, int Prefix)[] NonPublicIpv6Ranges =
+        {
+            (IPAddress.Parse("100::").GetAddressBytes(), 64),
+            (IPAddress.Parse("100:0:0:1::").GetAddressBytes(), 64),
+            (IPAddress.Parse("64:ff9b:1::").GetAddressBytes(), 48),
+            (IPAddress.Parse("2001:2::").GetAddressBytes(), 48),
+            (IPAddress.Parse("2001:10::").GetAddressBytes(), 28),
+            (IPAddress.Parse("2001:db8::").GetAddressBytes(), 32),
+            (IPAddress.Parse("3fff::").GetAddressBytes(), 20),
+            (IPAddress.Parse("5f00::").GetAddressBytes(), 16)
+        };
+
+        private static bool IsWithinIpv6Prefix(byte[] address, byte[] network, int prefix)
+        {
+            int fullBytes = prefix / 8;
+            int remainingBits = prefix % 8;
+            for (int i = 0; i < fullBytes; i++)
+                if (address[i] != network[i]) return false;
+            if (remainingBits == 0) return true;
+            int mask = 0xFF << (8 - remainingBits);
+            return (address[fullBytes] & mask) == (network[fullBytes] & mask);
+        }
+
+        // Official Cloudflare lists currently have more prefixes than these minimums.
+        // Conservative thresholds detect obviously truncated/intercepted responses without
+        // pinning exact list sizes, which may change as Cloudflare adds/removes prefixes.
+        internal static bool HasPlausibleCloudflareRangeCounts(int ipv4Count, int ipv6Count)
+            => ipv4Count >= 10 && ipv6Count >= 5;
 
         // DNS names can return several A/AAAA records. A host is unsafe if ANY
         // answer is private/reserved or on the loaded IPv4 blacklist; checking only the
@@ -721,8 +754,9 @@ namespace ProxyCollector.Collector
             // The project explicitly promises that no Cloudflare nodes are published.
             // If either official list failed to load, continuing would silently weaken that
             // guarantee for one address family. Fail the run instead of publishing uncertain output.
-            if (CfCidrs.Length == 0 || CfCidrsV6.Length == 0)
-                throw new InvalidOperationException($"Cloudflare range data incomplete (IPv4={CfCidrs.Length}, IPv6={CfCidrsV6.Length}); refusing to generate outputs under the no-Cloudflare policy.");
+            if (!HasPlausibleCloudflareRangeCounts(CfCidrs.Length, CfCidrsV6.Length))
+                throw new InvalidOperationException(
+                    $"Cloudflare range data incomplete or truncated (IPv4={CfCidrs.Length}, IPv6={CfCidrsV6.Length}; need at least 10 IPv4 and 5 IPv6 prefixes); refusing to generate outputs under the no-Cloudflare policy.");
 
             LogSuccess($"Cloudflare ranges loaded: IPv4={CfCidrs.Length}, IPv6={CfCidrsV6.Length} CIDRs; all matching proxy nodes will be excluded from published outputs.");
         }

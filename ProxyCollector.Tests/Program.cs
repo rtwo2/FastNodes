@@ -134,9 +134,23 @@ internal static class Program
         })
             Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.Parse(address)),
                 $"non-public/reserved address {address} is rejected");
-        foreach (var address in new[] { "1.1.1.1", "8.8.8.8", "2001:4860:4860::8888" })
+        foreach (var address in new[]
+        {
+            "100::1", "100:0:0:1::1", "64:ff9b:1::1", "2001:2::1",
+            "2001:10::1", "3fff::1", "5f00::1"
+        })
+            Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.Parse(address)),
+                $"IANA non-global IPv6 prefix {address} is rejected");
+        foreach (var address in new[] { "1.1.1.1", "8.8.8.8", "2001:4860:4860::8888", "2001:20::1" })
             Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse(address)),
-                $"public address {address} remains eligible");
+                $"public or globally reachable address {address} remains eligible");
+
+        Checks.That(CollectorType.HasPlausibleCloudflareRangeCounts(15, 7),
+            "complete official Cloudflare IPv4/IPv6 range lists pass the integrity threshold");
+        Checks.That(!CollectorType.HasPlausibleCloudflareRangeCounts(9, 7),
+            "an obviously truncated Cloudflare IPv4 list fails closed");
+        Checks.That(!CollectorType.HasPlausibleCloudflareRangeCounts(15, 4),
+            "an obviously truncated Cloudflare IPv6 list fails closed");
         Checks.That(!CollectorType.HasUnsafeResolvedAddress(new[]
             { IPAddress.Parse("1.1.1.1"), IPAddress.Parse("2001:4860:4860::8888") }),
             "a hostname resolving only to public addresses remains eligible");

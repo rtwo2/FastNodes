@@ -30,6 +30,12 @@ jobs:
           python-version: "3.x"
       - name: Validate validator self-tests
         run: python3 scripts/validate_outputs.py --self-test
+      - name: Test collection health safeguards
+        run: |
+          python3 scripts/check_collection_health.py --self-test
+          python3 scripts/check_collection_health.py check --root sub --report /tmp/fastnodes-output-health.json
+      - name: Test source health summary
+        run: python3 scripts/summarize_source_health.py --self-test
       - name: Validate Cloudflare/WARP audit self-tests
         run: python3 scripts/audit_cloudflare_warp.py --self-test
       - name: Validate committed subscription outputs

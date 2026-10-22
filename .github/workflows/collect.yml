@@ -23,7 +23,8 @@ on:
 
 concurrency:
   group: collect
-  cancel-in-progress: false
+  # A fresh code push supersedes obsolete work; scheduled/manual runs do not cancel active runs.
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 permissions:
   contents: write
@@ -44,6 +45,10 @@ jobs:
 
       - name: Run output-validator self-tests
         run: python3 scripts/validate_outputs.py --self-test
+
+      - name: Capture previous output baseline
+        if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
+        run: python3 scripts/check_collection_health.py capture --root sub --output /tmp/fastnodes-output-baseline.json
 
       - name: Build ProxyCollector
         shell: bash
@@ -68,6 +73,7 @@ jobs:
           /tmp/xraybin/xray version
 
       - name: Run ProxyCollector
+        id: collector
         shell: bash
         run: |
           set -o pipefail
@@ -992,6 +998,10 @@ jobs:
           print(f"Removed {removed} malformed VLESS line(s) before output validation.")
           PY
 
+      - name: Check collection regression and output-size ceilings
+        if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
+        run: python3 scripts/check_collection_health.py check --root sub --baseline /tmp/fastnodes-output-baseline.json --report /tmp/fastnodes-output-health.json
+
       - name: Validate generated subscriptions before publishing
         if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
         shell: bash
@@ -1046,6 +1056,14 @@ jobs:
         if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
         run: python3 scripts/validate_outputs.py sub
 
+      - name: Summarize per-source contribution and failures
+        if: ${{ always() && steps.collector.outcome == 'success' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp sub/diagnostics/source-health.csv /tmp/fastnodes-source-health.csv
+          python3 scripts/summarize_source_health.py --input /tmp/fastnodes-source-health.csv --output /tmp/fastnodes-source-health-summary.md
+
       - name: Upload build and collector logs
         if: always()
         uses: actions/upload-artifact@v7
@@ -1054,6 +1072,9 @@ jobs:
           path: |
             /tmp/fastnodes-build.log
             /tmp/fastnodes-run.log
+            /tmp/fastnodes-output-health.json
+            /tmp/fastnodes-source-health-summary.md
+            /tmp/fastnodes-source-health.csv
           if-no-files-found: warn
           retention-days: 7
 

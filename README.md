@@ -194,6 +194,7 @@ FastNodes automatically collects public configurations, parses supported formats
 - **IPv4 and IPv6:** family feeds include dual-stack hostnames in both lists when DNS returns both address families.
 - **Cloudflare exclusion:** Cloudflare-hosted/fronted nodes are intended to be excluded from published outputs.
 - **Automatic updates:** follow the [Actions workflow](https://github.com/rtwo2/FastNodes/actions/workflows/collect.yml) to see run status and logs.
+- **Diagnostics:** `sub/diagnostics/source-health.csv` records per-source fetch, parse, and unique-contribution evidence. Workflow artifacts include a readable source summary and an output-regression/size report.
 
 ## Notes
 

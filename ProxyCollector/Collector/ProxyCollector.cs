@@ -2487,9 +2487,6 @@ namespace ProxyCollector.Collector
 
             int ok = 0, cfBlocked = 0, refused = 0, timeouts = 0, errors = 0, dnsFails = 0, tlsFails = 0;
             var edgeReasons = new ConcurrentDictionary<string, int>();
-            // Every node is now scheduled for a worker request. If the batch itself
-            // fails, these nodes were attempted—not skipped before testing.
-            foreach (var candidate in pool) candidate.EdgeTested = true;
             var batches = pool.Select((p, i) => (Node: p, Idx: i))
                 .GroupBy(x => x.Idx / EdgeBatchSize).ToList();
 
@@ -2513,6 +2510,9 @@ namespace ProxyCollector.Collector
                         };
                         req.Headers.Add("x-auth", auth);
 
+                        // Only mark this batch when its request is about to be sent.
+                        // Batches cancelled before scheduling stay explicitly not-tested.
+                        foreach (var candidate in batch) candidate.Node.EdgeTested = true;
                         try
                         {
                             using var resp = await _http.SendAsync(req, ct);

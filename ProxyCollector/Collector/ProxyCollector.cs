@@ -1426,6 +1426,7 @@ namespace ProxyCollector.Collector
                 {
                     p.IranTested = SrcTested(url);
                     p.SourceCount = 1;
+                    p.SourceGroup = GetSourceDiversityGroup(url);
                     keySources[key] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { url };
                     uniqueProxies.Add(p);
                     byKey[key] = p;
@@ -1628,28 +1629,23 @@ namespace ProxyCollector.Collector
                 string cleanLink = BuildCleanLink(p, remark);
                 string continent = GetContinent(cc);
 
-                // v6.14 composite score — the /top ranking. Only signals whose vantage
-                // bias is known: Iran-side trust (delegated), clean-vantage liveness
-                // (this hour), consistency streaks, ecosystem persistence, proximity.
-                // No single signal can carry a node to the top — convergence across
-                // vantage classes is what the score rewards.
-                int score = 0;
-                if (p.IranTested) score += 15;                      // delegated source test (useful signal, not a dominant region bias)
-                if (p.TlsVerified) score += 20;                     // clean-vantage liveness, this hour
-                if (p.XrayVerified) score += 35;                    // Increased weight: full proxy roundtrip
-                if (p.EdgeVerified) score += 20;                    // Increased weight: second-vantage TLS (CF edge)
-                score += Math.Min(p.VerifiedStreak, 5) * 2;         // up to +10 — verified N runs in a row
-                if (p.XrayStreak >= 2) score += Math.Min(p.XrayStreak, 5) * 3;  // up to +15 — roundtrip-verified N runs in a row (>=2 gate: the first run already paid via XrayVerified)
-                score += Math.Min(p.Streak, 20);                    // up to +20 — survived N hourly runs
-                score += Math.Max(0, (8 - ProximityTier(cc)) * 2); // up to +16 — modest region prior, never a region gate
-                if (p.SourceCount >= 2) score += Math.Min(p.SourceCount, 5) * 2;  // up to +10 — multi-source consensus
+                // Current-run evidence dominates. Stale streaks only help a node
+                // when that same check succeeds again in this run.
+                int score = CalculateRankingScore(p, cc);
 
                 finalProxies.Add(new FinalProxy
                 {
                     Link = cleanLink, Proto = proto, CountryCode = cc,
                     Continent = continent, Remark = remark, Host = p.Host,
-                    IranTested = p.IranTested, IsStable = p.IsStable, TlsVerified = p.TlsVerified,
-                    XrayVerified = p.XrayVerified, EdgeVerified = p.EdgeVerified,
+                    Port = p.Port, NodeId = HistKey(p.DeduplicationKey),
+                    IranTested = p.IranTested, IsStable = p.IsStable,
+                    TlsTested = p.TlsTested, TlsVerified = p.TlsVerified,
+                    XrayTested = p.XrayTested, XrayVerified = p.XrayVerified,
+                    EdgeTested = p.EdgeTested, EdgeVerified = p.EdgeVerified,
+                    SourceCount = p.SourceCount, SourceGroup = p.SourceGroup,
+                    ProviderGroup = GetProviderDiversityGroup(Loc(p.Host)),
+                    HostGroup = GetHostnameDiversityGroup(p.Host),
+                    Streak = p.Streak, VerifiedStreak = p.VerifiedStreak, XrayStreak = p.XrayStreak,
                     Score = score
                 });
             }
@@ -2161,6 +2157,7 @@ namespace ProxyCollector.Collector
                     async (localPort, ct) =>
                     {
                         if (stageSw.Elapsed > XrayStageBudget) return;   // budget cut lands in the tail
+                        portMap[localPort].XrayTested = true;
                         Interlocked.Increment(ref probed);
                         if (await ProbeViaSocksAsync(localPort, ct))
                         {
@@ -2520,6 +2517,8 @@ namespace ProxyCollector.Collector
                             foreach (var r in doc.RootElement.GetProperty("results").EnumerateArray())
                             {
                                 int id = r.GetProperty("id").GetInt32();
+                                if (id >= 0 && id < pool.Count)
+                                    pool[id].EdgeTested = true;
                                 string tcp = r.GetProperty("tcp").GetString() ?? "error";
                                 string? tlsR = r.TryGetProperty("tls", out var t) && t.ValueKind == JsonValueKind.String
                                     ? t.GetString() : null;
@@ -2738,6 +2737,9 @@ namespace ProxyCollector.Collector
                 LogInfo($"TLS verify: skipped {cfSkippedTls} CF-fronted hosts — edge handshake is uninformative; Xray roundtrip is their only valid life signal.");
 
             int probed = 0;
+            var nodesByEndpoint = nodeEndpoints
+                .GroupBy(ne => (ne.Ip, ne.Port, ne.Sni))
+                .ToDictionary(g => g.Key, g => g.Select(x => x.Node).ToList());
             var verified = new ConcurrentDictionary<(string, int, string), byte>();
             var failStats = new ConcurrentDictionary<string, int>();
             var failSamples = new ConcurrentBag<string>();
@@ -2750,6 +2752,9 @@ namespace ProxyCollector.Collector
                     CancellationToken = budgetCts.Token
                 }, async (ep, ct) =>
                 {
+                    var endpointKey = (ep.Ip, ep.Port, ep.Sni);
+                    if (nodesByEndpoint.TryGetValue(endpointKey, out var endpointNodes))
+                        foreach (var node in endpointNodes) node.TlsTested = true;
                     Interlocked.Increment(ref probed);
                     if (await TlsProbeAsync(ep.Addr, ep.Port, ep.Sni, ct, failStats, failSamples))
                         verified.TryAdd((ep.Ip, ep.Port, ep.Sni), 0);
@@ -3582,12 +3587,16 @@ namespace ProxyCollector.Collector
         public bool   IranTested  { get; set; }  // source explicitly tests nodes (Iran-side validation)
         public int    Streak      { get; set; } = 1;  // consecutive runs present (state/history.json)
         public bool   IsStable    { get; set; }  // streak >= StableMinRuns
-        public bool   TlsVerified { get; set; }  // completed TLS handshake w/ real SNI (clean vantage)
+        public bool   TlsTested    { get; set; }  // current-run TLS probe actually attempted
+        public bool   TlsVerified  { get; set; }  // completed TLS handshake w/ real SNI (clean vantage)
         public int    SourceCount    { get; set; } = 1;  // distinct sources publishing this node
+        public string SourceGroup    { get; set; } = ""; // first contributing source repo/provider group
         public int    VerifiedStreak { get; set; }       // consecutive runs TLS-verified (history.json)
         public int    XrayStreak     { get; set; }       // consecutive runs roundtrip-verified (history.json)
-        public bool   XrayVerified   { get; set; }       // full proxy roundtrip completed (this run)
-        public bool   EdgeVerified   { get; set; }       // TLS verified from the CF edge vantage (this run)
+        public bool   XrayTested    { get; set; }  // current-run end-to-end test actually attempted
+        public bool   XrayVerified  { get; set; }  // full proxy roundtrip completed (this run)
+        public bool   EdgeTested    { get; set; }  // current-run edge probe returned a per-node result
+        public bool   EdgeVerified  { get; set; }  // TLS verified from the CF edge vantage (this run)
         public string BaseLink    { get; set; } = "";
 
         // Canonical signature of connection-affecting options not represented by the
@@ -3671,17 +3680,52 @@ namespace ProxyCollector.Collector
     public class FinalProxy
     {
         public string  Link             { get; set; } = "";
+        public string  NodeId           { get; set; } = "";
         public string  Proto            { get; set; } = "";
+        public string  Host             { get; set; } = "";
+        public string  Port             { get; set; } = "";
         public string  CountryCode      { get; set; } = "XX";
         public string  Continent        { get; set; } = "Unknown";
         public string  Remark           { get; set; } = "";
-        public string  Host             { get; set; } = "";
         public bool    IranTested       { get; set; }
         public bool    IsStable         { get; set; }
+        public bool    TlsTested        { get; set; }
         public bool    TlsVerified      { get; set; }
-        public bool    XrayVerified     { get; set; }   // v6.15: full roundtrip via xray-core
-        public bool    EdgeVerified     { get; set; }   // v6.15: TLS verified from CF edge vantage
-        public int     Score            { get; set; }   // composite (0–187 since v6.18: 30 Iran + 20 TLS + 35 Xray + 20 Edge + 10 TLS-streak + 15 Xray-streak + 20 presence + 27 region + 10 source)
+        public bool    XrayTested       { get; set; }
+        public bool    XrayVerified     { get; set; }
+        public bool    EdgeTested       { get; set; }
+        public bool    EdgeVerified     { get; set; }
+        public int     SourceCount      { get; set; } = 1;
+        public string  SourceGroup      { get; set; } = "";
+        public string  ProviderGroup    { get; set; } = "";
+        public string  HostGroup        { get; set; } = "";
+        public int     Streak           { get; set; }
+        public int     VerifiedStreak   { get; set; }
+        public int     XrayStreak       { get; set; }
+        public int     Score            { get; set; }
+
+        // Current-run evidence tier is separate from upstream source provenance.
+        public int EvidenceTier => XrayVerified ? 3 : (TlsVerified || EdgeVerified) ? 2 : IranTested ? 1 : 0;
+        public string VerificationStatus =>
+            XrayVerified ? "full-roundtrip-passed" :
+            (TlsVerified || EdgeVerified) ? "partial-connectivity-passed" :
+            (TlsTested || XrayTested || EdgeTested) ? "tested-failed" :
+            "not-tested";
+    }
+
+    internal sealed class RankingBaselineSnapshot
+    {
+        public string CapturedAtUtc { get; set; } = "";
+        public List<RankingBaselineEntry> Nodes { get; set; } = new();
+    }
+
+    internal sealed class RankingBaselineEntry
+    {
+        public string NodeId { get; set; } = "";
+        public int Score { get; set; }
+        public int EvidenceTier { get; set; }
+        public string VerificationStatus { get; set; } = "";
+        public bool XrayVerified { get; set; }
     }
 
     public class NodeHistory

@@ -172,14 +172,7 @@ namespace ProxyCollector.Collector
             // /top is a globally ranked precision file. Require at least one affirmative
             // signal, then rank by converging evidence; geography contributes only a
             // modest prior. Keep the single unchunked 1000-node contract.
-            var topCandidates = proxies
-                .Where(x => x.TlsVerified || x.IranTested || x.XrayVerified || x.EdgeVerified)
-                .OrderByDescending(x => x.Score)
-                .ThenByDescending(x => x.XrayVerified)
-                .ThenByDescending(x => x.TlsVerified)
-                .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(x => x.Link, StringComparer.Ordinal)
-                .ToList();
+            var topCandidates = RankTopCandidates(proxies);
             var top = SelectTopWithIpv6Diversity(topCandidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 20);
             await File.WriteAllLinesAsync(Path.Combine(sub, "top.txt"), top.Select(x => x.Link));
             int topIpv6Count = top.Count(x => ipv6Links.Contains(x.Link));
@@ -196,15 +189,9 @@ namespace ProxyCollector.Collector
             // A focused shortlist for IPv6-capable endpoints. Keep the same evidence
             // gate and score ordering as top.txt, but rank across the full IPv6-capable
             // candidate pool instead of only intersecting the global top 1,000.
-            var topIpv6 = ipv6Proxies
-                .Where(x => x.TlsVerified || x.IranTested || x.XrayVerified || x.EdgeVerified)
-                .OrderByDescending(x => x.Score)
-                .ThenByDescending(x => x.XrayVerified)
-                .ThenByDescending(x => x.TlsVerified)
-                .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(x => x.Link, StringComparer.Ordinal)
-                .Take(1000)
-                .ToList();
+            var topIpv6Candidates = RankTopCandidates(ipv6Proxies);
+            var topIpv6 = SelectTopWithIpv6Diversity(
+                topIpv6Candidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 100);
             await File.WriteAllLinesAsync(Path.Combine(sub, "top_ipv6.txt"), topIpv6.Select(x => x.Link));
 
             // Publish the family feed after the shortlist is finalized, and include the
@@ -315,6 +302,13 @@ namespace ProxyCollector.Collector
             await File.WriteAllTextAsync(
                 Path.Combine(diagnosticsDir, "source-health.csv"),
                 sourceReportCsv, new UTF8Encoding(false));
+            await WriteVerificationReportAsync(
+                Path.Combine(diagnosticsDir, "verification-status.csv"),
+                topCandidates, top, topIpv6);
+            await WriteRankingCalibrationAsync(
+                Path.Combine(diagnosticsDir, "ranking-calibration.csv"),
+                Path.Combine(diagnosticsDir, "ranking-calibration-summary.csv"),
+                proxies);
             LogSuccess($"Saved source audit: sub/diagnostics/source-health.csv");
 
             // Publish the new tree atomically and restore the previous tree if the
@@ -485,6 +479,104 @@ namespace ProxyCollector.Collector
             return BuildClientNodeName(countryCode, $"{flag} {location}", host, port);
         }
 
+        // Current evidence gets a guaranteed lead over historical reputation.
+        internal static int CalculateRankingScore(ParsedProxy p, string countryCode)
+        {
+            int score = 0;
+            if (p.XrayVerified) score += 100;                  // full proxy roundtrip, this run
+            if (p.TlsVerified) score += 35;                    // TLS handshake, this run
+            if (p.EdgeVerified) score += 20;                   // independent edge TLS check, this run
+            if (p.IranTested) score += 15;                     // delegated upstream signal
+            if (p.TlsVerified) score += Math.Min(p.VerifiedStreak, 3);
+            if (p.XrayVerified) score += Math.Min(p.XrayStreak, 3) * 2;
+            score += Math.Min(Math.Max(p.Streak, 0), 5);       // small presence bonus only
+            score += Math.Max(0, 8 - ProximityTier(countryCode)) / 2; // at most +4
+            if (p.SourceCount >= 2) score += Math.Min(p.SourceCount, 5);
+            return score;
+        }
+
+        internal static int GetEvidenceTier(FinalProxy p) => p.EvidenceTier;
+
+        internal static string GetEvidenceLevel(FinalProxy p) => p.EvidenceTier switch
+        {
+            3 => "full-proxy-roundtrip",
+            2 => "partial-connectivity",
+            1 => "source-tested-only",
+            _ => "no-positive-evidence"
+        };
+
+        internal static string GetTestStatus(bool tested, bool passed) =>
+            passed ? "passed" : tested ? "failed" : "not-tested";
+
+        internal static string GetVerificationStatus(FinalProxy p) => p.VerificationStatus;
+
+        internal static List<FinalProxy> RankTopCandidates(IEnumerable<FinalProxy> proxies) =>
+            proxies
+                .Where(x => x.TlsVerified || x.IranTested || x.XrayVerified || x.EdgeVerified)
+                .OrderByDescending(x => x.EvidenceTier)
+                .ThenByDescending(x => x.Score)
+                .ThenByDescending(x => x.SourceCount)
+                .ThenByDescending(x => x.XrayVerified)
+                .ThenByDescending(x => x.TlsVerified)
+                .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
+                .ToList();
+
+        internal static string GetSourceDiversityGroup(string sourceUrl)
+        {
+            if (!Uri.TryCreate(sourceUrl, UriKind.Absolute, out var uri)) return "";
+            var segments = uri.AbsolutePath.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+            string host = uri.Host.ToLowerInvariant();
+            if ((host is "raw.githubusercontent.com" or "github.com") && segments.Length >= 2)
+                return $"github:{segments[0].ToLowerInvariant()}/{segments[1].Split('@')[0].ToLowerInvariant()}";
+            if (host == "cdn.jsdelivr.net" && segments.Length >= 3 &&
+                segments[0].Equals("gh", StringComparison.OrdinalIgnoreCase))
+                return $"github:{segments[1].ToLowerInvariant()}/{segments[2].Split('@')[0].ToLowerInvariant()}";
+            if (host == "gitlab.com" && segments.Length >= 2)
+                return $"gitlab:{segments[0].ToLowerInvariant()}/{segments[1].Split('@')[0].ToLowerInvariant()}";
+            return $"host:{host}";
+        }
+
+        internal static string GetProviderDiversityGroup(string location)
+        {
+            int separator = location.IndexOf(" · ", StringComparison.Ordinal);
+            if (separator < 0 || separator + 3 >= location.Length) return "";
+            return Regex.Replace(location[(separator + 3)..].Trim().ToLowerInvariant(), @"\s+", " ");
+        }
+
+        internal static string GetHostnameDiversityGroup(string host)
+        {
+            string normalized = (host ?? "").Trim().Trim('[', ']').TrimEnd('.').ToLowerInvariant();
+            if (normalized.Length == 0) return "";
+            if (IPAddress.TryParse(normalized, out var ip)) return "ip:" + ip.ToString().ToLowerInvariant();
+
+            string[] labels = normalized.Split('.', StringSplitOptions.RemoveEmptyEntries);
+            if (labels.Length <= 2) return string.Join(".", labels);
+            string suffix2 = labels[^2] + "." + labels[^1];
+            var compoundSuffixes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "co.uk", "org.uk", "gov.uk", "com.au", "net.au", "org.au",
+                "co.jp", "co.in", "com.br", "com.cn", "com.tr", "com.sg", "com.hk",
+                "com.tw", "com.mx", "co.za", "com.ar", "com.my", "com.vn"
+            };
+            return compoundSuffixes.Contains(suffix2)
+                ? string.Join(".", labels[^3..])
+                : suffix2;
+        }
+
+        private static int DiversityCap(
+            IReadOnlyList<FinalProxy> ranked, Func<FinalProxy, string> groupSelector,
+            int outputCount, int maximumSharePercent)
+        {
+            int groups = ranked.Select(groupSelector)
+                .Where(g => !string.IsNullOrWhiteSpace(g))
+                .Distinct(StringComparer.OrdinalIgnoreCase).Count();
+            if (groups == 0) return outputCount;
+            int shareCap = Math.Max(1, (int)Math.Ceiling(outputCount * maximumSharePercent / 100.0));
+            int balancedCap = Math.Max(1, (int)Math.Ceiling(outputCount / (double)groups));
+            return Math.Min(outputCount, Math.Max(shareCap, balancedCap));
+        }
+
         internal static List<FinalProxy> SelectTopWithIpv6Diversity(
             IReadOnlyList<FinalProxy> rankedCandidates,
             ISet<string> ipv6Links,
@@ -495,37 +587,246 @@ namespace ProxyCollector.Collector
             if (ipv6SharePercent is < 0 or > 100)
                 throw new ArgumentOutOfRangeException(nameof(ipv6SharePercent));
 
-            int outputCount = Math.Min(maxCount, rankedCandidates.Count);
+            var ranked = rankedCandidates
+                .GroupBy(x => x.Link, StringComparer.Ordinal)
+                .Select(g => g.First())
+                .OrderByDescending(x => x.EvidenceTier)
+                .ThenByDescending(x => x.Score)
+                .ThenByDescending(x => x.SourceCount)
+                .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
+                .ToList();
+            int outputCount = Math.Min(maxCount, ranked.Count);
             int ipv6Target = (int)Math.Ceiling(outputCount * (ipv6SharePercent / 100.0));
+            int sourceCap = DiversityCap(ranked, x => x.SourceGroup, outputCount, 5);
+            int providerCap = DiversityCap(ranked, x => x.ProviderGroup, outputCount, 10);
+            int hostnameCap = DiversityCap(ranked, x => x.HostGroup, outputCount, 5);
+
             var selected = new List<FinalProxy>(outputCount);
             var selectedLinks = new HashSet<string>(StringComparer.Ordinal);
+            var sourceCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var providerCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var hostnameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-            void AddCandidates(IEnumerable<FinalProxy> candidates, int limit)
+            bool CanAdd(FinalProxy candidate, bool enforceCaps)
+            {
+                if (selectedLinks.Contains(candidate.Link)) return false;
+                if (!enforceCaps) return true;
+                static bool WithinCap(Dictionary<string, int> counts, string group, int cap) =>
+                    string.IsNullOrWhiteSpace(group) || !counts.TryGetValue(group, out int count) || count < cap;
+                return WithinCap(sourceCounts, candidate.SourceGroup, sourceCap)
+                    && WithinCap(providerCounts, candidate.ProviderGroup, providerCap)
+                    && WithinCap(hostnameCounts, candidate.HostGroup, hostnameCap);
+            }
+
+            void AddCandidates(IEnumerable<FinalProxy> candidates, int limit, bool enforceCaps = true)
             {
                 int added = 0;
                 foreach (var candidate in candidates)
                 {
-                    if (selected.Count >= maxCount || added >= limit) break;
-                    if (!selectedLinks.Add(candidate.Link)) continue;
+                    if (selected.Count >= outputCount || added >= limit) break;
+                    if (!CanAdd(candidate, enforceCaps)) continue;
                     selected.Add(candidate);
+                    selectedLinks.Add(candidate.Link);
                     added++;
+                    static void Bump(Dictionary<string, int> counts, string group)
+                    {
+                        if (string.IsNullOrWhiteSpace(group)) return;
+                        counts.TryGetValue(group, out int current);
+                        counts[group] = current + 1;
+                    }
+                    Bump(sourceCounts, candidate.SourceGroup);
+                    Bump(providerCounts, candidate.ProviderGroup);
+                    Bump(hostnameCounts, candidate.HostGroup);
                 }
             }
 
-            // Preserve the global score ranking within each family: take the best
-            // IPv6-capable nodes first, fill the remainder from the global pool,
-            // then backfill any shortage without duplicates.
-            AddCandidates(rankedCandidates.Where(x => ipv6Links.Contains(x.Link)), ipv6Target);
-            AddCandidates(rankedCandidates.Where(x => !ipv6Links.Contains(x.Link)), maxCount - selected.Count);
-            AddCandidates(rankedCandidates, maxCount - selected.Count);
+            var ipv6Candidates = ranked.Where(x => ipv6Links.Contains(x.Link)).ToList();
+            AddCandidates(ipv6Candidates, ipv6Target);
+            int selectedIpv6 = selected.Count(x => ipv6Links.Contains(x.Link));
+            if (selectedIpv6 < ipv6Target)
+                AddCandidates(ipv6Candidates, ipv6Target - selectedIpv6, enforceCaps: false);
+
+            AddCandidates(ranked.Where(x => !ipv6Links.Contains(x.Link)), outputCount - selected.Count);
+            AddCandidates(ranked, outputCount - selected.Count);
+            if (selected.Count < outputCount && selected.Count(x => ipv6Links.Contains(x.Link)) < ipv6Target)
+            {
+                selectedIpv6 = selected.Count(x => ipv6Links.Contains(x.Link));
+                AddCandidates(ipv6Candidates, ipv6Target - selectedIpv6, enforceCaps: false);
+            }
+            AddCandidates(ranked, outputCount - selected.Count, enforceCaps: false);
 
             return selected
-                .OrderByDescending(x => x.Score)
-                .ThenByDescending(x => x.XrayVerified)
-                .ThenByDescending(x => x.TlsVerified)
+                .OrderByDescending(x => x.EvidenceTier)
+                .ThenByDescending(x => x.Score)
+                .ThenByDescending(x => x.SourceCount)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .ToList();
+        }
+
+        private static string EscapeRankingCsv(string? value) =>
+            "\"" + (value ?? "").Replace("\"", "\"\"") + "\"";
+
+        private static async Task WriteVerificationReportAsync(
+            string path, IReadOnlyList<FinalProxy> rankedCandidates,
+            IReadOnlyList<FinalProxy> top, IReadOnlyList<FinalProxy> topIpv6)
+        {
+            var topLinks = top.Select(x => x.Link).ToHashSet(StringComparer.Ordinal);
+            var topIpv6Links = topIpv6.Select(x => x.Link).ToHashSet(StringComparer.Ordinal);
+            var csv = new StringBuilder();
+            csv.AppendLine("candidate_rank,node_id,host,port,protocol,evidence_tier,evidence_level,verification_status,score,tls_status,xray_status,edge_status,source_tested,source_count,source_group,provider_group,hostname_group,presence_streak,tls_success_streak,xray_success_streak,in_top_txt,in_top_ipv6_txt");
+            for (int i = 0; i < rankedCandidates.Count; i++)
+            {
+                var p = rankedCandidates[i];
+                csv.AppendLine(string.Join(",", new[]
+                {
+                    (i + 1).ToString(CultureInfo.InvariantCulture),
+                    EscapeRankingCsv(p.NodeId), EscapeRankingCsv(p.Host), EscapeRankingCsv(p.Port),
+                    EscapeRankingCsv(p.Proto), p.EvidenceTier.ToString(CultureInfo.InvariantCulture),
+                    EscapeRankingCsv(GetEvidenceLevel(p)), EscapeRankingCsv(p.VerificationStatus),
+                    p.Score.ToString(CultureInfo.InvariantCulture),
+                    EscapeRankingCsv(GetTestStatus(p.TlsTested, p.TlsVerified)),
+                    EscapeRankingCsv(GetTestStatus(p.XrayTested, p.XrayVerified)),
+                    EscapeRankingCsv(GetTestStatus(p.EdgeTested, p.EdgeVerified)),
+                    p.IranTested ? "true" : "false",
+                    p.SourceCount.ToString(CultureInfo.InvariantCulture),
+                    EscapeRankingCsv(p.SourceGroup), EscapeRankingCsv(p.ProviderGroup),
+                    EscapeRankingCsv(p.HostGroup),
+                    p.Streak.ToString(CultureInfo.InvariantCulture),
+                    p.VerifiedStreak.ToString(CultureInfo.InvariantCulture),
+                    p.XrayStreak.ToString(CultureInfo.InvariantCulture),
+                    topLinks.Contains(p.Link) ? "true" : "false",
+                    topIpv6Links.Contains(p.Link) ? "true" : "false"
+                }));
+            }
+            await File.WriteAllTextAsync(path, csv.ToString(), new UTF8Encoding(false));
+            string summary = string.Join(", ", rankedCandidates.GroupBy(x => x.VerificationStatus)
+                .OrderBy(g => g.Key, StringComparer.Ordinal)
+                .Select(g => $"{g.Key}={g.Count()}"));
+            LogInfo($"Ranking evidence report: {rankedCandidates.Count} ranked candidates ({summary}); details in sub/diagnostics/verification-status.csv");
+        }
+
+        private static string GetScoreBand(int score) => score switch
+        {
+            < 20 => "0-19",
+            < 40 => "20-39",
+            < 60 => "40-59",
+            < 80 => "60-79",
+            < 100 => "80-99",
+            _ => "100+"
+        };
+
+        private static RankingBaselineSnapshot LoadRankingBaseline()
+        {
+            try
+            {
+                string path = Path.Combine("state", "ranking-baseline.json");
+                if (File.Exists(path))
+                    return JsonSerializer.Deserialize<RankingBaselineSnapshot>(File.ReadAllText(path))
+                        ?? new RankingBaselineSnapshot();
+            }
+            catch (Exception ex)
+            {
+                LogWarning($"Ranking calibration baseline unreadable; starting without prior scores: {ex.Message}");
+            }
+            return new RankingBaselineSnapshot();
+        }
+
+        private static async Task WriteRankingCalibrationAsync(
+            string samplePath, string summaryPath, IReadOnlyList<FinalProxy> proxies)
+        {
+            var prior = LoadRankingBaseline();
+            var priorById = prior.Nodes
+                .Where(x => !string.IsNullOrWhiteSpace(x.NodeId))
+                .GroupBy(x => x.NodeId, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+            var samples = proxies
+                .Where(x => x.XrayTested && !string.IsNullOrWhiteSpace(x.NodeId) && priorById.ContainsKey(x.NodeId))
+                .Select(x => (Current: x, Previous: priorById[x.NodeId]))
+                .OrderBy(x => x.Previous.Score)
+                .ToList();
+
+            var sampleCsv = new StringBuilder();
+            sampleCsv.AppendLine("node_id,baseline_captured_at_utc,previous_score,previous_evidence_tier,previous_verification_status,previous_xray_result,current_xray_result");
+            foreach (var s in samples)
+                sampleCsv.AppendLine(string.Join(",", new[]
+                {
+                    EscapeRankingCsv(s.Current.NodeId), EscapeRankingCsv(prior.CapturedAtUtc),
+                    s.Previous.Score.ToString(CultureInfo.InvariantCulture),
+                    s.Previous.EvidenceTier.ToString(CultureInfo.InvariantCulture),
+                    EscapeRankingCsv(s.Previous.VerificationStatus),
+                    s.Previous.XrayVerified ? "passed" : "failed",
+                    s.Current.XrayVerified ? "passed" : "failed"
+                }));
+            await File.WriteAllTextAsync(samplePath, sampleCsv.ToString(), new UTF8Encoding(false));
+
+            var summaryCsv = new StringBuilder();
+            summaryCsv.AppendLine("previous_score_band,retested_nodes,current_roundtrip_successes,current_roundtrip_failures,current_success_rate_percent,previous_roundtrip_successes,previous_successes_persisted,persistence_rate_percent");
+            string[] bands = { "0-19", "20-39", "40-59", "60-79", "80-99", "100+" };
+            foreach (string band in bands)
+            {
+                var group = samples.Where(s => GetScoreBand(s.Previous.Score) == band).ToList();
+                int count = group.Count;
+                int successes = group.Count(s => s.Current.XrayVerified);
+                int priorSuccesses = group.Count(s => s.Previous.XrayVerified);
+                int persisted = group.Count(s => s.Previous.XrayVerified && s.Current.XrayVerified);
+                string rate = count == 0 ? "" : (successes * 100.0 / count).ToString("0.0", CultureInfo.InvariantCulture);
+                string persistRate = priorSuccesses == 0 ? "" : (persisted * 100.0 / priorSuccesses).ToString("0.0", CultureInfo.InvariantCulture);
+                summaryCsv.AppendLine(string.Join(",", new[]
+                {
+                    band, count.ToString(CultureInfo.InvariantCulture), successes.ToString(CultureInfo.InvariantCulture),
+                    (count - successes).ToString(CultureInfo.InvariantCulture), rate,
+                    priorSuccesses.ToString(CultureInfo.InvariantCulture), persisted.ToString(CultureInfo.InvariantCulture),
+                    persistRate
+                }));
+            }
+            await File.WriteAllTextAsync(summaryPath, summaryCsv.ToString(), new UTF8Encoding(false));
+
+            if (samples.Count == 0)
+                LogInfo($"Ranking calibration: no previously scored nodes were tested again this run (prior baseline {(string.IsNullOrEmpty(prior.CapturedAtUtc) ? "none" : prior.CapturedAtUtc)}); summary will fill as runs overlap.");
+            else
+            {
+                string bandsSummary = string.Join("; ", bands.Select(band =>
+                {
+                    var group = samples.Where(s => GetScoreBand(s.Previous.Score) == band).ToList();
+                    return group.Count == 0 ? $"{band}: n=0" :
+                        $"{band}: {group.Count(s => s.Current.XrayVerified)}/{group.Count} succeeded";
+                }));
+                LogInfo($"Ranking calibration: {samples.Count} repeat-tested nodes; subsequent Xray success by previous score band: {bandsSummary}.");
+            }
+
+            var nextNodes = proxies
+                .Where(x => x.XrayTested && !string.IsNullOrWhiteSpace(x.NodeId))
+                .GroupBy(x => x.NodeId, StringComparer.Ordinal)
+                .Select(g => g.First())
+                .OrderByDescending(x => x.Score)
+                .Select(x => new RankingBaselineEntry
+                {
+                    NodeId = x.NodeId, Score = x.Score, EvidenceTier = x.EvidenceTier,
+                    VerificationStatus = x.VerificationStatus, XrayVerified = x.XrayVerified
+                })
+                .ToList();
+            if (nextNodes.Count >= 50)
+            {
+                try
+                {
+                    Directory.CreateDirectory("state");
+                    var snapshot = new RankingBaselineSnapshot
+                    {
+                        CapturedAtUtc = DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+                        Nodes = nextNodes
+                    };
+                    File.WriteAllText(Path.Combine("state", "ranking-baseline.json"), JsonSerializer.Serialize(snapshot));
+                    LogInfo($"Ranking calibration baseline refreshed with {nextNodes.Count} actual Xray attempts.");
+                }
+                catch (Exception ex)
+                {
+                    LogWarning($"Ranking calibration baseline could not be saved (non-fatal): {ex.Message}");
+                }
+            }
+            else
+                LogInfo($"Ranking calibration baseline kept unchanged: only {nextNodes.Count} actual Xray attempts (need 50 to refresh).");
         }
 
         private async Task<List<FinalProxy>> FilterByFamilyAsync(List<FinalProxy> proxies, AddressFamily family)

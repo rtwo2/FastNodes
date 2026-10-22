@@ -620,6 +620,81 @@ internal static class Program
         Checks.That(tiedTop.Select(x => x.Link).SequenceEqual(tied.Select(x => x.Link).OrderBy(x => x, StringComparer.Ordinal)),
             "ranked shortlist uses URI as a stable final tie-breaker");
 
+        var strongRoundtrip = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://roundtrip@example.net:443", XrayVerified = true, XrayTested = true, Score = 100
+        };
+        var tlsOnlyHighScore = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://tls-only@example.net:443", TlsVerified = true, TlsTested = true, Score = 999
+        };
+        var evidenceRanked = CollectorType.RankTopCandidates(new[] { tlsOnlyHighScore, strongRoundtrip });
+        Checks.Equal(strongRoundtrip.Link, evidenceRanked[0].Link,
+            "a current full Xray roundtrip outranks TLS-only nodes even if the weaker node has a higher raw score");
+        Checks.Equal(3, CollectorType.GetEvidenceTier(strongRoundtrip),
+            "a full Xray roundtrip maps to the strongest evidence tier");
+        Checks.Equal("full-roundtrip-passed", CollectorType.GetVerificationStatus(strongRoundtrip),
+            "full proxy success is exposed distinctly from partial connectivity");
+        Checks.Equal("partial-connectivity-passed", CollectorType.GetVerificationStatus(tlsOnlyHighScore),
+            "a TLS handshake is labelled partial connectivity, not a full proxy pass");
+        Checks.Equal("not-tested", CollectorType.GetVerificationStatus(new ProxyCollector.Collector.FinalProxy
+            { IranTested = true }),
+            "upstream tested-feed provenance is separate from current-run testing status");
+        Checks.Equal("tested-failed", CollectorType.GetVerificationStatus(new ProxyCollector.Collector.FinalProxy
+            { XrayTested = true }),
+            "an attempted Xray probe without a pass is distinguishable from not tested");
+        Checks.Equal("failed", CollectorType.GetTestStatus(true, false),
+            "per-test status reports a real failed attempt");
+        Checks.Equal("not-tested", CollectorType.GetTestStatus(false, false),
+            "per-test status does not confuse an omitted check with failure");
+
+        var staleVeteran = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@veteran.example.net:443?security=tls")!;
+        staleVeteran.IranTested = true;
+        staleVeteran.SourceCount = 5;
+        staleVeteran.Streak = 24;
+        staleVeteran.VerifiedStreak = 24;
+        staleVeteran.XrayStreak = 24;
+        var freshTls = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@fresh.example.net:443?security=tls")!;
+        freshTls.TlsVerified = true;
+        freshTls.Streak = 1;
+        Checks.That(CollectorType.CalculateRankingScore(freshTls, "XX") >
+                    CollectorType.CalculateRankingScore(staleVeteran, "XX"),
+            "a freshly TLS-verified node outranks stale history without a current successful check");
+        var freshRoundtrip = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@xray2.example.net:443?security=tls")!;
+        freshRoundtrip.XrayVerified = true;
+        Checks.That(CollectorType.CalculateRankingScore(freshRoundtrip, "XX") >
+                    CollectorType.CalculateRankingScore(staleVeteran, "XX"),
+            "a current full roundtrip scores above history-only/source-only evidence");
+
+        var diversityCandidates = new List<ProxyCollector.Collector.FinalProxy>();
+        for (int i = 0; i < 70; i++)
+            diversityCandidates.Add(new ProxyCollector.Collector.FinalProxy
+            {
+                Link = $"vless://source-a-{i}@a{i}.example.com:443", Host = $"a{i}.example.com",
+                HostGroup = "example.com", ProviderGroup = "provider-a", SourceGroup = "source-a",
+                TlsVerified = true, Score = 1000 - i, SourceCount = 1
+            });
+        foreach (string source in new[] { "source-b", "source-c", "source-d" })
+            for (int i = 0; i < 10; i++)
+                diversityCandidates.Add(new ProxyCollector.Collector.FinalProxy
+                {
+                    Link = $"vless://{source}-{i}@{source}{i}.{source}.net:443",
+                    Host = $"{source}{i}.{source}.net", HostGroup = $"{source}.net",
+                    ProviderGroup = $"provider-{source[^1]}", SourceGroup = source,
+                    TlsVerified = true, Score = 900 - (source[7] - 'b') * 100 - i, SourceCount = 2
+                });
+        var diverseTop = CollectorType.SelectTopWithIpv6Diversity(
+            CollectorType.RankTopCandidates(diversityCandidates),
+            new HashSet<string>(StringComparer.Ordinal), maxCount: 40, ipv6SharePercent: 0);
+        Checks.Equal(40, diverseTop.Count, "diversity-aware selection fills the requested shortlist size");
+        Checks.Equal(4, diverseTop.Select(x => x.SourceGroup).Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+            "top shortlist preserves choice across source groups instead of one feed dominating");
+        Checks.That(diverseTop.GroupBy(x => x.SourceGroup, StringComparer.OrdinalIgnoreCase).All(g => g.Count() <= 10),
+            "source-group caps prevent one feed family from taking over an otherwise diverse top shortlist");
+
         var nearbySingleSource = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@nearby.example.net:443?security=tls")!;
         nearbySingleSource.TlsVerified = true;

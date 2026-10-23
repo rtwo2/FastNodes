@@ -33,10 +33,12 @@ internal static class Program
             (Url: "priority-a", LineIndex: 0, Line: "a-first")
         };
         var orderedSourceLines = CollectorType.OrderSourceLines(unorderedSourceLines, sourcePriority);
-        Checks.That(orderedSourceLines.SequenceEqual(new[]
+        Checks.That(orderedSourceLines.SequenceEqual(new (string Url, string Line)[]
             {
-                (Url: "priority-a", Line: "a-first"), ("priority-a", "a-second"),
-                ("priority-b", "b-first"), ("priority-b", "b-second")
+                ("priority-a", "a-first"),
+                ("priority-a", "a-second"),
+                ("priority-b", "b-first"),
+                ("priority-b", "b-second")
             }),
             "parallel source fetch completion order cannot change first-contributor attribution");
 

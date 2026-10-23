@@ -10,6 +10,54 @@ internal static class Program
     {
         Checks.Equal(3, ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c" }, 0).Length,
             "zero source limit preserves full production source list");
+
+        Checks.Equal(0, CollectorType.CountRawLines(""),
+            "empty source bodies contain zero raw lines");
+        Checks.Equal(1, CollectorType.CountRawLines("one\n"),
+            "a trailing newline does not create a phantom raw line");
+        Checks.Equal(2, CollectorType.CountRawLines("one\r\ntwo\r\n"),
+            "CRLF-terminated source bodies count physical lines correctly");
+        Checks.Equal(2, CollectorType.CountRawLines("one\ntwo"),
+            "a non-terminated final source line is still counted");
+
+        var sourcePriority = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            ["priority-a"] = 0,
+            ["priority-b"] = 1
+        };
+        var unorderedSourceLines = new[]
+        {
+            (Url: "priority-b", LineIndex: 1, Line: "b-second"),
+            (Url: "priority-a", LineIndex: 1, Line: "a-second"),
+            (Url: "priority-b", LineIndex: 0, Line: "b-first"),
+            (Url: "priority-a", LineIndex: 0, Line: "a-first")
+        };
+        var orderedSourceLines = CollectorType.OrderSourceLines(unorderedSourceLines, sourcePriority);
+        Checks.That(orderedSourceLines.SequenceEqual(new[]
+            {
+                (Url: "priority-a", Line: "a-first"), ("priority-a", "a-second"),
+                ("priority-b", "b-first"), ("priority-b", "b-second")
+            }),
+            "parallel source fetch completion order cannot change first-contributor attribution");
+
+        var distinctProviderUrls = CollectorType.DeduplicateProviderUrls(new[]
+        {
+            "https://example.net/Main.txt",
+            "https://example.net/main.txt",
+            "https://example.net/Main.txt"
+        });
+        Checks.Equal(2, distinctProviderUrls.Count,
+            "provider URL dedup preserves case-sensitive paths while collapsing exact repeats");
+
+        var expectedEdgeBatchIds = new HashSet<int> { 10, 11 };
+        Checks.That(CollectorType.IsValidEdgeResultId(10, expectedEdgeBatchIds, 25),
+            "a result ID inside the current Worker batch is accepted");
+        Checks.That(!CollectorType.IsValidEdgeResultId(12, expectedEdgeBatchIds, 25),
+            "a result ID belonging to another Worker batch is rejected");
+        Checks.That(!CollectorType.IsValidEdgeResultId(-1, expectedEdgeBatchIds, 25),
+            "a negative Worker result ID is rejected");
+        Checks.That(!CollectorType.IsValidEdgeResultId(25, expectedEdgeBatchIds, 25),
+            "an out-of-range Worker result ID is rejected");
         Checks.That(ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c", "d" }, 2)
                 .SequenceEqual(new[] { "a", "b" }),
             "positive source limit selects only the first N sources in priority order");
@@ -904,6 +952,37 @@ internal static class Program
                     flatSs.Contains("obfs%3Dhttp", StringComparison.Ordinal) &&
                     flatSs.Contains("obfs-host%3Dexample.org", StringComparison.Ordinal),
             "flow-style Clash Shadowsocks keeps plugin options");
+
+        var wireguardClash = $"""
+        proxies:
+          - name: block-wireguard
+            type: wireguard
+            server: wg.example.net
+            port: 51820
+            ip: 10.0.0.2/32
+            private-key: {validWgPrivateKey}
+            public-key: {validWgPublicKey}
+            dns:
+              - 1.1.1.1
+            allowed-ips:
+              - 0.0.0.0/0
+              - "::/0"
+            reserved: [1, 2, 3]
+        """;
+        var convertedWireguard = CollectorType.DecodeAndExtractLines(
+            wireguardClash, "https://example.net/wireguard.yaml");
+        Checks.Equal(1, convertedWireguard.Count,
+            "block-style Clash WireGuard entries are converted instead of silently skipped");
+        Checks.That(convertedWireguard.Single().StartsWith("wireguard://", StringComparison.Ordinal) &&
+                    CollectorType.IsValidWireguardLink(convertedWireguard.Single()),
+            "converted Clash WireGuard URI preserves valid keys, endpoint, addresses, allowed IPs, and reserved bytes");
+
+        var amneziaWireguardClash = wireguardClash.Replace(
+            "reserved: [1, 2, 3]", "reserved: [1, 2, 3]\n    amnezia-wg-option: 4");
+        var convertedAmneziaWireguard = CollectorType.DecodeAndExtractLines(
+            amneziaWireguardClash, "https://example.net/amnezia-wireguard.yaml");
+        Checks.Equal(0, convertedAmneziaWireguard.Count,
+            "AmneziaWG entries are not downgraded when the exporter cannot preserve their extra options");
 
         Console.WriteLine($"Parser regression tests passed ({Checks.Count} assertions).");
     }

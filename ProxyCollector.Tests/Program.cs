@@ -977,6 +977,13 @@ internal static class Program
                     CollectorType.IsValidWireguardLink(convertedWireguard.Single()),
             "converted Clash WireGuard URI preserves valid keys, endpoint, addresses, allowed IPs, and reserved bytes");
 
+        var amneziaWireguardClash = wireguardClash.Replace(
+            "reserved: [1, 2, 3]", "reserved: [1, 2, 3]\n    amnezia-wg-option: 4");
+        var convertedAmneziaWireguard = CollectorType.DecodeAndExtractLines(
+            amneziaWireguardClash, "https://example.net/amnezia-wireguard.yaml");
+        Checks.Equal(0, convertedAmneziaWireguard.Count,
+            "AmneziaWG entries are not downgraded when the exporter cannot preserve their extra options");
+
         Console.WriteLine($"Parser regression tests passed ({Checks.Count} assertions).");
     }
 }

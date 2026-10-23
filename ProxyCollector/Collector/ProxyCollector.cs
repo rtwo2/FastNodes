@@ -2590,7 +2590,8 @@ namespace ProxyCollector.Collector
                             using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
                             foreach (var r in doc.RootElement.GetProperty("results").EnumerateArray())
                             {
-                                if (!r.TryGetProperty("id", out var idElement) ||
+                                if (r.ValueKind != JsonValueKind.Object ||
+                                    !r.TryGetProperty("id", out var idElement) ||
                                     idElement.ValueKind != JsonValueKind.Number ||
                                     !idElement.TryGetInt32(out int id) ||
                                     !IsValidEdgeResultId(id, expectedBatchIds, pool.Count))

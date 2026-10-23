@@ -460,6 +460,28 @@ namespace ProxyCollector.Collector
                     return BuildClientNodeName(code, $"{knownFlag} {city}, {code}", host, port);
             }
 
+            // Normalize snapshots already using the new "flag Country - City | endpoint"
+            // format before the legacy-label fallback below. The code-bearing format above
+            // remains supported so existing verified snapshots migrate cleanly.
+            if (dash >= 0 && pipe > dash)
+            {
+                string head = remark[..dash].Trim();
+                string city = remark[(dash + 3)..pipe].Trim();
+                if (head.Equals("🌐 Unknown", StringComparison.Ordinal))
+                    return BuildClientNodeName("XX", $"🌐 {city}", host, port);
+
+                foreach (var pair in Flags)
+                {
+                    string prefix = pair.Value + " ";
+                    if (!head.StartsWith(prefix, StringComparison.Ordinal)) continue;
+                    string canonical = BuildClientNodeName(pair.Key, $"{pair.Value} Unknown", "placeholder", "1");
+                    int canonicalDash = canonical.IndexOf(" - ", StringComparison.Ordinal);
+                    string expectedHead = canonicalDash >= 0 ? canonical[..canonicalDash] : "";
+                    if (head.Equals(expectedHead, StringComparison.OrdinalIgnoreCase))
+                        return BuildClientNodeName(pair.Key, $"{pair.Value} {city}", host, port);
+                }
+            }
+
             string countryCode = "XX";
             string flag = "🌐";
             string location = "Unknown";

@@ -1115,7 +1115,7 @@ namespace ProxyCollector.Collector
             return ($"{flag} {countryName}{orgSuffix}", cc);
         }
 
-        // Client labels use the requested readable format. Repeated base names are
+        // Client labels use `flag Country - City | host:port`. Repeated base names are
         // disambiguated in the output loop with a trailing " 2", " 3", etc.
         internal static string BuildClientNodeName(
             string countryCode, string location, string host, string port)
@@ -1153,7 +1153,7 @@ namespace ProxyCollector.Collector
                 ip.AddressFamily == AddressFamily.InterNetworkV6)
                 cleanHost = "[" + ip + "]";
             string endpoint = $"{cleanHost}:{port}";
-            return $"{flag} {countryName} ({cc}) - {city} | {endpoint}";
+            return $"{flag} {countryName} - {city} | {endpoint}";
         }
 
         internal static string ApplyDuplicateNameSuffix(string baseName, int occurrence)

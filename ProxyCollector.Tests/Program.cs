@@ -747,9 +747,9 @@ internal static class Program
             "DE", "🇩🇪 Frankfurt am Main, DE · Hetzner Online", "edge-01.example.net", "443");
         var usNodeName = CollectorType.BuildClientNodeName(
             "US", "🇺🇸 San Francisco, US · Example ASN", "a-much-longer-node-name.example.org", "8443");
-        Checks.Equal("🇩🇪 Germany (DE) - Frankfurt am Main | edge-01.example.net:443", germanNodeName,
-            "client labels follow flag country ISO - city | host:port format");
-        Checks.Equal("🇺🇸 United States (US) - San Francisco | a-much-longer-node-name.example.org:8443", usNodeName,
+        Checks.Equal("🇩🇪 Germany - Frankfurt am Main | edge-01.example.net:443", germanNodeName,
+            "client labels follow flag country - city | host:port format without ISO code");
+        Checks.Equal("🇺🇸 United States - San Francisco | a-much-longer-node-name.example.org:8443", usNodeName,
             "client labels use full country names and retain the complete endpoint");
         Checks.Equal(germanNodeName, CollectorType.BuildClientNodeName(
             "DE", "🇩🇪 Frankfurt am Main, DE · Hetzner Online", "edge-01.example.net", "443"),
@@ -764,26 +764,26 @@ internal static class Program
             "third similarly named node gets suffix 3");
         Checks.Equal(germanNodeName, CollectorType.ApplyDuplicateNameSuffix(germanNodeName, 1),
             "first occurrence has no numeric suffix");
-        Checks.Equal("🌐 Unknown (XX) - Unknown | [2001:4860:4860::8888]:443",
+        Checks.Equal("🌐 Unknown - Unknown | [2001:4860:4860::8888]:443",
             CollectorType.BuildClientNodeName("XX", "🌐 Unknown", "2001:4860:4860::8888", "443"),
             "unknown GeoIP labels and IPv6 endpoints remain well-formed");
-        Checks.Equal("🇩🇪 Germany (DE) - Frankfurt am Main | edge.example.net:443",
+        Checks.Equal("🇩🇪 Germany - Frankfurt am Main | edge.example.net:443",
             CollectorType.BuildFallbackNodeName("🇩🇪 Frankfurt am Main, DE · Hetzner Online · abc123",
                 "edge.example.net", "443"),
             "legacy verified snapshot remarks migrate to the new country-city-endpoint format");
-        Checks.Equal("🇩🇪 Germany (DE) - Unknown | edge.example.net:443",
+        Checks.Equal("🇩🇪 Germany - Unknown | edge.example.net:443",
             CollectorType.BuildFallbackNodeName("🇩🇪 Germany · Hetzner Online",
                 "edge.example.net", "443"),
             "country-level legacy remarks do not invent a city");
-        Checks.Equal("🇩🇪 Germany (DE) - Frankfurt am Main | edge.example.net:443",
+        Checks.Equal("🇩🇪 Germany - Frankfurt am Main | edge.example.net:443",
             CollectorType.BuildFallbackNodeName("🇩🇪 Germany (DE) - Frankfurt am Main | old.example.net:8443",
                 "edge.example.net", "443"),
             "already-renamed fallback remarks are normalized to the current endpoint");
-        Checks.Equal("🌐 Unknown (XX) - Unknown | edge.example.net:443",
+        Checks.Equal("🌐 Unknown - Unknown | edge.example.net:443",
             CollectorType.BuildFallbackNodeName("🌐 Unknown (XX) - Unknown | old.example.net:8443",
                 "edge.example.net", "443"),
             "already-renamed unknown-country fallback remarks remain well-formed");
-        Checks.Equal("🇩🇪 Germany (DE) - Frankfurt (Main) | edge.example.net:443",
+        Checks.Equal("🇩🇪 Germany - Frankfurt (Main) | edge.example.net:443",
             CollectorType.BuildFallbackNodeName("🇩🇪 Germany (DE) - Frankfurt (Main) | old.example.net:8443",
                 "edge.example.net", "443"),
             "parenthesized city names remain intact when migrating fallback remarks");

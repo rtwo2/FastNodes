@@ -3572,7 +3572,8 @@ namespace ProxyCollector.Collector
                     Q("downmbps", f.GetValueOrDefault("down", f.GetValueOrDefault("downmbps", "")));
                     return $"hysteria2://{Uri.EscapeDataString(f["password"])}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
                 }
-                case "wireguard" when f.ContainsKey("private-key") && f.ContainsKey("public-key"):
+                case "wireguard" when f.ContainsKey("private-key") && f.ContainsKey("public-key") &&
+                    !f.Keys.Any(key => key.StartsWith("amnezia-", StringComparison.OrdinalIgnoreCase)):
                 {
                     Q("pk", f["public-key"]);
                     Q("ip", f.GetValueOrDefault("ip", f.GetValueOrDefault("address", "10.0.0.2/32")));

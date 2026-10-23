@@ -36,6 +36,10 @@ jobs:
           python3 scripts/check_collection_health.py check --root sub --report /tmp/fastnodes-output-health.json
       - name: Test source health summary
         run: python3 scripts/summarize_source_health.py --self-test
+      - name: Test source health trend tracking
+        run: python3 scripts/track_source_health.py --self-test
+      - name: Test ranking calibration analysis
+        run: python3 scripts/summarize_ranking_calibration.py --self-test
       - name: Validate Cloudflare/WARP audit self-tests
         run: python3 scripts/audit_cloudflare_warp.py --self-test
       - name: Validate committed subscription outputs

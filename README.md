@@ -109,6 +109,15 @@ https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/protocols/wireguard.t
 
 Verification results are snapshots, not guarantees of current availability. `verified.txt` normally refreshes from nodes that passed a full Xray round-trip in the current run; when too few nodes pass, it retains the last-good snapshot only after filtering malformed links, placeholder credentials/hosts, private or reserved addresses, known blacklist ranges, and Cloudflare/WARP-related entries. If neither the current run nor the sanitized snapshot provides a safe entry, publication fails rather than replacing the last published output tree with an unsafe or empty verified list. `stable.txt` tracks nodes seen across consecutive runs, while `verified_tls.txt` and `curated.txt` represent different evidence tiers. Your ISP, location, client, and protocol support affect whether a node connects.
 
+## Diagnostics and maintenance
+
+Each full collection publishes machine-readable source-health data under `sub/diagnostics/`.
+- `source-health.csv` reports per-feed fetch, parse, unique contribution, provider outcomes, and elapsed time.
+- `source-health-trends.csv` compares each feed across the latest 14 full runs and flags recurring parser gaps, repeated zero-contribution runs, and recurring fetch failures for review.
+- `ranking-calibration-summary.csv` records score-band outcomes; `ranking-calibration-notes.md` applies a minimum sample threshold and highlights non-monotonic outcomes worth investigating.
+
+These reports are diagnostic only. No source is automatically removed, and ranking weights are not automatically modified. Review recurring issues across multiple successful runs before changing source priority or scoring.
+
 ## Import
 
 1. Copy one of the subscription URLs above.

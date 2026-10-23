@@ -50,6 +50,12 @@ def render(csv_path: pathlib.Path) -> str:
     provider_bad = sum(number(r, "provider_failures") for r in rows)
     yielded = sum(number(r, "parsed") > 0 for r in rows)
     failed = sum((r.get("status") or "").strip() == "fetch-failed" for r in rows)
+    fetched_unparsed = [r for r in rows if (r.get("status") or "").strip() == "fetched-but-unparsed"]
+    parsed_zero_unique = [r for r in rows if number(r, "parsed") > 0 and number(r, "unique") == 0]
+    slow_fetch = sorted((r for r in rows if number(r, "fetch_elapsed_ms") > 0),
+                        key=lambda r: (-number(r, "fetch_elapsed_ms"), r.get("url", "")))[:10]
+    slow_parse = sorted((r for r in rows if number(r, "parse_elapsed_ms") > 0),
+                        key=lambda r: (-number(r, "parse_elapsed_ms"), r.get("url", "")))[:10]
     lines = [
         "# Source health summary", "",
         f"- Sources listed: **{len(rows):,}**",
@@ -60,7 +66,9 @@ def render(csv_path: pathlib.Path) -> str:
         f"- Parsed configurations before global deduplication/filtering: **{parsed:,}**",
         f"- First-contributor unique count: **{unique:,}**",
         f"- Nested provider fetches: **{provider_ok:,} succeeded / {provider_bad:,} failed after retry**",
-        "", "Unique contribution is collector-order-dependent. Use this report to audit sources, not to remove them automatically.",
+        f"- Fetched but unparsed sources: **{len(fetched_unparsed):,}**",
+        f"- Parsed sources adding no first-contributor nodes this run: **{len(parsed_zero_unique):,}**",
+        "", "First-contributor counts follow deterministic source priority, but change as feeds change. A zero-unique source is not automatically redundant or safe to remove; compare multiple runs first.",
         "", "## Status counts", "", "| Status | Sources |", "|---|---:|"
     ]
     for name, count in sorted(statuses.items(), key=lambda x: (-x[1], x[0])):
@@ -92,6 +100,14 @@ def render(csv_path: pathlib.Path) -> str:
         lines.append(f"| {cell(r.get('status', ''))} | {number(r, 'parsed'):,} | {number(r, 'extracted_lines'):,} | "
                      f"{number(r, 'raw_bytes'):,} | {cell(r.get('url', ''))} |")
     if not bad: lines.append("| — | — | — | — | No source status requires review |")
+    if slow_fetch:
+        lines += ["", "## Slowest source fetch/provider processing", "", "| Time (ms) | Parsed | Unique | Status | Source |", "|---:|---:|---:|---|---|"]
+        for r in slow_fetch:
+            lines.append(f"| {number(r, 'fetch_elapsed_ms'):,} | {number(r, 'parsed'):,} | {number(r, 'unique'):,} | {cell(r.get('status', ''))} | {cell(r.get('url', ''))} |")
+    if slow_parse:
+        lines += ["", "## Slowest source parsing/deduplication", "", "| Time (ms) | Parsed | Unique | Status | Source |", "|---:|---:|---:|---|---|"]
+        for r in slow_parse:
+            lines.append(f"| {number(r, 'parse_elapsed_ms'):,} | {number(r, 'parsed'):,} | {number(r, 'unique'):,} | {cell(r.get('status', ''))} | {cell(r.get('url', ''))} |")
     return "\n".join(lines) + "\n"
 
 def self_test() -> None:
@@ -99,15 +115,18 @@ def self_test() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         path = pathlib.Path(tmp) / "source-health.csv"
         path.write_text(
-            "url,fetch_successes,raw_bytes,raw_lines,extracted_lines,parsed,unique,provider_successes,provider_failures,status\n"
-            '"https://raw.githubusercontent.com/alpha/repo/main/a.txt",1,1000,100,40,35,20,2,0,healthy\n'
-            '"https://raw.githubusercontent.com/alpha/repo/main/b.txt",1,500,50,20,20,3,0,1,healthy-with-provider-errors\n'
-            '"https://example.test/feed",0,0,0,0,0,0,0,0,fetch-failed\n', encoding="utf-8")
+            "url,fetch_successes,raw_bytes,raw_lines,extracted_lines,parsed,unique,provider_successes,provider_failures,fetch_elapsed_ms,parse_elapsed_ms,status\n"
+            '"https://raw.githubusercontent.com/alpha/repo/main/a.txt",1,1000,100,40,35,20,2,0,100,20,healthy\n'
+            '"https://raw.githubusercontent.com/alpha/repo/main/b.txt",1,500,50,20,20,0,0,1,300,80,healthy-with-provider-errors\n'
+            '"https://example.test/feed",0,0,0,0,0,0,0,0,10,0,fetch-failed\n', encoding="utf-8")
         report = render(path)
         assert "Sources listed: **3**" in report
         assert "github.com/alpha/repo" in report
         assert "Highest unique contribution" in report
         assert "fetch-failed" in report and "20" in report
+        assert "Parsed sources adding no first-contributor nodes this run: **1**" in report
+        assert "Slowest source fetch/provider processing" in report
+        assert "Slowest source parsing/deduplication" in report
         print("Source-health summary self-tests passed.")
 
 def main() -> int:

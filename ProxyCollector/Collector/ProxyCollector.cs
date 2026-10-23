@@ -401,14 +401,6 @@ namespace ProxyCollector.Collector
         // Geography is a ranking prior only, never a hard eligibility gate for the
         // international top/verified outputs. Keep these helpers for modest scoring
         // and probe ordering, not exclusion.
-        private static bool IsPreferredRegion(string cc)
-        {
-            if (string.IsNullOrEmpty(cc) || cc == "XX") return false;
-            if (cc.Equals("IR", StringComparison.OrdinalIgnoreCase)) return true;
-            if (NearIranCodes.Contains(cc)) return true;
-            return CountryToContinent.TryGetValue(cc, out var cont) && cont == "Europe";
-        }
-
         private static int ProximityTier(string cc)
         {
             if (string.IsNullOrEmpty(cc) || cc == "XX") return 9;
@@ -1293,7 +1285,46 @@ namespace ProxyCollector.Collector
             LogSuccess($"🚀 FastNodes {version} - Starting collection...");
             await RunFullCollectionMode();
         }
-		
+
+        internal static int CountRawLines(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return 0;
+
+            int count = 0;
+            bool endsWithLineBreak = false;
+            for (int i = 0; i < text.Length; i++)
+            {
+                char current = text[i];
+                if (current is '\r' or '\n')
+                {
+                    count++;
+                    if (current == '\r' && i + 1 < text.Length && text[i + 1] == '\n')
+                        i++;
+                    endsWithLineBreak = true;
+                }
+                else
+                {
+                    endsWithLineBreak = false;
+                }
+            }
+
+            // A trailing newline terminates the final content line; it does not create
+            // an additional phantom line in the source-health report.
+            return endsWithLineBreak ? count : count + 1;
+        }
+
+        internal static List<(string Url, string Line)> OrderSourceLines(
+            IEnumerable<(string Url, int LineIndex, string Line)> sourceLines,
+            IReadOnlyDictionary<string, int> sourcePriority)
+        {
+            return sourceLines
+                .OrderBy(item => sourcePriority.TryGetValue(item.Url, out int priority) ? priority : int.MaxValue)
+                .ThenBy(item => item.LineIndex)
+                .ThenBy(item => item.Url, StringComparer.Ordinal)
+                .Select(item => (Url: item.Url, Line: item.Line))
+                .ToList();
+        }
+
         // ====================== MAIN PIPELINE ======================
         private async Task RunFullCollectionMode()
         {
@@ -1305,7 +1336,7 @@ namespace ProxyCollector.Collector
             // STEP 1: parallel fetch — one retry on failure. With 500+ independent sources,
             // a transient timeout or blip is common; a single failed attempt shouldn't
             // permanently drop that whole source for the run.
-            var rawLinesBag = new ConcurrentBag<(string Url, string Line)>();
+            var rawLinesBag = new ConcurrentBag<(string Url, int LineIndex, string Line)>();
             var sourceStats = new ConcurrentDictionary<string, SourceStat>();
             await Parallel.ForEachAsync(urls, new ParallelOptions { MaxDegreeOfParallelism = 30 },
                 async (url, _) =>
@@ -1326,8 +1357,7 @@ namespace ProxyCollector.Collector
                                 sourceResponse.Content, GetSourceResponseByteLimit(url), reqCts.Token);
                             Interlocked.Increment(ref st.FetchSuccesses);
                             Interlocked.Add(ref st.RawBytes, Encoding.UTF8.GetByteCount(text));
-                            if (!string.IsNullOrEmpty(text))
-                                Interlocked.Add(ref st.RawLines, 1 + text.Count(ch => ch == '\n'));
+                            Interlocked.Add(ref st.RawLines, CountRawLines(text));
                             var lines = DecodeAndExtractLines(text, url);
 
                             // Full Mihomo profiles often contain only proxy-providers URLs,
@@ -1392,7 +1422,8 @@ namespace ProxyCollector.Collector
                             }
 
                             Interlocked.Add(ref st.Lines, lines.Count);
-                            foreach (var l in lines) rawLinesBag.Add((url, l));
+                            for (int lineIndex = 0; lineIndex < lines.Count; lineIndex++)
+                                rawLinesBag.Add((url, lineIndex, lines[lineIndex]));
                             return;
                         }
                         catch (Exception ex)
@@ -1403,7 +1434,10 @@ namespace ProxyCollector.Collector
                     }
                 });
 
-            var rawLines = rawLinesBag.ToList();
+            var sourcePriority = urls
+                .Select((source, index) => (Source: source, Index: index))
+                .ToDictionary(item => item.Source, item => item.Index, StringComparer.Ordinal);
+            var rawLines = OrderSourceLines(rawLinesBag, sourcePriority);
             LogInfo($"Total raw lines: {rawLines.Count}");
             GroupEnd();
 
@@ -1416,10 +1450,10 @@ namespace ProxyCollector.Collector
             var uniqueProxies = new List<ParsedProxy>();
             int processed = 0, badHostFiltered = 0, placeholderFiltered = 0, emptyCredFiltered = 0, invalidWireguardFiltered = 0;
 
-            // v6.13: byKey maps dedup key → kept node, so a DUPLICATE arriving from an
-            // explicitly Iran-tested source can upgrade the kept node's trust flag.
-            // (Which source's line wins the dedup race is bag-order nondeterminism —
-            // this makes trust "ANY tested source contributed it", not "the winner".)
+            // Sources are processed in their curated workflow order, and lines retain
+            // their original order within each source. This makes first-contributor
+            // attribution and the source-health "unique" counts reproducible across runs.
+            // A duplicate from any explicitly tested source can still upgrade the kept node's trust flag.
             var byKey = new Dictionary<string, ParsedProxy>(StringComparer.Ordinal);
             var keySources = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
             var testedSrcCache = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
@@ -2448,12 +2482,14 @@ namespace ProxyCollector.Collector
         }
 
         // ====================== EDGE VERIFICATION (v6.15) ======================
-        // Second vantage via the Cloudflare Worker. Priority pool: TLS-capable nodes
-        // Azure could NOT verify — the "second opinion" — capped at 2000 endpoints.
-        // Hostnames are sent as-is so CF resolves DNS from its own vantage too.
-        // Promotion-only; dormant (one log line) until both secrets exist.
-        private const int EdgeMaxEndpoints = 5000; // Increased to rely more on CF edge
+        // Second vantage via the Cloudflare Worker. Pool 1 reconfirms Azure TLS passes;
+        // pool 2 tests TLS-capable nodes Azure did not verify. Hostnames are sent as-is
+        // so the Worker resolves DNS from its own vantage too. Promotion-only.
+        private const int EdgeMaxEndpoints = 5000;
         private const int EdgeBatchSize = 25;
+
+        internal static bool IsValidEdgeResultId(int id, IReadOnlySet<int> expectedBatchIds, int poolCount)
+            => id >= 0 && id < poolCount && expectedBatchIds.Contains(id);
 
         private async Task EdgeVerifyAsync(List<ParsedProxy> proxies,
             ConcurrentDictionary<string, string> countryCache)
@@ -2544,9 +2580,9 @@ namespace ProxyCollector.Collector
                         };
                         req.Headers.Add("x-auth", auth);
 
-                        // Only mark this batch when its request is about to be sent.
-                        // Batches cancelled before scheduling stay explicitly not-tested.
-                        foreach (var candidate in batch) candidate.Node.EdgeTested = true;
+                        // Leave nodes not-tested until a valid per-node result is received.
+                        // Failed requests and missing/malformed results stay not-tested.
+                        var expectedBatchIds = batch.Select(item => item.Idx).ToHashSet();
                         try
                         {
                             using var resp = await _http.SendAsync(req, ct);
@@ -2554,10 +2590,25 @@ namespace ProxyCollector.Collector
                             using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
                             foreach (var r in doc.RootElement.GetProperty("results").EnumerateArray())
                             {
-                                int id = r.GetProperty("id").GetInt32();
-                                if (id >= 0 && id < pool.Count)
-                                    pool[id].EdgeTested = true;
-                                string tcp = r.GetProperty("tcp").GetString() ?? "error";
+                                if (!r.TryGetProperty("id", out var idElement) ||
+                                    idElement.ValueKind != JsonValueKind.Number ||
+                                    !idElement.TryGetInt32(out int id) ||
+                                    !IsValidEdgeResultId(id, expectedBatchIds, pool.Count))
+                                {
+                                    LogWarning("Edge verification returned an invalid or out-of-batch result ID; ignoring it.");
+                                    continue;
+                                }
+
+                                if (!r.TryGetProperty("tcp", out var tcpElement) ||
+                                    tcpElement.ValueKind != JsonValueKind.String ||
+                                    string.IsNullOrWhiteSpace(tcpElement.GetString()))
+                                {
+                                    LogWarning($"Edge verification result for pool index {id} has no valid TCP status; leaving it not-tested.");
+                                    continue;
+                                }
+
+                                string tcp = tcpElement.GetString()!;
+                                pool[id].EdgeTested = true;
                                 string? tlsR = r.TryGetProperty("tls", out var t) && t.ValueKind == JsonValueKind.String
                                     ? t.GetString() : null;
                                 if (tcp == "ok" && tlsR == "ok")
@@ -2960,6 +3011,9 @@ namespace ProxyCollector.Collector
         // Extract only the `url` fields under root proxy-providers. Full Mihomo
         // profiles also contain hundreds of rule-provider URLs; those are NOT proxy
         // subscriptions and must never be recursively fetched as if they were nodes.
+        internal static List<string> DeduplicateProviderUrls(IEnumerable<string> urls)
+            => urls.Distinct(StringComparer.Ordinal).ToList();
+
         private static List<string> ExtractClashProviderUrls(string text)
         {
             var urls = new List<string>();
@@ -2981,7 +3035,7 @@ namespace ProxyCollector.Collector
                 }
             }
             catch { }
-            return urls.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            return DeduplicateProviderUrls(urls);
         }
 
         // For common subscription-converter wrappers, recover the original source URL
@@ -3010,7 +3064,7 @@ namespace ProxyCollector.Collector
                 }
             }
             candidates.Add(providerUrl);
-            return candidates.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            return DeduplicateProviderUrls(candidates);
         }
 
         // ====================== SOURCE DECODING ======================
@@ -3516,6 +3570,18 @@ namespace ProxyCollector.Collector
                     Q("upmbps", f.GetValueOrDefault("up", f.GetValueOrDefault("upmbps", "")));
                     Q("downmbps", f.GetValueOrDefault("down", f.GetValueOrDefault("downmbps", "")));
                     return $"hysteria2://{Uri.EscapeDataString(f["password"])}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
+                }
+                case "wireguard" when f.ContainsKey("private-key") && f.ContainsKey("public-key"):
+                {
+                    Q("pk", f["public-key"]);
+                    Q("ip", f.GetValueOrDefault("ip", f.GetValueOrDefault("address", "10.0.0.2/32")));
+                    Q("dns", f.GetValueOrDefault("dns", "1.1.1.1"));
+                    Q("allowedips", f.GetValueOrDefault("allowed-ips",
+                        f.GetValueOrDefault("allowed_ips", "0.0.0.0/0, ::/0")));
+                    Q("psk", f.GetValueOrDefault("pre-shared-key",
+                        f.GetValueOrDefault("preshared-key", f.GetValueOrDefault("psk", ""))));
+                    Q("reserved", f.GetValueOrDefault("reserved", ""));
+                    return $"wireguard://{Uri.EscapeDataString(f["private-key"])}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
                 }
                 case "vmess" when f.ContainsKey("uuid"):
                     return BuildVmessLink(server, port, f["uuid"], network, tls ? "tls" : "",

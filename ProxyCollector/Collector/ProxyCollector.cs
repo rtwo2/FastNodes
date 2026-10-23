@@ -438,6 +438,8 @@ namespace ProxyCollector.Collector
             public int Unique;
             public int ProviderSuccesses;
             public int ProviderFailures;
+            public long FetchElapsedMs;
+            public long ParseElapsedMs;
         }
 
         // ====================== LOGGING ======================
@@ -1342,8 +1344,11 @@ namespace ProxyCollector.Collector
                 async (url, _) =>
                 {
                     var st = sourceStats.GetOrAdd(url, _ => new SourceStat());
-                    for (int attempt = 1; attempt <= 2; attempt++)
+                    var sourceFetchTimer = Stopwatch.StartNew();
+                    try
                     {
+                        for (int attempt = 1; attempt <= 2; attempt++)
+                        {
                         try
                         {
                             // Per-request 25s timeout — one slow domain (freenode was
@@ -1432,7 +1437,12 @@ namespace ProxyCollector.Collector
                             await Task.Delay(1500);
                         }
                     }
-                });
+                }
+                finally
+                {
+                    Interlocked.Add(ref st.FetchElapsedMs, sourceFetchTimer.ElapsedMilliseconds);
+                }
+            });
 
             var sourcePriority = urls
                 .Select((source, index) => (Source: source, Index: index))
@@ -1465,8 +1475,19 @@ namespace ProxyCollector.Collector
                 return t;
             }
 
+            string? activeParseSource = null;
+            long parseSourceStartedAt = Stopwatch.GetTimestamp();
             foreach (var (url, line) in rawLines)
             {
+                if (!StringComparer.Ordinal.Equals(activeParseSource, url))
+                {
+                    if (activeParseSource is not null)
+                        sourceStats[activeParseSource].ParseElapsedMs +=
+                            (long)Stopwatch.GetElapsedTime(parseSourceStartedAt).TotalMilliseconds;
+                    activeParseSource = url;
+                    parseSourceStartedAt = Stopwatch.GetTimestamp();
+                }
+
                 processed++;
                 if (processed % 100000 == 0) LogInfo($"  {processed}/{rawLines.Count} parsed...");
 
@@ -1514,6 +1535,10 @@ namespace ProxyCollector.Collector
                         keptTrust.IranTested = true;   // duplicate from a tested source — trust upgrades the kept node
                 }
             }
+            if (activeParseSource is not null)
+                sourceStats[activeParseSource].ParseElapsedMs +=
+                    (long)Stopwatch.GetElapsedTime(parseSourceStartedAt).TotalMilliseconds;
+
             LogInfo($"After smart dedup: {uniqueProxies.Count} unique ({badHostFiltered} bad host/port, {placeholderFiltered} placeholder credential, {emptyCredFiltered} empty credential, {invalidWireguardFiltered} invalid WireGuard filtered)");
             GroupEnd();
 
@@ -1566,7 +1591,7 @@ namespace ProxyCollector.Collector
             // Publish a machine-readable source audit alongside generated subscriptions.
             // This separates network reachability from parser yield and unique contribution.
             string Csv(string value) => "\"" + (value ?? "").Replace("\"", "\"\"") + "\"";
-            var sourceReport = new StringBuilder("url,fetch_successes,raw_bytes,raw_lines,extracted_lines,parsed,unique,provider_successes,provider_failures,status\n");
+            var sourceReport = new StringBuilder("url,fetch_successes,raw_bytes,raw_lines,extracted_lines,parsed,unique,provider_successes,provider_failures,fetch_elapsed_ms,parse_elapsed_ms,status\n");
             foreach (var kv in sourceStats.OrderBy(k => k.Key, StringComparer.OrdinalIgnoreCase))
             {
                 var st = kv.Value;
@@ -1583,6 +1608,8 @@ namespace ProxyCollector.Collector
                     .Append(extractedLines).Append(',').Append(parsed).Append(',')
                     .Append(Volatile.Read(ref st.Unique)).Append(',')
                     .Append(providerSuccessCount).Append(',').Append(providerFailureCount).Append(',')
+                    .Append(Volatile.Read(ref st.FetchElapsedMs)).Append(',')
+                    .Append(st.ParseElapsedMs).Append(',')
                     .Append(status).Append('\n');
             }
             // Save the CSV text now, but write it only after SaveAllCategories: that

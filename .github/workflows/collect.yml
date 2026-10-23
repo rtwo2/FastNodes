@@ -975,6 +975,21 @@ jobs:
             https://raw.githubusercontent.com/10ium/MihomoSaz/main/Sublist/whoahaow/rjsxrd_bypass_all.yaml
             # --- Additional user-provided subscription sources (not availability-tested) ---
 
+      - name: Track source health trends and summarize ranking calibration
+        if: ${{ success() && (inputs.source_limit == '' || inputs.source_limit == '0') }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/track_source_health.py \
+            --input sub/diagnostics/source-health.csv \
+            --history state/source-health-history.json \
+            --output sub/diagnostics/source-health-trends.csv \
+            --max-snapshots 14
+          python3 scripts/summarize_ranking_calibration.py \
+            --input sub/diagnostics/ranking-calibration-summary.csv \
+            --output sub/diagnostics/ranking-calibration-notes.md \
+            --min-sample 50
+
       - name: Drop malformed VLESS lines before validating outputs
         if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
         shell: bash

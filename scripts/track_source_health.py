@@ -73,7 +73,7 @@ def load_history(path: pathlib.Path) -> dict:
         value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise TrendError(f"could not read source-health history {path}: {exc}") from exc
-    if value.get("schema_version") != SCHEMA_VERSION or not isinstance(value.get("snapshots"), list):
+    if not isinstance(value, dict) or value.get("schema_version") != SCHEMA_VERSION or not isinstance(value.get("snapshots"), list):
         raise TrendError(f"source-health history has an unsupported schema: {path}")
     for snapshot in value["snapshots"]:
         if not isinstance(snapshot, dict) or not isinstance(snapshot.get("sources"), dict):
@@ -107,7 +107,7 @@ def render_trends(snapshots: list[dict]) -> str:
         fetch_successes = sum(v["fetch_successes"] > 0 for v in values)
         fetch_failures = sum(v["status"] == "fetch-failed" for v in values)
         parse_successes = sum(v["parsed"] > 0 for v in values)
-        unparsed = sum(v["status"] == "fetched-but-unparsed" for v in values)
+        unparsed = sum(v["status"] in {"fetched-but-unparsed", "extracted-but-rejected"} for v in values)
         parsed_zero_unique = sum(v["parsed"] > 0 and v["unique"] == 0 for v in values)
         classification = classify(values, latest, fetch_failures, parse_successes, unparsed, parsed_zero_unique)
         rows.append({

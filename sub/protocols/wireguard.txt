@@ -1,0 +1,1176 @@
+proxies:
+- name: "\U0001F1E6\U0001F1FA Australia - Sydney | 103.1.213.212:80"
+  type: wireguard
+  server: 103.1.213.212
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: jCi1I5HBTtwCblBbMzOFmOOFNG1GilYOZgst0kyq9gY=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Sydney | 103.1.213.212:80 2"
+  type: wireguard
+  server: 103.1.213.212
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: jCi1I5HBTtwCblBbMzOFmOOFNG1GilYOZgst0kyq9gY=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1F8\U0001F1EC Singapore - Unknown | 103.107.198.228:80"
+  type: wireguard
+  server: 103.107.198.228
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: tJa6iPx6mpOktn5KoalMslWcpg6pRUdVx3bKDi3wtDg=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1F8\U0001F1EC Singapore - Unknown | 103.107.198.228:65142"
+  type: wireguard
+  server: 103.107.198.228
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: tJa6iPx6mpOktn5KoalMslWcpg6pRUdVx3bKDi3wtDg=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1F8\U0001F1EC Singapore - Unknown | 103.107.198.228:65142 2"
+  type: wireguard
+  server: 103.107.198.228
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: tJa6iPx6mpOktn5KoalMslWcpg6pRUdVx3bKDi3wtDg=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Adelaide | 103.108.92.84:65142"
+  type: wireguard
+  server: 103.108.92.84
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: Sb5VSMZhhqSo5absckjzPn9HWhT7UrKk1AQv0me0zhI=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Adelaide | 103.108.92.84:65142 2"
+  type: wireguard
+  server: 103.108.92.84
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: Sb5VSMZhhqSo5absckjzPn9HWhT7UrKk1AQv0me0zhI=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1F3\U0001F1FF New Zealand - Auckland | 103.108.94.164:80"
+  type: wireguard
+  server: 103.108.94.164
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: el0He87GLmmywBmn7ErEiuKd5Bjc6Q4zWciL86rYcxw=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Brisbane | 103.108.95.228:80"
+  type: wireguard
+  server: 103.108.95.228
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: iY4MhQqQTP4uT7U4w9DfUEVxi5I3HJvjZcIL2dwmtTw=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Brisbane | 103.108.95.228:65142"
+  type: wireguard
+  server: 103.108.95.228
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: iY4MhQqQTP4uT7U4w9DfUEVxi5I3HJvjZcIL2dwmtTw=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Brisbane | 103.108.95.228:65142 2"
+  type: wireguard
+  server: 103.108.95.228
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: iY4MhQqQTP4uT7U4w9DfUEVxi5I3HJvjZcIL2dwmtTw=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Brisbane | 103.62.50.132:80"
+  type: wireguard
+  server: 103.62.50.132
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: KvFr7Te5+RaFATDKJzrNXKf44ws8J6E9WbNVsMPvY1I=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Unknown | 103.77.232.76:80"
+  type: wireguard
+  server: 103.77.232.76
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: eSxX+L8qX+1MdmwjtlZGIDbDivFdURBh5Rm1KfUpYzc=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Unknown | 103.77.232.76:65142"
+  type: wireguard
+  server: 103.77.232.76
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: eSxX+L8qX+1MdmwjtlZGIDbDivFdURBh5Rm1KfUpYzc=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Perth | 103.77.234.212:80"
+  type: wireguard
+  server: 103.77.234.212
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: Jhhq6jvPxABM8OmzaM4/zJbcoRBR5OZalIHrZaFuXAU=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Perth | 103.77.234.212:65142"
+  type: wireguard
+  server: 103.77.234.212
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: Jhhq6jvPxABM8OmzaM4/zJbcoRBR5OZalIHrZaFuXAU=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FB\U0001F1F3 Vietnam - Unknown | 103.9.79.220:80"
+  type: wireguard
+  server: 103.9.79.220
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: SxBT11IISNRou7thGo5A1QtaMjfzPIzZXDxdYEbDxhE=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FB\U0001F1F3 Vietnam - Unknown | 103.9.79.220:80 2"
+  type: wireguard
+  server: 103.9.79.220
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: SxBT11IISNRou7thGo5A1QtaMjfzPIzZXDxdYEbDxhE=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FA\U0001F1F8 United States - Unknown | 104.244.210.244:65142"
+  type: wireguard
+  server: 104.244.210.244
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: IMHoX/bhNghQVQB0pYKi14pwJhkOcLevpiMa7Khaz2I=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Unknown | 116.206.228.180:80"
+  type: wireguard
+  server: 116.206.228.180
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: r5BDU0T+VGZU6I+zuF3vlGrdORtgNvLhY08gQxrFRCw=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Unknown | 116.206.228.180:65142"
+  type: wireguard
+  server: 116.206.228.180
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: r5BDU0T+VGZU6I+zuF3vlGrdORtgNvLhY08gQxrFRCw=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1FA Australia - Unknown | 116.206.228.180:65142 2"
+  type: wireguard
+  server: 116.206.228.180
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: r5BDU0T+VGZU6I+zuF3vlGrdORtgNvLhY08gQxrFRCw=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1F5\U0001F1E6 Panama - Unknown | 138.186.142.204:65142"
+  type: wireguard
+  server: 138.186.142.204
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: 3L8yhe+v7TzBeesOFxSdU2VUa8FG4PTuoiiUoV7DAGY=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1F5\U0001F1E6 Panama - Unknown | 138.186.142.204:65142 2"
+  type: wireguard
+  server: 138.186.142.204
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: 3L8yhe+v7TzBeesOFxSdU2VUa8FG4PTuoiiUoV7DAGY=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1E6 Canada - Unknown | 142.4.216.196:123"
+  type: wireguard
+  server: 142.4.216.196
+  port: 123
+  ip: 10.104.1.154/32
+  public-key: Mop45Icu1QOf7eq2x0xc2hzyO0cDEq7LGL35nYt7d2Q=
+  private-key: YI1T7ucTZ8kcTJl/YUrCdJzXRZEelCY+En2UBG6al3A=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,1.0.0.1,2606:4700:4700::1111,2606:4700:4700::1001
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EB\U0001F1F7 France - Unknown | 145.239.255.68:123"
+  type: wireguard
+  server: 145.239.255.68
+  port: 123
+  ip: 10.104.2.207/32
+  public-key: TMGRzMA3dim95ClL5uVDkkrhNtxLrSPXbLf+T+Dc2DA=
+  private-key: mKa9L2a9IYHC6sdXHKRJeren3RedpfJ5OrHP0QN7hHw=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,1.0.0.1,2606:4700:4700::1111,2606:4700:4700::1001
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EB\U0001F1F7 France - Unknown | 145.239.255.68:25018"
+  type: wireguard
+  server: 145.239.255.68
+  port: 25018
+  ip: 10.104.2.208/32
+  public-key: TMGRzMA3dim95ClL5uVDkkrhNtxLrSPXbLf+T+Dc2DA=
+  private-key: MBRujhWQZTdq++Gn7GqZJ3d0YUWjJDzH5HeA+MaJz20=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,1.0.0.1,2606:4700:4700::1111,2606:4700:4700::1001
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1E6 Canada - Toronto | 149.57.28.226:80"
+  type: wireguard
+  server: 149.57.28.226
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: vwimooPysZvNdJULeFQVovYfqhsLG5gVdzgoTnfm+iE=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1E6 Canada - Toronto | 149.57.28.226:80 2"
+  type: wireguard
+  server: 149.57.28.226
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: vwimooPysZvNdJULeFQVovYfqhsLG5gVdzgoTnfm+iE=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1E6 Canada - Toronto | 149.57.28.226:65142"
+  type: wireguard
+  server: 149.57.28.226
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: vwimooPysZvNdJULeFQVovYfqhsLG5gVdzgoTnfm+iE=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1E6 Canada - Toronto | 149.57.28.226:65142 2"
+  type: wireguard
+  server: 149.57.28.226
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: vwimooPysZvNdJULeFQVovYfqhsLG5gVdzgoTnfm+iE=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FA\U0001F1F8 United States - Santa Clara | 167.88.60.244:443"
+  type: wireguard
+  server: 167.88.60.244
+  port: 443
+  ip: 100.80.234.177/32
+  public-key: /oz2frQv99JveBgmTXW22QXIEulQURK79BW+ugk8fCE=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FA\U0001F1F8 United States - Santa Clara | 167.88.60.244:443 2"
+  type: wireguard
+  server: 167.88.60.244
+  port: 443
+  ip: 100.80.234.177/32
+  public-key: /oz2frQv99JveBgmTXW22QXIEulQURK79BW+ugk8fCE=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E9\U0001F1EA Germany - Düsseldorf | 176.113.68.6:51820"
+  type: wireguard
+  server: 176.113.68.6
+  port: 51820
+  ip: 10.0.125.43/32,2a0e:1c80:1337:1:10:0:125:43/128
+  public-key: EyBJUawu49A1d9e03Fa0xSMzw2NBEF+8y0DuFu9SF1M=
+  private-key: SD9lIFsItASmL3HhjrN3xkOQQdwLpLdjYgK2RW40hGo=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EE\U0001F1F8 Iceland - Reykjavik | 185.165.170.3:80"
+  type: wireguard
+  server: 185.165.170.3
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: ua7TUXkcSiiHeTyCok5b3PX9DkJ4l5yVvGlSmJ34WU8=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EE\U0001F1F8 Iceland - Reykjavik | 185.165.170.3:80 2"
+  type: wireguard
+  server: 185.165.170.3
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: ua7TUXkcSiiHeTyCok5b3PX9DkJ4l5yVvGlSmJ34WU8=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EE\U0001F1F8 Iceland - Reykjavik | 185.165.170.3:65142"
+  type: wireguard
+  server: 185.165.170.3
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: ua7TUXkcSiiHeTyCok5b3PX9DkJ4l5yVvGlSmJ34WU8=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1F2\U0001F1F0 North Macedonia - Unknown | 185.225.28.52:80"
+  type: wireguard
+  server: 185.225.28.52
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: 9J0kA4c4i7N/+6B+3j0zFkDTHocZNsw6eK6+sLZ1qCQ=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1F2\U0001F1F0 North Macedonia - Unknown | 185.225.28.52:80 2"
+  type: wireguard
+  server: 185.225.28.52
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: 9J0kA4c4i7N/+6B+3j0zFkDTHocZNsw6eK6+sLZ1qCQ=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1F2\U0001F1F0 North Macedonia - Unknown | 185.225.28.52:65142"
+  type: wireguard
+  server: 185.225.28.52
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: 9J0kA4c4i7N/+6B+3j0zFkDTHocZNsw6eK6+sLZ1qCQ=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E7\U0001F1E6 Bosnia & Herzegovina - Novi Travnik | 185.99.3.25:80"
+  type: wireguard
+  server: 185.99.3.25
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: 6oMHpHHL3pq6Pdr2HoDRYuyjcyQGxfQaSRQR+HPyvgc=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E7\U0001F1E6 Bosnia & Herzegovina - Novi Travnik | 185.99.3.25:80 2"
+  type: wireguard
+  server: 185.99.3.25
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: 6oMHpHHL3pq6Pdr2HoDRYuyjcyQGxfQaSRQR+HPyvgc=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E7\U0001F1E6 Bosnia & Herzegovina - Novi Travnik | 185.99.3.25:65142"
+  type: wireguard
+  server: 185.99.3.25
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: 6oMHpHHL3pq6Pdr2HoDRYuyjcyQGxfQaSRQR+HPyvgc=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E7\U0001F1E6 Bosnia & Herzegovina - Novi Travnik | 185.99.3.25:65142 2"
+  type: wireguard
+  server: 185.99.3.25
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: 6oMHpHHL3pq6Pdr2HoDRYuyjcyQGxfQaSRQR+HPyvgc=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1F7 Argentina - Buenos Aires | 190.103.176.148:65142"
+  type: wireguard
+  server: 190.103.176.148
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: 2+O8VAshLkyWM1b6Ye2Cuoa3R/guKZgQ+YLoCsseWCU=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E6\U0001F1F7 Argentina - Buenos Aires | 190.103.176.148:65142 2"
+  type: wireguard
+  server: 190.103.176.148
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: 2+O8VAshLkyWM1b6Ye2Cuoa3R/guKZgQ+YLoCsseWCU=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EC\U0001F1E7 United Kingdom - Edinburgh | 193.36.118.228:65142"
+  type: wireguard
+  server: 193.36.118.228
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: bGn6yuCFQWWF8+ZMGlJ0M6+IJRlkLXn0/UI/mvIyYwQ=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FA\U0001F1F8 United States - New York | 194.180.34.2:51820"
+  type: wireguard
+  server: 194.180.34.2
+  port: 51820
+  ip: 10.2.0.2/32,2a07:b944::2:2/128
+  public-key: dQL3GTtbIcz8OhVTFpYTQd+//OcqOYg6LAFOfel2VBw=
+  private-key: 8MoUyzmoRj9FUPeoip84Afmt6aHhcY/DF3h8gsZcVlc=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+- name: "\U0001F1FF\U0001F1E6 South Africa - Johannesburg | 197.242.159.229:443"
+  type: wireguard
+  server: 197.242.159.229
+  port: 443
+  ip: 100.80.234.177/32
+  public-key: Nh5LEJT44xbuvTQnv3OZ0bXi09BFXV4SBB1XVMI12Ec=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FF\U0001F1E6 South Africa - Johannesburg | 197.242.159.229:65142"
+  type: wireguard
+  server: 197.242.159.229
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: Nh5LEJT44xbuvTQnv3OZ0bXi09BFXV4SBB1XVMI12Ec=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FF\U0001F1E6 South Africa - Johannesburg | 197.242.159.229:65142 2"
+  type: wireguard
+  server: 197.242.159.229
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: Nh5LEJT44xbuvTQnv3OZ0bXi09BFXV4SBB1XVMI12Ec=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FA\U0001F1F8 United States - Los Angeles | 198.147.22.227:80"
+  type: wireguard
+  server: 198.147.22.227
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: b5fIKEXhihCI7f4NOkQO/2BOd+bYHa0c05OylImgB0E=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FA\U0001F1F8 United States - Los Angeles | 198.147.22.227:65142"
+  type: wireguard
+  server: 198.147.22.227
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: b5fIKEXhihCI7f4NOkQO/2BOd+bYHa0c05OylImgB0E=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FA\U0001F1F8 United States - Boston | 199.217.104.228:65142"
+  type: wireguard
+  server: 199.217.104.228
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: 5yBJlSpfxd8Hq4+X4ZD60MYc6tosaMh5inQwA18XCCk=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FA\U0001F1F8 United States - Boston | 199.217.104.228:65142 2"
+  type: wireguard
+  server: 199.217.104.228
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: 5yBJlSpfxd8Hq4+X4ZD60MYc6tosaMh5inQwA18XCCk=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1E6 Canada - Halifax | 23.191.80.4:65142"
+  type: wireguard
+  server: 23.191.80.4
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: w262TI0UyIg9pFunMiekVURYUuT/z4qXRor2Z7VcOn4=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1FA\U0001F1F8 United States - Columbus | 3.146.200.226:51820"
+  type: wireguard
+  server: 3.146.200.226
+  port: 51820
+  ip: 10.69.0.13/32
+  public-key: evWeRUpZ5/eXnTEe6b+1B/h6/KNF0OUzCQGHMR8DZnE=
+  private-key: aLo35sfyDYEmuIpDrzyq9hYQuhiqCM4VJ45ynMMGo0E=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EC\U0001F1F7 Greece - Athens | 45.138.86.228:65142"
+  type: wireguard
+  server: 45.138.86.228
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: S/qPJPWnfwfb1pWIcKN8FH71j5dFt9eH2KbEeU1+QlE=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1FE Cyprus - Nicosia | 46.199.75.107:80"
+  type: wireguard
+  server: 46.199.75.107
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: 90fjr1sq0Hgv2l+DgMaaGQ009SDw7VxmzJwaYmclaFs=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1FE Cyprus - Nicosia | 46.199.75.107:80 2"
+  type: wireguard
+  server: 46.199.75.107
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: 90fjr1sq0Hgv2l+DgMaaGQ009SDw7VxmzJwaYmclaFs=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1FE Cyprus - Nicosia | 46.199.75.107:65142"
+  type: wireguard
+  server: 46.199.75.107
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: 90fjr1sq0Hgv2l+DgMaaGQ009SDw7VxmzJwaYmclaFs=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EC\U0001F1F7 Greece - Athens | 79.127.218.5:51820"
+  type: wireguard
+  server: 79.127.218.5
+  port: 51820
+  ip: 10.0.125.43/32,2a0e:1c80:1337:1:10:0:125:43/128
+  public-key: dyzLMM5cxozi4XhKSkT9s+a7DUhO8akNQlFkU7XFWyo=
+  private-key: SD9lIFsItASmL3HhjrN3xkOQQdwLpLdjYgK2RW40hGo=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1F8\U0001F1EA Sweden - Stockholm | 79.142.76.199:80"
+  type: wireguard
+  server: 79.142.76.199
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: P5X43E/SgvnJtbrKnJwLFxqFoZGsCghW2SxlXvfdzm0=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1F8\U0001F1EA Sweden - Stockholm | 79.142.76.199:65142"
+  type: wireguard
+  server: 79.142.76.199
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: P5X43E/SgvnJtbrKnJwLFxqFoZGsCghW2SxlXvfdzm0=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1ED\U0001F1F0 Hong Kong SAR China - Hong Kong | 84.17.57.115:65142"
+  type: wireguard
+  server: 84.17.57.115
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: zi62xnrtbvAbaavB8MLoTF36BX/stxjfnGJ6mIsZYzg=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1ED\U0001F1F0 Hong Kong SAR China - Hong Kong | 84.17.57.115:65142 2"
+  type: wireguard
+  server: 84.17.57.115
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: zi62xnrtbvAbaavB8MLoTF36BX/stxjfnGJ6mIsZYzg=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1E6 Canada - Toronto | 85.12.31.144:51820"
+  type: wireguard
+  server: 85.12.31.144
+  port: 51820
+  ip: 100.64.74.107/32
+  public-key: KgTUh3KLijVluDvNpzDCJJfrJ7EyLzYLmdHCksG4sRg=
+  private-key: oJSdEsKanv15NSmm4k4joCMzTC3szksA/hBwFGTZX0Q=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+- name: "\U0001F1EF\U0001F1F5 Japan - Tokyo | 85.12.4.192:51820"
+  type: wireguard
+  server: 85.12.4.192
+  port: 51820
+  ip: 100.64.47.181/32
+  public-key: KgTUh3KLijVluDvNpzDCJJfrJ7EyLzYLmdHCksG4sRg=
+  private-key: QHObncfB/B+nUjE6z3bI9+PNv37imTpFERBaseqpE1I=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+- name: "\U0001F1FA\U0001F1F8 United States - Ashburn | 85.12.61.9:51820"
+  type: wireguard
+  server: 85.12.61.9
+  port: 51820
+  ip: 100.64.86.138/32
+  public-key: KgTUh3KLijVluDvNpzDCJJfrJ7EyLzYLmdHCksG4sRg=
+  private-key: CL9HAG3s5n5X78Zvg9QaGNVlDIVmqSrFv5eDqkM9mFU=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+- name: "\U0001F1E8\U0001F1ED Switzerland - Zurich | 89.187.165.99:80"
+  type: wireguard
+  server: 89.187.165.99
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: G7LkwWk08Ase/Wi9mnOW77brNBC0vTCemvy1IW1nlV4=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1ED Switzerland - Zurich | 89.187.165.99:80 2"
+  type: wireguard
+  server: 89.187.165.99
+  port: 80
+  ip: 100.80.234.177/32
+  public-key: G7LkwWk08Ase/Wi9mnOW77brNBC0vTCemvy1IW1nlV4=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1ED Switzerland - Zurich | 89.187.165.99:65142"
+  type: wireguard
+  server: 89.187.165.99
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: G7LkwWk08Ase/Wi9mnOW77brNBC0vTCemvy1IW1nlV4=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1,8.8.8.8,208.67.222.222,2606:4700:4700::1111
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1E8\U0001F1ED Switzerland - Zurich | 89.187.165.99:65142 2"
+  type: wireguard
+  server: 89.187.165.99
+  port: 65142
+  ip: 100.80.234.177/32
+  public-key: G7LkwWk08Ase/Wi9mnOW77brNBC0vTCemvy1IW1nlV4=
+  private-key: cIq+3tcHVT7gRMl4kIv0WE68ERiTmDtA7rhyHhLJ/mg=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  preshared-key: N/gfMZSjvP8mbXfVP2hnD5CX8BkGvOyheJ67mCpD+QQ=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1F7\U0001F1FA Russia - Moscow | 91.148.228.209:51820"
+  type: wireguard
+  server: 91.148.228.209
+  port: 51820
+  ip: 100.64.46.236/32
+  public-key: KgTUh3KLijVluDvNpzDCJJfrJ7EyLzYLmdHCksG4sRg=
+  private-key: 2IWW1fqmsQG3XnMkx9THvCDKr90rkqYiJf+p/uaeWGs=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+- name: "\U0001F1EC\U0001F1F7 Greece - Athens | 91.148.228.48:51820"
+  type: wireguard
+  server: 91.148.228.48
+  port: 51820
+  ip: 100.64.8.68/32
+  public-key: KgTUh3KLijVluDvNpzDCJJfrJ7EyLzYLmdHCksG4sRg=
+  private-key: YEbIplD6gdRtKStZkFE3Z8BTZPfArO1r4jb/cvuOe3Y=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+- name: "\U0001F1F3\U0001F1F1 Netherlands - The Netherlands | 91.148.240.47:51820"
+  type: wireguard
+  server: 91.148.240.47
+  port: 51820
+  ip: 100.64.63.184/32
+  public-key: KgTUh3KLijVluDvNpzDCJJfrJ7EyLzYLmdHCksG4sRg=
+  private-key: wMgmgJaoQ6VNFkyOW3Tzdx7GRIEp/6unrroWxec3HWw=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+- name: "\U0001F1E6\U0001F1F1 Albania - Tirana | 91.148.245.40:51820"
+  type: wireguard
+  server: 91.148.245.40
+  port: 51820
+  ip: 100.64.40.129/32
+  public-key: KgTUh3KLijVluDvNpzDCJJfrJ7EyLzYLmdHCksG4sRg=
+  private-key: cDqLzbD6ZkSgbQe8VVzxQbL8PxSHIg0NJ7elP/12b1g=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+- name: "\U0001F1F9\U0001F1F7 Türkiye - Istanbul | 91.148.248.80:51820"
+  type: wireguard
+  server: 91.148.248.80
+  port: 51820
+  ip: 100.64.90.60/32
+  public-key: KgTUh3KLijVluDvNpzDCJJfrJ7EyLzYLmdHCksG4sRg=
+  private-key: eIqzU+xCZhbAKWCl4TyWq2NVQdGn4olZcZuUn0Bu+F0=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+- name: "\U0001F1EE\U0001F1F7 Iran - Unknown | bot.shopver.ir:995"
+  type: wireguard
+  server: bot.shopver.ir
+  port: 995
+  ip: 10.7.227.253,fddd:2c4:2c4:2c4:0:0:5:e7be
+  public-key: 4qTpT9jTcZOdKSOrP9vgNXuULE/eYiwjlD3Thzo3k3E=
+  private-key: OKeLKU3lNwh+m8tr5j39Qi4TbdSTf/MvBStcZziLo1k=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 8.8.8.8,8.8.4.4
+  preshared-key: SM4bhSTILLoB5U5QVM1mycEckGmIJIXDke27/GF99Ms=
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EE\U0001F1F7 Iran - Tehran | dash.mygharehshop.ir:51820"
+  type: wireguard
+  server: dash.mygharehshop.ir
+  port: 51820
+  ip: 10.7.0.42/32
+  public-key: BCuKrwE1GQBWpJKEbiTBw10UI9FbHirlTTcBDI7r+0E=
+  private-key: EGFIRZvHp+KXgNXki96/gdqYWK81v8z30y3C2cnG2kk=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EE\U0001F1F7 Iran - Unknown | sevira.helpower.ir:51821"
+  type: wireguard
+  server: sevira.helpower.ir
+  port: 51821
+  ip: 10.0.12.239/32
+  public-key: Hbv15xWQ43aNkD2DEbvm/P9u2gb4tQ8sbJrxfwCNkAM=
+  private-key: QPXbnIeCTe9hOI48IQ5xtPjpR7irhsoA8V3RFMWWZEA=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  reserved:
+  - 0
+  - 0
+  - 0
+- name: "\U0001F1EE\U0001F1F7 Iran - Unknown | wgtr1.simplan.ir:51820"
+  type: wireguard
+  server: wgtr1.simplan.ir
+  port: 51820
+  ip: 10.66.194.36/32
+  public-key: jPAWIHAKdW53mgAAIthdEomb49oNJB3/U5K51SDSyns=
+  private-key: CDGYLtMVsrRh4LRheTEUG8z2O7RJ4DdJSyvWs+OYpnw=
+  allowed-ips: 0.0.0.0/0, ::/0
+  mtu: 1280
+  dns: 1.1.1.1
+  reserved:
+  - 0
+  - 0
+  - 0

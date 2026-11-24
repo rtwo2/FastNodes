@@ -165,14 +165,14 @@ internal static class Program
         using (var exactContent = new ByteArrayContent(Encoding.UTF8.GetBytes("12345678")))
         {
             Checks.Equal("12345678",
-                CollectorType.ReadContentLimitedAsync(exactContent, 8, CancellationToken.None).GetAwaiter().GetResult(),
+                SourceFetcher.ReadContentLimitedAsync(exactContent, 8, CancellationToken.None).GetAwaiter().GetResult(),
                 "bounded HTTP reader accepts a body exactly at its byte limit");
         }
         var oversizedContent = new ByteArrayContent(Encoding.UTF8.GetBytes("123456789"));
         bool oversizedBodyRejected = false;
         try
         {
-            _ = CollectorType.ReadContentLimitedAsync(oversizedContent, 8, CancellationToken.None)
+            _ = SourceFetcher.ReadContentLimitedAsync(oversizedContent, 8, CancellationToken.None)
                 .GetAwaiter().GetResult();
         }
         catch (InvalidDataException) { oversizedBodyRejected = true; }

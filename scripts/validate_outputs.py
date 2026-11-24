@@ -171,8 +171,8 @@ def validate_tree(root: pathlib.Path) -> list[str]:
     everything_part_numbers: list[int] = []
     everything_part_paths: list[pathlib.Path] = []
     for path in root.glob("everything_part*.txt"):
-        match = re.fullmatch(r"everything_part([2-9][0-9]*)\\.txt", path.name)
-        if not match:
+        match = re.fullmatch(r"everything_part([0-9]+)\.txt", path.name)
+        if not match or int(match.group(1)) < 2:
             raise ValidationError(f"invalid everything part filename: {path.name}")
         everything_part_numbers.append(int(match.group(1)))
         everything_part_paths.append(path)
@@ -197,7 +197,7 @@ def validate_tree(root: pathlib.Path) -> list[str]:
     counts["everything.txt"] = everything_total_lines
     for path in sorted(root.rglob("*.txt")):
         rel = path.relative_to(root).as_posix()
-        if rel in {"everything.txt", "verified.txt"} or re.fullmatch(r"everything_part[2-9][0-9]*\\.txt", path.name):
+        if rel in {"everything.txt", "verified.txt"} or re.fullmatch(r"everything_part[0-9]+\.txt", path.name):
             continue
         lines = [
             line.strip()

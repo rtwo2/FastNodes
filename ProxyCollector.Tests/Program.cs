@@ -1,4 +1,6 @@
 using System.Net;
+using System.Threading;
+using ProxyCollector.Services;
 using YamlDotNet.RepresentationModel;
 using System.Text;
 using System.Text.Json;
@@ -19,6 +21,41 @@ internal static class Program
             "CRLF-terminated source bodies count physical lines correctly");
         Checks.Equal(2, CollectorType.CountRawLines("one\ntwo"),
             "a non-terminated final source line is still counted");
+
+        var interleavedFamilies = HappyEyeballsConnector.OrderAddresses(new[]
+        {
+            IPAddress.Parse("192.0.2.1"), IPAddress.Parse("192.0.2.2"),
+            IPAddress.Parse("2001:db8::1"), IPAddress.Parse("2001:db8::2")
+        });
+        Checks.That(interleavedFamilies.SequenceEqual(new[]
+            {
+                IPAddress.Parse("192.0.2.1"), IPAddress.Parse("2001:db8::1"),
+                IPAddress.Parse("192.0.2.2"), IPAddress.Parse("2001:db8::2")
+            }),
+            "Happy Eyeballs interleaves IPv4 and IPv6 while preserving each resolver family order");
+
+        using (var memoryBudget = new SourceFetchBudget(2L * 1024 * 1024, 2L * 1024 * 1024))
+        {
+            var firstReservation = memoryBudget.AcquireSourceAsync(1024 * 1024, CancellationToken.None)
+                .GetAwaiter().GetResult();
+            var waitingReservation = memoryBudget.AcquireSourceAsync(1024 * 1024, CancellationToken.None).AsTask();
+            Thread.Sleep(30);
+            Checks.That(!waitingReservation.IsCompleted,
+                "source fetch memory reservations apply backpressure at the configured process budget");
+            firstReservation.Dispose();
+            using var secondReservation = waitingReservation.GetAwaiter().GetResult();
+        }
+
+        using (var spool = new SourceSpoolStore())
+        {
+            spool.WriteSourceAsync(1, new[] { "later-source-line" }, CancellationToken.None).GetAwaiter().GetResult();
+            spool.WriteSourceAsync(0, new[] { "priority-first-line" }, CancellationToken.None).GetAwaiter().GetResult();
+            spool.AppendSourceAsync(0, new[] { "provider-appended-line" }, CancellationToken.None).GetAwaiter().GetResult();
+            Checks.That(spool.ReadSourceLines(0).SequenceEqual(new[] { "priority-first-line", "provider-appended-line" }),
+                "source spool appends provider lines after root lines without changing per-source order");
+            Checks.That(spool.ReadSourceLines(1).SequenceEqual(new[] { "later-source-line" }),
+                "source spool keeps independently fetched feeds separate");
+        }
 
         var sourcePriority = new Dictionary<string, int>(StringComparer.Ordinal)
         {
@@ -408,13 +445,13 @@ internal static class Program
         Checks.Equal("example.com", ipv6.Sni, "VLESS SNI");
         Checks.Equal("xtls-rprx-vision", ipv6.Flow, "VLESS flow");
 
-        Checks.That(CollectorType.IsExpectedConnectivityStatusLine("HTTP/1.1 204 No Content"),
+        Checks.That(XrayConnectivityProbe.IsExpectedConnectivityStatusLine("HTTP/1.1 204 No Content"),
             "Xray's connectivity probe accepts the expected generate_204 response");
-        Checks.That(!CollectorType.IsExpectedConnectivityStatusLine("HTTP/1.1 200 OK"),
+        Checks.That(!XrayConnectivityProbe.IsExpectedConnectivityStatusLine("HTTP/1.1 200 OK"),
             "Xray's connectivity probe does not accept an intercepted 200 response");
-        Checks.That(!CollectorType.IsExpectedConnectivityStatusLine("HTTP/1.1 302 Found"),
+        Checks.That(!XrayConnectivityProbe.IsExpectedConnectivityStatusLine("HTTP/1.1 302 Found"),
             "Xray's connectivity probe does not accept redirects as successful roundtrips");
-        Checks.That(!CollectorType.IsExpectedConnectivityStatusLine("not-http 204"),
+        Checks.That(!XrayConnectivityProbe.IsExpectedConnectivityStatusLine("not-http 204"),
             "Xray's connectivity probe rejects malformed HTTP status lines");
 
         var vlessWsHost = CollectorType.ParseProxyLine(

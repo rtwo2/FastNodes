@@ -32,11 +32,31 @@ namespace ProxyCollector.Collector
                 port is < 1 or > 65535)
                 return null;
 
+            string protocol = parsed.Protocol.ToLowerInvariant();
+            if (protocol == "vless" && !IsValidVlessCredential(parsed.Credential))
+                return null;
+            if (protocol == "vmess" && !IsValidVmessCredential(parsed.Credential))
+                return null;
+
             // Store a canonical numeric port for deduplication and probes. The published
             // URI remains the source form, but invalid source ports are never accepted.
             parsed.Port = port.ToString();
             return parsed;
         }
+
+        // Xray VLESS accepts a UUID or a custom ID shorter than 30 UTF-8 bytes.
+        // Custom strings are mapped to UUIDv5 by Xray.
+        internal static bool IsValidVlessCredential(string? credential)
+            => !string.IsNullOrWhiteSpace(credential) &&
+               (Guid.TryParseExact(credential, "D", out _) ||
+                Encoding.UTF8.GetByteCount(credential) < 30);
+
+        // Xray VMess accepts either a UUID or a custom ID shorter than 30 UTF-8 bytes.
+        // Unlike VLESS, VMess custom IDs are valid and are mapped by Xray internally.
+        internal static bool IsValidVmessCredential(string? credential)
+            => !string.IsNullOrWhiteSpace(credential) &&
+               (Guid.TryParseExact(credential, "D", out _) ||
+                Encoding.UTF8.GetByteCount(credential) < 30);
 
         private static ParsedProxy? ParseProxyLineCore(string line)
         {
@@ -122,7 +142,7 @@ namespace ProxyCollector.Collector
                     {
                         Protocol = "vmess", Host = NormalizeUriHost(uri.Host),
                         Port = (uri.Port > 0 ? uri.Port : 443).ToString(),
-                        Credential = uri.UserInfo ?? "",
+                        Credential = Uri.UnescapeDataString(uri.UserInfo ?? ""),
                         Network = net, Security = sec,
                         Sni = sni, Path = q.GetValueOrDefault("path", "").TrimEnd('/'),
                         Aid = int.TryParse(q.GetValueOrDefault("aid", "0"), out var a) ? a : 0,
@@ -182,7 +202,7 @@ namespace ProxyCollector.Collector
                 // unlike Hysteria2/TUIC/etc. which use the normal "user@host" position.
                 // Without this, Credential was always empty for v1 links, so two different
                 // v1 servers sharing a host:port would incorrectly look like duplicates.
-                string cred = uri.UserInfo ?? "";
+                string cred = Uri.UnescapeDataString(uri.UserInfo ?? "");
                 if (string.IsNullOrEmpty(cred) && scheme == "hysteria")
                     cred = q.GetValueOrDefault("auth", "");
 

@@ -83,11 +83,19 @@ def load_history(path: pathlib.Path) -> dict:
 
 
 def classify(values: list[dict], latest: dict, fetch_failures: int, parse_successes: int,
-             unparsed: int, parsed_zero_unique: int, provider_failure_runs: int = 0) -> str:
+             parsed_zero_unique: int, provider_failure_runs: int = 0) -> str:
     seen = len(values)
     recurring_threshold = max(2, math.ceil(seen * 0.30))
-    if unparsed >= 2 and latest["status"] in {"fetched-but-unparsed", "extracted-but-rejected"}:
-        return "recurring-parser-gap"
+    # A successful fetch with no extractable lines can mean an empty provider
+    # profile, a wrapper with no current nodes, or an unsupported container format.
+    # It is not enough evidence to call this a parser bug. Keep the two observable
+    # failure modes separate and label them neutrally.
+    recurring_unparsed_feeds = sum(v["status"] == "fetched-but-unparsed" for v in values)
+    recurring_rejected_content = sum(v["status"] == "extracted-but-rejected" for v in values)
+    if recurring_unparsed_feeds >= 2 and latest["status"] == "fetched-but-unparsed":
+        return "recurring-unparsed-feed"
+    if recurring_rejected_content >= 2 and latest["status"] == "extracted-but-rejected":
+        return "recurring-rejected-content"
     if fetch_failures >= recurring_threshold:
         return "recurring-fetch-failure"
     if provider_failure_runs >= recurring_threshold and (
@@ -117,7 +125,7 @@ def render_trends(snapshots: list[dict]) -> str:
         parsed_zero_unique = sum(v["parsed"] > 0 and v["unique"] == 0 for v in values)
         provider_failure_runs = sum(v.get("provider_failures", 0) > 0 for v in values)
         classification = classify(
-            values, latest, fetch_failures, parse_successes, unparsed,
+            values, latest, fetch_failures, parse_successes,
             parsed_zero_unique, provider_failure_runs
         )
         rows.append({
@@ -140,7 +148,8 @@ def render_trends(snapshots: list[dict]) -> str:
             "classification": classification,
         })
     priority = {
-        "recurring-parser-gap": 0,
+        "recurring-unparsed-feed": 0,
+        "recurring-rejected-content": 0,
         "recurring-fetch-failure": 1,
         "recurring-provider-failure": 2,
         "repeated-zero-unique": 3,
@@ -201,7 +210,8 @@ def self_test() -> None:
             writer.writerow(fields)
             writer.writerows(rows)
 
-    parser_gap = "https://example.test/unsupported.yaml"
+    unparsed_feed = "https://example.test/provider-profile-without-nodes.yaml"
+    rejected_content = "https://example.test/invalid-node-lines.txt"
     redundant = "https://example.test/duplicate.txt"
     contributor = "https://example.test/useful.txt"
     provider_failure = "https://example.test/profile-with-providers.yaml"
@@ -212,7 +222,8 @@ def self_test() -> None:
         for idx in range(3):
             source_csv = root / f"source-health-{idx}.csv"
             create_csv(source_csv, [
-                (parser_gap, 1, 1000, 20, 0, 0, 0, 0, 0, 100 + idx, 0, "fetched-but-unparsed"),
+                (unparsed_feed, 1, 1000, 20, 0, 0, 0, 0, 0, 100 + idx, 0, "fetched-but-unparsed"),
+                (rejected_content, 1, 1000, 20, 12, 0, 0, 0, 0, 90 + idx, 5, "extracted-but-rejected"),
                 (redundant, 1, 1000, 20, 15, 10, 0, 0, 0, 200 + idx, 20, "healthy"),
                 (contributor, 1, 1000, 20, 10, 10, 4, 0, 0, 50 + idx, 10, "healthy"),
                 (provider_failure, 1, 1200, 30, 0, 0, 0, 0, 2, 80 + idx, 10, "provider-failed-or-unparsed"),
@@ -220,14 +231,15 @@ def self_test() -> None:
             process(source_csv, history, output, captured_at=f"2026-01-0{idx + 1}T00:00:00Z")
         with output.open("r", encoding="utf-8", newline="") as stream:
             rows = {r["url"]: r for r in csv.DictReader(stream)}
-        assert rows[parser_gap]["classification"] == "recurring-parser-gap", rows[parser_gap]
+        assert rows[unparsed_feed]["classification"] == "recurring-unparsed-feed", rows[unparsed_feed]
+        assert rows[rejected_content]["classification"] == "recurring-rejected-content", rows[rejected_content]
         assert rows[redundant]["classification"] == "repeated-zero-unique", rows[redundant]
         assert rows[contributor]["classification"] == "contributing", rows[contributor]
         assert rows[provider_failure]["classification"] == "recurring-provider-failure", rows[provider_failure]
         assert rows[provider_failure]["provider_failure_runs"] == "3", rows[provider_failure]
         persisted = json.loads(history.read_text(encoding="utf-8"))
         assert len(persisted["snapshots"]) == 3
-        print("Source-health trend self-tests passed: parser gaps, provider failures, repeated zero contribution, useful source.")
+        print("Source-health trend self-tests passed: unparsed feeds, rejected content, provider failures, repeated zero contribution, useful source.")
 
 
 def main() -> int:

@@ -1,4 +1,6 @@
 using System.Net;
+using System.IO;
+using System.IO.Compression;
 using System.Threading;
 using ProxyCollector.Services;
 using YamlDotNet.RepresentationModel;
@@ -21,6 +23,39 @@ internal static class Program
             "CRLF-terminated source bodies count physical lines correctly");
         Checks.Equal(2, CollectorType.CountRawLines("one\ntwo"),
             "a non-terminated final source line is still counted");
+
+        var untouchedHistory = new ProxyCollector.Collector.NodeHistory { TlsOk = 7, XrayOk = 8 };
+        var untestedNode = new ProxyCollector.Collector.ParsedProxy();
+        CollectorType.UpdateVerificationStreaks(untouchedHistory, untestedNode);
+        Checks.Equal(7, untouchedHistory.TlsOk,
+            "an untested TLS node retains its previous success streak");
+        Checks.Equal(8, untouchedHistory.XrayOk,
+            "an untested Xray node retains its previous success streak");
+        Checks.Equal(7, untestedNode.VerifiedStreak,
+            "the current proxy carries forward its untouched TLS streak");
+        Checks.Equal(8, untestedNode.XrayStreak,
+            "the current proxy carries forward its untouched Xray streak");
+
+        var failedProbeNode = new ProxyCollector.Collector.ParsedProxy
+        {
+            TlsTested = true, XrayTested = true
+        };
+        CollectorType.UpdateVerificationStreaks(untouchedHistory, failedProbeNode);
+        Checks.Equal(6, untouchedHistory.TlsOk,
+            "an attempted TLS failure decays the TLS streak by one");
+        Checks.Equal(7, untouchedHistory.XrayOk,
+            "an attempted Xray failure decays the Xray streak by one");
+
+        var passedProbeNode = new ProxyCollector.Collector.ParsedProxy
+        {
+            TlsTested = true, TlsVerified = true,
+            XrayTested = true, XrayVerified = true
+        };
+        CollectorType.UpdateVerificationStreaks(untouchedHistory, passedProbeNode);
+        Checks.Equal(7, untouchedHistory.TlsOk,
+            "a successful TLS probe increments the TLS streak");
+        Checks.Equal(8, untouchedHistory.XrayOk,
+            "a successful Xray probe increments the Xray streak");
 
         var interleavedFamilies = HappyEyeballsConnector.OrderAddresses(new[]
         {
@@ -297,6 +332,81 @@ internal static class Program
                 ["port"] = 51820, ["ip"] = "10.0.0.2/32", ["allowed-ips"] = "0.0.0.0/0, ::/0"
             }
         });
+
+        var manyWireguardNodes = Enumerable.Range(0, 1001)
+            .Select(index => new Dictionary<string, object?>
+            {
+                ["name"] = $"wg-{index:D4}", ["type"] = "wireguard", ["server"] = "wg.example.net",
+                ["port"] = 51820, ["ip"] = "10.0.0.2/32",
+                ["public-key"] = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+                ["private-key"] = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+                ["allowed-ips"] = "0.0.0.0/0, ::/0"
+            }).ToList();
+        var wireguardYamlParts = CollectorType.SerializeWireguardClashYamlParts(manyWireguardNodes);
+        Checks.Equal(2, wireguardYamlParts.Count,
+            "large WireGuard protocol feeds are split into valid YAML parts rather than raw URI overflow files");
+        var firstWireguardPart = new YamlStream();
+        firstWireguardPart.Load(new StringReader(wireguardYamlParts[0]));
+        var firstWireguardRoot = (YamlMappingNode)firstWireguardPart.Documents[0].RootNode;
+        var firstWireguardEntries = (YamlSequenceNode)firstWireguardRoot.Children[new YamlScalarNode("proxies")];
+        Checks.Equal(1000, firstWireguardEntries.Children.Count,
+            "the first WireGuard YAML part respects the 1000-node part cap");
+        var secondWireguardPart = new YamlStream();
+        secondWireguardPart.Load(new StringReader(wireguardYamlParts[1]));
+        var secondWireguardRoot = (YamlMappingNode)secondWireguardPart.Documents[0].RootNode;
+        var secondWireguardEntries = (YamlSequenceNode)secondWireguardRoot.Children[new YamlScalarNode("proxies")];
+        Checks.Equal(1, secondWireguardEntries.Children.Count,
+            "the final WireGuard YAML part contains only its remaining proxy");
+        var rawProtocolGroups = CollectorType.GetRawProtocolGroups(new[]
+        {
+            new ProxyCollector.Collector.FinalProxy { Proto = "wireguard" },
+            new ProxyCollector.Collector.FinalProxy { Proto = "vless" }
+        });
+        Checks.Equal(1, rawProtocolGroups.Count,
+            "WireGuard is excluded from raw URI-per-line protocol feeds");
+        Checks.Equal("vless", rawProtocolGroups[0].Key,
+            "ordinary protocols remain in URI-per-line protocol feeds");
+        var caseSensitiveFallbackLinks = CollectorType.DeduplicateFallbackLinks(new[]
+        {
+            "vless://ABC@example.net:443?type=ws&path=%2FCase",
+            "vless://abc@example.net:443?type=ws&path=%2Fcase"
+        });
+        Checks.Equal(2, caseSensitiveFallbackLinks.Count,
+            "last-good fallback deduplication preserves case-sensitive credentials and paths");
+
+        string verificationReportPath = Path.Combine(
+            Path.GetTempPath(), "fastnodes-verification-report-" + Guid.NewGuid().ToString("N") + ".csv.gz");
+        try
+        {
+            var reportNode = new ProxyCollector.Collector.FinalProxy
+            {
+                Link = "vless://test@example.net:443",
+                NodeId = "verification-node",
+                Proto = "vless",
+                Host = "example.net",
+                Port = "443"
+            };
+            CollectorType.WriteVerificationReportAsync(
+                verificationReportPath,
+                new[] { reportNode },
+                new[] { reportNode },
+                Array.Empty<ProxyCollector.Collector.FinalProxy>())
+                .GetAwaiter().GetResult();
+
+            using var compressedReport = File.OpenRead(verificationReportPath);
+            using var gzipReport = new GZipStream(compressedReport, CompressionMode.Decompress);
+            using var reportReader = new StreamReader(gzipReport);
+            string? reportHeader = reportReader.ReadLine();
+            string? reportRow = reportReader.ReadLine();
+            Checks.That(reportHeader?.StartsWith("diagnostic_rank,node_id,host,port", StringComparison.Ordinal) == true,
+                "verification diagnostics are written as a readable gzip-compressed CSV");
+            Checks.That(reportRow?.Contains("\"verification-node\"", StringComparison.Ordinal) == true,
+                "compressed verification diagnostics preserve candidate rows");
+        }
+        finally
+        {
+            if (File.Exists(verificationReportPath)) File.Delete(verificationReportPath);
+        }
         var yamlDocument = new YamlStream();
         yamlDocument.Load(new StringReader(safeYaml));
         var yamlRoot = (YamlMappingNode)yamlDocument.Documents[0].RootNode;
@@ -451,6 +561,153 @@ internal static class Program
             .TrimEnd('=').Replace('+', '-').Replace('/', '_');
         Checks.That(CollectorType.ParseProxyLine(ssrEmptyPasswordLink) is null,
             "SSR links without a password are rejected instead of entering output feeds");
+
+        var validVlessUuid = "123e4567-e89b-12d3-a456-426614174000";
+        Checks.That(CollectorType.ParseProxyLine(
+            $"vless://{validVlessUuid}@valid-uuid.example.net:443?security=tls") is not null,
+            "canonical VLESS UUID credentials remain accepted");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vless://custom-vless-user@custom-id.example.net:443?security=tls") is not null,
+            "short custom VLESS IDs remain valid as documented by Xray");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vless://123456789012345678901234567890@bad-vless.example.net:443?security=tls") is null,
+            "non-UUID VLESS custom IDs of 30 UTF-8 bytes or more are rejected");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vless://Telegram%F0%9F%87%A8%F0%9F%87%B3%20%40WangCai2@custom-id.example.net:443?security=tls") is not null,
+            "percent-encoded custom VLESS IDs are decoded before the byte-length check");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vmess://not-a-uuid@valid-vmess.example.net:443?security=tls") is not null,
+            "short custom VMess IDs remain valid as documented by Xray");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vmess://this-is-a-deliberately-invalid-vmess-credential-over-30@example.net:443?security=tls") is null,
+            "VMess custom IDs of 30 UTF-8 bytes or more are rejected unless they are UUIDs");
+        var shortCustomVmessJson = """{"add":"custom-vmess.example.net","port":"443","id":"Telegram @channel","net":"tcp","tls":"tls"}""";
+        Checks.That(CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(shortCustomVmessJson))) is not null,
+            "short custom IDs in Base64-JSON VMess profiles remain valid");
+        var malformedVmessJson = """{"add":"bad-vmess.example.net","port":"443","id":"this-is-a-deliberately-invalid-vmess-credential-over-30","net":"tcp","tls":"tls"}""";
+        Checks.That(CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(malformedVmessJson))) is null,
+            "overlength non-UUID Base64-JSON VMess IDs are rejected");
+        var invalidXrayVless = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vless", Host = "bad-xray.example.net", Port = "443",
+            Credential = "123456789012345678901234567890"
+        };
+        Checks.That(CollectorType.BuildXrayOutbound(invalidXrayVless, "invalid-vless-uuid") is null,
+            "Xray builder independently rejects overlength VLESS IDs even if a ParsedProxy bypasses parsing");
+        var invalidXrayVmess = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vmess", Host = "bad-vmess.example.net", Port = "443",
+            Credential = "this-is-a-deliberately-invalid-vmess-credential-over-30"
+        };
+        Checks.That(CollectorType.BuildXrayOutbound(invalidXrayVmess, "invalid-vmess-id") is null,
+            "Xray builder independently rejects overlength VMess IDs");
+        var invalidVlessFlow = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vless", Host = "invalid-flow.example.net", Port = "443",
+            Credential = validVlessUuid, Flow = "not-a-real-flow", Security = "tls"
+        };
+        Checks.That(CollectorType.BuildXrayOutbound(invalidVlessFlow, "invalid-vless-flow") is null,
+            "Xray builder skips unsupported VLESS flow values instead of invalidating the full batch");
+        var uppercaseVlessFlow = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vless", Host = "uppercase-flow.example.net", Port = "443",
+            Credential = validVlessUuid, Flow = "XTLS-RPRX-VISION", Security = "tls"
+        };
+        var uppercaseFlowOutbound = CollectorType.BuildXrayOutbound(uppercaseVlessFlow, "uppercase-vless-flow")!;
+        var uppercaseFlowSettings = (Dictionary<string, object?>)uppercaseFlowOutbound["settings"]!;
+        var uppercaseFlowVnext = (List<object>)uppercaseFlowSettings["vnext"]!;
+        var uppercaseFlowEndpoint = (Dictionary<string, object?>)uppercaseFlowVnext[0];
+        var uppercaseFlowUsers = (List<object>)uppercaseFlowEndpoint["users"]!;
+        var uppercaseFlowUser = (Dictionary<string, object?>)uppercaseFlowUsers[0];
+        Checks.Equal("xtls-rprx-vision", (string)uppercaseFlowUser["flow"]!,
+            "Xray VLESS flow values are canonicalized before the batch config is emitted");
+
+        var uppercaseSsNode = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "ss", Host = "ss.example.net", Port = "8388",
+            Credential = "AES-256-GCM:secret"
+        };
+        var uppercaseSsOutbound = CollectorType.BuildXrayOutbound(uppercaseSsNode, "uppercase-ss-cipher")!;
+        var uppercaseSsSettings = (Dictionary<string, object?>)uppercaseSsOutbound["settings"]!;
+        var uppercaseSsServers = (List<object>)uppercaseSsSettings["servers"]!;
+        var uppercaseSsServer = (Dictionary<string, object?>)uppercaseSsServers[0];
+        Checks.Equal("aes-256-gcm", (string)uppercaseSsServer["method"]!,
+            "Xray Shadowsocks cipher names are normalized to canonical lowercase labels");
+        foreach (string unsupportedSsCipher in new[] { "none", "plain", "2022-blake3-chacha8-poly1305" })
+        {
+            var unsupportedSs = new ProxyCollector.Collector.ParsedProxy
+            {
+                Protocol = "ss", Host = "ss.example.net", Port = "8388",
+                Credential = unsupportedSsCipher + ":secret"
+            };
+            Checks.That(CollectorType.BuildXrayOutbound(unsupportedSs, "unsupported-ss-" + unsupportedSsCipher) is null,
+                "undocumented Xray Shadowsocks cipher is skipped: " + unsupportedSsCipher);
+        }
+
+        const string validRealityPublicKey = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+        const string normalizedRealityPublicKey = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        Checks.That(CollectorType.IsValidRealityPublicKey(validRealityPublicKey),
+            "padded Base64 REALITY public keys are accepted as input");
+        Checks.That(CollectorType.TryNormalizeRealityPublicKey(
+                validRealityPublicKey, out string normalizedRealityKey) &&
+                    normalizedRealityKey == normalizedRealityPublicKey,
+            "REALITY public keys are normalized to 32-byte unpadded Base64URL for Xray");
+        Checks.That(CollectorType.IsValidRealityPublicKey(normalizedRealityPublicKey),
+            "already-normalized Base64URL REALITY public keys are accepted");
+        Checks.That(!CollectorType.IsValidRealityPublicKey("AAAA AAAA"),
+            "whitespace in REALITY public keys is rejected");
+        Checks.That(!CollectorType.IsValidRealityPublicKey("abc"),
+            "malformed REALITY public keys are rejected");
+        Checks.That(CollectorType.IsValidRealityShortId("0123") &&
+                    CollectorType.IsValidRealityShortId(""),
+            "REALITY short IDs accept empty or even-length hexadecimal values");
+        Checks.That(!CollectorType.IsValidRealityShortId("abc") &&
+                    !CollectorType.IsValidRealityShortId("0123456789abcdef00"),
+            "REALITY short IDs reject odd-length and over-16-character values");
+        var validRealityNode = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vless", Host = "reality.example.net", Port = "443",
+            Credential = validVlessUuid, Network = "tcp", Security = "reality",
+            Pbk = validRealityPublicKey, Sid = "0123"
+        };
+        var validRealityOutbound = CollectorType.BuildXrayOutbound(validRealityNode, "valid-reality")!;
+        var realityStream = (Dictionary<string, object?>)validRealityOutbound["streamSettings"]!;
+        var realitySettings = (Dictionary<string, object?>)realityStream["realitySettings"]!;
+        Checks.Equal(normalizedRealityPublicKey, (string)realitySettings["password"]!,
+            "current Xray REALITY config uses normalized unpadded Base64URL password");
+        Checks.That(!realitySettings.ContainsKey("publicKey"),
+            "Xray REALITY outbound no longer emits the legacy publicKey property");
+        var invalidRealityNode = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vless", Host = "reality.example.net", Port = "443",
+            Credential = validVlessUuid, Network = "tcp", Security = "reality",
+            Pbk = "abc", Sid = "0123"
+        };
+        Checks.That(CollectorType.BuildXrayOutbound(invalidRealityNode, "invalid-reality-key") is null,
+            "malformed REALITY material is skipped rather than poisoning the entire Xray batch");
+        var validUdp443Flow = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vless", Host = "udp443-flow.example.net", Port = "443",
+            Credential = "custom-vless-user", Flow = "xtls-rprx-vision-udp443", Security = "tls"
+        };
+        Checks.That(CollectorType.BuildXrayOutbound(validUdp443Flow, "valid-vless-udp443-flow") is not null,
+            "Xray builder accepts the documented VLESS Vision UDP443 flow");
+        var invalidVmessSecurityJson = """{"add":"bad-security.example.net","port":"443","id":"123e4567-e89b-12d3-a456-426614174000","net":"tcp","tls":"tls","scy":"not-a-security"}""";
+        var invalidVmessSecurity = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(invalidVmessSecurityJson)))!;
+        Checks.That(CollectorType.BuildXrayOutbound(invalidVmessSecurity, "invalid-vmess-security") is null,
+            "Xray builder skips unsupported VMess security values");
+        foreach (string obsoleteSecurity in new[] { "none", "zero" })
+        {
+            var obsoleteVmessSecurityJson = "{\"add\":\"legacy-security.example.net\",\"port\":\"443\",\"id\":\"123e4567-e89b-12d3-a456-426614174000\",\"net\":\"tcp\",\"tls\":\"tls\",\"scy\":\"" + obsoleteSecurity + "\"}";
+            var obsoleteVmessSecurity = CollectorType.ParseProxyLine(
+                "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(obsoleteVmessSecurityJson)))!;
+            Checks.That(CollectorType.BuildXrayOutbound(
+                obsoleteVmessSecurity, "obsolete-vmess-security-" + obsoleteSecurity) is null,
+                "unsupported legacy VMess security labels are rejected: " + obsoleteSecurity);
+        }
 
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");
@@ -778,11 +1035,176 @@ internal static class Program
             "https://example.net/profile.json");
         Checks.Equal(1, hashHeaderProfile.Count,
             "sing-box JSON with #profile metadata headers is parsed");
+        var subscriptionMetadataProfile = CollectorType.DecodeAndExtractLines(
+            "#profile-title: base64:VGVzdA==\n" +
+            "#profile-update-interval: 1\n" +
+            "#subscription-userinfo: upload=0; download=0; total=10737418240000000; expire=2546249531\n" +
+            "#support-url: https://example.net/support\n" +
+            "#profile-web-page-url: https://example.net/profile\n" +
+            simpleSingboxProfile,
+            "https://example.net/subscription.json");
+        Checks.Equal(1, subscriptionMetadataProfile.Count,
+            "sing-box JSON with subscription-userinfo and support-url metadata headers is parsed");
+        var slashSubscriptionMetadataProfile = CollectorType.DecodeAndExtractLines(
+            "//profile-title: base64:VGVzdA==\n" +
+            "//profile-update-interval: 48\n" +
+            "//subscription-userinfo: upload=0; download=0; total=10737418240000000; expire=2546249531\n" +
+            "//support-url: https://example.net/support\n" +
+            "//profile-web-page-url: https://example.net/profile\n" +
+            simpleSingboxProfile,
+            "https://example.net/subscription.json");
+        Checks.Equal(1, slashSubscriptionMetadataProfile.Count,
+            "sing-box JSON with slash-prefixed subscription metadata headers is parsed");
         var slashHeaderProfile = CollectorType.DecodeAndExtractLines(
             "//profile-title: base64:VGVzdA==\n//profile-update-interval: 48\n" + simpleSingboxProfile,
             "https://example.net/profile-feed");
         Checks.Equal(1, slashHeaderProfile.Count,
             "extensionless sing-box JSON with //profile metadata headers is parsed");
+        const string singboxEndpointWireguard = """
+        {
+          "endpoints": [
+            {
+              "type": "wireguard", "tag": "modern-wg",
+              "address": "10.0.0.2/32",
+              "private_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+              "peers": [
+                {
+                  "address": "wg.example.net", "port": 51820,
+                  "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+                  "pre_shared_key": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=",
+                  "allowed_ips": "0.0.0.0/0, ::/0",
+                  "persistent_keepalive_interval": 25,
+                  "reserved": "AQID"
+                }
+              ]
+            }
+          ]
+        }
+        """;
+        var modernEndpointWireguard = CollectorType.DecodeAndExtractLines(
+            singboxEndpointWireguard, "https://example.net/singbox-endpoint.json");
+        Checks.Equal(1, modernEndpointWireguard.Count,
+            "sing-box 1.11+ WireGuard endpoints are converted to share links");
+        Checks.That(CollectorType.IsValidWireguardLink(modernEndpointWireguard.Single()),
+            "modern sing-box WireGuard endpoint conversion preserves scalar address/allowed IPs and base64 reserved bytes");
+        Checks.That(modernEndpointWireguard.Single().Contains("reserved=1%2C2%2C3", StringComparison.Ordinal),
+            "base64 sing-box reserved bytes are converted to three numeric reserved bytes");
+        Checks.That(modernEndpointWireguard.Single().Contains("keepalive=25", StringComparison.Ordinal),
+            "modern sing-box WireGuard peer keepalive is preserved");
+        const string singboxScalarEndpointWireguard = """
+        {
+          "endpoints": [
+            {
+              "type": "wireguard", "tag": "modern-wg-scalar",
+              "address": "10.0.0.2/32",
+              "private_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+              "peers": {
+                "address": "wg.example.net", "port": 51820,
+                "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+                "allowed_ips": "0.0.0.0/0",
+                "reserved": []
+              }
+            }
+          ]
+        }
+        """;
+        var scalarEndpointWireguard = CollectorType.DecodeAndExtractLines(
+            singboxScalarEndpointWireguard, "https://example.net/singbox-endpoint-scalar.json");
+        Checks.Equal(1, scalarEndpointWireguard.Count,
+            "sing-box single-item endpoint peer arrays may be represented by scalar objects/strings");
+        Checks.That(CollectorType.IsValidWireguardLink(scalarEndpointWireguard.Single()),
+            "scalar single-item WireGuard fields still produce a valid link");
+        string encodedModernEndpoint = Convert.ToBase64String(
+            Encoding.UTF8.GetBytes(singboxEndpointWireguard));
+        var base64ModernEndpoint = CollectorType.DecodeAndExtractLines(
+            encodedModernEndpoint, "https://example.net/singbox-endpoint.txt");
+        Checks.Equal(1, base64ModernEndpoint.Count,
+            "base64-encoded modern sing-box endpoint documents are decoded before format dispatch");
+        var base64ModernEndpointWithMetadata = CollectorType.DecodeAndExtractLines(
+            "#subscription-userinfo: upload=0; download=0; total=1073741824; expire=2546249531\n" +
+            "#support-url: https://example.net/support\n" + encodedModernEndpoint,
+            "https://example.net/singbox-endpoint.txt");
+        Checks.Equal(1, base64ModernEndpointWithMetadata.Count,
+            "metadata-prefixed base64 sing-box endpoints are decoded after stripping metadata headers");
+
+        const string singboxLegacyWireguard = """
+        {
+          "outbounds": [
+            {
+              "type": "wireguard", "tag": "legacy-wg",
+              "server": "wg.example.net", "server_port": 51820,
+              "local_address": ["10.0.0.2/32"],
+              "private_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+              "peer_public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+              "pre_shared_key": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=",
+              "allowed_ips": ["0.0.0.0/0"], "reserved": [1, 2, 3]
+            }
+          ]
+        }
+        """;
+        var legacyOutboundWireguard = CollectorType.DecodeAndExtractLines(
+            singboxLegacyWireguard, "https://example.net/singbox-outbound.json");
+        Checks.Equal(1, legacyOutboundWireguard.Count,
+            "deprecated sing-box WireGuard outbounds are still converted");
+        Checks.That(CollectorType.IsValidWireguardLink(legacyOutboundWireguard.Single()),
+            "legacy sing-box WireGuard outbound preserves endpoint and key material");
+        const string singboxMultiPeerWireguard = """
+        {
+          "outbounds": [
+            {
+              "type": "wireguard", "tag": "multi-wg",
+              "server": "ignored-root.example.net", "server_port": 51999,
+              "local_address": ["10.0.0.2/32"],
+              "private_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+              "peer_public_key": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=",
+              "pre_shared_key": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=",
+              "reserved": [1, 2, 3],
+              "peers": [
+                {
+                  "server": "peer-one.example.net", "server_port": 51820,
+                  "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+                  "allowed_ips": ["0.0.0.0/0"], "reserved": []
+                },
+                {
+                  "server": "peer-two.example.net", "server_port": 51821,
+                  "public_key": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=",
+                  "allowed_ips": ["0.0.0.0/0"]
+                }
+              ]
+            }
+          ]
+        }
+        """;
+        var multiPeerWireguard = CollectorType.DecodeAndExtractLines(
+            singboxMultiPeerWireguard, "https://example.net/singbox-multi-peer.json");
+        Checks.Equal(2, multiPeerWireguard.Count,
+            "sing-box multi-peer WireGuard outbounds produce one node per peer");
+        Checks.That(multiPeerWireguard.Any(link => link.Contains("@peer-one.example.net:51820", StringComparison.Ordinal)) &&
+                    multiPeerWireguard.Any(link => link.Contains("@peer-two.example.net:51821", StringComparison.Ordinal)),
+            "multi-peer conversion uses each peer's own endpoint rather than ignored root fields");
+        Checks.That(multiPeerWireguard.All(link => !link.Contains("psk=", StringComparison.Ordinal)),
+            "root-level pre-shared keys are not incorrectly copied into multi-peer configurations");
+        Checks.That(multiPeerWireguard.All(link => link.Contains("reserved=1%2C2%2C3", StringComparison.Ordinal)),
+            "empty or omitted per-peer reserved arrays inherit the sing-box outbound-level reserved bytes");
+
+        const string amneziaSingboxWireguard = """
+        {
+          "outbounds": [
+            {
+              "type": "wireguard", "tag": "amnezia-wg",
+              "server": "wg.example.net", "server_port": 51820,
+              "local_address": ["10.0.0.2/32"],
+              "private_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+              "peer_public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+              "allowed_ips": ["0.0.0.0/0"], "fake_packets": "1-10"
+            }
+          ]
+        }
+        """;
+        Checks.Equal(0, CollectorType.DecodeAndExtractLines(
+            amneziaSingboxWireguard, "https://example.net/amnezia-singbox.json").Count,
+            "Amnezia-specific WireGuard JSON is rejected rather than downgraded");
+
         var malformedTrailingJson = CollectorType.DecodeAndExtractLines(
             "//profile-title: test\n" + simpleSingboxProfile + "\n1",
             "https://example.net/malformed-profile");

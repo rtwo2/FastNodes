@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -221,10 +222,9 @@ namespace ProxyCollector.Collector
             if (topIpv6.Any(x => !ipv6OnlyLinks.Contains(x.Link, StringComparer.Ordinal)))
                 throw new InvalidOperationException("top_ipv6.txt contains a node missing from ipv6_only.txt");
 
-            foreach (var g in proxies.GroupBy(x => x.Proto))
+            foreach (var g in GetRawProtocolGroups(proxies))
             {
                 string key = g.Key.Trim().ToLowerInvariant();
-                if (string.IsNullOrEmpty(key) || key == "unknown") continue;
 
                 await WriteTxt(Path.Combine(sub, "protocols", key), g.ToList());
                 LogSuccess($"  → protocols/{key} ({g.Count()})");
@@ -294,14 +294,25 @@ namespace ProxyCollector.Collector
                     clashProxies.Add(clashNode);
                 }
 
+                string wireguardProtocolDirectory = Path.Combine(sub, "protocols");
+                foreach (string stalePart in Directory.GetFiles(wireguardProtocolDirectory, "wireguard_part*.txt"))
+                    File.Delete(stalePart);
+
                 if (ok > 0)
                 {
-                    await File.WriteAllTextAsync(Path.Combine(sub, "protocols", "wireguard.txt"),
-                        SerializeWireguardClashYaml(clashProxies));
+                    var yamlParts = SerializeWireguardClashYamlParts(clashProxies);
+                    for (int partIndex = 0; partIndex < yamlParts.Count; partIndex++)
+                    {
+                        string fileName = partIndex == 0
+                            ? "wireguard.txt"
+                            : $"wireguard_part{partIndex + 1}.txt";
+                        await File.WriteAllTextAsync(
+                            Path.Combine(wireguardProtocolDirectory, fileName), yamlParts[partIndex]);
+                    }
                 }
                 else
                 {
-                    File.Delete(Path.Combine(sub, "protocols", "wireguard.txt"));   // 0 valid keys — don't ship raw unimportable links
+                    File.Delete(Path.Combine(wireguardProtocolDirectory, "wireguard.txt"));
                 }
 
                 LogSuccess($"Saved wireguard: {ok}/{wgNodes.Count} converted → " +
@@ -322,7 +333,7 @@ namespace ProxyCollector.Collector
                 .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .ToList();
             await WriteVerificationReportAsync(
-                Path.Combine(diagnosticsDir, "verification-status.csv"),
+                Path.Combine(diagnosticsDir, "verification-status.csv.gz"),
                 allNodesByEvidence, top, topIpv6);
             await WriteRankingCalibrationAsync(
                 Path.Combine(diagnosticsDir, "ranking-calibration.csv"),
@@ -417,11 +428,8 @@ namespace ProxyCollector.Collector
                     if (!isUnsafeAddress) safe[index] = link;
                 });
 
-            var filtered = safe.Where(link => !string.IsNullOrWhiteSpace(link))
-                .Select(link => link!)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(link => link, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            var filtered = DeduplicateFallbackLinks(
+                safe.Where(link => !string.IsNullOrWhiteSpace(link)).Select(link => link!));
 
             // A last-good snapshot may still contain the old provider/hash-heavy remarks.
             // Rebuild fallback labels with the current naming format too, so verified.txt
@@ -713,43 +721,53 @@ namespace ProxyCollector.Collector
         private static string EscapeRankingCsv(string? value) =>
             "\"" + (value ?? "").Replace("\"", "\"\"") + "\"";
 
-        private static async Task WriteVerificationReportAsync(
+        internal static async Task WriteVerificationReportAsync(
             string path, IReadOnlyList<FinalProxy> rankedCandidates,
             IReadOnlyList<FinalProxy> top, IReadOnlyList<FinalProxy> topIpv6)
         {
             var topLinks = top.Select(x => x.Link).ToHashSet(StringComparer.Ordinal);
             var topIpv6Links = topIpv6.Select(x => x.Link).ToHashSet(StringComparer.Ordinal);
-            var csv = new StringBuilder();
-            csv.AppendLine("diagnostic_rank,node_id,host,port,protocol,evidence_tier,evidence_level,verification_status,score,tls_status,xray_status,edge_status,source_tested,source_count,source_group,provider_group,hostname_group,transport_group,presence_streak,tls_success_streak,xray_success_streak,in_top_txt,in_top_ipv6_txt");
-            for (int i = 0; i < rankedCandidates.Count; i++)
+            const string header = "diagnostic_rank,node_id,host,port,protocol,evidence_tier,evidence_level,verification_status,score,tls_status,xray_status,edge_status,source_tested,source_count,source_group,provider_group,hostname_group,transport_group,presence_streak,tls_success_streak,xray_success_streak,in_top_txt,in_top_ipv6_txt";
+
+            // The report grows with every collected node. Stream it directly through
+            // gzip instead of keeping a 70–100+ MiB StringBuilder and plain CSV blob
+            // in memory or committing an oversized uncompressed file to the repo.
+            await using (var file = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+            await using (var gzip = new GZipStream(file, CompressionLevel.Optimal))
+            await using (var writer = new StreamWriter(gzip, new UTF8Encoding(false)))
             {
-                var p = rankedCandidates[i];
-                csv.AppendLine(string.Join(",", new[]
+                await writer.WriteLineAsync(header);
+                for (int i = 0; i < rankedCandidates.Count; i++)
                 {
-                    (i + 1).ToString(CultureInfo.InvariantCulture),
-                    EscapeRankingCsv(p.NodeId), EscapeRankingCsv(p.Host), EscapeRankingCsv(p.Port),
-                    EscapeRankingCsv(p.Proto), p.EvidenceTier.ToString(CultureInfo.InvariantCulture),
-                    EscapeRankingCsv(GetEvidenceLevel(p)), EscapeRankingCsv(p.VerificationStatus),
-                    p.Score.ToString(CultureInfo.InvariantCulture),
-                    EscapeRankingCsv(GetTestStatus(p.TlsTested, p.TlsVerified)),
-                    EscapeRankingCsv(GetTestStatus(p.XrayTested, p.XrayVerified)),
-                    EscapeRankingCsv(GetTestStatus(p.EdgeTested, p.EdgeVerified)),
-                    p.IranTested ? "true" : "false",
-                    p.SourceCount.ToString(CultureInfo.InvariantCulture),
-                    EscapeRankingCsv(p.SourceGroup), EscapeRankingCsv(p.ProviderGroup),
-                    EscapeRankingCsv(p.HostGroup), EscapeRankingCsv(p.TransportGroup),
-                    p.Streak.ToString(CultureInfo.InvariantCulture),
-                    p.VerifiedStreak.ToString(CultureInfo.InvariantCulture),
-                    p.XrayStreak.ToString(CultureInfo.InvariantCulture),
-                    topLinks.Contains(p.Link) ? "true" : "false",
-                    topIpv6Links.Contains(p.Link) ? "true" : "false"
-                }));
+                    var p = rankedCandidates[i];
+                    string line = string.Join(",", new[]
+                    {
+                        (i + 1).ToString(CultureInfo.InvariantCulture),
+                        EscapeRankingCsv(p.NodeId), EscapeRankingCsv(p.Host), EscapeRankingCsv(p.Port),
+                        EscapeRankingCsv(p.Proto), p.EvidenceTier.ToString(CultureInfo.InvariantCulture),
+                        EscapeRankingCsv(GetEvidenceLevel(p)), EscapeRankingCsv(p.VerificationStatus),
+                        p.Score.ToString(CultureInfo.InvariantCulture),
+                        EscapeRankingCsv(GetTestStatus(p.TlsTested, p.TlsVerified)),
+                        EscapeRankingCsv(GetTestStatus(p.XrayTested, p.XrayVerified)),
+                        EscapeRankingCsv(GetTestStatus(p.EdgeTested, p.EdgeVerified)),
+                        p.IranTested ? "true" : "false",
+                        p.SourceCount.ToString(CultureInfo.InvariantCulture),
+                        EscapeRankingCsv(p.SourceGroup), EscapeRankingCsv(p.ProviderGroup),
+                        EscapeRankingCsv(p.HostGroup), EscapeRankingCsv(p.TransportGroup),
+                        p.Streak.ToString(CultureInfo.InvariantCulture),
+                        p.VerifiedStreak.ToString(CultureInfo.InvariantCulture),
+                        p.XrayStreak.ToString(CultureInfo.InvariantCulture),
+                        topLinks.Contains(p.Link) ? "true" : "false",
+                        topIpv6Links.Contains(p.Link) ? "true" : "false"
+                    });
+                    await writer.WriteLineAsync(line);
+                }
             }
-            await File.WriteAllTextAsync(path, csv.ToString(), new UTF8Encoding(false));
+
             string summary = string.Join(", ", rankedCandidates.GroupBy(x => x.VerificationStatus)
                 .OrderBy(g => g.Key, StringComparer.Ordinal)
                 .Select(g => $"{g.Key}={g.Count()}"));
-            LogInfo($"Ranking evidence report: {rankedCandidates.Count} ranked candidates ({summary}); details in sub/diagnostics/verification-status.csv");
+            LogInfo($"Ranking evidence report: {rankedCandidates.Count} ranked candidates ({summary}); details in sub/diagnostics/verification-status.csv.gz");
         }
 
         private static string GetScoreBand(int score) => score switch
@@ -985,6 +1003,59 @@ namespace ProxyCollector.Collector
             };
             return new SerializerBuilder().Build().Serialize(document);
         }
+
+        internal static List<string> SerializeWireguardClashYamlParts(
+            IReadOnlyList<Dictionary<string, object?>> proxies,
+            int maxNodesPerPart = 1000,
+            int maxBytesPerPart = 50 * 1024 * 1024)
+        {
+            if (maxNodesPerPart < 1) throw new ArgumentOutOfRangeException(nameof(maxNodesPerPart));
+            if (maxBytesPerPart < 1) throw new ArgumentOutOfRangeException(nameof(maxBytesPerPart));
+
+            var parts = new List<string>();
+            int offset = 0;
+            while (offset < proxies.Count)
+            {
+                int count = Math.Min(maxNodesPerPart, proxies.Count - offset);
+                string yaml;
+                while (true)
+                {
+                    yaml = SerializeWireguardClashYaml(proxies.Skip(offset).Take(count));
+                    if (Encoding.UTF8.GetByteCount(yaml) <= maxBytesPerPart)
+                        break;
+
+                    if (count == 1)
+                        throw new InvalidOperationException(
+                            "A single WireGuard YAML proxy entry exceeds the configured part-size limit.");
+                    count = Math.Max(1, count / 2);
+                }
+
+                parts.Add(yaml);
+                offset += count;
+            }
+
+            return parts;
+        }
+
+        internal static List<string> DeduplicateFallbackLinks(IEnumerable<string> links)
+            => links
+                .Where(link => !string.IsNullOrWhiteSpace(link))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(link => link, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(link => link, StringComparer.Ordinal)
+                .ToList();
+
+        internal static List<IGrouping<string, FinalProxy>> GetRawProtocolGroups(
+            IEnumerable<FinalProxy> proxies)
+            => proxies.GroupBy(proxy => proxy.Proto)
+                .Where(group =>
+                {
+                    string key = group.Key?.Trim() ?? "";
+                    return key.Length > 0 &&
+                        !key.Equals("unknown", StringComparison.OrdinalIgnoreCase) &&
+                        !key.Equals("wireguard", StringComparison.OrdinalIgnoreCase);
+                })
+                .ToList();
 
         internal static bool IsValidWireguardLink(string link)
             => TryParseWireguardInfo(link) is not null;

@@ -115,8 +115,9 @@ Verification results are snapshots, not guarantees of current availability. `ver
 
 Each full collection publishes machine-readable source-health data under `sub/diagnostics/`.
 - `source-health.csv` reports per-feed fetch, parse, unique contribution, provider outcomes, and elapsed time.
-- `source-health-trends.csv` compares each feed across the latest 14 full runs and flags recurring parser gaps, nested-provider failures, repeated zero-contribution runs, and recurring fetch failures for review.
+- `source-health-trends.csv` compares each feed across the latest 14 full runs and flags recurring unparsed feeds, content rejected by the collector, nested-provider failures, repeated zero-contribution runs, and recurring fetch failures for review. An unparsed feed is not automatically a parser bug: it may be an empty provider profile, unsupported container, or incomplete data.
 - `ranking-calibration-summary.csv` records score-band outcomes; `ranking-calibration-notes.md` applies a minimum sample threshold and highlights non-monotonic outcomes worth investigating.
+- `verification-status.csv.gz` is the compressed, candidate-by-candidate evidence and ranking report. It is gzip-compressed and streamed during generation to keep the report below GitHub's per-file limit as the collection grows.
 - When edge verification is configured, each Worker target includes the effective TLS `sni` separately from the endpoint `host`. The Worker should use that SNI and echo it as `results[].sni`; legacy host-only responses remain usable when the intended SNI equals the endpoint hostname, but are not credited when an explicit different SNI was requested. Update the external Worker to support the explicit-SNI contract for those nodes.
 
 These reports are diagnostic only. No source is automatically removed, and ranking weights are not automatically modified. Review recurring issues across multiple successful runs before changing source priority or scoring.

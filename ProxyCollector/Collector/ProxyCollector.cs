@@ -1364,51 +1364,51 @@ namespace ProxyCollector.Collector
                 long parseSourceStartedAt = Stopwatch.GetTimestamp();
                 foreach (var line in sourceSpool.ReadSourceLines(sourceIndex))
                 {
-                    processed++;
-                    if (processed % 100000 == 0) LogInfo($"  {processed}/{totalRawLines} parsed...");
+                        processed++;
+                        if (processed % 100000 == 0) LogInfo($"  {processed}/{totalRawLines} parsed...");
 
-                var t = line.Trim();
-                if (string.IsNullOrWhiteSpace(t) || t.StartsWith("#")) continue;
-                if (Regex.IsMatch(t, @"^\s*-\s+name:")) continue;
+                    var t = line.Trim();
+                    if (string.IsNullOrWhiteSpace(t) || t.StartsWith("#")) continue;
+                    if (Regex.IsMatch(t, @"^\s*-\s+name:")) continue;
 
-                var p = ParseProxyLine(t);
-                if (p == null) continue;
-                sourceStats[url].Parsed++;   // sequential loop — no Interlocked needed
+                    var p = ParseProxyLine(t);
+                    if (p == null) continue;
+                    sourceStats[url].Parsed++;   // sequential loop — no Interlocked needed
 
-                if (IsBadHost(p.Host)) { badHostFiltered++; continue; }
-                if (IsPlaceholderCredential(p.Protocol, p.Credential)) { placeholderFiltered++; continue; }
-                if (CredentialRequiredProtocols.Contains(NormalizeProto(p.Protocol)) &&
-                    string.IsNullOrEmpty(p.Credential)) { emptyCredFiltered++; continue; }
-                if (!int.TryParse(p.Port, out int portNum) || portNum <= 0 || portNum > 65535) { badHostFiltered++; continue; }
-                if (NormalizeProto(p.Protocol) == "wireguard" && !IsValidWireguardLink(p.BaseLink))
-                {
-                    invalidWireguardFiltered++;
-                    continue;
-                }
+                    if (IsBadHost(p.Host)) { badHostFiltered++; continue; }
+                    if (IsPlaceholderCredential(p.Protocol, p.Credential)) { placeholderFiltered++; continue; }
+                    if (CredentialRequiredProtocols.Contains(NormalizeProto(p.Protocol)) &&
+                        string.IsNullOrEmpty(p.Credential)) { emptyCredFiltered++; continue; }
+                    if (!int.TryParse(p.Port, out int portNum) || portNum <= 0 || portNum > 65535) { badHostFiltered++; continue; }
+                    if (NormalizeProto(p.Protocol) == "wireguard" && !IsValidWireguardLink(p.BaseLink))
+                    {
+                        invalidWireguardFiltered++;
+                        continue;
+                    }
 
-                string key = p.DeduplicationKey;
-                if (seen.Add(key))
-                {
-                    p.IranTested = SrcTested(url);
-                    p.SourceCount = 1;
-                    p.SourceGroup = GetSourceDiversityGroup(url);
-                    keySources[key] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { GetSourceDiversityGroup(url) };
-                    uniqueProxies.Add(p);
-                    byKey[key] = p;
-                    sourceStats[url].Unique++;
-                }
-                else
-                {
-                    // Count distinct upstream repositories/providers, not feed URLs. Multiple
-                    // files from one repository are correlated and must not inflate
-                    // corroboration or the ranking consensus signal.
-                    if (keySources.TryGetValue(key, out var srcs) && srcs.Add(GetSourceDiversityGroup(url)))
-                        if (byKey.TryGetValue(key, out var keptSrc))
-                            keptSrc.SourceCount = srcs.Count;
+                    string key = p.DeduplicationKey;
+                    if (seen.Add(key))
+                    {
+                        p.IranTested = SrcTested(url);
+                        p.SourceCount = 1;
+                        p.SourceGroup = GetSourceDiversityGroup(url);
+                        keySources[key] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { GetSourceDiversityGroup(url) };
+                        uniqueProxies.Add(p);
+                        byKey[key] = p;
+                        sourceStats[url].Unique++;
+                    }
+                    else
+                    {
+                        // Count distinct upstream repositories/providers, not feed URLs. Multiple
+                        // files from one repository are correlated and must not inflate
+                        // corroboration or the ranking consensus signal.
+                        if (keySources.TryGetValue(key, out var srcs) && srcs.Add(GetSourceDiversityGroup(url)))
+                            if (byKey.TryGetValue(key, out var keptSrc))
+                                keptSrc.SourceCount = srcs.Count;
 
-                    if (SrcTested(url) && byKey.TryGetValue(key, out var keptTrust) && !keptTrust.IranTested)
-                        keptTrust.IranTested = true;   // duplicate from a tested source — trust upgrades the kept node
-                }
+                        if (SrcTested(url) && byKey.TryGetValue(key, out var keptTrust) && !keptTrust.IranTested)
+                            keptTrust.IranTested = true;   // duplicate from a tested source — trust upgrades the kept node
+                    }
                 }
                 sourceStats[url].ParseElapsedMs +=
                     (long)Stopwatch.GetElapsedTime(parseSourceStartedAt).TotalMilliseconds;

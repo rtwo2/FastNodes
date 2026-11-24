@@ -34,7 +34,7 @@ internal static class Program
             }),
             "Happy Eyeballs interleaves IPv4 and IPv6 while preserving each resolver family order");
 
-        using (var memoryBudget = new SourceFetchBudget(2L * 1024 * 1024, 2L * 1024 * 1024))
+        using (var memoryBudget = new SourceFetchBudget(8L * 1024 * 1024, 8L * 1024 * 1024))
         {
             var firstReservation = memoryBudget.AcquireSourceAsync(1024 * 1024, CancellationToken.None)
                 .GetAwaiter().GetResult();

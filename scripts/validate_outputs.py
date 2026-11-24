@@ -604,7 +604,7 @@ def self_test() -> None:
         else:
             raise ValidationError("self-test failed to catch a missing top_ipv6.txt")
         (root / "top_ipv6.txt").write_text(good[4] + "\n", encoding="utf-8")
-        if validate_lines(root / "wireguard.txt")[0] != 2:
+        if validate_lines(root / "protocols" / "wireguard.txt")[0] != 2:
             raise ValidationError("self-test failed to count multiple YAML proxy entries")
         (root / "protocols").mkdir(exist_ok=True)
         (root / "protocols" / "vless.txt").write_text("not a proxy URI\n", encoding="utf-8")

@@ -20,7 +20,7 @@ A free, automatically refreshed collection of V2Ray / Xray-compatible proxy conf
 
 ---
 
-## ⚡ Quick start
+## Quick start
 
 1. Pick **Top ranked** for a balanced starting point, or **Xray verified** for nodes that passed a full proxy round-trip check.
 2. Copy the subscription URL.
@@ -82,7 +82,7 @@ FastNodes keeps different kinds of evidence separate. A TLS handshake is not the
 
 The optional Cloudflare edge check currently supports targets whose effective TLS SNI matches the endpoint hostname. Targets that explicitly require a different SNI are skipped by that check, but remain eligible for the other feeds and verification stages.
 
-## 🌍 The full catalog
+## The full catalog
 
 All subscriptions are published under:
 
@@ -145,7 +145,7 @@ GitHub has per-file size limits, so large feeds are split automatically:
 
 The base file contains only its first part. **To import the complete feed, add every matching part separately** in your client. The [subscription directory](https://github.com/rtwo2/FastNodes/tree/main/sub) shows which parts currently exist.
 
-## 📲 Compatible clients
+## Compatible clients
 
 Common clients include:
 
@@ -155,7 +155,7 @@ Common clients include:
 
 Client support differs by protocol and version. A client may not support every configuration in a mixed subscription.
 
-## 🔍 How FastNodes works
+## How FastNodes works
 
 The collection workflow runs on a schedule and can also be triggered by collector-code changes.
 
@@ -167,7 +167,7 @@ The collection workflow runs on a schedule and can also be triggered by collecto
 
 The collector uses bounded source fetching, vetted destination addresses, dual-stack connection handling, staged output generation and validation before publication.
 
-## 📊 Transparency and diagnostics
+## Transparency and diagnostics
 
 The [collection workflow](https://github.com/rtwo2/FastNodes/actions/workflows/collect.yml) exposes run status and logs. Machine-readable reports are published in [`sub/diagnostics/`](https://github.com/rtwo2/FastNodes/tree/main/sub/diagnostics):
 
@@ -176,11 +176,11 @@ The [collection workflow](https://github.com/rtwo2/FastNodes/actions/workflows/c
 | [`source-health.csv`](https://github.com/rtwo2/FastNodes/blob/main/sub/diagnostics/source-health.csv) | Per-source fetching, parsing, contribution and provider outcomes |
 | [`source-health-trends.csv`](https://github.com/rtwo2/FastNodes/blob/main/sub/diagnostics/source-health-trends.csv) | Feed health across recent collection runs |
 | [`ranking-calibration-summary.csv`](https://github.com/rtwo2/FastNodes/blob/main/sub/diagnostics/ranking-calibration-summary.csv) | How previous score bands performed on later Xray checks |
-| [`verification-status.csv.gz`](https://github.com/rtwo2/FastNodes/tree/main/sub/diagnostics) | Candidate-level evidence, test status and ranking details |
+| [`verification-status.csv.gz`](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/diagnostics/verification-status.csv.gz) | Candidate-level evidence, test status and ranking details |
 
 These reports support manual review. Sources are not automatically removed and ranking weights are not automatically changed just because a diagnostic flags an anomaly.
 
-## ⚠️ Important notes
+## Important notes
 
 - FastNodes aggregates public configurations; **it does not own, operate or control the proxy servers**.
 - Public nodes are shared infrastructure. They may be slow, overloaded, modified, monitored by their operators, or taken offline without notice.
@@ -189,7 +189,7 @@ These reports support manual review. Sources are not automatically removed and r
 - FastNodes excludes detected Cloudflare/WARP endpoints from published outputs. DNS can change after a collection run, so no static audit can guarantee future endpoint behavior.
 - Use configurations and services in compliance with local laws and applicable rules.
 
-## 🛠️ Contributing
+## Contributing
 
 Useful, maintained sources matter more than raw source count. To suggest a source, open an [issue](https://github.com/rtwo2/FastNodes/issues) or pull request and include:
 

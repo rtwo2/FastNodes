@@ -1516,18 +1516,17 @@ namespace ProxyCollector.Collector
                     p.IranTested = SrcTested(url);
                     p.SourceCount = 1;
                     p.SourceGroup = GetSourceDiversityGroup(url);
-                    keySources[key] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { url };
+                    keySources[key] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { GetSourceDiversityGroup(url) };
                     uniqueProxies.Add(p);
                     byKey[key] = p;
                     sourceStats[url].Unique++;
                 }
                 else
                 {
-                    // v6.14: count DISTINCT sources publishing this node — ecosystem
-                    // consensus it's real. (Weighted low in the score on purpose:
-                    // aggregators republish each other, so sources aren't fully
-                    // independent.)
-                    if (keySources.TryGetValue(key, out var srcs) && srcs.Add(url))
+                    // Count distinct upstream repositories/providers, not feed URLs. Multiple
+                    // files from one repository are correlated and must not inflate
+                    // corroboration or the ranking consensus signal.
+                    if (keySources.TryGetValue(key, out var srcs) && srcs.Add(GetSourceDiversityGroup(url)))
                         if (byKey.TryGetValue(key, out var keptSrc))
                             keptSrc.SourceCount = srcs.Count;
 
@@ -2349,13 +2348,57 @@ namespace ProxyCollector.Collector
             "none", "plain"
         };
 
-        // Link → xray outbound. Option B (locked at design): fp / serviceName / ws Host
-        // header are re-read from the source link's query string — no model fields, no
-        // dedup changes. Unconvertible → null (node simply isn't deep-checked).
-        private static Dictionary<string, object?>? BuildXrayOutbound(ParsedProxy p, string tag)
+        private static JsonElement? TryGetVmessJson(string baseLink)
+        {
+            try
+            {
+                if (!baseLink.StartsWith("vmess://", StringComparison.OrdinalIgnoreCase))
+                    return null;
+                string token = baseLink["vmess://".Length..].Split('#', '?')[0]
+                    .Replace('-', '+').Replace('_', '/');
+                int padding = token.Length % 4;
+                if (padding > 0) token += new string('=', 4 - padding);
+                using var document = JsonDocument.Parse(Convert.FromBase64String(token));
+                return document.RootElement.Clone();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static string GetVmessJsonString(JsonElement? json, string property, string fallback = "")
+        {
+            if (json is JsonElement root && root.ValueKind == JsonValueKind.Object &&
+                root.TryGetProperty(property, out var value))
+            {
+                if (value.ValueKind == JsonValueKind.String) return value.GetString() ?? fallback;
+                if (value.ValueKind == JsonValueKind.Number) return value.ToString();
+            }
+            return fallback;
+        }
+
+        private static string GetVmessJsonAlpn(JsonElement? json)
+        {
+            if (json is not JsonElement root || root.ValueKind != JsonValueKind.Object ||
+                !root.TryGetProperty("alpn", out var value))
+                return "";
+            if (value.ValueKind == JsonValueKind.String) return value.GetString() ?? "";
+            if (value.ValueKind == JsonValueKind.Array)
+                return string.Join(",", value.EnumerateArray()
+                    .Where(item => item.ValueKind == JsonValueKind.String)
+                    .Select(item => item.GetString() ?? ""));
+            return "";
+        }
+
+        // Link → Xray outbound. URI protocols read query options; standard VMess
+        // share links read their settings from the original base64 JSON payload.
+        // Unconvertible nodes are skipped for this probe only, never dropped.
+        internal static Dictionary<string, object?>? BuildXrayOutbound(ParsedProxy p, string tag)
         {
             string proto = NormalizeProto(p.Protocol);
             var q = QueryFromBaseLink(p);
+            JsonElement? vmessJson = proto == "vmess" ? TryGetVmessJson(p.BaseLink) : null;
 
             var stream = new Dictionary<string, object?>();
             string network = string.IsNullOrEmpty(p.Network) ? "tcp" : p.Network.ToLowerInvariant();
@@ -2375,7 +2418,9 @@ namespace ProxyCollector.Collector
                 case "ws":
                     stream["network"] = "ws";
                     var ws = new Dictionary<string, object?> { ["path"] = string.IsNullOrEmpty(p.Path) ? "/" : p.Path };
-                    string wsHost = q.GetValueOrDefault("host", "");
+                    string wsHost = proto == "vmess"
+                        ? GetVmessJsonString(vmessJson, "host")
+                        : q.GetValueOrDefault("host", "");
                     if (!string.IsNullOrEmpty(wsHost))
                         ws["headers"] = new Dictionary<string, object?> { ["Host"] = wsHost };
                     stream["wsSettings"] = ws;
@@ -2403,7 +2448,12 @@ namespace ProxyCollector.Collector
             if (tls)
             {
                 string sni = string.IsNullOrEmpty(p.Sni) ? p.Host : p.Sni;
-                string fp = q.GetValueOrDefault("fp", "");
+                string fp = proto == "vmess"
+                    ? GetVmessJsonString(vmessJson, "fp")
+                    : q.GetValueOrDefault("fp", "");
+                string alpn = proto == "vmess"
+                    ? GetVmessJsonAlpn(vmessJson)
+                    : q.GetValueOrDefault("alpn", "");
                 if (string.IsNullOrEmpty(fp) && reality) fp = "chrome";   // REALITY requires a uTLS fingerprint
                 if (reality)
                 {
@@ -2419,12 +2469,14 @@ namespace ProxyCollector.Collector
                 else
                 {
                     stream["security"] = "tls";
-                    stream["tlsSettings"] = new Dictionary<string, object?>
-                    {
-                        ["serverName"] = sni
-                        // "allowInsecure" was removed in Xray 26.x. 
-                        // Xray will now strictly verify TLS certs for the deep check.
-                    };
+                    var tlsSettings = new Dictionary<string, object?> { ["serverName"] = sni };
+                    if (!string.IsNullOrWhiteSpace(fp))
+                        tlsSettings["fingerprint"] = fp;
+                    if (!string.IsNullOrWhiteSpace(alpn))
+                        tlsSettings["alpn"] = alpn.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    // "allowInsecure" was removed in Xray 26.x; the deep check intentionally
+                    // uses Xray's current certificate-verification behavior.
+                    stream["tlsSettings"] = tlsSettings;
                 }
             }
 
@@ -2452,12 +2504,14 @@ namespace ProxyCollector.Collector
                 case "vmess":
                 {
                     if (string.IsNullOrEmpty(p.Credential)) return null;
+                    string vmessSecurity = GetVmessJsonString(vmessJson, "scy", "auto");
+                    if (string.IsNullOrWhiteSpace(vmessSecurity)) vmessSecurity = "auto";
                     settings = new Dictionary<string, object?>
                     {
                         ["vnext"] = new List<object> { new Dictionary<string, object?>
                             { ["address"] = p.Host, ["port"] = int.Parse(p.Port),
                               ["users"] = new List<object> { new Dictionary<string, object?>
-                                  { ["id"] = p.Credential, ["alterId"] = p.Aid, ["security"] = "auto" } } } }
+                                  { ["id"] = p.Credential, ["alterId"] = p.Aid, ["security"] = vmessSecurity } } } }
                     };
                     break;
                 }
@@ -2678,32 +2732,57 @@ namespace ProxyCollector.Collector
                 LogWarning($"  Edge fail reason: {kv.Key} × {kv.Value}");
         }
 
-        // ====================== IRAN-TESTED SOURCES (v6.13) ======================
-        // Sources that EXPLICITLY test nodes before publishing (best-results lists,
-        // checked lists, speed-tested lists, checker output) — overwhelmingly Iranian
-        // maintainers testing from Iran. A node they publish carries Iran-side
-        // validation an Azure runner can never measure. That's the vantage problem
-        // converted into a ranking signal.
-        private static readonly string[] IranTestedMarkers =
+        // ====================== TRUSTED SOURCE EVIDENCE ======================
+        // Keep the delegated/Iran-side signal tied to known repository + path pairs.
+        // Generic fragments such as "HighSpeed", "top100.txt" or "Eternity" matched
+        // unrelated repositories and generated mirrors, over-crediting their nodes.
+        private static readonly (string Owner, string Repo, string PathSuffix)[] IranTestedSources =
         {
-            "F0rc3Run",            // entire repo publishes tested results
-            "iran_top100_checked", // sakha1370/OpenRay — explicitly checked, Iran-focused
-            "Sub_Checker_Creator", // hamedp-71 — checker output
-            "HighSpeed",           // 10ium/free-config — speed-tested
-            "speed.txt",           // ndsphonemy/proxy-sub — speed-tested
-            "Eternity",            // mahdibland SSAggregator — liveness-checked aggregate (incl. EternityAir)
-            "kobabi",              // liketolivefree — hand-curated Iranian channel
-            "verified/configs",    // 0xRadikal — explicitly verified node lists
-            "top100.txt",          // 0xRadikal — top-100 tested list
-            "fast/configs",        // 0xRadikal — speed-tested list
-            "alive_full",          // Diversan313/apex-parser — alive-checked output
+            ("F0rc3Run", "F0rc3Run", "Best-Results/proxies.txt"),
+            ("sakha1370", "OpenRay", "iran_top100_checked.txt"),
+            ("hamedp-71", "Sub_Checker_Creator", "final.txt"),
+            ("10ium", "free-config", "HighSpeed.txt"),
+            ("ndsphonemy", "proxy-sub", "speed.txt"),
+            ("mahdibland", "ShadowsocksAggregator", "EternityAir"),
+            ("mahdibland", "ShadowsocksAggregator", "Eternity.yml"),
+            ("0xRadikal", "Free-v2ray-Configs", "verified/configs_base64.txt"),
+            ("0xRadikal", "Free-v2ray-Configs", "fast/configs.txt"),
+            ("Diversan313", "apex-parser", "subs/main/alive_full.txt"),
+            ("Diversan313", "apex-parser", "subs/main/alive_full.yaml"),
+            ("liketolivefree", "kobabi", "sub.txt"),
+            ("liketolivefree", "kobabi", "sub_all.txt"),
         };
 
-        private static bool IsIranTestedSource(string url)
+        internal static bool IsIranTestedSource(string url)
         {
-            foreach (var m in IranTestedMarkers)
-                if (url.Contains(m, StringComparison.OrdinalIgnoreCase)) return true;
-            return false;
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri)) return false;
+            var segments = uri.AbsolutePath.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+            string owner, repo, path;
+
+            if (uri.Host.Equals("raw.githubusercontent.com", StringComparison.OrdinalIgnoreCase) &&
+                segments.Length >= 3)
+            {
+                owner = segments[0];
+                repo = segments[1];
+                path = string.Join("/", segments.Skip(2));
+            }
+            else if (uri.Host.Equals("cdn.jsdelivr.net", StringComparison.OrdinalIgnoreCase) &&
+                     segments.Length >= 4 &&
+                     segments[0].Equals("gh", StringComparison.OrdinalIgnoreCase))
+            {
+                owner = segments[1];
+                repo = segments[2].Split('@', 2)[0];
+                path = string.Join("/", segments.Skip(3));
+            }
+            else
+            {
+                return false;
+            }
+
+            return IranTestedSources.Any(source =>
+                owner.Equals(source.Owner, StringComparison.OrdinalIgnoreCase) &&
+                repo.Equals(source.Repo, StringComparison.OrdinalIgnoreCase) &&
+                path.EndsWith(source.PathSuffix, StringComparison.OrdinalIgnoreCase));
         }
 
         // ====================== STABILITY TRACKING (v6.13) ======================

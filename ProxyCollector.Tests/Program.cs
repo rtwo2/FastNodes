@@ -610,6 +610,41 @@ internal static class Program
         };
         Checks.That(CollectorType.BuildXrayOutbound(invalidVlessFlow, "invalid-vless-flow") is null,
             "Xray builder skips unsupported VLESS flow values instead of invalidating the full batch");
+        var uppercaseVlessFlow = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vless", Host = "uppercase-flow.example.net", Port = "443",
+            Credential = validVlessUuid, Flow = "XTLS-RPRX-VISION", Security = "tls"
+        };
+        var uppercaseFlowOutbound = CollectorType.BuildXrayOutbound(uppercaseVlessFlow, "uppercase-vless-flow")!;
+        var uppercaseFlowSettings = (Dictionary<string, object?>)uppercaseFlowOutbound["settings"]!;
+        var uppercaseFlowVnext = (List<object>)uppercaseFlowSettings["vnext"]!;
+        var uppercaseFlowEndpoint = (Dictionary<string, object?>)uppercaseFlowVnext[0];
+        var uppercaseFlowUsers = (List<object>)uppercaseFlowEndpoint["users"]!;
+        var uppercaseFlowUser = (Dictionary<string, object?>)uppercaseFlowUsers[0];
+        Checks.Equal("xtls-rprx-vision", (string)uppercaseFlowUser["flow"]!,
+            "Xray VLESS flow values are canonicalized before the batch config is emitted");
+
+        var uppercaseSsNode = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "ss", Host = "ss.example.net", Port = "8388",
+            Credential = "AES-256-GCM:secret"
+        };
+        var uppercaseSsOutbound = CollectorType.BuildXrayOutbound(uppercaseSsNode, "uppercase-ss-cipher")!;
+        var uppercaseSsSettings = (Dictionary<string, object?>)uppercaseSsOutbound["settings"]!;
+        var uppercaseSsServers = (List<object>)uppercaseSsSettings["servers"]!;
+        var uppercaseSsServer = (Dictionary<string, object?>)uppercaseSsServers[0];
+        Checks.Equal("aes-256-gcm", (string)uppercaseSsServer["method"]!,
+            "Xray Shadowsocks cipher names are normalized to canonical lowercase labels");
+        foreach (string unsupportedSsCipher in new[] { "none", "plain", "2022-blake3-chacha8-poly1305" })
+        {
+            var unsupportedSs = new ProxyCollector.Collector.ParsedProxy
+            {
+                Protocol = "ss", Host = "ss.example.net", Port = "8388",
+                Credential = unsupportedSsCipher + ":secret"
+            };
+            Checks.That(CollectorType.BuildXrayOutbound(unsupportedSs, "unsupported-ss-" + unsupportedSsCipher) is null,
+                "undocumented Xray Shadowsocks cipher is skipped: " + unsupportedSsCipher);
+        }
 
         const string validRealityPublicKey = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
         const string normalizedRealityPublicKey = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
@@ -1066,7 +1101,8 @@ internal static class Program
               "peers": {
                 "address": "wg.example.net", "port": 51820,
                 "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-                "allowed_ips": "0.0.0.0/0"
+                "allowed_ips": "0.0.0.0/0",
+                "reserved": []
               }
             }
           ]
@@ -1127,7 +1163,7 @@ internal static class Program
                 {
                   "server": "peer-one.example.net", "server_port": 51820,
                   "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-                  "allowed_ips": ["0.0.0.0/0"]
+                  "allowed_ips": ["0.0.0.0/0"], "reserved": []
                 },
                 {
                   "server": "peer-two.example.net", "server_port": 51821,
@@ -1148,6 +1184,8 @@ internal static class Program
             "multi-peer conversion uses each peer's own endpoint rather than ignored root fields");
         Checks.That(multiPeerWireguard.All(link => !link.Contains("psk=", StringComparison.Ordinal)),
             "root-level pre-shared keys are not incorrectly copied into multi-peer configurations");
+        Checks.That(multiPeerWireguard.All(link => link.Contains("reserved=1%2C2%2C3", StringComparison.Ordinal)),
+            "empty or omitted per-peer reserved arrays inherit the sing-box outbound-level reserved bytes");
 
         const string amneziaSingboxWireguard = """
         {

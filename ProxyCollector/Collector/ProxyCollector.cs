@@ -1364,8 +1364,8 @@ namespace ProxyCollector.Collector
                 long parseSourceStartedAt = Stopwatch.GetTimestamp();
                 foreach (var line in sourceSpool.ReadSourceLines(sourceIndex))
                 {
-                        processed++;
-                        if (processed % 100000 == 0) LogInfo($"  {processed}/{totalRawLines} parsed...");
+                    processed++;
+                    if (processed % 100000 == 0) LogInfo($"  {processed}/{totalRawLines} parsed...");
 
                     var t = line.Trim();
                     if (string.IsNullOrWhiteSpace(t) || t.StartsWith("#")) continue;

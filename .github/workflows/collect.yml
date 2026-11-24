@@ -36,10 +36,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v6
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6
         with:
           dotnet-version: 10.x
 
@@ -68,6 +68,7 @@ jobs:
           curl --fail --location --retry 3 --retry-all-errors \
             "https://github.com/XTLS/Xray-core/releases/download/v${XRAY_VERSION}/Xray-linux-64.zip" \
             -o /tmp/xray.zip
+          echo "23cd9af937744d97776ee35ecad4972cf4b2109d1e0fe6be9930467608f7c8ae  /tmp/xray.zip" | sha256sum --check -
           unzip -o -j /tmp/xray.zip xray -d /tmp/xraybin
           chmod +x /tmp/xraybin/xray
           /tmp/xraybin/xray version
@@ -1526,7 +1527,7 @@ jobs:
 
       - name: Upload build and collector logs
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: fastnodes-build-and-run-logs
           path: |

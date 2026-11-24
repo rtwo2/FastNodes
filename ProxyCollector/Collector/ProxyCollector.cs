@@ -27,8 +27,8 @@ namespace ProxyCollector.Collector
     public partial class ProxyCollector
     {
         private static readonly SourceFetchBudget FetchMemoryBudget = new(
-            sourceBudgetBytes: 640L * 1024 * 1024,
-            providerBudgetBytes: 128L * 1024 * 1024);
+            sourceBudgetBytes: 1280L * 1024 * 1024,
+            providerBudgetBytes: 256L * 1024 * 1024);
 
         private readonly HttpClient _http = new(new SocketsHttpHandler
         {
@@ -1367,10 +1367,6 @@ namespace ProxyCollector.Collector
                     var sourceFetchTimer = Stopwatch.StartNew();
                     try
                     {
-                        // Reserve the maximum response working set before starting a source.
-                        // The weighted budget applies backpressure when large bodies are in flight.
-                        using var sourceMemoryLease = await FetchMemoryBudget.AcquireSourceAsync(
-                            GetSourceResponseByteLimit(url), sourceCancellationToken);
                         for (int attempt = 1; attempt <= 2; attempt++)
                         {
                         try
@@ -1383,23 +1379,37 @@ namespace ProxyCollector.Collector
                             using var sourceResponse = await _http.GetAsync(
                                 url, HttpCompletionOption.ResponseHeadersRead, reqCts.Token);
                             sourceResponse.EnsureSuccessStatusCode();
-                            var text = await ReadContentLimitedAsync(
-                                sourceResponse.Content, GetSourceResponseByteLimit(url), reqCts.Token);
-                            Interlocked.Increment(ref st.FetchSuccesses);
-                            Interlocked.Add(ref st.RawBytes, Encoding.UTF8.GetByteCount(text));
-                            Interlocked.Add(ref st.RawLines, CountRawLines(text));
-                            var lines = DecodeAndExtractLines(text, url);
-                            int extractedLineCount = lines.Count;
-                            var providerUrls = extractedLineCount == 0 &&
-                                text.Contains("proxy-providers:", StringComparison.OrdinalIgnoreCase)
-                                ? ExtractClashProviderUrls(text).Take(8).ToArray()
-                                : Array.Empty<string>();
 
-                            // Write root lines immediately and release their in-memory list.
-                            // Nested provider lines are appended one response at a time.
-                            await sourceSpool.WriteSourceAsync(sourceIndexByUrl[url], lines, sourceCancellationToken);
-                            lines.Clear();
-                            text = string.Empty;
+                            int sourceLimit = GetSourceResponseByteLimit(url);
+                            int sourceReservationBytes = sourceResponse.Content.Headers.ContentLength is long sourceLength
+                                ? (int)Math.Clamp(sourceLength, 1L, sourceLimit)
+                                : sourceLimit;
+                            int extractedLineCount;
+                            string[] providerUrls;
+
+                            // Use Content-Length when available so small feeds do not reserve
+                            // the entire per-source ceiling. Unknown-length bodies reserve their
+                            // full ceiling before any response bytes are buffered.
+                            using (var sourceMemoryLease = await FetchMemoryBudget.AcquireSourceAsync(
+                                sourceReservationBytes, reqCts.Token))
+                            {
+                                var text = await ReadContentLimitedAsync(
+                                    sourceResponse.Content, sourceLimit, reqCts.Token);
+                                Interlocked.Increment(ref st.FetchSuccesses);
+                                Interlocked.Add(ref st.RawBytes, Encoding.UTF8.GetByteCount(text));
+                                Interlocked.Add(ref st.RawLines, CountRawLines(text));
+                                var lines = DecodeAndExtractLines(text, url);
+                                extractedLineCount = lines.Count;
+                                providerUrls = extractedLineCount == 0 &&
+                                    text.Contains("proxy-providers:", StringComparison.OrdinalIgnoreCase)
+                                    ? ExtractClashProviderUrls(text).Take(8).ToArray()
+                                    : Array.Empty<string>();
+
+                                // Spool the root source while its response working-set
+                                // reservation is held, then release the memory before providers.
+                                await sourceSpool.WriteSourceAsync(
+                                    sourceIndexByUrl[url], lines, sourceCancellationToken);
+                            }
 
                             // Full Mihomo profiles often contain only proxy-providers URLs,
                             // not a root `proxies:` list. Treating every ordinary https://
@@ -1427,20 +1437,27 @@ namespace ProxyCollector.Collector
                                             {
                                                 using var providerCts = CancellationTokenSource.CreateLinkedTokenSource(sourceCancellationToken);
                                                 providerCts.CancelAfter(TimeSpan.FromSeconds(12));
-                                                using var providerMemoryLease = await FetchMemoryBudget.AcquireProviderAsync(
-                                                    MaxProviderResponseBytes, providerCts.Token);
-                                                using var providerResponse = await _http.GetAsync(fetchUrl, HttpCompletionOption.ResponseHeadersRead, providerCts.Token);
+                                                using var providerResponse = await _http.GetAsync(
+                                                    fetchUrl, HttpCompletionOption.ResponseHeadersRead, providerCts.Token);
                                                 providerResponse.EnsureSuccessStatusCode();
-                                                var providerText = await ReadContentLimitedAsync(
-                                                    providerResponse.Content, MaxProviderResponseBytes, providerCts.Token);
-                                                Interlocked.Increment(ref st.ProviderSuccesses);
-                                                var providerLines = DecodeAndExtractLines(providerText, fetchUrl);
-                                                if (providerLines.Count > 0)
+
+                                                int providerReservationBytes = providerResponse.Content.Headers.ContentLength is long providerLength
+                                                    ? (int)Math.Clamp(providerLength, 1L, MaxProviderResponseBytes)
+                                                    : MaxProviderResponseBytes;
+                                                using (var providerMemoryLease = await FetchMemoryBudget.AcquireProviderAsync(
+                                                    providerReservationBytes, providerCts.Token))
                                                 {
-                                                    await sourceSpool.AppendSourceAsync(
-                                                        sourceIndexByUrl[url], providerLines, providerCts.Token);
-                                                    extractedLineCount += providerLines.Count;
-                                                    yielded = true;
+                                                    var providerText = await ReadContentLimitedAsync(
+                                                        providerResponse.Content, MaxProviderResponseBytes, providerCts.Token);
+                                                    Interlocked.Increment(ref st.ProviderSuccesses);
+                                                    var providerLines = DecodeAndExtractLines(providerText, fetchUrl);
+                                                    if (providerLines.Count > 0)
+                                                    {
+                                                        await sourceSpool.AppendSourceAsync(
+                                                            sourceIndexByUrl[url], providerLines, providerCts.Token);
+                                                        extractedLineCount += providerLines.Count;
+                                                        yielded = true;
+                                                    }
                                                 }
                                                 break;
                                             }

@@ -476,7 +476,7 @@ namespace ProxyCollector.Collector
             Console.ResetColor();
         }
 
-        private static void SummaryTable(List<FinalProxy> proxies, TimeSpan elapsed, int sourceCount, int rawLineCount)
+        private static void SummaryTable(List<FinalProxy> proxies, TimeSpan elapsed, int sourceCount, long rawLineCount)
         {
             const int w = 56;
             void Row(string label, string value)

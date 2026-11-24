@@ -572,9 +572,22 @@ internal static class Program
         Checks.That(CollectorType.ParseProxyLine(
             "vless://123456789012345678901234567890@bad-vless.example.net:443?security=tls") is null,
             "non-UUID VLESS custom IDs of 30 UTF-8 bytes or more are rejected");
-        Checks.That(CollectorType.ParseProxyLine(
-            "vless://Telegram%F0%9F%87%A8%F0%9F%87%B3%20%40WangCai2@custom-id.example.net:443?security=tls") is not null,
+        const string encodedCustomVlessId = "Telegram🇨🇳 @WangCai2";
+        var encodedCustomVlessNode = CollectorType.ParseProxyLine(
+            "vless://Telegram%F0%9F%87%A8%F0%9F%87%B3%20%40WangCai2@custom-id.example.net:443?security=tls");
+        Checks.That(encodedCustomVlessNode is not null,
             "percent-encoded custom VLESS IDs are decoded before the byte-length check");
+        Checks.Equal(encodedCustomVlessId, encodedCustomVlessNode!.Credential,
+            "percent-encoded custom VLESS ID is preserved exactly after URI parsing");
+        var encodedCustomVlessOutbound = CollectorType.BuildXrayOutbound(
+            encodedCustomVlessNode, "encoded-custom-vless")!;
+        var encodedVlessSettings = (Dictionary<string, object?>)encodedCustomVlessOutbound["settings"]!;
+        var encodedVlessVnext = (List<object>)encodedVlessSettings["vnext"]!;
+        var encodedVlessEndpoint = (Dictionary<string, object?>)encodedVlessVnext[0];
+        var encodedVlessUsers = (List<object>)encodedVlessEndpoint["users"]!;
+        var encodedVlessUser = (Dictionary<string, object?>)encodedVlessUsers[0];
+        Checks.Equal(encodedCustomVlessId, (string)encodedVlessUser["id"]!,
+            "decoded custom VLESS ID reaches the generated Xray outbound unchanged");
         Checks.That(CollectorType.ParseProxyLine(
             "vmess://not-a-uuid@valid-vmess.example.net:443?security=tls") is not null,
             "short custom VMess IDs remain valid as documented by Xray");
@@ -1709,10 +1722,11 @@ internal static class Program
         proxies:
           - {name: flow-vmess, type: vmess, server: vmess.example.net, port: 443, uuid: 01234567-89ab-cdef-0123-456789abcdef, network: ws, tls: true, skip-cert-verify: true, sni: tls.example.net, ws-path: /socket, ws-host: ws.example.net, client-fingerprint: chrome, alpn: h2, cipher: chacha20-poly1305}
           - {name: flow-ss, type: ss, server: ss.example.net, port: 8388, cipher: aes-128-gcm, password: secret, plugin: obfs-local, plugin-opts: "obfs=http;obfs-host=example.org"}
+          - {name: custom-vless-id, type: vless, server: custom.example.net, port: 443, uuid: "Telegram🇨🇳 @WangCai2", tls: true, sni: tls.custom.example.net}
         """;
         var convertedFlatClash = CollectorType.DecodeAndExtractLines(flatClash, "https://example.net/config.yaml");
-        Checks.Equal(2, convertedFlatClash.Count,
-            "flow-style Clash YAML routes to the unified structured converter");
+        Checks.Equal(3, convertedFlatClash.Count,
+            "flow-style Clash YAML routes all supported proxy entries to the unified structured converter");
         string flatVmess = convertedFlatClash.Single(x => x.StartsWith("vmess://", StringComparison.Ordinal));
         string flatVmessJson = Encoding.UTF8.GetString(Convert.FromBase64String(flatVmess["vmess://".Length..]));
         using (var flatVmessDoc = JsonDocument.Parse(flatVmessJson))
@@ -1734,6 +1748,12 @@ internal static class Program
                     flatSs.Contains("obfs%3Dhttp", StringComparison.Ordinal) &&
                     flatSs.Contains("obfs-host%3Dexample.org", StringComparison.Ordinal),
             "flow-style Clash Shadowsocks keeps plugin options");
+        string flatCustomVless = convertedFlatClash.Single(x => x.StartsWith("vless://", StringComparison.Ordinal));
+        var flatCustomVlessNode = CollectorType.ParseProxyLine(flatCustomVless);
+        Checks.That(flatCustomVlessNode is not null,
+            "Clash YAML custom VLESS IDs containing spaces, Unicode and @ remain parseable");
+        Checks.Equal("Telegram🇨🇳 @WangCai2", flatCustomVlessNode!.Credential,
+            "Clash YAML custom VLESS ID survives URI escaping and decoding without truncation");
 
         var wireguardClash = $"""
         proxies:

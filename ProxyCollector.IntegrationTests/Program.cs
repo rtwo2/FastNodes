@@ -315,7 +315,7 @@ internal static class Program
             throw new InvalidOperationException(
                 $"Pinned Xray x25519 key generation failed (exit {process.ExitCode}). stdout: {output} stderr: {error}");
 
-        foreach (string line in output.Split(new[] { '\\r', '\\n' }, StringSplitOptions.RemoveEmptyEntries))
+        foreach (string line in output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
         {
             int separator = line.IndexOf(':');
             if (separator > 0 &&

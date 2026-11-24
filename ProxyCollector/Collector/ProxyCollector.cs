@@ -2085,12 +2085,10 @@ namespace ProxyCollector.Collector
 
             int testedNodes = candidates.Count(node => node.XrayTested);
             int verifiedNodes = candidates.Count(node => node.XrayVerified);
-            int skippedByBudget = primaryTargets.Count + pendingAlternates.Count -
-                candidates.Count(node => node.XrayTested);
             LogInfo($"Xray deep check: {verifiedNodes}/{testedNodes} nodes completed a FULL proxy roundtrip " +
                     $"({stageSw.Elapsed.TotalSeconds:0}s; alternate batches {alternateBatches}; " +
-                    $"unresolved {noAddress}; unsafe address sets {unsafeAddressSet}; " +
-                    $"remaining attempts not run {Math.Max(0, skippedByBudget)}). Failures are not drops.");
+                    $"alternate address attempts queued {pendingAlternates.Count}; unresolved {noAddress}; " +
+                    $"unsafe address sets {unsafeAddressSet}). Failures are not drops.");
         }
 
         private async Task<int> RunXrayProbeBatchAsync(

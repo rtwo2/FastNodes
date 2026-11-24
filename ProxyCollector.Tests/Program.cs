@@ -1302,12 +1302,12 @@ internal static class Program
             _ => 1024 * 1024,
             (text, url) => url == rootUrl
                 ? new List<string> { "inline-node" }
-                : text.Split(new[] { '\\r', '\\n' }, StringSplitOptions.RemoveEmptyEntries).ToList(),
+                : text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList(),
             text => text.Contains("proxy-providers:", StringComparison.OrdinalIgnoreCase)
                 ? new List<string> { providerUrl }
                 : new List<string>(),
             url => new List<string> { url },
-            text => text.Split(new[] { '\\r', '\\n' }, StringSplitOptions.RemoveEmptyEntries).Length,
+            text => text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length,
             _ => { },
             _ => { }).GetAwaiter().GetResult();
 

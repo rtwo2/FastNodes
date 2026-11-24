@@ -26,6 +26,10 @@ namespace ProxyCollector.Collector
 {
     public partial class ProxyCollector
     {
+        private static readonly SourceFetchBudget FetchMemoryBudget = new(
+            sourceBudgetBytes: 640L * 1024 * 1024,
+            providerBudgetBytes: 128L * 1024 * 1024);
+
         private readonly HttpClient _http = new(new SocketsHttpHandler
         {
             // Some non-GitHub sources always serve gzip regardless of Accept-Encoding;
@@ -40,7 +44,7 @@ namespace ProxyCollector.Collector
         })
         {
             Timeout = TimeSpan.FromSeconds(40),
-            DefaultRequestHeaders = { { "User-Agent", "FastNodes/6.21 (+https://github.com/rtwo2/FastNodes)" } }
+            DefaultRequestHeaders = { { "User-Agent", "FastNodes/6.22 (+https://github.com/rtwo2/FastNodes)" } }
         };
         private static async ValueTask<Stream> ConnectToPublicAddressAsync(
             SocketsHttpConnectionContext context, CancellationToken cancellationToken)
@@ -54,39 +58,16 @@ namespace ProxyCollector.Collector
                 throw new HttpRequestException($"Destination host has no addresses: {endpoint.Host}");
 
             // Reject mixed answers rather than silently selecting only the public one.
-            // Connect to the exact validated IP below to avoid a second DNS lookup (and
-            // DNS-rebinding between validation and connection).
+            // The connector races the already-vetted A/AAAA set, so it never resolves the
+            // hostname again between the security check and the socket connection.
             var unsafeAddress = addresses.FirstOrDefault(IsPrivateOrReservedIp);
             if (unsafeAddress is not null)
                 throw new HttpRequestException(
                     $"Blocked non-public HTTP destination {endpoint.Host} → {unsafeAddress}");
 
-            Exception? lastError = null;
-            foreach (var address in addresses)
-            {
-                var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
-                {
-                    NoDelay = true
-                };
-                try
-                {
-                    await socket.ConnectAsync(new IPEndPoint(address, endpoint.Port), cancellationToken);
-                    return new NetworkStream(socket, ownsSocket: true);
-                }
-                catch (OperationCanceledException)
-                {
-                    socket.Dispose();
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    socket.Dispose();
-                    lastError = ex;
-                }
-            }
-
-            throw new HttpRequestException(
-                $"Could not connect to any public address for {endpoint.Host}:{endpoint.Port}", lastError);
+            var socket = await HappyEyeballsConnector.ConnectAsync(
+                addresses, endpoint.Port, cancellationToken);
+            return new NetworkStream(socket, ownsSocket: true);
         }
 
         private readonly Lazy<IPToCountryResolver> _resolverLazy = new(() => new IPToCountryResolver());
@@ -1308,7 +1289,7 @@ namespace ProxyCollector.Collector
         // ====================== ENTRY POINT ======================
         public async Task StartAsync()
         {
-            const string version = "v6.21";
+            const string version = "v6.22";
             Banner(version);
             GroupStart("📦 GeoIP database + blacklist setup");
             await DownloadGeoIPDatabases(_http);
@@ -1374,15 +1355,22 @@ namespace ProxyCollector.Collector
             // STEP 1: parallel fetch — one retry on failure. With 500+ independent sources,
             // a transient timeout or blip is common; a single failed attempt shouldn't
             // permanently drop that whole source for the run.
-            var rawLinesBag = new ConcurrentBag<(string Url, int LineIndex, string Line)>();
+            using var sourceSpool = new SourceSpoolStore();
+            var sourceIndexByUrl = urls
+                .Select((source, index) => (Source: source, Index: index))
+                .ToDictionary(item => item.Source, item => item.Index, StringComparer.Ordinal);
             var sourceStats = new ConcurrentDictionary<string, SourceStat>();
             await Parallel.ForEachAsync(urls, new ParallelOptions { MaxDegreeOfParallelism = 30 },
-                async (url, _) =>
+                async (url, sourceCancellationToken) =>
                 {
                     var st = sourceStats.GetOrAdd(url, _ => new SourceStat());
                     var sourceFetchTimer = Stopwatch.StartNew();
                     try
                     {
+                        // Reserve the maximum response working set before starting a source.
+                        // The weighted budget applies backpressure when large bodies are in flight.
+                        using var sourceMemoryLease = await FetchMemoryBudget.AcquireSourceAsync(
+                            GetSourceResponseByteLimit(url), sourceCancellationToken);
                         for (int attempt = 1; attempt <= 2; attempt++)
                         {
                         try
@@ -1390,7 +1378,8 @@ namespace ProxyCollector.Collector
                             // Per-request 25s timeout — one slow domain (freenode was
                             // burning 40+1.5+40 ≈ 82s) can no longer define the whole
                             // fetch stage's duration.
-                            using var reqCts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+                            using var reqCts = CancellationTokenSource.CreateLinkedTokenSource(sourceCancellationToken);
+                            reqCts.CancelAfter(TimeSpan.FromSeconds(25));
                             using var sourceResponse = await _http.GetAsync(
                                 url, HttpCompletionOption.ResponseHeadersRead, reqCts.Token);
                             sourceResponse.EnsureSuccessStatusCode();
@@ -1400,19 +1389,30 @@ namespace ProxyCollector.Collector
                             Interlocked.Add(ref st.RawBytes, Encoding.UTF8.GetByteCount(text));
                             Interlocked.Add(ref st.RawLines, CountRawLines(text));
                             var lines = DecodeAndExtractLines(text, url);
+                            int extractedLineCount = lines.Count;
+                            var providerUrls = extractedLineCount == 0 &&
+                                text.Contains("proxy-providers:", StringComparison.OrdinalIgnoreCase)
+                                ? ExtractClashProviderUrls(text).Take(8).ToArray()
+                                : Array.Empty<string>();
+
+                            // Write root lines immediately and release their in-memory list.
+                            // Nested provider lines are appended one response at a time.
+                            await sourceSpool.WriteSourceAsync(sourceIndexByUrl[url], lines, sourceCancellationToken);
+                            lines.Clear();
+                            text = string.Empty;
 
                             // Full Mihomo profiles often contain only proxy-providers URLs,
                             // not a root `proxies:` list. Treating every ordinary https://
                             // rule/provider URL as a proxy used to create FORMAT GAP spam.
                             // Follow the actual proxy-provider URLs once and parse the
                             // provider payloads, attributing their yield to this parent feed.
-                            if (lines.Count == 0 && text.Contains("proxy-providers:", StringComparison.OrdinalIgnoreCase))
+                            if (providerUrls.Length > 0)
                             {
                                 // Cap fan-out and use a short retry: aggregator profiles can
                                 // contain many provider URLs, and one 522/slow endpoint must
                                 // not stall the entire collection run. Failures are counted
                                 // separately from ordinary source zero-yield statistics.
-                                foreach (var providerUrl in ExtractClashProviderUrls(text).Take(8))
+                                foreach (var providerUrl in providerUrls)
                                 {
                                     // Some profiles wrap a perfectly ordinary subscription in
                                     // a third-party converter URL (often 400/522 when the
@@ -1425,7 +1425,10 @@ namespace ProxyCollector.Collector
                                         {
                                             try
                                             {
-                                                using var providerCts = new CancellationTokenSource(TimeSpan.FromSeconds(12));
+                                                using var providerCts = CancellationTokenSource.CreateLinkedTokenSource(sourceCancellationToken);
+                                                providerCts.CancelAfter(TimeSpan.FromSeconds(12));
+                                                using var providerMemoryLease = await FetchMemoryBudget.AcquireProviderAsync(
+                                                    MaxProviderResponseBytes, providerCts.Token);
                                                 using var providerResponse = await _http.GetAsync(fetchUrl, HttpCompletionOption.ResponseHeadersRead, providerCts.Token);
                                                 providerResponse.EnsureSuccessStatusCode();
                                                 var providerText = await ReadContentLimitedAsync(
@@ -1434,7 +1437,9 @@ namespace ProxyCollector.Collector
                                                 var providerLines = DecodeAndExtractLines(providerText, fetchUrl);
                                                 if (providerLines.Count > 0)
                                                 {
-                                                    lines.AddRange(providerLines);
+                                                    await sourceSpool.AppendSourceAsync(
+                                                        sourceIndexByUrl[url], providerLines, providerCts.Token);
+                                                    extractedLineCount += providerLines.Count;
                                                     yielded = true;
                                                 }
                                                 break;
@@ -1448,7 +1453,7 @@ namespace ProxyCollector.Collector
                                                 }
                                                 else
                                                 {
-                                                    await Task.Delay(700);
+                                                    await Task.Delay(700, sourceCancellationToken);
                                                 }
                                             }
                                         }
@@ -1458,19 +1463,17 @@ namespace ProxyCollector.Collector
                                         // original converter try to normalize it.
                                         if (yielded) break;
                                     }
-                                    if (lines.Count >= 20000) break; // one profile cannot monopolize memory
+                                    if (extractedLineCount >= 20000) break; // one profile cannot monopolize memory
                                 }
                             }
 
-                            Interlocked.Add(ref st.Lines, lines.Count);
-                            for (int lineIndex = 0; lineIndex < lines.Count; lineIndex++)
-                                rawLinesBag.Add((url, lineIndex, lines[lineIndex]));
+                            Interlocked.Add(ref st.Lines, extractedLineCount);
                             return;
                         }
                         catch (Exception ex)
                         {
                             if (attempt == 2) { LogError($"Failed {url}: {ex.Message}"); return; }
-                            await Task.Delay(1500);
+                            await Task.Delay(1500, sourceCancellationToken);
                         }
                     }
                 }
@@ -1480,11 +1483,8 @@ namespace ProxyCollector.Collector
                 }
             });
 
-            var sourcePriority = urls
-                .Select((source, index) => (Source: source, Index: index))
-                .ToDictionary(item => item.Source, item => item.Index, StringComparer.Ordinal);
-            var rawLines = OrderSourceLines(rawLinesBag, sourcePriority);
-            LogInfo($"Total raw lines: {rawLines.Count}");
+            long totalRawLines = sourceStats.Values.Sum(st => (long)Volatile.Read(ref st.Lines));
+            LogInfo($"Total raw lines: {totalRawLines} (spooled to disk and replayed in configured source order)");
             GroupEnd();
 
             GroupStart("🧹 Step 2/5 — Parsing & smart dedup");
@@ -1511,21 +1511,16 @@ namespace ProxyCollector.Collector
                 return t;
             }
 
-            string? activeParseSource = null;
-            long parseSourceStartedAt = Stopwatch.GetTimestamp();
-            foreach (var (url, line) in rawLines)
+            foreach (var url in urls)
             {
-                if (!StringComparer.Ordinal.Equals(activeParseSource, url))
-                {
-                    if (activeParseSource is not null)
-                        sourceStats[activeParseSource].ParseElapsedMs +=
-                            (long)Stopwatch.GetElapsedTime(parseSourceStartedAt).TotalMilliseconds;
-                    activeParseSource = url;
-                    parseSourceStartedAt = Stopwatch.GetTimestamp();
-                }
+                int sourceIndex = sourceIndexByUrl[url];
+                if (!sourceSpool.HasSource(sourceIndex)) continue;
 
-                processed++;
-                if (processed % 100000 == 0) LogInfo($"  {processed}/{rawLines.Count} parsed...");
+                long parseSourceStartedAt = Stopwatch.GetTimestamp();
+                foreach (var line in sourceSpool.ReadSourceLines(sourceIndex))
+                {
+                    processed++;
+                    if (processed % 100000 == 0) LogInfo($"  {processed}/{totalRawLines} parsed...");
 
                 var t = line.Trim();
                 if (string.IsNullOrWhiteSpace(t) || t.StartsWith("#")) continue;
@@ -1569,11 +1564,12 @@ namespace ProxyCollector.Collector
                     if (SrcTested(url) && byKey.TryGetValue(key, out var keptTrust) && !keptTrust.IranTested)
                         keptTrust.IranTested = true;   // duplicate from a tested source — trust upgrades the kept node
                 }
-            }
-            if (activeParseSource is not null)
-                sourceStats[activeParseSource].ParseElapsedMs +=
+                }
+                sourceStats[url].ParseElapsedMs +=
                     (long)Stopwatch.GetElapsedTime(parseSourceStartedAt).TotalMilliseconds;
+            }
 
+            sourceSpool.Dispose(); // Raw source lines are no longer needed after parsing.
             LogInfo($"After smart dedup: {uniqueProxies.Count} unique ({badHostFiltered} bad host/port, {placeholderFiltered} placeholder credential, {emptyCredFiltered} empty credential, {invalidWireguardFiltered} invalid WireGuard filtered)");
             GroupEnd();
 
@@ -1801,7 +1797,7 @@ namespace ProxyCollector.Collector
 
             runStopwatch.Stop();
             LogSuccess("🎉 Done!");
-            SummaryTable(finalProxies, runStopwatch.Elapsed, urls.Length, rawLines.Count);
+            SummaryTable(finalProxies, runStopwatch.Elapsed, urls.Length, totalRawLines);
         }
 		
         // ====================== DEAD-NODE FILTERS ======================
@@ -2203,11 +2199,11 @@ namespace ProxyCollector.Collector
                                        IsCloudflareIp(ip)))
                     continue;
 
-                string connectAddress = resolved
-                    .OrderBy(ip => ip.AddressFamily == AddressFamily.InterNetwork ? 0 : 1)
-                    .ThenBy(ip => ip.ToString(), StringComparer.Ordinal)
-                    .First()
-                    .ToString();
+                // Xray needs one pinned address per outbound (unlike HttpClient, whose
+                // socket connector can race both families). Keep the resolver's preferred
+                // family first, but do not hard-code IPv4 as the preferred family.
+                string connectAddress = HappyEyeballsConnector.OrderAddresses(resolved)
+                    .First().ToString();
 
                 int localPort = basePort + portMap.Count;
                 var ob = BuildXrayOutbound(p, $"ob{localPort}", connectAddress);
@@ -2306,7 +2302,7 @@ namespace ProxyCollector.Collector
                         if (stageSw.Elapsed > XrayStageBudget) return;   // budget cut lands in the tail
                         portMap[localPort].XrayTested = true;
                         Interlocked.Increment(ref probed);
-                        if (await ProbeViaSocksAsync(localPort, ct))
+                        if (await XrayConnectivityProbe.ProbeViaSocksAsync(localPort, ct))
                         {
                             portMap[localPort].XrayVerified = true;
                             Interlocked.Increment(ref verified);
@@ -2326,98 +2322,6 @@ namespace ProxyCollector.Collector
 
         // Full roundtrip probe: SOCKS5 handshake → CONNECT www.gstatic.com:80 →
         // HTTP GET /generate_204 → the expected 204 response is affirmative life.
-        private static async Task<bool> ProbeViaSocksAsync(int localPort, CancellationToken ct)
-        {
-            try
-            {
-                using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                cts.CancelAfter(TimeSpan.FromSeconds(8));
-                using var tcp = new TcpClient();
-                await tcp.ConnectAsync(IPAddress.Loopback, localPort, cts.Token);
-                var s = tcp.GetStream();
-
-                // greeting: VER=5, 1 method, NO AUTH
-                await s.WriteAsync(new byte[] { 5, 1, 0 }, cts.Token);
-                var g = new byte[2];
-                await ReadExactAsync(s, g, cts.Token);
-                if (g[0] != 5 || g[1] != 0) return false;
-
-                // CONNECT request by domain
-                var host = Encoding.ASCII.GetBytes("www.gstatic.com");
-                var req = new byte[7 + host.Length];
-                req[0] = 5; req[1] = 1; req[2] = 0; req[3] = 3; req[4] = (byte)host.Length;
-                Array.Copy(host, 0, req, 5, host.Length);
-                req[5 + host.Length] = (byte)(80 >> 8);
-                req[6 + host.Length] = (byte)(80 & 0xFF);
-                await s.WriteAsync(req, cts.Token);
-
-                // response: VER REP RSV ATYP + bound addr + port
-                var head = new byte[4];
-                await ReadExactAsync(s, head, cts.Token);
-                if (head[1] != 0) return false;                     // REP != 0 — connect failed
-                int addrLen = head[3] switch { 1 => 4, 4 => 16, 3 => 0, _ => -1 };
-                if (addrLen == -1) return false;
-                if (addrLen == 0)                                  // domain: 1 length byte first
-                {
-                    var l = new byte[1];
-                    await ReadExactAsync(s, l, cts.Token);
-                    addrLen = l[0];
-                }
-                var skip = new byte[addrLen + 2];
-                await ReadExactAsync(s, skip, cts.Token);
-
-                // the moment of truth: an HTTP request THROUGH the node
-                var http = Encoding.ASCII.GetBytes(
-                    "GET /generate_204 HTTP/1.1\r\nHost: www.gstatic.com\r\nUser-Agent: FastNodes-probe\r\nConnection: close\r\n\r\n");
-                await s.WriteAsync(http, cts.Token);
-                string statusLine = await ReadHttpStatusLineAsync(s, cts.Token);
-                return IsExpectedConnectivityStatusLine(statusLine);
-            }
-            catch { return false; }
-        }
-
-        internal static bool IsExpectedConnectivityStatusLine(string statusLine)
-        {
-            if (string.IsNullOrWhiteSpace(statusLine)) return false;
-            var parts = statusLine.Split(' ', 3, StringSplitOptions.RemoveEmptyEntries);
-            return parts.Length >= 2 &&
-                parts[0].StartsWith("HTTP/", StringComparison.OrdinalIgnoreCase) &&
-                int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out int statusCode) &&
-                statusCode == 204;
-        }
-
-        private static async Task<string> ReadHttpStatusLineAsync(NetworkStream stream, CancellationToken ct)
-        {
-            const int MaxStatusLineBytes = 1024;
-            var buffer = new byte[MaxStatusLineBytes];
-            var singleByte = new byte[1];
-            int length = 0;
-
-            while (length < buffer.Length)
-            {
-                int read = await stream.ReadAsync(singleByte.AsMemory(0, 1), ct);
-                if (read == 0) throw new IOException("HTTP response closed before its status line completed.");
-                if (singleByte[0] == (byte)'\n') break;
-                if (singleByte[0] != (byte)'\r') buffer[length++] = singleByte[0];
-            }
-
-            if (length == buffer.Length)
-                throw new InvalidDataException("HTTP response status line exceeded the 1 KiB limit.");
-
-            return Encoding.ASCII.GetString(buffer, 0, length);
-        }
-
-        private static async Task ReadExactAsync(NetworkStream s, byte[] buf, CancellationToken ct)
-        {
-            int off = 0;
-            while (off < buf.Length)
-            {
-                int n = await s.ReadAsync(buf.AsMemory(off, buf.Length - off), ct);
-                if (n == 0) throw new IOException("socks5: stream closed");
-                off += n;
-            }
-        }
-
         // Safe-list of Shadowsocks ciphers that xray-core actually supports.
         // Feeding it an unsupported cipher (like aes-256-cfb) crashes Xray on startup.
         private static readonly HashSet<string> XraySupportedSsCiphers = new(StringComparer.OrdinalIgnoreCase)

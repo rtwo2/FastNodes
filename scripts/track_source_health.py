@@ -83,7 +83,7 @@ def load_history(path: pathlib.Path) -> dict:
 
 
 def classify(values: list[dict], latest: dict, fetch_failures: int, parse_successes: int,
-             unparsed: int, parsed_zero_unique: int, provider_failure_runs: int = 0) -> str:
+             parsed_zero_unique: int, provider_failure_runs: int = 0) -> str:
     seen = len(values)
     recurring_threshold = max(2, math.ceil(seen * 0.30))
     # A successful fetch with no extractable lines can mean an empty provider
@@ -125,7 +125,7 @@ def render_trends(snapshots: list[dict]) -> str:
         parsed_zero_unique = sum(v["parsed"] > 0 and v["unique"] == 0 for v in values)
         provider_failure_runs = sum(v.get("provider_failures", 0) > 0 for v in values)
         classification = classify(
-            values, latest, fetch_failures, parse_successes, unparsed,
+            values, latest, fetch_failures, parse_successes,
             parsed_zero_unique, provider_failure_runs
         )
         rows.append({

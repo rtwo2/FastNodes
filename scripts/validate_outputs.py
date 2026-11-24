@@ -91,7 +91,7 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
     return len(lines), duplicates
 
 
-def validate_tree(root: pathlib.Path) -> list[str]:
+def validate_tree(root: pathlib.Path, allow_legacy_oversized: bool = False) -> list[str]:
     if not root.is_dir():
         raise ValidationError(f"output directory does not exist: {root}")
 
@@ -117,9 +117,13 @@ def validate_tree(root: pathlib.Path) -> list[str]:
             report.append(f"WARNING {rel}: {duplicates} duplicate line(s)")
         size = path.stat().st_size
         if size > MAX_PART_BYTES:
-            raise ValidationError(
+            message = (
                 f"{rel} is {size / (1024 * 1024):.1f} MiB; generated text files must not exceed 50 MiB per part"
             )
+            if allow_legacy_oversized:
+                report.append(f"WARNING legacy committed output: {message}")
+            else:
+                raise ValidationError(message)
 
     for name in ("top.txt", "top_ipv6.txt"):
         if counts.get(name, 0) > MAX_TOP_LINES:
@@ -405,6 +409,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("root", nargs="?", type=pathlib.Path, help="generated subscription directory")
     parser.add_argument("--self-test", action="store_true", help="run built-in tests without output files")
+    parser.add_argument(
+        "--allow-legacy-oversized",
+        action="store_true",
+        help="warn instead of failing for oversized files in the existing committed snapshot; never use for newly generated output"
+    )
     args = parser.parse_args()
     try:
         if args.self_test:
@@ -412,7 +421,7 @@ def main() -> int:
             return 0
         if args.root is None:
             parser.error("provide output directory or --self-test")
-        for line in validate_tree(args.root):
+        for line in validate_tree(args.root, allow_legacy_oversized=args.allow_legacy_oversized):
             print(line)
         return 0
     except ValidationError as exc:

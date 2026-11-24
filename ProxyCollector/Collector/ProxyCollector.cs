@@ -445,20 +445,6 @@ namespace ProxyCollector.Collector
         // the only metric that ranks a source's real value, since a source that only
         // re-publishes other sources' nodes contributes nothing new.
         // Fields (not properties) so Interlocked works on them in the parallel fetch loop.
-        private sealed class SourceStat
-        {
-            public int FetchSuccesses;
-            public int RawBytes;
-            public int RawLines;
-            public int Lines; // proxy-like lines extracted by the decoder
-            public int Parsed;
-            public int Unique;
-            public int ProviderSuccesses;
-            public int ProviderFailures;
-            public long FetchElapsedMs;
-            public long ParseElapsedMs;
-        }
-
         // ====================== LOGGING ======================
         private static void Log(string msg, ConsoleColor color = ConsoleColor.White)
         { Console.ForegroundColor = color; Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] {msg}"); Console.ResetColor(); }
@@ -1246,7 +1232,6 @@ namespace ProxyCollector.Collector
 
         private const int MaxSourceResponseBytes = 64 * 1024 * 1024;
         private const int MaxLargeSourceResponseBytes = 256 * 1024 * 1024;
-        private const int MaxProviderResponseBytes = 16 * 1024 * 1024;
 
         // One high-volume source has legitimately grown beyond the ordinary 64 MiB
         // cap. Keep the higher allowance narrowly scoped to that exact repository/feed
@@ -1261,30 +1246,6 @@ namespace ProxyCollector.Collector
             return MaxSourceResponseBytes;
         }
 
-        internal static async Task<string> ReadContentLimitedAsync(
-            HttpContent content, int maxBytes, CancellationToken cancellationToken)
-        {
-            if (maxBytes <= 0) throw new ArgumentOutOfRangeException(nameof(maxBytes));
-            long? declaredLength = content.Headers.ContentLength;
-            if (declaredLength.HasValue && declaredLength.Value > maxBytes)
-                throw new InvalidDataException(
-                    $"HTTP response declares {declaredLength.Value} bytes, above the {maxBytes}-byte limit.");
-
-            await using var stream = await content.ReadAsStreamAsync(cancellationToken);
-            using var buffer = new MemoryStream();
-            var chunk = new byte[81920];
-            while (true)
-            {
-                int read = await stream.ReadAsync(chunk.AsMemory(0, chunk.Length), cancellationToken);
-                if (read == 0) break;
-                if (buffer.Length + read > maxBytes)
-                    throw new InvalidDataException(
-                        $"HTTP response exceeded the {maxBytes}-byte limit while streaming.");
-                await buffer.WriteAsync(chunk.AsMemory(0, read), cancellationToken);
-            }
-
-            return Encoding.UTF8.GetString(buffer.GetBuffer(), 0, checked((int)buffer.Length));
-        }
 
         // ====================== ENTRY POINT ======================
         public async Task StartAsync()
@@ -1355,154 +1316,19 @@ namespace ProxyCollector.Collector
             // STEP 1: parallel fetch — one retry on failure. With 500+ independent sources,
             // a transient timeout or blip is common; a single failed attempt shouldn't
             // permanently drop that whole source for the run.
-            using var sourceSpool = new SourceSpoolStore();
-            var sourceIndexByUrl = urls
-                .Select((source, index) => (Source: source, Index: index))
-                .ToDictionary(item => item.Source, item => item.Index, StringComparer.Ordinal);
-            var sourceStats = new ConcurrentDictionary<string, SourceStat>();
-            await Parallel.ForEachAsync(urls, new ParallelOptions { MaxDegreeOfParallelism = 30 },
-                async (url, sourceCancellationToken) =>
-                {
-                    var st = sourceStats.GetOrAdd(url, _ => new SourceStat());
-                    var sourceFetchTimer = Stopwatch.StartNew();
-                    try
-                    {
-                        for (int attempt = 1; attempt <= 2; attempt++)
-                        {
-                        try
-                        {
-                            // Per-request 25s timeout — one slow domain (freenode was
-                            // burning 40+1.5+40 ≈ 82s) can no longer define the whole
-                            // fetch stage's duration.
-                            using var reqCts = CancellationTokenSource.CreateLinkedTokenSource(sourceCancellationToken);
-                            reqCts.CancelAfter(TimeSpan.FromSeconds(25));
-                            using var sourceResponse = await _http.GetAsync(
-                                url, HttpCompletionOption.ResponseHeadersRead, reqCts.Token);
-                            sourceResponse.EnsureSuccessStatusCode();
-
-                            int sourceLimit = GetSourceResponseByteLimit(url);
-                            int sourceReservationBytes = SourceFetchBudget.GetReservationBytes(
-                                sourceResponse.Content.Headers.ContentLength,
-                                sourceResponse.Content.Headers.ContentEncoding.Count > 0,
-                                sourceLimit);
-                            int extractedLineCount;
-                            string[] providerUrls;
-
-                            // Use Content-Length when available so small feeds do not reserve
-                            // the entire per-source ceiling. Unknown-length bodies reserve their
-                            // full ceiling before any response bytes are buffered.
-                            using (var sourceMemoryLease = await FetchMemoryBudget.AcquireSourceAsync(
-                                sourceReservationBytes, reqCts.Token))
-                            {
-                                var text = await ReadContentLimitedAsync(
-                                    sourceResponse.Content, sourceLimit, reqCts.Token);
-                                Interlocked.Increment(ref st.FetchSuccesses);
-                                Interlocked.Add(ref st.RawBytes, Encoding.UTF8.GetByteCount(text));
-                                Interlocked.Add(ref st.RawLines, CountRawLines(text));
-                                var lines = DecodeAndExtractLines(text, url);
-                                extractedLineCount = lines.Count;
-                                providerUrls = extractedLineCount == 0 &&
-                                    text.Contains("proxy-providers:", StringComparison.OrdinalIgnoreCase)
-                                    ? ExtractClashProviderUrls(text).Take(8).ToArray()
-                                    : Array.Empty<string>();
-
-                                // Spool the root source while its response working-set
-                                // reservation is held, then release the memory before providers.
-                                await sourceSpool.WriteSourceAsync(
-                                    sourceIndexByUrl[url], lines, sourceCancellationToken);
-                            }
-
-                            // Full Mihomo profiles often contain only proxy-providers URLs,
-                            // not a root `proxies:` list. Treating every ordinary https://
-                            // rule/provider URL as a proxy used to create FORMAT GAP spam.
-                            // Follow the actual proxy-provider URLs once and parse the
-                            // provider payloads, attributing their yield to this parent feed.
-                            if (providerUrls.Length > 0)
-                            {
-                                // Cap fan-out and use a short retry: aggregator profiles can
-                                // contain many provider URLs, and one 522/slow endpoint must
-                                // not stall the entire collection run. Failures are counted
-                                // separately from ordinary source zero-yield statistics.
-                                foreach (var providerUrl in providerUrls)
-                                {
-                                    // Some profiles wrap a perfectly ordinary subscription in
-                                    // a third-party converter URL (often 400/522 when the
-                                    // converter is overloaded). Try the underlying URL first,
-                                    // then fall back to the original provider endpoint.
-                                    foreach (var fetchUrl in GetProviderFetchCandidates(providerUrl))
-                                    {
-                                        bool yielded = false;
-                                        for (int providerAttempt = 1; providerAttempt <= 2; providerAttempt++)
-                                        {
-                                            try
-                                            {
-                                                using var providerCts = CancellationTokenSource.CreateLinkedTokenSource(sourceCancellationToken);
-                                                providerCts.CancelAfter(TimeSpan.FromSeconds(12));
-                                                using var providerResponse = await _http.GetAsync(
-                                                    fetchUrl, HttpCompletionOption.ResponseHeadersRead, providerCts.Token);
-                                                providerResponse.EnsureSuccessStatusCode();
-
-                                                int providerReservationBytes = SourceFetchBudget.GetReservationBytes(
-                                                    providerResponse.Content.Headers.ContentLength,
-                                                    providerResponse.Content.Headers.ContentEncoding.Count > 0,
-                                                    MaxProviderResponseBytes);
-                                                using (var providerMemoryLease = await FetchMemoryBudget.AcquireProviderAsync(
-                                                    providerReservationBytes, providerCts.Token))
-                                                {
-                                                    var providerText = await ReadContentLimitedAsync(
-                                                        providerResponse.Content, MaxProviderResponseBytes, providerCts.Token);
-                                                    Interlocked.Increment(ref st.ProviderSuccesses);
-                                                    var providerLines = DecodeAndExtractLines(providerText, fetchUrl);
-                                                    if (providerLines.Count > 0)
-                                                    {
-                                                        await sourceSpool.AppendSourceAsync(
-                                                            sourceIndexByUrl[url], providerLines, providerCts.Token);
-                                                        extractedLineCount += providerLines.Count;
-                                                        yielded = true;
-                                                    }
-                                                }
-                                                break;
-                                            }
-                                            catch (Exception providerEx)
-                                            {
-                                                if (providerAttempt == 2)
-                                                {
-                                                    Interlocked.Increment(ref st.ProviderFailures);
-                                                    LogWarning($"  provider fetch failed (after retry) for {url} → {fetchUrl}: {providerEx.Message}");
-                                                }
-                                                else
-                                                {
-                                                    await Task.Delay(700, sourceCancellationToken);
-                                                }
-                                            }
-                                        }
-                                        // A direct underlying subscription is preferred only
-                                        // when it actually yields proxy links. If it returned
-                                        // successfully but had an unsupported format, let the
-                                        // original converter try to normalize it.
-                                        if (yielded) break;
-                                    }
-                                    if (extractedLineCount >= 20000) break; // one profile cannot monopolize memory
-                                }
-                            }
-
-                            Interlocked.Add(ref st.Lines, extractedLineCount);
-                            return;
-                        }
-                        catch (Exception ex)
-                        {
-                            if (attempt == 2) { LogError($"Failed {url}: {ex.Message}"); return; }
-                            await Task.Delay(1500, sourceCancellationToken);
-                        }
-                    }
-                }
-                finally
-                {
-                    Interlocked.Add(ref st.FetchElapsedMs, sourceFetchTimer.ElapsedMilliseconds);
-                }
-            });
-
-            long totalRawLines = sourceStats.Values.Sum(st => (long)Volatile.Read(ref st.Lines));
+            using var sourceFetchResult = await new SourceFetcher(_http, FetchMemoryBudget).FetchAsync(
+                urls,
+                GetSourceResponseByteLimit,
+                DecodeAndExtractLines,
+                ExtractClashProviderUrls,
+                GetProviderFetchCandidates,
+                CountRawLines,
+                LogError,
+                LogWarning);
+            var sourceSpool = sourceFetchResult.Spool;
+            var sourceIndexByUrl = sourceFetchResult.SourceIndices;
+            var sourceStats = sourceFetchResult.Statistics;
+            long totalRawLines = sourceFetchResult.TotalExtractedLines;
             LogInfo($"Total raw lines: {totalRawLines} (spooled to disk and replayed in configured source order)");
             GroupEnd();
 

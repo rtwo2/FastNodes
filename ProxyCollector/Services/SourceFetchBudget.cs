@@ -22,6 +22,18 @@ public sealed class SourceFetchBudget
         _providerCapacity = new WeightedCapacity(providerBudgetBytes);
     }
 
+    /// <summary>
+    /// Use the declared length only when it describes the bytes that will be buffered.
+    /// Content-Length on a compressed response measures the compressed wire body, not
+    /// its decompressed working set, so those responses reserve the full configured cap.
+    /// </summary>
+    public static int GetReservationBytes(long? contentLength, bool isCompressed, int maximumResponseBytes)
+    {
+        if (maximumResponseBytes <= 0) throw new ArgumentOutOfRangeException(nameof(maximumResponseBytes));
+        if (isCompressed || !contentLength.HasValue) return maximumResponseBytes;
+        return checked((int)Math.Clamp(contentLength.Value, 1L, maximumResponseBytes));
+    }
+
     public ValueTask<IDisposable> AcquireSourceAsync(int maxResponseBytes, CancellationToken cancellationToken)
         => _sourceCapacity.AcquireAsync(GetReservationUnits(maxResponseBytes), cancellationToken);
 

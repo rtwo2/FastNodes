@@ -2305,16 +2305,51 @@ namespace ProxyCollector.Collector
         // Link → Xray outbound. URI protocols read query options; standard VMess
         // share links read their settings from the original base64 JSON payload.
         // Unconvertible nodes are skipped for this probe only, never dropped.
-        internal static bool IsValidRealityPublicKey(string? publicKey)
+        internal static bool TryNormalizeRealityPublicKey(
+            string? publicKey, out string normalized)
         {
+            normalized = "";
             if (string.IsNullOrWhiteSpace(publicKey)) return false;
-            string value = publicKey.Replace('-', '+').Replace('_', '/');
-            if (value.Length % 4 == 1) return false;
-            int padding = value.Length % 4;
-            if (padding > 0) value += new string('=', 4 - padding);
-            try { return Convert.FromBase64String(value).Length == 32; }
-            catch (FormatException) { return false; }
+
+            // Xray decodes REALITY password using base64.RawURLEncoding:
+            // URL-safe alphabet, no padding. Accept standard/padded Base64 from
+            // feeds, but always emit the exact representation Xray expects.
+            string value = publicKey;
+            if (value.Any(c =>
+                !((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+                  (c >= '0' && c <= '9') || c is '+' or '/' or '-' or '_' or '=')))
+                return false;
+
+            int firstPadding = value.IndexOf('=');
+            if (firstPadding >= 0 &&
+                (value.Length - firstPadding > 2 ||
+                 value.Skip(firstPadding).Any(c => c != '=') ||
+                 value.Length % 4 != 0))
+                return false;
+
+            string unpadded = value.TrimEnd('=');
+            if (unpadded.Length % 4 == 1) return false;
+
+            string standard = unpadded.Replace('-', '+').Replace('_', '/');
+            int requiredPadding = (4 - standard.Length % 4) % 4;
+            standard += new string('=', requiredPadding);
+
+            try
+            {
+                byte[] bytes = Convert.FromBase64String(standard);
+                if (bytes.Length != 32) return false;
+                normalized = Convert.ToBase64String(bytes)
+                    .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+                return true;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
         }
+
+        internal static bool IsValidRealityPublicKey(string? publicKey)
+            => TryNormalizeRealityPublicKey(publicKey, out _);
 
         internal static bool IsValidRealityShortId(string? shortId)
             => shortId is not null &&
@@ -2398,14 +2433,16 @@ namespace ProxyCollector.Collector
                     // Xray requires a 32-byte X25519 public key and an even-length
                     // hexadecimal shortId (0-16 chars). Reject malformed fields before
                     // they can make the whole batched Xray config fail at startup.
-                    if (!IsValidRealityPublicKey(p.Pbk) || !IsValidRealityShortId(p.Sid))
+                    if (!TryNormalizeRealityPublicKey(p.Pbk, out string realityPassword) ||
+                        !IsValidRealityShortId(p.Sid))
                         return null;
                     stream["security"] = "reality";
                     stream["realitySettings"] = new Dictionary<string, object?>
                     {
                         ["serverName"] = sni, ["fingerprint"] = fp,
-                        // Xray renamed the legacy "publicKey" field to "password".
-                        ["password"] = p.Pbk, ["shortId"] = p.Sid, ["spiderX"] = "/"
+                        // Xray renamed the legacy "publicKey" field to "password"
+                        // and decodes it as unpadded URL-safe Base64.
+                        ["password"] = realityPassword, ["shortId"] = p.Sid, ["spiderX"] = "/"
                     };
                 }
                 else

@@ -1257,7 +1257,79 @@ internal static class Program
         Checks.Equal(0, convertedAmneziaWireguard.Count,
             "AmneziaWG entries are not downgraded when the exporter cannot preserve their extra options");
 
+        var allAddressAttempts = CollectorType.GetProbeAddressAttempts(new[]
+        {
+            IPAddress.Parse("192.0.2.10"), IPAddress.Parse("192.0.2.11"),
+            IPAddress.Parse("2001:db8::10"), IPAddress.Parse("2001:db8::11")
+        });
+        Checks.That(allAddressAttempts.SequenceEqual(new[]
+            {
+                IPAddress.Parse("192.0.2.10"), IPAddress.Parse("2001:db8::10"),
+                IPAddress.Parse("192.0.2.11"), IPAddress.Parse("2001:db8::11")
+            }),
+            "TLS/Xray verification attempts every vetted IPv4 and IPv6 address in interleaved order");
+
+        TestSourceFetcherMixedProvidersAndLineCap();
+
         Console.WriteLine($"Parser regression tests passed ({Checks.Count} assertions).");
+    }
+
+    private static void TestSourceFetcherMixedProvidersAndLineCap()
+    {
+        const string rootUrl = "https://root.example.net/config.yaml";
+        const string providerUrl = "https://provider.example.net/nodes.txt";
+        const string rootBody =
+            "proxies:\n  - name: inline-node\nproxy-providers:\n  remote:\n    url: " + providerUrl;
+        string providerBody = string.Join("\n",
+            Enumerable.Range(0, SourceFetcher.MaxNestedLinesPerSource + 5)
+                .Select(index => $"provider-node-{index}"));
+
+        using var http = new HttpClient(new StubHttpMessageHandler(request =>
+        {
+            string requestUrl = request.RequestUri?.AbsoluteUri ?? "";
+            if (requestUrl == rootUrl)
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(rootBody) };
+            if (requestUrl == providerUrl)
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(providerBody) };
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        }));
+
+        var fetcher = new SourceFetcher(
+            http,
+            new SourceFetchBudget(8L * 1024 * 1024, 8L * 1024 * 1024));
+        using var result = fetcher.FetchAsync(
+            new[] { rootUrl },
+            _ => 1024 * 1024,
+            (text, url) => url == rootUrl
+                ? new List<string> { "inline-node" }
+                : text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList(),
+            text => text.Contains("proxy-providers:", StringComparison.OrdinalIgnoreCase)
+                ? new List<string> { providerUrl }
+                : new List<string>(),
+            url => new List<string> { url },
+            text => text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length,
+            _ => { },
+            _ => { }).GetAwaiter().GetResult();
+
+        var extracted = result.Spool.ReadSourceLines(0).ToList();
+        Checks.That(extracted.Contains("inline-node"),
+            "a Clash parent keeps inline proxies while recursively fetching its nested proxy providers");
+        Checks.Equal(SourceFetcher.MaxNestedLinesPerSource + 1, extracted.Count,
+            "nested provider writes are capped before append even when one provider exceeds the remaining allowance");
+        Checks.Equal($"provider-node-{SourceFetcher.MaxNestedLinesPerSource - 1}", extracted[^1],
+            "the nested-provider cap preserves the first configured number of provider entries");
+    }
+
+    private sealed class StubHttpMessageHandler : HttpMessageHandler
+    {
+        private readonly Func<HttpRequestMessage, HttpResponseMessage> _respond;
+
+        public StubHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> respond)
+            => _respond = respond;
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request, CancellationToken cancellationToken)
+            => Task.FromResult(_respond(request));
     }
 }
 

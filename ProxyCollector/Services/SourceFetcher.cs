@@ -22,7 +22,7 @@ public sealed class SourceFetcher
     private readonly SourceFetchBudget _memoryBudget;
     private const int MaxConcurrentSources = 30;
     private const int MaxNestedProvidersPerSource = 8;
-    private const int MaxNestedLinesPerSource = 20000;
+    internal const int MaxNestedLinesPerSource = 20000;
     private const int MaxAttempts = 2;
     private const int MaxProviderResponseBytes = 16 * 1024 * 1024;
 
@@ -112,8 +112,7 @@ public sealed class SourceFetcher
 
                                     List<string> lines = decodeAndExtractLines(text, url);
                                     extractedLineCount = lines.Count;
-                                    providerUrls = extractedLineCount == 0 &&
-                                        text.Contains("proxy-providers:", StringComparison.OrdinalIgnoreCase)
+                                    providerUrls = text.Contains("proxy-providers:", StringComparison.OrdinalIgnoreCase)
                                         ? extractProviderUrls(text).Take(MaxNestedProvidersPerSource).ToArray()
                                         : Array.Empty<string>();
 
@@ -125,8 +124,12 @@ public sealed class SourceFetcher
                                 // outside the working set. Fetch nested providers one at a time.
                                 if (providerUrls.Length > 0)
                                 {
+                                    int nestedLineCount = 0;
                                     foreach (string providerUrl in providerUrls)
                                     {
+                                        if (nestedLineCount >= MaxNestedLinesPerSource)
+                                            break;
+
                                         foreach (string fetchUrl in getProviderFetchCandidates(providerUrl))
                                         {
                                             bool yielded = false;
@@ -160,12 +163,19 @@ public sealed class SourceFetcher
 
                                                         List<string> providerLines = decodeAndExtractLines(
                                                             providerText, fetchUrl);
+                                                        int remainingLineCount = MaxNestedLinesPerSource - nestedLineCount;
+                                                        if (providerLines.Count > remainingLineCount)
+                                                            providerLines = providerLines.Take(remainingLineCount).ToList();
+
                                                         if (providerLines.Count > 0)
                                                         {
+                                                            // Enforce the nested-line ceiling before the spool write. A single
+                                                            // provider can return more than the remaining per-source allowance.
                                                             await spool.AppendSourceAsync(
                                                                 sourceIndices[url],
                                                                 providerLines,
                                                                 providerTimeout.Token);
+                                                            nestedLineCount += providerLines.Count;
                                                             extractedLineCount += providerLines.Count;
                                                             yielded = true;
                                                         }
@@ -197,7 +207,7 @@ public sealed class SourceFetcher
                                             if (yielded) break;
                                         }
 
-                                        if (extractedLineCount >= MaxNestedLinesPerSource)
+                                        if (nestedLineCount >= MaxNestedLinesPerSource)
                                             break;
                                     }
                                 }

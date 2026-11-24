@@ -146,7 +146,9 @@ def validate_tree(root: pathlib.Path) -> list[str]:
     top_ipv6_path = root / "top_ipv6.txt"
     ipv6_only_path = root / "ipv6_only.txt"
     top_ipv6_links = {
-        line.strip() for line in top_ipv6_path.read_text(encoding="utf-8-sig").splitlines()
+        line.strip()
+        for path in all_parts(top_ipv6_path)
+        for line in path.read_text(encoding="utf-8-sig").splitlines()
         if line.strip()
     }
     ipv6_links = {
@@ -195,6 +197,21 @@ def validate_tree(root: pathlib.Path) -> list[str]:
     def all_parts(base_path: pathlib.Path) -> list[pathlib.Path]:
         ordered = sorted(split_groups.get(base_path, []), key=lambda item: item[0])
         return [base_path] + [path for _, path in ordered]
+
+    # Ranked shortlists can also be byte-split in the rare case of unusually
+    # long entries. Keep the 1,000-node limit and duplicate check across all parts.
+    for name in ("top.txt", "top_ipv6.txt"):
+        entries = [
+            line.strip()
+            for path in all_parts(root / name)
+            for line in path.read_text(encoding="utf-8-sig").splitlines()
+            if line.strip()
+        ]
+        counts[name] = len(entries)
+        if len(entries) > MAX_TOP_LINES:
+            raise ValidationError(f"{name} has {len(entries)} lines across all parts; maximum is {MAX_TOP_LINES}")
+        if len(entries) != len(set(entries)):
+            raise ValidationError(f"{name} contains duplicate entries across its parts")
 
     everything_paths = all_parts(root / "everything.txt")
     everything_links: set[str] = set()

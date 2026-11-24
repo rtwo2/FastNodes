@@ -1173,75 +1173,49 @@ namespace ProxyCollector.Collector
                 throw new ArgumentOutOfRangeException(nameof(maxLinesPerPart), "The part line limit must be positive.");
 
             Directory.CreateDirectory(Path.GetDirectoryName(pathNoExt) ?? ".");
-            StreamWriter? writer = null;
+            var currentPart = new List<string>();
             int partNumber = 1;
             int partCount = 0;
-            int linesInPart = 0;
             long bytesInPart = 0;
 
-            void OpenPart()
+            async Task FlushPartAsync()
             {
                 string path = partNumber == 1
                     ? pathNoExt + ".txt"
                     : $"{pathNoExt}_part{partNumber}.txt";
-                writer = new StreamWriter(path, append: false, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false))
-                {
-                    NewLine = "\n"
-                };
+                await File.WriteAllLinesAsync(path, currentPart, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
                 partCount++;
+                partNumber++;
+                currentPart.Clear();
+                bytesInPart = 0;
             }
 
-            try
+            foreach (string line in lines)
             {
-                // Keep the original filename as part one, including for an empty feed.
-                OpenPart();
-                foreach (string line in lines)
-                {
-                    if (line is null)
-                        throw new InvalidDataException("A subscription entry cannot be null.");
-                    if (line.IndexOfAny(new[] { '\r', '\n' }) >= 0)
-                        throw new InvalidDataException("A subscription entry must occupy exactly one line.");
+                if (line is null)
+                    throw new InvalidDataException("A subscription entry cannot be null.");
+                if (line.Contains('\\r') || line.Contains('\\n'))
+                    throw new InvalidDataException("A subscription entry must occupy exactly one line.");
 
-                    long lineBytes = Encoding.UTF8.GetByteCount(line) + 1; // UTF-8 line plus LF.
-                    if (lineBytes > maxBytes)
-                        throw new InvalidDataException(
-                            $"A single subscription entry requires {lineBytes} bytes, exceeding the {maxBytes}-byte part limit.");
+                long lineBytes = Encoding.UTF8.GetByteCount(line) + 1; // UTF-8 line plus LF.
+                if (lineBytes > maxBytes)
+                    throw new InvalidDataException(
+                        $"A single subscription entry requires {lineBytes} bytes, exceeding the {maxBytes}-byte part limit.");
 
-                    if (linesInPart > 0 &&
-                        (bytesInPart + lineBytes > maxBytes || linesInPart >= maxLinesPerPart))
-                    {
-                        await writer!.DisposeAsync();
-                        writer = null;
-                        partNumber++;
-                        linesInPart = 0;
-                        bytesInPart = 0;
-                        OpenPart();
-                    }
+                if (currentPart.Count > 0 &&
+                    (bytesInPart + lineBytes > maxBytes || currentPart.Count >= maxLinesPerPart))
+                    await FlushPartAsync();
 
-                    await writer!.WriteLineAsync(line);
-                    linesInPart++;
-                    bytesInPart += lineBytes;
-                }
-
-                await writer!.FlushAsync();
-                return partCount;
+                currentPart.Add(line);
+                bytesInPart += lineBytes;
             }
-            finally
-            {
-                if (writer is not null)
-                    await writer.DisposeAsync();
-            }
+
+            // Keep the original filename as part one, including for an empty feed.
+            if (currentPart.Count > 0 || partCount == 0)
+                await FlushPartAsync();
+            return partCount;
         }
 
-        // ====================== WRITE TXT (chunked) ======================
-        // Category feeds retain the historical 1,000-node chunk size. The shared
-        // writer also enforces the 50 MiB per-file ceiling, whichever limit comes first.
-        private static async Task WriteTxt(string pathNoExt, List<FinalProxy> proxies)
-        {
-            await WriteSubscriptionPartsAsync(
-                pathNoExt, proxies.Select(x => x.Link), maxLinesPerPart: ChunkSize);
-        }
-		
         // ====================== PARSE ======================
 
     }

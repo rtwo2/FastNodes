@@ -243,6 +243,39 @@ internal static class Program
                         }
                     }
                 },
+                new
+                {
+                    tag = "custom-vless-validation",
+                    protocol = "vless",
+                    settings = new
+                    {
+                        vnext = new[]
+                        {
+                            new
+                            {
+                                address = "custom-vless.example.invalid",
+                                port = 443,
+                                users = new[]
+                                {
+                                    new
+                                    {
+                                        // Xray allows short custom IDs below 30 UTF-8 bytes;
+                                        // URI-reserved and non-ASCII characters must survive
+                                        // percent-decoding in the collector before reaching Xray.
+                                        id = "Telegram🇨🇳 @WangCai2",
+                                        encryption = "none"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    streamSettings = new
+                    {
+                        network = "tcp",
+                        security = "tls",
+                        tlsSettings = new { serverName = "custom-vless.example.invalid" }
+                    }
+                },
                 new { tag = "direct", protocol = "freedom" }
             }
         };

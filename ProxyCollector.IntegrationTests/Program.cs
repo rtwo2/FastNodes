@@ -319,7 +319,7 @@ internal static class Program
         {
             int separator = line.IndexOf(':');
             if (separator > 0 &&
-                line[..separator].Trim().Equals("Password", StringComparison.OrdinalIgnoreCase))
+                line[..separator].Trim().StartsWith("Password", StringComparison.OrdinalIgnoreCase))
             {
                 string password = line[(separator + 1)..].Trim();
                 if (!string.IsNullOrWhiteSpace(password))

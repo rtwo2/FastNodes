@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Endpoint-aware Cloudflare/WARP audit for generated FastNodes subscriptions."""
 import base64, html, ipaddress, json, pathlib, re, sys
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 
 URI_RE = re.compile(r"(?i)\b(vless|vmess|trojan|ss|shadowsocks|ssr|hysteria2?|hy2|tuic|naive|anytls|brook|snell|juicity|mieru|socks5?|socks4?|wireguard|wg)://([^\s<>\"']+)")
 WARP_RE = re.compile(r"(?i)(?<![a-z0-9])warp(?:\+)?(?![a-z0-9])")
@@ -81,6 +81,45 @@ def transport_host_is_forbidden(value):
         return True
     return bool(WARP_RE.search(host))
 
+def _decode_ssr_component(value):
+    token = str(value or "").strip().replace("-", "+").replace("_", "/")
+    token += "=" * ((4 - len(token) % 4) % 4)
+    try:
+        decoded = base64.b64decode(token, validate=True).decode("utf-8")
+        if decoded and all(ch.isprintable() or ch in "\r\n\t" for ch in decoded):
+            return decoded
+    except (ValueError, UnicodeDecodeError):
+        pass
+    return str(value or "")
+
+
+def decode_ssr(raw):
+    """Return the real SSR endpoint and decoded display remark."""
+    try:
+        token = str(raw or "").split("#", 1)[0].strip().replace("-", "+").replace("_", "/")
+        token += "=" * ((4 - len(token) % 4) % 4)
+        decoded = base64.b64decode(token, validate=True).decode("utf-8")
+        main, _, query = decoded.partition("/")
+        if main.startswith("["):
+            close = main.find("]")
+            if close <= 1 or not main[close + 1:].startswith(":"):
+                return "", ""
+            host = main[1:close]
+            remainder = main[close + 2:].split(":")
+            if len(remainder) != 5:
+                return "", ""
+        else:
+            fields = main.split(":", 5)
+            if len(fields) != 6:
+                return "", ""
+            host = fields[0]
+        params = parse_qs(query.lstrip("?"), keep_blank_values=True)
+        remark_token = (params.get("remarks") or params.get("remarks_base64") or [""])[-1]
+        return host, _decode_ssr_component(remark_token)
+    except (ValueError, UnicodeDecodeError):
+        return "", ""
+
+
 def decode_vmess(raw):
     try:
         token = raw.split("#", 1)[0].split("?", 1)[0].replace("-", "+").replace("_", "/")
@@ -100,6 +139,11 @@ def is_forbidden_label(line):
     name = re.search(r"(?i)^\s*(?:-\s*)?(?:\{\s*)?name\s*[:=]\s*([^,}\r\n]+)", line)
     if name and label_is_forbidden(name.group(1)):
         return True
+    ssr = re.match(r"(?i)^\s*ssr://([^\s]+)", line)
+    if ssr:
+        _, remark = decode_ssr(ssr.group(1))
+        if label_is_forbidden(remark):
+            return True
     vmess = re.match(r"(?i)^\s*vmess://([^\s]+)", line)
     if vmess:
         obj = decode_vmess(vmess.group(1))
@@ -117,6 +161,20 @@ def has_forbidden_transport_host(line):
             for key in ("host", "sni", "server_name", "servername", "authority"):
                 if transport_host_is_forbidden(obj.get(key, "")):
                     return True
+    ssr = re.match(r"(?i)^\s*ssr://([^\s]+)", line)
+    if ssr:
+        try:
+            token = ssr.group(1).split("#", 1)[0].replace("-", "+").replace("_", "/")
+            token += "=" * ((4 - len(token) % 4) % 4)
+            decoded = base64.b64decode(token, validate=True).decode("utf-8")
+            _, _, query = decoded.partition("/")
+            params = parse_qs(query.lstrip("?"), keep_blank_values=True)
+            for key in ("obfsparam", "protoparam"):
+                for value in params.get(key, []):
+                    if transport_host_is_forbidden(_decode_ssr_component(value)):
+                        return True
+        except (ValueError, UnicodeDecodeError):
+            pass
     match = URI_RE.search(line)
     if match:
         raw = match.group(2).split("#", 1)[0]
@@ -137,6 +195,9 @@ def uri_endpoints(line):
     if scheme == "vmess":
         obj = decode_vmess(raw)
         return [str(obj.get("add", ""))] if obj and obj.get("add") else []
+    if scheme == "ssr":
+        host, _ = decode_ssr(raw)
+        return [host] if host else []
     try:
         host = urlsplit(scheme + "://" + raw).hostname
         return [host] if host else []
@@ -191,6 +252,18 @@ def self_test():
         assert uri_endpoints(f"{scheme}://user@example.net:443") == ["example.net"]
     vmess = base64.b64encode(json.dumps({"add": "example.net", "ps": "Cloudflare node"}).encode()).decode()
     assert is_forbidden_label("vmess://" + vmess)
+
+    ssr_password = base64.urlsafe_b64encode(b"secret").decode().rstrip("=")
+    ssr_remark = base64.urlsafe_b64encode(b"Cloudflare WARP").decode().rstrip("=")
+    ssr_payload = f"api.pages.dev:443:origin:aes-256-cfb:plain:{ssr_password}/?remarks={ssr_remark}"
+    ssr_link = "ssr://" + base64.urlsafe_b64encode(ssr_payload.encode()).decode().rstrip("=")
+    assert uri_endpoints(ssr_link) == ["api.pages.dev"]
+    assert endpoint_is_forbidden(uri_endpoints(ssr_link)[0], ranges)
+    assert is_forbidden_label(ssr_link)
+    ssr_ipv6_payload = f"[2001:db8::3]:443:origin:aes-256-cfb:plain:{ssr_password}"
+    ssr_ipv6_link = "ssr://" + base64.urlsafe_b64encode(ssr_ipv6_payload.encode()).decode().rstrip("=")
+    assert uri_endpoints(ssr_ipv6_link) == ["2001:db8::3"]
+    assert endpoint_is_forbidden(uri_endpoints(ssr_ipv6_link)[0], ranges)
 
     import tempfile
     with tempfile.TemporaryDirectory() as tmp:

@@ -591,7 +591,7 @@ def self_test() -> None:
         try:
             validate_tree(root)
         except ValidationError as exc:
-            if "top.txt contains duplicate entries" not in str(exc):
+            if "top.txt contains" not in str(exc) or "duplicate" not in str(exc):
                 raise
         else:
             raise ValidationError("self-test failed to catch duplicate ranked entries")

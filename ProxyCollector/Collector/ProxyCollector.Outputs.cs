@@ -1216,6 +1216,14 @@ namespace ProxyCollector.Collector
             return partCount;
         }
 
+        // Retain the existing 1,000-node category chunk behavior while applying
+        // the same per-file byte ceiling as the other subscription feeds.
+        private static async Task WriteTxt(string pathNoExt, List<FinalProxy> proxies)
+        {
+            await WriteSubscriptionPartsAsync(
+                pathNoExt, proxies.Select(x => x.Link), maxLinesPerPart: ChunkSize);
+        }
+
         // ====================== PARSE ======================
 
     }

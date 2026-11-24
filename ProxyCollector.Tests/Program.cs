@@ -60,6 +60,14 @@ internal static class Program
             "a negative Worker result ID is rejected");
         Checks.That(!CollectorType.IsValidEdgeResultId(25, expectedEdgeBatchIds, 25),
             "an out-of-range Worker result ID is rejected");
+        Checks.That(CollectorType.IsValidEdgeSniEcho("tls.example.net", "TLS.EXAMPLE.NET", "endpoint.example.net"),
+            "edge verification accepts a case-insensitive echo of the requested TLS SNI");
+        Checks.That(CollectorType.IsValidEdgeSniEcho("endpoint.example.net", null, "endpoint.example.net"),
+            "legacy edge results remain usable when endpoint hostname is also the intended SNI");
+        Checks.That(!CollectorType.IsValidEdgeSniEcho("tls.example.net", null, "endpoint.example.net"),
+            "edge verification does not credit a legacy host-only result for a different explicit SNI");
+        Checks.That(!CollectorType.IsValidEdgeSniEcho("tls.example.net", "other.example.net", "endpoint.example.net"),
+            "edge verification rejects a result for a different TLS SNI");
         Checks.That(ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c", "d" }, 2)
                 .SequenceEqual(new[] { "a", "b" }),
             "positive source limit selects only the first N sources in priority order");
@@ -352,6 +360,77 @@ internal static class Program
         Checks.Equal("443", ipv6.Port, "VLESS port");
         Checks.Equal("example.com", ipv6.Sni, "VLESS SNI");
         Checks.Equal("xtls-rprx-vision", ipv6.Flow, "VLESS flow");
+
+        Checks.That(CollectorType.IsExpectedConnectivityStatusLine("HTTP/1.1 204 No Content"),
+            "Xray's connectivity probe accepts the expected generate_204 response");
+        Checks.That(!CollectorType.IsExpectedConnectivityStatusLine("HTTP/1.1 200 OK"),
+            "Xray's connectivity probe does not accept an intercepted 200 response");
+        Checks.That(!CollectorType.IsExpectedConnectivityStatusLine("HTTP/1.1 302 Found"),
+            "Xray's connectivity probe does not accept redirects as successful roundtrips");
+        Checks.That(!CollectorType.IsExpectedConnectivityStatusLine("not-http 204"),
+            "Xray's connectivity probe rejects malformed HTTP status lines");
+
+        var vlessWsHost = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@edge.example.net:443?security=tls&type=ws&host=ws.example.net&path=%2Fentry")!;
+        Checks.Equal("", vlessWsHost.Sni,
+            "generic URI parser does not mistake WebSocket Host for an explicit TLS SNI");
+        var vlessWsOutbound = CollectorType.BuildXrayOutbound(vlessWsHost, "vless-ws-host-test")!;
+        var vlessWsStream = (Dictionary<string, object?>)vlessWsOutbound["streamSettings"]!;
+        var vlessWsSettings = (Dictionary<string, object?>)vlessWsStream["wsSettings"]!;
+        var vlessWsHeaders = (Dictionary<string, object?>)vlessWsSettings["headers"]!;
+        Checks.Equal("ws.example.net", (string)vlessWsHeaders["Host"]!,
+            "Xray VLESS WebSocket outbound preserves the independent HTTP Host header");
+        var vlessWsTls = (Dictionary<string, object?>)vlessWsStream["tlsSettings"]!;
+        Checks.Equal("edge.example.net", (string)vlessWsTls["serverName"]!,
+            "Xray VLESS TLS SNI falls back to the endpoint, not the WebSocket Host");
+        var uriVmessHost = CollectorType.ParseProxyLine(
+            "vmess://01234567-89ab-cdef-0123-456789abcdef@uri-vmess.example.net:443?security=tls&type=ws&host=ws-uri.example.net&path=%2Fsocket&fp=chrome&alpn=h2")!;
+        Checks.Equal("", uriVmessHost.Sni,
+            "URI-form VMess does not promote the WebSocket Host into TLS SNI");
+        var uriVmessOutbound = CollectorType.BuildXrayOutbound(uriVmessHost, "uri-vmess-test")!;
+        var uriVmessStream = (Dictionary<string, object?>)uriVmessOutbound["streamSettings"]!;
+        var uriVmessWs = (Dictionary<string, object?>)uriVmessStream["wsSettings"]!;
+        var uriVmessHeaders = (Dictionary<string, object?>)uriVmessWs["headers"]!;
+        Checks.Equal("ws-uri.example.net", (string)uriVmessHeaders["Host"]!,
+            "URI-form VMess preserves its WebSocket Host query option");
+        var uriVmessTls = (Dictionary<string, object?>)uriVmessStream["tlsSettings"]!;
+        Checks.Equal("uri-vmess.example.net", (string)uriVmessTls["serverName"]!,
+            "URI-form VMess TLS SNI defaults to the endpoint hostname");
+        Checks.Equal("chrome", (string)uriVmessTls["fingerprint"]!,
+            "URI-form VMess preserves its query-string uTLS fingerprint");
+
+        var pinnedVlessOutbound = CollectorType.BuildXrayOutbound(
+            vlessWsHost, "vless-pinned-test", "203.0.113.10")!;
+        var pinnedVlessSettings = (Dictionary<string, object?>)pinnedVlessOutbound["settings"]!;
+        var pinnedVlessVnext = (List<object>)pinnedVlessSettings["vnext"]!;
+        var pinnedVlessEndpoint = (Dictionary<string, object?>)pinnedVlessVnext[0];
+        Checks.Equal("203.0.113.10", (string)pinnedVlessEndpoint["address"]!,
+            "Xray outbound can pin the socket destination to a vetted IP address");
+        var pinnedVlessStream = (Dictionary<string, object?>)pinnedVlessOutbound["streamSettings"]!;
+        var pinnedVlessTls = (Dictionary<string, object?>)pinnedVlessStream["tlsSettings"]!;
+        Checks.Equal("edge.example.net", (string)pinnedVlessTls["serverName"]!,
+            "pinning the socket destination preserves the original TLS SNI");
+
+        var vlessH2Host = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@h2.example.net:443?security=tls&type=h2&host=authority.example.net&sni=tls.example.net&path=%2Fh2")!;
+        var vlessH2Outbound = CollectorType.BuildXrayOutbound(vlessH2Host, "vless-h2-host-test")!;
+        var vlessH2Stream = (Dictionary<string, object?>)vlessH2Outbound["streamSettings"]!;
+        var vlessH2Settings = (Dictionary<string, object?>)vlessH2Stream["h2Settings"]!;
+        Checks.Equal("authority.example.net",
+            ((List<string>)vlessH2Settings["host"]!).Single(),
+            "Xray HTTP/2 authority uses the transport Host override independently of TLS SNI");
+        var vlessH2Tls = (Dictionary<string, object?>)vlessH2Stream["tlsSettings"]!;
+        Checks.Equal("tls.example.net", (string)vlessH2Tls["serverName"]!,
+            "Xray HTTP/2 TLS uses the explicit SNI independently of the authority");
+
+        var vmessGrpcJson = """{"add":"grpc.example.net","port":"443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"grpc","tls":"tls","sni":"grpc-tls.example.net","path":"grpc-service","aid":0}""";
+        var vmessGrpc = CollectorType.ParseProxyLine("vmess://" +
+            Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessGrpcJson)))!;
+        var vmessGrpcOutbound = CollectorType.BuildXrayOutbound(vmessGrpc, "vmess-grpc-test")!;
+        var vmessGrpcStream = (Dictionary<string, object?>)vmessGrpcOutbound["streamSettings"]!;
+        var vmessGrpcSettings = (Dictionary<string, object?>)vmessGrpcStream["grpcSettings"]!;
+        Checks.Equal("grpc-service", (string)vmessGrpcSettings["serviceName"]!,
+            "Xray VMess gRPC outbound preserves the Base64 JSON service name");
 
         var vmessJson = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"ws.example.com","sni":"tls.example.com","path":"/ws","aid":"1","scy":"chacha20-poly1305","fp":"chrome","alpn":["h2","http/1.1"]}""";
         var vmessWithFastCrypto = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"sni.example.com","path":"/ws","aid":0,"scy":"auto","fp":"chrome","ps":"name A"}""";

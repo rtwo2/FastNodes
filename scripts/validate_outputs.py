@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import base64
+import ipaddress
 import pathlib
 import re
 import sys
@@ -91,6 +93,150 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
     return len(lines), duplicates
 
 
+def _validate_wireguard_key(value: str, label: str, path: pathlib.Path) -> None:
+    try:
+        decoded = base64.b64decode(value, validate=True)
+    except (ValueError, base64.binascii.Error) as exc:
+        raise ValidationError(f"{path}: invalid WireGuard {label} encoding") from exc
+    if len(decoded) != 32:
+        raise ValidationError(f"{path}: WireGuard {label} must decode to exactly 32 bytes")
+
+
+def _validate_wireguard_host(host: str, path: pathlib.Path) -> None:
+    if not host or any(ch.isspace() or ord(ch) < 32 for ch in host):
+        raise ValidationError(f"{path}: WireGuard endpoint host is empty or contains whitespace")
+    try:
+        ipaddress.ip_address(host)
+        return
+    except ValueError:
+        pass
+    if len(host) > 253:
+        raise ValidationError(f"{path}: WireGuard endpoint hostname is too long")
+    labels = host.rstrip(".").split(".")
+    if not labels or any(
+        not label or len(label) > 63 or
+        not re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?", label)
+        for label in labels
+    ):
+        raise ValidationError(f"{path}: invalid WireGuard endpoint hostname {host!r}")
+
+
+def validate_wireguard_conf(path: pathlib.Path) -> None:
+    try:
+        content = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        raise ValidationError(f"{path}: cannot read WireGuard config as UTF-8: {exc}") from exc
+
+    sections: list[str] = []
+    values: dict[str, dict[str, str]] = {}
+    current: str | None = None
+    for line_number, raw in enumerate(content.splitlines(), 1):
+        line = raw.strip()
+        if not line or line.startswith(("#", ";")):
+            continue
+        if line.startswith("[") and line.endswith("]"):
+            section = line[1:-1].strip()
+            if section not in {"Interface", "Peer"} or section in sections:
+                raise ValidationError(f"{path}:{line_number}: unsupported or duplicate section {section!r}")
+            sections.append(section)
+            values[section] = {}
+            current = section
+            continue
+        if current is None or "=" not in line:
+            raise ValidationError(f"{path}:{line_number}: directive appears outside a section or lacks '='")
+        key, value = (part.strip() for part in line.split("=", 1))
+        normalized_key = key.lower()
+        if not normalized_key or not value:
+            raise ValidationError(f"{path}:{line_number}: empty WireGuard key or value")
+        if normalized_key in values[current]:
+            raise ValidationError(f"{path}:{line_number}: duplicate {key} directive")
+        values[current][normalized_key] = value
+
+    if sections != ["Interface", "Peer"]:
+        raise ValidationError(f"{path}: expected exactly one [Interface] followed by one [Peer] section")
+
+    interface = values["Interface"]
+    peer = values["Peer"]
+    for key in ("privatekey", "address"):
+        if key not in interface:
+            raise ValidationError(f"{path}: [Interface] is missing {key}")
+    for key in ("publickey", "endpoint", "allowedips"):
+        if key not in peer:
+            raise ValidationError(f"{path}: [Peer] is missing {key}")
+
+    _validate_wireguard_key(interface["privatekey"], "PrivateKey", path)
+    _validate_wireguard_key(peer["publickey"], "PublicKey", path)
+    if "presharedkey" in peer:
+        _validate_wireguard_key(peer["presharedkey"], "PresharedKey", path)
+
+    try:
+        addresses = [item.strip() for item in interface["address"].split(",")]
+        if not addresses or any(not item for item in addresses):
+            raise ValueError("empty address")
+        for item in addresses:
+            ipaddress.ip_interface(item)
+    except ValueError as exc:
+        raise ValidationError(f"{path}: invalid [Interface] Address: {exc}") from exc
+
+    dns = interface.get("dns", "")
+    if dns:
+        try:
+            entries = [item.strip() for item in dns.split(",")]
+            if not entries or any(not item for item in entries):
+                raise ValueError("empty DNS entry")
+            for item in entries:
+                ipaddress.ip_address(item)
+        except ValueError as exc:
+            raise ValidationError(f"{path}: invalid [Interface] DNS: {exc}") from exc
+
+    try:
+        allowed_ips = [item.strip() for item in peer["allowedips"].split(",")]
+        if not allowed_ips or any(not item for item in allowed_ips):
+            raise ValueError("empty AllowedIPs entry")
+        for item in allowed_ips:
+            ipaddress.ip_network(item, strict=False)
+    except ValueError as exc:
+        raise ValidationError(f"{path}: invalid [Peer] AllowedIPs: {exc}") from exc
+
+    endpoint = peer["endpoint"]
+    if endpoint.startswith("["):
+        close = endpoint.find("]")
+        if close <= 1 or not endpoint[close + 1:].startswith(":"):
+            raise ValidationError(f"{path}: invalid bracketed WireGuard endpoint {endpoint!r}")
+        host, port_text = endpoint[1:close], endpoint[close + 2:]
+    else:
+        host, separator, port_text = endpoint.rpartition(":")
+        if not separator or ":" in host:
+            raise ValidationError(f"{path}: IPv6 WireGuard endpoints must be bracketed")
+    _validate_wireguard_host(host, path)
+    if not port_text.isdigit() or not 1 <= int(port_text) <= 65535:
+        raise ValidationError(f"{path}: invalid WireGuard endpoint port {port_text!r}")
+
+    keepalive = peer.get("persistentkeepalive")
+    if keepalive is not None and (not keepalive.isdigit() or int(keepalive) > 65535):
+        raise ValidationError(f"{path}: invalid PersistentKeepalive value")
+
+
+def validate_wireguard_confs(root: pathlib.Path) -> int:
+    directory = root / "wireguard"
+    if not directory.exists():
+        return 0
+    paths = sorted(directory.rglob("*.conf"))
+    if not paths:
+        # The collector may create this directory before discovering that every
+        # candidate has invalid key material. An empty directory is valid only when
+        # no WireGuard YAML feed was published alongside it.
+        clash_output = root / "protocols" / "wireguard.txt"
+        if clash_output.is_file():
+            raise ValidationError(
+                f"{directory}: WireGuard YAML exists but no matching .conf files were generated"
+            )
+        return 0
+    for path in paths:
+        validate_wireguard_conf(path)
+    return len(paths)
+
+
 def validate_tree(root: pathlib.Path, allow_legacy_oversized: bool = False) -> list[str]:
     if not root.is_dir():
         raise ValidationError(f"output directory does not exist: {root}")
@@ -114,7 +260,7 @@ def validate_tree(root: pathlib.Path, allow_legacy_oversized: bool = False) -> l
         rel = path.relative_to(root).as_posix()
         counts[rel] = count
         if duplicates:
-            report.append(f"WARNING {rel}: {duplicates} duplicate line(s)")
+            raise ValidationError(f"{rel} contains {duplicates} duplicate line(s); generated subscription entries must be unique")
         size = path.stat().st_size
         if size > MAX_PART_BYTES:
             message = (
@@ -249,10 +395,13 @@ def validate_tree(root: pathlib.Path, allow_legacy_oversized: bool = False) -> l
                 f"sample: {sample!r}"
             )
 
+    wireguard_conf_count = validate_wireguard_confs(root)
     report.insert(0, "Validated subscriptions: " + " ".join(
         f"{name}={counts.get(name, 0)}" for name in REQUIRED
     ))
     report.append(f"Validated {len(counts)} generated .txt file(s).")
+    if wireguard_conf_count:
+        report.append(f"Validated {wireguard_conf_count} WireGuard .conf file(s).")
     return report
 
 
@@ -302,8 +451,72 @@ def self_test() -> None:
         yaml = ('proxies:\n'
                 '  - name: "WG test 1"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n    reserved:\n      - 0\n      - 0\n      - 0\n'
                 '  - name: "WG test 2"\n    type: wireguard\n    server: "198.51.100.2"\n    port: 123\n')
-        (root / "wireguard.txt").write_text(yaml, encoding="utf-8")
-        validate_tree(root)
+        (root / "protocols" / "wireguard.txt").write_text(yaml, encoding="utf-8")
+        wg_dir = root / "wireguard"
+        wg_dir.mkdir()
+        valid_key_1 = base64.b64encode(bytes(range(32))).decode("ascii")
+        valid_key_2 = base64.b64encode(bytes(range(32, 64))).decode("ascii")
+        valid_conf = (
+            "[Interface]\n"
+            f"PrivateKey = {valid_key_1}\n"
+            "Address = 10.0.0.2/32, fd00::2/128\n"
+            "DNS = 1.1.1.1, 2606:4700:4700::1111\n\n"
+            "[Peer]\n"
+            f"PublicKey = {valid_key_2}\n"
+            f"PresharedKey = {valid_key_1}\n"
+            "Endpoint = [2001:4860:4860::8888]:51820\n"
+            "AllowedIPs = 0.0.0.0/0, ::/0\n"
+            "PersistentKeepalive = 25\n"
+        )
+        wg_conf_path = wg_dir / "valid.conf"
+        wg_conf_path.write_text(valid_conf, encoding="utf-8")
+        report = validate_tree(root)
+        if not any("Validated 1 WireGuard .conf file(s)." in line for line in report):
+            raise ValidationError("self-test failed to report validated WireGuard .conf output")
+
+        original_conf = wg_conf_path.read_text(encoding="utf-8")
+        wg_conf_path.write_text(original_conf.replace(f"PrivateKey = {valid_key_1}", "PrivateKey = invalid"), encoding="utf-8")
+        try:
+            validate_tree(root)
+        except ValidationError as exc:
+            if "PrivateKey" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to reject invalid WireGuard private-key material")
+        finally:
+            wg_conf_path.write_text(original_conf, encoding="utf-8")
+
+        # The collector may discover WireGuard candidates but reject every one before
+        # writing a .conf or Clash YAML file. Its pre-created empty directory is valid.
+        wg_conf_path.unlink()
+        try:
+            validate_tree(root)
+        except ValidationError as exc:
+            if "no matching .conf files" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to require .conf files alongside WireGuard YAML")
+        wireguard_yaml_path = root / "protocols" / "wireguard.txt"
+        original_yaml = wireguard_yaml_path.read_text(encoding="utf-8")
+        wireguard_yaml_path.unlink()
+        try:
+            validate_tree(root)
+        finally:
+            wg_conf_path.write_text(original_conf, encoding="utf-8")
+            wireguard_yaml_path.write_text(original_yaml, encoding="utf-8")
+
+        everything_path = root / "everything.txt"
+        original_everything = everything_path.read_text(encoding="utf-8")
+        everything_path.write_text(original_everything + good[0] + "\n", encoding="utf-8")
+        try:
+            validate_tree(root)
+        except ValidationError as exc:
+            if "everything.txt contains" not in str(exc) or "duplicate" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to reject duplicate master-list entries")
+        finally:
+            everything_path.write_text(original_everything, encoding="utf-8")
 
         part2_path = root / "everything_part2.txt"
         original_part2 = part2_path.read_text(encoding="utf-8")

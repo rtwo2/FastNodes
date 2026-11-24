@@ -612,8 +612,17 @@ internal static class Program
             "Xray builder skips unsupported VLESS flow values instead of invalidating the full batch");
 
         const string validRealityPublicKey = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+        const string normalizedRealityPublicKey = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
         Checks.That(CollectorType.IsValidRealityPublicKey(validRealityPublicKey),
-            "REALITY public keys must decode to 32 bytes");
+            "padded Base64 REALITY public keys are accepted as input");
+        Checks.That(CollectorType.TryNormalizeRealityPublicKey(
+                validRealityPublicKey, out string normalizedRealityKey) &&
+                    normalizedRealityKey == normalizedRealityPublicKey,
+            "REALITY public keys are normalized to 32-byte unpadded Base64URL for Xray");
+        Checks.That(CollectorType.IsValidRealityPublicKey(normalizedRealityPublicKey),
+            "already-normalized Base64URL REALITY public keys are accepted");
+        Checks.That(!CollectorType.IsValidRealityPublicKey("AAAA AAAA"),
+            "whitespace in REALITY public keys is rejected");
         Checks.That(!CollectorType.IsValidRealityPublicKey("abc"),
             "malformed REALITY public keys are rejected");
         Checks.That(CollectorType.IsValidRealityShortId("0123") &&
@@ -631,8 +640,8 @@ internal static class Program
         var validRealityOutbound = CollectorType.BuildXrayOutbound(validRealityNode, "valid-reality")!;
         var realityStream = (Dictionary<string, object?>)validRealityOutbound["streamSettings"]!;
         var realitySettings = (Dictionary<string, object?>)realityStream["realitySettings"]!;
-        Checks.Equal(validRealityPublicKey, (string)realitySettings["password"]!,
-            "current Xray REALITY config uses password for the server public key");
+        Checks.Equal(normalizedRealityPublicKey, (string)realitySettings["password"]!,
+            "current Xray REALITY config uses normalized unpadded Base64URL password");
         Checks.That(!realitySettings.ContainsKey("publicKey"),
             "Xray REALITY outbound no longer emits the legacy publicKey property");
         var invalidRealityNode = new ProxyCollector.Collector.ParsedProxy

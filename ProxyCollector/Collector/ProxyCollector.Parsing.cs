@@ -33,7 +33,7 @@ namespace ProxyCollector.Collector
                 return null;
 
             string protocol = parsed.Protocol.ToLowerInvariant();
-            if (protocol == "vless" && !IsValidVlessUuidCredential(parsed.Credential))
+            if (protocol == "vless" && !IsValidVlessCredential(parsed.Credential))
                 return null;
             if (protocol == "vmess" && !IsValidVmessCredential(parsed.Credential))
                 return null;
@@ -44,9 +44,12 @@ namespace ProxyCollector.Collector
             return parsed;
         }
 
-        internal static bool IsValidVlessUuidCredential(string? credential)
+        // Xray VLESS accepts a UUID or a custom ID shorter than 30 UTF-8 bytes.
+        // Custom strings are mapped to UUIDv5 by Xray.
+        internal static bool IsValidVlessCredential(string? credential)
             => !string.IsNullOrWhiteSpace(credential) &&
-               Guid.TryParseExact(credential, "D", out _);
+               (Guid.TryParseExact(credential, "D", out _) ||
+                Encoding.UTF8.GetByteCount(credential) < 30);
 
         // Xray VMess accepts either a UUID or a custom ID shorter than 30 UTF-8 bytes.
         // Unlike VLESS, VMess custom IDs are valid and are mapped by Xray internally.

@@ -4006,7 +4006,7 @@ namespace ProxyCollector.Collector
                     Q("flow", flow); Q("fp", fp); Q("pbk", pbk); Q("sid", sid);
                     Q("serviceName", grpc); Q("alpn", alpn);
                     Q("allowInsecure", allowInsecure ? "1" : "");
-                    return $"vless://{f["uuid"]}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
+                    return $"vless://{Uri.EscapeDataString(f["uuid"])}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
                 }
                 case "trojan" when f.ContainsKey("password"):
                 {

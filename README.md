@@ -63,6 +63,8 @@ https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/everything.txt
 
 [Open everything.txt](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/everything.txt)
 
+Each generated text part is capped at 50 MiB. When the collection needs more space, the first segment remains `everything.txt` and additional segments are published as `everything_part2.txt`, `everything_part3.txt`, and so on. The base URL contains only the first segment when parts exist; use every numbered part to obtain the complete collection. Parts are separate subscription files and may need to be added separately in your client.
+
 ### IPv6-capable
 
 Includes nodes whose resolved addresses support native IPv6. Dual-stack hostnames may also appear in the IPv4 feed. This is DNS-family classification, not proof that the proxy completed a handshake or end-to-end round-trip over IPv6. Some verification stages prefer IPv4 when a hostname has multiple answers.
@@ -102,7 +104,7 @@ https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/protocols/wireguard.t
 | A simple starting point | `top.txt` |
 | Ranked IPv6-capable shortlist | `top_ipv6.txt` |
 | Nodes that passed an Xray round-trip check | `verified.txt` |
-| The largest global collection | `everything.txt` |
+| First part of the largest global collection | `everything.txt` (add any `everything_partN.txt` files for the full collection) |
 | IPv6-capable candidates | `ipv6_only.txt` |
 | IPv4-capable candidates | `ipv4_only.txt` |
 | WireGuard-compatible output | `protocols/wireguard.txt` |
@@ -170,7 +172,7 @@ Example:
 https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/protocols/vless.txt
 ```
 
-Large protocol lists may be split into parts such as `vless_part2.txt`. The first file contains the first chunk; check the repository's [`sub/protocols/`](https://github.com/rtwo2/FastNodes/tree/main/sub/protocols) directory for available parts.
+Large subscription files are capped at 50 MiB per part. The first file keeps its usual name and overflow is written to `_part2.txt`, `_part3.txt`, and so on. Protocol, country, and continent files also retain their existing 1,000-node chunk limit. Check the relevant directory in [`sub/`](https://github.com/rtwo2/FastNodes/tree/main/sub) for available parts; add all parts separately when you need the complete list.
 
 ### By country and continent
 

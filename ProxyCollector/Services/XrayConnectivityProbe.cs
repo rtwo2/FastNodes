@@ -43,7 +43,8 @@ public static class XrayConnectivityProbe
 
             var responseHead = new byte[4];
             await ReadExactlyAsync(stream, responseHead, timeout.Token);
-            if (responseHead[1] != 0) return false;
+            if (responseHead[0] != 5 || responseHead[1] != 0 || responseHead[2] != 0)
+                return false;
 
             int addressLength = responseHead[3] switch { 1 => 4, 4 => 16, 3 => 0, _ => -1 };
             if (addressLength < 0) return false;
@@ -62,9 +63,14 @@ public static class XrayConnectivityProbe
             string statusLine = await ReadHttpStatusLineAsync(stream, timeout.Token);
             return IsExpectedConnectivityStatusLine(statusLine);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // A caller cancelling the whole verification stage is not a failed node probe.
+            throw;
+        }
         catch
         {
-            // No pass means no promotion; a failed probe never removes a node.
+            // Probe-local timeouts and network/protocol failures mean no promotion.
             return false;
         }
     }

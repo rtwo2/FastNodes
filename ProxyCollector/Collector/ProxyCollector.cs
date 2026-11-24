@@ -2406,7 +2406,7 @@ namespace ProxyCollector.Collector
             {
                 case "vless":
                 {
-                    if (string.IsNullOrEmpty(p.Credential)) return null;
+                    if (!IsValidUuidCredential(p.Credential)) return null;
                     var user = new Dictionary<string, object?> { ["id"] = p.Credential, ["encryption"] = "none" };
                     if (!string.IsNullOrEmpty(p.Flow))
                     {
@@ -2424,7 +2424,7 @@ namespace ProxyCollector.Collector
                 }
                 case "vmess":
                 {
-                    if (string.IsNullOrEmpty(p.Credential)) return null;
+                    if (!IsValidUuidCredential(p.Credential)) return null;
                     string vmessSecurity = GetVmessJsonString(vmessJson, "scy", "auto");
                     if (string.IsNullOrWhiteSpace(vmessSecurity)) vmessSecurity = "auto";
                     settings = new Dictionary<string, object?>
@@ -2691,6 +2691,12 @@ namespace ProxyCollector.Collector
                                 }
                             }
                         }
+                        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+                        {
+                            // Preserve the six-minute stage cancellation; this is not a
+                            // failed edge batch and must not be counted as an ordinary error.
+                            throw;
+                        }
                         catch (Exception ex) { LogWarning($"Edge batch failed: {ex.Message}"); }
                     });
             }
@@ -2795,6 +2801,22 @@ namespace ProxyCollector.Collector
             return new Dictionary<string, NodeHistory>();
         }
 
+        internal static void UpdateVerificationStreaks(NodeHistory history, ParsedProxy proxy)
+        {
+            if (proxy.TlsTested)
+                history.TlsOk = proxy.TlsVerified
+                    ? Math.Min(history.TlsOk + 1, MaxStreak)
+                    : Math.Max(history.TlsOk - 1, 0);
+
+            if (proxy.XrayTested)
+                history.XrayOk = proxy.XrayVerified
+                    ? Math.Min(history.XrayOk + 1, MaxStreak)
+                    : Math.Max(history.XrayOk - 1, 0);
+
+            proxy.VerifiedStreak = history.TlsOk;
+            proxy.XrayStreak = history.XrayOk;
+        }
+
         private static void UpdateStreaks(Dictionary<string, NodeHistory> history, List<ParsedProxy> alive)
         {
             var seenNow = new HashSet<string>();
@@ -2812,16 +2834,10 @@ namespace ProxyCollector.Collector
                     h = history[k] = new NodeHistory { Streak = 1, Misses = 0 };
                 }
 
-                // v6.14: consecutive-runs-TLS-verified — verified 5 runs in a row is a
-                // far stronger life signal than verified once. This stage runs AFTER
-                // the TLS stage, so p.TlsVerified is current-run truth.
-                // v6.16: decay, not reset — one missed verification (Azure blip, 4s
-                // probe timeout) costs 1, not the whole streak. Same spirit as the
-                // presence streak's one-run grace.
-                h.TlsOk = p.TlsVerified ? Math.Min(h.TlsOk + 1, MaxStreak) : Math.Max(h.TlsOk - 1, 0);
-                p.VerifiedStreak = h.TlsOk;
-                h.XrayOk = p.XrayVerified ? Math.Min(h.XrayOk + 1, MaxStreak) : Math.Max(h.XrayOk - 1, 0);
-                p.XrayStreak = h.XrayOk;   // v6.16: now scored
+                // A completed failed probe decays the corresponding streak. A node
+                // outside this run's probe budget (or unsupported by the probe adapter)
+                // is not a failure and must retain its previous verification history.
+                UpdateVerificationStreaks(h, p);
 
                 p.Streak = h.Streak;
                 p.IsStable = h.Streak >= StableMinRuns;
@@ -2979,6 +2995,13 @@ namespace ProxyCollector.Collector
                     RemoteCertificateValidationCallback = (_, _, _, _) => true
                 }, cts.Token);
                 return true;
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                // The overall TLS stage budget has expired; let Parallel.ForEachAsync
+                // stop scheduling work instead of recording a stage cancellation as a
+                // per-endpoint four-second probe timeout.
+                throw;
             }
             catch (Exception ex)
             {
@@ -3167,7 +3190,11 @@ namespace ProxyCollector.Collector
                 string line = lines[firstPayloadLine].TrimStart('\uFEFF').Trim();
                 if (line.Length == 0 ||
                     line.StartsWith("#profile-", StringComparison.OrdinalIgnoreCase) ||
-                    line.StartsWith("//profile-", StringComparison.OrdinalIgnoreCase))
+                    line.StartsWith("//profile-", StringComparison.OrdinalIgnoreCase) ||
+                    line.StartsWith("#subscription-userinfo:", StringComparison.OrdinalIgnoreCase) ||
+                    line.StartsWith("//subscription-userinfo:", StringComparison.OrdinalIgnoreCase) ||
+                    line.StartsWith("#support-url:", StringComparison.OrdinalIgnoreCase) ||
+                    line.StartsWith("//support-url:", StringComparison.OrdinalIgnoreCase))
                 {
                     firstPayloadLine++;
                     continue;
@@ -3200,14 +3227,16 @@ namespace ProxyCollector.Collector
             // (and recursing) fixes that, and also handles double-encoded subs.
             // URL-safe base64 is normalized too — Convert.FromBase64String rejects
             // '-' and '_'.
-            if (!text.Contains("://") && !text.Contains("proxies:") && !text.Contains("\"outbounds\""))
+            if (!jsonProbe.Contains("://") && !jsonProbe.Contains("proxies:") &&
+                !jsonProbe.Contains("\"outbounds\"") && !jsonProbe.Contains("\"endpoints\""))
             {
                 try
                 {
-                    string trim = text.Trim().Replace('-', '+').Replace('_', '/');
+                    string trim = jsonProbe.Trim().Replace('-', '+').Replace('_', '/');
                     int pad = trim.Length % 4; if (pad > 0) trim += new string('=', 4 - pad);
                     var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(trim));
-                    if (decoded.Contains("://") || decoded.Contains("proxies:") || decoded.Contains("\"outbounds\""))
+                    if (decoded.Contains("://") || decoded.Contains("proxies:") ||
+                        decoded.Contains("\"outbounds\"") || decoded.Contains("\"endpoints\""))
                         return DecodeAndExtractLines(decoded, url);
                 }
                 catch { }
@@ -3328,6 +3357,16 @@ namespace ProxyCollector.Collector
                         configuredOutbounds.ValueKind == JsonValueKind.Array)
                         outbounds = configuredOutbounds;
 
+                    // sing-box 1.11+ moved WireGuard from deprecated outbounds into
+                    // root endpoints. Convert supported WireGuard endpoints explicitly;
+                    // unsupported endpoint types are intentionally ignored.
+                    if (root.TryGetProperty("endpoints", out var endpoints) &&
+                        endpoints.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var endpoint in endpoints.EnumerateArray())
+                            results.AddRange(ExtractWireguardJsonLinks(endpoint, modernEndpoint: true));
+                    }
+
                     // Some exporters wrap share links instead of complete sing-box outbounds.
                     // Keep raw URIs intact and defer protocol validation to the common pipeline.
                     if (root.TryGetProperty("entries", out var entries) &&
@@ -3356,6 +3395,11 @@ namespace ProxyCollector.Collector
                     {
                         if (!ob.TryGetProperty("type", out var typeEl)) continue;
                         string type = typeEl.GetString()?.ToLowerInvariant() ?? "";
+                        if (type == "wireguard")
+                        {
+                            results.AddRange(ExtractWireguardJsonLinks(ob, modernEndpoint: false));
+                            continue;
+                        }
                         if (!ob.TryGetProperty("server", out var serverEl)) continue;
                         string server = serverEl.GetString() ?? "";
                         int port = ob.TryGetProperty("server_port", out var portEl) &&
@@ -3490,6 +3534,182 @@ namespace ProxyCollector.Collector
             catch { }
             return results;
         }
+
+        // Converts sing-box WireGuard profiles into one share link per peer.
+        // Legacy outbound profiles use local_address/server/peer_public_key; modern
+        // 1.11+ endpoints use address/peers.address/peers.public_key.
+        // Amnezia extensions are deliberately rejected because the generic URI format
+        // cannot preserve their additional packet obfuscation settings.
+        private static List<string> ExtractWireguardJsonLinks(JsonElement profile, bool modernEndpoint)
+        {
+            var results = new List<string>();
+            try
+            {
+                if (profile.ValueKind != JsonValueKind.Object ||
+                    !profile.TryGetProperty("type", out var type) ||
+                    type.ValueKind != JsonValueKind.String ||
+                    !type.GetString()!.Equals("wireguard", StringComparison.OrdinalIgnoreCase))
+                    return results;
+
+                static bool HasUnsupportedAmneziaFields(JsonElement item)
+                    => item.ValueKind == JsonValueKind.Object &&
+                       item.EnumerateObject().Any(property =>
+                           property.Name.StartsWith("amnezia-", StringComparison.OrdinalIgnoreCase) ||
+                           property.Name.Equals("fake_packets", StringComparison.OrdinalIgnoreCase));
+
+                if (HasUnsupportedAmneziaFields(profile)) return results;
+
+                string privateKey = GetJsonString(profile, "private_key");
+                string interfaceAddress = GetJsonStringArray(
+                    profile, modernEndpoint ? "address" : "local_address");
+                string dns = GetJsonStringArray(profile, "dns");
+                if (dns.Length == 0) dns = GetJsonString(profile, "dns");
+                string tag = GetJsonString(profile, "tag", "wireguard");
+                if (privateKey.Length == 0 || interfaceAddress.Length == 0) return results;
+
+                JsonElement peersElement = default;
+                bool hasPeers = profile.TryGetProperty("peers", out peersElement) &&
+                    peersElement.ValueKind is JsonValueKind.Array or JsonValueKind.Object;
+                if (modernEndpoint && !hasPeers) return results;
+
+                // sing-box allows omitting [] for a field with exactly one item.
+                var peers = !hasPeers
+                    ? new[] { profile }
+                    : peersElement.ValueKind == JsonValueKind.Array
+                        ? peersElement.EnumerateArray().ToArray()
+                        : new[] { peersElement };
+
+                for (int i = 0; i < peers.Length; i++)
+                {
+                    JsonElement peer = peers[i];
+                    if (peer.ValueKind != JsonValueKind.Object || HasUnsupportedAmneziaFields(peer))
+                        continue;
+
+                    string host = modernEndpoint
+                        ? GetJsonString(peer, "address")
+                        : GetJsonString(peer, "server", hasPeers ? "" : GetJsonString(profile, "server"));
+                    int port = modernEndpoint
+                        ? GetJsonInt(peer, "port")
+                        : GetJsonInt(peer, "server_port", hasPeers ? 0 : GetJsonInt(profile, "server_port"));
+                    string publicKey = GetJsonString(
+                        peer, "public_key", hasPeers ? "" : GetJsonString(profile, "peer_public_key"));
+                    string allowedIps = GetJsonStringArray(peer, "allowed_ips");
+                    // Older single-peer outbound configurations may rely on the
+                    // protocol's standard full-tunnel default when allowed_ips is absent.
+                    if (allowedIps.Length == 0 && !modernEndpoint && !hasPeers)
+                        allowedIps = "0.0.0.0/0, ::/0";
+                    string psk = GetJsonString(
+                        peer, "pre_shared_key", hasPeers ? "" : GetJsonString(profile, "pre_shared_key"));
+                    if (!IsValidJsonWireguardReserved(peer) ||
+                        (hasPeers && !IsValidJsonWireguardReserved(profile)))
+                        continue;
+                    string reserved = GetJsonNumberArray(peer, "reserved");
+                    if (reserved.Length == 0 && hasPeers)
+                        reserved = GetJsonNumberArray(profile, "reserved");
+                    int keepalive = GetJsonInt(
+                        peer, "persistent_keepalive_interval",
+                        hasPeers ? 0 : GetJsonInt(profile, "persistent_keepalive_interval"));
+
+                    if (string.IsNullOrWhiteSpace(host) || port is < 1 or > 65535 ||
+                        privateKey.Length == 0 || publicKey.Length == 0 ||
+                        allowedIps.Length == 0)
+                        continue;
+
+                    var query = new List<string>
+                    {
+                        "pk=" + Uri.EscapeDataString(publicKey),
+                        "ip=" + Uri.EscapeDataString(interfaceAddress),
+                        "allowedips=" + Uri.EscapeDataString(allowedIps)
+                    };
+                    if (dns.Length > 0) query.Add("dns=" + Uri.EscapeDataString(dns));
+                    if (psk.Length > 0) query.Add("psk=" + Uri.EscapeDataString(psk));
+                    if (reserved.Length > 0) query.Add("reserved=" + Uri.EscapeDataString(reserved));
+                    if (keepalive > 0) query.Add("keepalive=" + keepalive.ToString(CultureInfo.InvariantCulture));
+
+                    string peerTag = peers.Length == 1 ? tag : $"{tag}-{i + 1}";
+                    string link = $"wireguard://{Uri.EscapeDataString(privateKey)}@{FormatUriHost(host)}:{port}?{string.Join("&", query)}#{Uri.EscapeDataString(peerTag)}";
+                    if (IsValidWireguardLink(link)) results.Add(link);
+                }
+            }
+            catch
+            {
+                // A malformed WireGuard profile must not prevent other outbounds from parsing.
+            }
+
+            return results;
+        }
+
+        private static string GetJsonStringArray(JsonElement element, string property)
+        {
+            if (!element.TryGetProperty(property, out var value)) return "";
+            if (value.ValueKind == JsonValueKind.String)
+            {
+                string single = value.GetString() ?? "";
+                return string.IsNullOrWhiteSpace(single) ? "" : single;
+            }
+            if (value.ValueKind != JsonValueKind.Array) return "";
+            var items = value.EnumerateArray().ToArray();
+            if (items.Length == 0 || items.Any(item => item.ValueKind != JsonValueKind.String))
+                return "";
+            var strings = items.Select(item => item.GetString() ?? "").ToArray();
+            if (strings.Any(string.IsNullOrWhiteSpace)) return "";
+            return string.Join(", ", strings);
+        }
+
+        private static string GetJsonNumberArray(JsonElement element, string property)
+        {
+            if (!element.TryGetProperty(property, out var value)) return "";
+            if (value.ValueKind == JsonValueKind.String)
+            {
+                string encoded = value.GetString() ?? "";
+                if (encoded.Length == 0) return "";
+                try
+                {
+                    byte[] decoded = Convert.FromBase64String(encoded);
+                    return decoded.Length == 3
+                        ? string.Join(",", decoded.Select(number => number.ToString(CultureInfo.InvariantCulture)))
+                        : "";
+                }
+                catch (FormatException)
+                {
+                    return "";
+                }
+            }
+            if (value.ValueKind != JsonValueKind.Array) return "";
+            var items = value.EnumerateArray().ToArray();
+            if (items.Length != 3 || items.Any(item =>
+                    item.ValueKind != JsonValueKind.Number ||
+                    !item.TryGetInt32(out int number) ||
+                    number is < 0 or > 255))
+                return "";
+            return string.Join(",", items.Select(item =>
+                item.GetInt32().ToString(CultureInfo.InvariantCulture)));
+        }
+
+        private static bool IsValidJsonWireguardReserved(JsonElement element)
+        {
+            if (!element.TryGetProperty("reserved", out var value)) return true;
+            if (value.ValueKind == JsonValueKind.String)
+            {
+                string encoded = value.GetString() ?? "";
+                if (encoded.Length == 0) return false;
+                try { return Convert.FromBase64String(encoded).Length == 3; }
+                catch (FormatException) { return false; }
+            }
+            if (value.ValueKind != JsonValueKind.Array) return false;
+
+            var bytes = value.EnumerateArray().ToArray();
+            return bytes.Length == 3 && bytes.All(item =>
+                item.ValueKind == JsonValueKind.Number &&
+                item.TryGetInt32(out int number) &&
+                number is >= 0 and <= 255);
+        }
+
+        private static int GetJsonInt(JsonElement element, string property, int fallback = 0)
+            => element.TryGetProperty(property, out var value) &&
+               value.ValueKind == JsonValueKind.Number &&
+               value.TryGetInt32(out int result)
+                ? result : fallback;
 
         private static string GetJsonString(JsonElement element, string property, string fallback = "")
         {
@@ -3857,8 +4077,8 @@ namespace ProxyCollector.Collector
         public bool   TlsVerified  { get; set; }  // completed TLS handshake w/ real SNI (clean vantage)
         public int    SourceCount    { get; set; } = 1;  // distinct sources publishing this node
         public string SourceGroup    { get; set; } = ""; // first contributing source repo/provider group
-        public int    VerifiedStreak { get; set; }       // consecutive runs TLS-verified (history.json)
-        public int    XrayStreak     { get; set; }       // consecutive runs roundtrip-verified (history.json)
+        public int    VerifiedStreak { get; set; }       // decaying successful TLS-check history (history.json)
+        public int    XrayStreak     { get; set; }       // decaying successful Xray-check history (history.json)
         public bool   XrayTested    { get; set; }  // current-run end-to-end test actually attempted
         public bool   XrayVerified  { get; set; }  // full proxy roundtrip completed (this run)
         public bool   EdgeTested    { get; set; }  // current-run edge probe returned a per-node result
@@ -3999,7 +4219,7 @@ namespace ProxyCollector.Collector
     {
         public int Streak { get; set; }
         public int Misses { get; set; }
-        public int TlsOk { get; set; }   // consecutive runs TLS-verified
-        public int XrayOk { get; set; }  // consecutive runs roundtrip-verified (v6.15)
+        public int TlsOk { get; set; }   // decaying history of successful TLS checks
+        public int XrayOk { get; set; }  // decaying history of successful Xray roundtrips
     }
 }

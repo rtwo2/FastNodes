@@ -10,6 +10,7 @@ internal static class Program
     private static async Task Main()
     {
         await TestDualStackFallbackAsync();
+        await TestXrayProbeCallerCancellationAsync();
         await TestXrayLoopbackRoundtripAsync();
         Console.WriteLine("Network/Xray integration tests passed.");
     }
@@ -35,6 +36,30 @@ internal static class Program
             throw new InvalidOperationException($"Expected IPv4 fallback, connected over {connected.AddressFamily}.");
 
         Console.WriteLine("  dual-stack socket fallback: passed");
+    }
+
+    private static async Task TestXrayProbeCallerCancellationAsync()
+    {
+        using var listener = new TcpListener(IPAddress.Loopback, 0);
+        listener.Start();
+        int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+        bool propagated = false;
+        try
+        {
+            _ = await XrayConnectivityProbe.ProbeViaSocksAsync(port, cancellation.Token);
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        {
+            propagated = true;
+        }
+
+        if (!propagated)
+            throw new InvalidOperationException("Xray probe swallowed caller cancellation instead of propagating it.");
+
+        Console.WriteLine("  Xray probe caller cancellation: passed");
     }
 
     private static async Task TestXrayLoopbackRoundtripAsync()

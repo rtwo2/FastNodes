@@ -32,11 +32,20 @@ namespace ProxyCollector.Collector
                 port is < 1 or > 65535)
                 return null;
 
+            string protocol = parsed.Protocol.ToLowerInvariant();
+            if (protocol is "vless" or "vmess" &&
+                !IsValidUuidCredential(parsed.Credential))
+                return null;
+
             // Store a canonical numeric port for deduplication and probes. The published
             // URI remains the source form, but invalid source ports are never accepted.
             parsed.Port = port.ToString();
             return parsed;
         }
+
+        internal static bool IsValidUuidCredential(string? credential)
+            => !string.IsNullOrWhiteSpace(credential) &&
+               Guid.TryParseExact(credential, "D", out _);
 
         private static ParsedProxy? ParseProxyLineCore(string line)
         {

@@ -72,8 +72,6 @@ internal static class Program
 
         await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(config));
         Process? process = null;
-        Task<string>? stdout = null;
-        Task<string>? stderr = null;
 
         try
         {
@@ -90,8 +88,8 @@ internal static class Program
             startInfo.ArgumentList.Add(configPath);
 
             process = Process.Start(startInfo) ?? throw new InvalidOperationException("Could not start Xray.");
-            stdout = process.StandardOutput.ReadToEndAsync();
-            stderr = process.StandardError.ReadToEndAsync();
+            Task<string> stdout = process.StandardOutput.ReadToEndAsync();
+            Task<string> stderr = process.StandardError.ReadToEndAsync();
 
             using var socksClient = await ConnectWithRetryAsync(process, socksPort, stdout, stderr);
             using NetworkStream socks = socksClient.GetStream();

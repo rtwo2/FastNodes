@@ -302,7 +302,7 @@ def self_test() -> None:
         yaml = ('proxies:\n'
                 '  - name: "WG test 1"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n    reserved:\n      - 0\n      - 0\n      - 0\n'
                 '  - name: "WG test 2"\n    type: wireguard\n    server: "198.51.100.2"\n    port: 123\n')
-        (root / "wireguard.txt").write_text(yaml, encoding="utf-8")
+        (root / "protocols" / "wireguard.txt").write_text(yaml, encoding="utf-8")
         validate_tree(root)
 
         part2_path = root / "everything_part2.txt"
@@ -391,7 +391,7 @@ def self_test() -> None:
         else:
             raise ValidationError("self-test failed to catch a missing top_ipv6.txt")
         (root / "top_ipv6.txt").write_text(good[4] + "\n", encoding="utf-8")
-        if validate_lines(root / "wireguard.txt")[0] != 2:
+        if validate_lines(root / "protocols" / "wireguard.txt")[0] != 2:
             raise ValidationError("self-test failed to count multiple YAML proxy entries")
         (root / "protocols").mkdir(exist_ok=True)
         (root / "protocols" / "vless.txt").write_text("not a proxy URI\n", encoding="utf-8")

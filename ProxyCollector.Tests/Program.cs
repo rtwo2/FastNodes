@@ -339,15 +339,15 @@ internal static class Program
             "valid WireGuard key material remains eligible for output feeds");
 
         string fullWireguardConf =
-            "[Interface]\\r\\n" +
-            $"PrivateKey = {validWgPrivateKey}\\r\\n" +
-            "Address = 10.0.0.2/32, fd00::2/128 # keep both interface addresses\\r\\n" +
-            "DNS = 1.1.1.1, 2606:4700:4700::1111\\r\\n" +
-            "\\r\\n[Peer]\\r\\n" +
-            $"PublicKey = {validWgPublicKey}\\r\\n" +
-            "Endpoint = [2001:4860:4860::8888]:51820\\r\\n" +
-            "AllowedIPs = 0.0.0.0/0, ::/0\\r\\n" +
-            "PersistentKeepalive = 17\\r\\n";
+            "[Interface]\r\n" +
+            $"PrivateKey = {validWgPrivateKey}\r\n" +
+            "Address = 10.0.0.2/32, fd00::2/128 # keep both interface addresses\r\n" +
+            "DNS = 1.1.1.1, 2606:4700:4700::1111\r\n" +
+            "\r\n[Peer]\r\n" +
+            $"PublicKey = {validWgPublicKey}\r\n" +
+            "Endpoint = [2001:4860:4860::8888]:51820\r\n" +
+            "AllowedIPs = 0.0.0.0/0, ::/0\r\n" +
+            "PersistentKeepalive = 17\r\n";
         string fullWireguardLink = "wireguard://" +
             Convert.ToBase64String(Encoding.UTF8.GetBytes(fullWireguardConf));
         var parsedFullWireguardConf = CollectorType.TryParseWireguardInfo(fullWireguardLink);
@@ -366,8 +366,8 @@ internal static class Program
             "rebuilt WireGuard conf retains the original multi-value fields and keepalive");
 
         string multiplePeerConf = fullWireguardConf +
-            $"\\r\\n[Peer]\\r\\nPublicKey = {validWgPublicKey}\\r\\n" +
-            "Endpoint = 192.0.2.10:51820\\r\\nAllowedIPs = 10.0.0.0/8\\r\\n";
+            $"\r\n[Peer]\r\nPublicKey = {validWgPublicKey}\r\n" +
+            "Endpoint = 192.0.2.10:51820\r\nAllowedIPs = 10.0.0.0/8\r\n";
         string multiplePeerLink = "wireguard://" +
             Convert.ToBase64String(Encoding.UTF8.GetBytes(multiplePeerConf));
         Checks.That(CollectorType.TryParseWireguardInfo(multiplePeerLink) is null,

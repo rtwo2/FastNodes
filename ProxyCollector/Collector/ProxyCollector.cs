@@ -1974,6 +1974,9 @@ namespace ProxyCollector.Collector
             return unique.Length > 0 && unique.All(ip => refusedEndpoints.Contains((ip, port)));
         }
 
+        internal static IReadOnlyList<IPAddress> GetProbeAddressAttempts(IEnumerable<IPAddress> resolvedAddresses)
+            => HappyEyeballsConnector.OrderAddresses(resolvedAddresses);
+
         // ====================== XRAY DEEP CHECK (v6.15) ======================
         // The strongest life signal that exists without a machine in Iran: run the REAL
         // xray-core binary with one socks-inbound + one outbound per candidate, and
@@ -2016,15 +2019,86 @@ namespace ProxyCollector.Collector
                 return;
             }
 
-            // v6.19: roundtrip budget spent ONLY on nodes that can enter top.txt/verified.txt
-            // Keep the probe pool international. Prefer current independent liveness
-            // evidence and source consensus first; geography is only a tie-breaker.
-            // Streaks are updated after this stage, so do not rank this pool by stale or
-            // not-yet-computed streak fields. Runner success is not the user's own test.
+            // Rank nodes once, but retain every vetted A/AAAA address for each node.
+            // Probe the preferred address first; if it fails, retry the same node through
+            // its other resolved addresses. This avoids treating a broken IPv4 answer as
+            // proof that a dual-stack node has no working IPv6 endpoint (or vice versa).
             var candidates = RankXrayCandidates(proxies, countryCache, XrayTopN);
             if (candidates.Count == 0) { LogInfo("Xray deep check: no candidates."); return; }
 
-            // ---- build one config: inbound[i] socks on port 21000+i → outbound ob{port} ----
+            var primaryTargets = new List<(ParsedProxy Node, IPAddress Address)>();
+            var alternateTargets = new List<(ParsedProxy Node, IPAddress Address)>();
+            int noAddress = 0, unsafeAddressSet = 0;
+
+            foreach (var p in candidates)
+            {
+                IPAddress[] resolved = await Resolver.ResolveAllAsync(p.Host);
+                if (resolved.Length == 0)
+                {
+                    noAddress++;
+                    continue;
+                }
+
+                // Fail closed on mixed answers: every address a client might select must
+                // satisfy the same public-endpoint policy before any Xray socket is opened.
+                if (resolved.Any(ip => IsPrivateOrReservedIp(ip) ||
+                                       IsFireholBlacklisted(ip) ||
+                                       IsCloudflareIp(ip)))
+                {
+                    unsafeAddressSet++;
+                    continue;
+                }
+
+                var addresses = GetProbeAddressAttempts(resolved);
+                if (addresses.Count == 0) continue;
+
+                primaryTargets.Add((p, addresses[0]));
+                for (int i = 1; i < addresses.Count; i++)
+                    alternateTargets.Add((p, addresses[i]));
+            }
+
+            if (primaryTargets.Count == 0)
+            {
+                LogInfo($"Xray deep check: no safe resolved candidates (unresolved {noAddress}, unsafe {unsafeAddressSet}).");
+                return;
+            }
+
+            var stageSw = Stopwatch.StartNew();
+            await RunXrayProbeBatchAsync(primaryTargets, xrayBin, stageSw, "preferred-address");
+
+            // Only retry alternate addresses for nodes that did not complete a full
+            // roundtrip through their preferred address. Chunking keeps each Xray config
+            // bounded to the existing 3,000-outbound scale.
+            var pendingAlternates = alternateTargets.Where(target => !target.Node.XrayVerified).ToList();
+            int alternateBatches = 0;
+            foreach (var batch in pendingAlternates.Chunk(XrayTopN))
+            {
+                if (stageSw.Elapsed >= XrayStageBudget) break;
+
+                var stillNeeded = batch.Where(target => !target.Node.XrayVerified).ToList();
+                if (stillNeeded.Count == 0) continue;
+
+                alternateBatches++;
+                await RunXrayProbeBatchAsync(
+                    stillNeeded, xrayBin, stageSw, $"alternate-address batch {alternateBatches}");
+            }
+
+            int testedNodes = candidates.Count(node => node.XrayTested);
+            int verifiedNodes = candidates.Count(node => node.XrayVerified);
+            int skippedByBudget = primaryTargets.Count + pendingAlternates.Count -
+                candidates.Count(node => node.XrayTested);
+            LogInfo($"Xray deep check: {verifiedNodes}/{testedNodes} nodes completed a FULL proxy roundtrip " +
+                    $"({stageSw.Elapsed.TotalSeconds:0}s; alternate batches {alternateBatches}; " +
+                    $"unresolved {noAddress}; unsafe address sets {unsafeAddressSet}; " +
+                    $"remaining attempts not run {Math.Max(0, skippedByBudget)}). Failures are not drops.");
+        }
+
+        private async Task<int> RunXrayProbeBatchAsync(
+            IReadOnlyList<(ParsedProxy Node, IPAddress Address)> targets,
+            string xrayBin,
+            Stopwatch stageSw,
+            string batchLabel)
+        {
             const int basePort = 21000;
             var inbounds = new List<object>();
             var outbounds = new List<object>
@@ -2032,134 +2106,144 @@ namespace ProxyCollector.Collector
             var rules = new List<object>();
             var portMap = new Dictionary<int, ParsedProxy>();
 
-            foreach (var p in candidates)
+            foreach (var target in targets)
             {
-                // Xray is a separate process and would otherwise resolve the hostname again.
-                // Pin its socket destination to an address already inspected by FastNodes,
-                // while retaining the original hostname for SNI and transport Host settings.
-                IPAddress[] resolved = await Resolver.ResolveAllAsync(p.Host);
-                if (resolved.Length == 0 ||
-                    resolved.Any(ip => IsPrivateOrReservedIp(ip) ||
-                                       IsFireholBlacklisted(ip) ||
-                                       IsCloudflareIp(ip)))
-                    continue;
-
-                // Xray needs one pinned address per outbound (unlike HttpClient, whose
-                // socket connector can race both families). Keep the resolver's preferred
-                // family first, but do not hard-code IPv4 as the preferred family.
-                string connectAddress = HappyEyeballsConnector.OrderAddresses(resolved)
-                    .First().ToString();
+                if (stageSw.Elapsed >= XrayStageBudget) break;
 
                 int localPort = basePort + portMap.Count;
-                var ob = BuildXrayOutbound(p, $"ob{localPort}", connectAddress);
-                if (ob == null) continue;   // unconvertible node — just not deep-checked
+                var outbound = BuildXrayOutbound(target.Node, $"ob{localPort}", target.Address.ToString());
+                if (outbound == null) continue; // Unsupported conversion is not proof of death.
+
                 inbounds.Add(new Dictionary<string, object?>
                 {
                     ["tag"] = $"ib{localPort}", ["listen"] = "127.0.0.1", ["port"] = localPort,
                     ["protocol"] = "socks",
                     ["settings"] = new Dictionary<string, object?> { ["auth"] = "noauth", ["udp"] = false }
                 });
-                outbounds.Add(ob);
+                outbounds.Add(outbound);
                 rules.Add(new Dictionary<string, object?>
                 {
                     ["type"] = "field",
                     ["inboundTag"] = new List<string> { $"ib{localPort}" },
                     ["outboundTag"] = $"ob{localPort}"
                 });
-                portMap[localPort] = p;
+                portMap[localPort] = target.Node;
             }
-            if (portMap.Count == 0) { LogInfo("Xray deep check: no convertible candidates."); return; }
+
+            if (portMap.Count == 0) return 0;
 
             var config = new Dictionary<string, object?>
             {
-                // "error", not "warning": xray emits a deprecation Warning PER ws/grpc
-                // outbound (~thousands at TopN=3000). Nobody drains stdout while xray
-                // runs, so the pipe buffer (~64KB) fills and the process FREEZES
-                // mid-probe. "error" silences the flood; fatal startup errors
-                // ("Failed to start: ...") are printed by main regardless of loglevel
-                // and still land in our crash diagnostics.
                 ["log"] = new Dictionary<string, object?> { ["loglevel"] = "error" },
                 ["inbounds"] = inbounds,
                 ["outbounds"] = outbounds,
                 ["routing"] = new Dictionary<string, object?> { ["rules"] = rules }
             };
-            string cfgPath = Path.Combine(Path.GetTempPath(), "fastnodes-xray.json");
+            string cfgPath = Path.Combine(
+                Path.GetTempPath(), "fastnodes-xray-" + Guid.NewGuid().ToString("N") + ".json");
             await File.WriteAllTextAsync(cfgPath, JsonSerializer.Serialize(config));
 
             Process? proc = null;
+            Task<string>? drainOut = null;
+            Task<string>? drainErr = null;
             int verified = 0, probed = 0;
-            var stageSw = Stopwatch.StartNew();
             try
             {
-                proc = Process.Start(new ProcessStartInfo
+                var startInfo = new ProcessStartInfo
                 {
-                    FileName = xrayBin, Arguments = $"run -c {cfgPath}",
-                    UseShellExecute = false, CreateNoWindow = true,
-                    RedirectStandardOutput = true, RedirectStandardError = true
-                });
-                if (proc == null) { LogWarning("Xray deep check: failed to start process."); return; }
+                    FileName = xrayBin,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                };
+                startInfo.ArgumentList.Add("run");
+                startInfo.ArgumentList.Add("-c");
+                startInfo.ArgumentList.Add(cfgPath);
+                proc = Process.Start(startInfo);
+                if (proc == null)
+                {
+                    LogWarning($"Xray deep check ({batchLabel}): failed to start process.");
+                    return 0;
+                }
 
-                // v6.20: drain BOTH pipes from the instant xray starts. xray emits
-                // per-outbound startup output — at ~4000+ outbounds that overflows the
-                // ~64KB OS pipe buffer and xray BLOCKS on its next write before binding
-                // a single inbound: process alive ("running") but frozen forever. Both
-                // the 15s and 90s readiness windows died on exactly this. The captured
-                // tasks double as crash diagnostics below (a crashed xray closes its
-                // pipes, completing the drains with the error text).
-                Task<string> drainOut = proc.StandardOutput.ReadToEndAsync();
-                Task<string> drainErr = proc.StandardError.ReadToEndAsync();
+                // Drain both pipes immediately; Xray emits per-outbound startup messages.
+                drainOut = proc.StandardOutput.ReadToEndAsync();
+                drainErr = proc.StandardError.ReadToEndAsync();
 
-                // 90s: startup may need to bind up to 3000 inbound/outbound pairs.
-                // Keep the readiness window generous; killing a healthy process too early
-                // would erase this run's verified evidence.
                 bool ready = false;
-                for (int i = 0; i < 900 && !ready; i++)
+                for (int i = 0; i < 900 && !ready && stageSw.Elapsed < XrayStageBudget; i++)
                 {
-                    if (proc.HasExited) break; // xray crashed on startup
+                    if (proc.HasExited) break;
                     await Task.Delay(100);
                     try
                     {
-                        using var t = new TcpClient();
-                        await t.ConnectAsync(IPAddress.Loopback, basePort, CancellationToken.None);
-                        using var t2 = new TcpClient();
-                        await t2.ConnectAsync(IPAddress.Loopback, basePort + portMap.Count - 1, CancellationToken.None);
+                        using var first = new TcpClient();
+                        await first.ConnectAsync(IPAddress.Loopback, basePort);
+                        using var last = new TcpClient();
+                        await last.ConnectAsync(IPAddress.Loopback, basePort + portMap.Count - 1);
                         ready = true;
                     }
                     catch { }
                 }
-                
-                if (!ready) 
-                { 
-                    string errOut = "", stdOut = "";
+
+                if (!ready)
+                {
+                    string errorOutput = "", standardOutput = "";
                     if (proc.HasExited)
                     {
-                        await Task.WhenAny(Task.WhenAll(drainOut, drainErr), Task.Delay(2000));   // let drains finish reading the closed pipes
-                        errOut = drainErr.IsCompletedSuccessfully ? drainErr.Result : "";
-                        stdOut = drainOut.IsCompletedSuccessfully ? drainOut.Result : "";
+                        try
+                        {
+                            await Task.WhenAll(drainOut, drainErr).WaitAsync(TimeSpan.FromSeconds(2));
+                        }
+                        catch { }
+                        errorOutput = drainErr is { IsCompletedSuccessfully: true } ? drainErr.Result : "";
+                        standardOutput = drainOut is { IsCompletedSuccessfully: true } ? drainOut.Result : "";
                     }
-                    LogWarning($"Xray deep check: didn't open its inbounds in 90s. Xray status: {(proc.HasExited ? "crashed" : "running")}. Error output: {errOut}. Std output: {stdOut}");
-                    return; 
+
+                    LogWarning($"Xray deep check ({batchLabel}): inbounds were not ready. " +
+                               $"Xray status: {(proc.HasExited ? "crashed" : "running")}. " +
+                               $"Error output: {errorOutput}. Std output: {standardOutput}");
+                    return 0;
                 }
 
-                await Parallel.ForEachAsync(portMap.Keys, new ParallelOptions { MaxDegreeOfParallelism = 50 },
+                await Parallel.ForEachAsync(
+                    portMap.Keys,
+                    new ParallelOptions { MaxDegreeOfParallelism = 50 },
                     async (localPort, ct) =>
                     {
-                        if (stageSw.Elapsed > XrayStageBudget) return;   // budget cut lands in the tail
-                        portMap[localPort].XrayTested = true;
+                        if (stageSw.Elapsed >= XrayStageBudget) return;
+
+                        ParsedProxy node = portMap[localPort];
+                        node.XrayTested = true;
                         Interlocked.Increment(ref probed);
                         if (await XrayConnectivityProbe.ProbeViaSocksAsync(localPort, ct))
                         {
-                            portMap[localPort].XrayVerified = true;
+                            node.XrayVerified = true;
                             Interlocked.Increment(ref verified);
                         }
                     });
 
-                LogInfo($"Xray deep check: {verified}/{probed} nodes completed a FULL proxy roundtrip " +
-                        $"({stageSw.Elapsed.TotalSeconds:0}s; {portMap.Count - probed} skipped by budget). Failures are not drops.");
+                LogInfo($"Xray deep check ({batchLabel}): {verified}/{probed} address attempts completed a FULL proxy roundtrip " +
+                        $"({stageSw.Elapsed.TotalSeconds:0}s; {portMap.Count - probed} not started by budget).");
+                return verified;
             }
             finally
             {
-                try { if (proc is { HasExited: false }) proc.Kill(true); } catch { }
+                try
+                {
+                    if (proc is { HasExited: false })
+                    {
+                        proc.Kill(entireProcessTree: true);
+                        await proc.WaitForExitAsync();
+                    }
+                }
+                catch { }
+                if (drainOut is not null && drainErr is not null)
+                {
+                    try { await Task.WhenAll(drainOut, drainErr).WaitAsync(TimeSpan.FromSeconds(2)); }
+                    catch { }
+                }
                 proc?.Dispose();
                 try { File.Delete(cfgPath); } catch { }
             }
@@ -2785,17 +2869,19 @@ namespace ProxyCollector.Collector
             {
                 var addresses = await Resolver.ResolveAllAsync(p.Host); // warm full A/AAAA cache
                 if (addresses.Length == 0) continue;
-                var ip = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork) ?? addresses[0];
                 // CF-fronted hosts: a TLS handshake with ANY Cloudflare answer can succeed
                 // at the edge without proving the proxy origin. Exclude the whole hostname
                 // if any A/AAAA answer is in an official Cloudflare range.
                 if (CfCidrs.Length > 0 && addresses.Any(IsCloudflareIp)) { cfSkippedTls++; continue; }
                 int port = int.Parse(p.Port);
                 string sni = string.IsNullOrEmpty(p.Sni) ? p.Host : p.Sni;
-                string ipStr = ip.ToString();
-                if (endpointIndex.Add((ipStr, port, sni)))
-                    endpoints.Add((ipStr, port, sni, ip));
-                nodeEndpoints.Add((p, ipStr, port, sni));
+                foreach (var address in GetProbeAddressAttempts(addresses))
+                {
+                    string ipStr = address.ToString();
+                    if (endpointIndex.Add((ipStr, port, sni)))
+                        endpoints.Add((ipStr, port, sni, address));
+                    nodeEndpoints.Add((p, ipStr, port, sni));
+                }
             }
             if (cfSkippedTls > 0)
                 LogInfo($"TLS verify: skipped {cfSkippedTls} CF-fronted hosts — edge handshake is uninformative; Xray roundtrip is their only valid life signal.");
@@ -2834,7 +2920,11 @@ namespace ProxyCollector.Collector
                 if (verified.ContainsKey((ipStr, port, sni)))
                     node.TlsVerified = true;
 
-            int verifiedNodes = nodeEndpoints.Count(ne => verified.ContainsKey((ne.Ip, ne.Port, ne.Sni)));
+            int verifiedNodes = nodeEndpoints
+                .Where(ne => verified.ContainsKey((ne.Ip, ne.Port, ne.Sni)))
+                .Select(ne => ne.Node)
+                .Distinct()
+                .Count();
             LogInfo($"TLS verify: {verified.Count}/{endpoints.Count} endpoints completed a handshake → " +
                     $"{verifiedNodes} nodes promoted. Failures are not drops.");
             // v6.13.1: failure breakdown — makes the next log self-diagnosing.

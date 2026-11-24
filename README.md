@@ -121,6 +121,18 @@ Each full collection publishes machine-readable source-health data under `sub/di
 
 These reports are diagnostic only. No source is automatically removed, and ranking weights are not automatically modified. Review recurring issues across multiple successful runs before changing source priority or scoring.
 
+## Collector architecture and tests
+
+- HTTP source connections use staggered IPv4/IPv6 connection attempts (Happy Eyeballs). Every resolved address is checked before any connection is attempted; a mixed public/private answer is rejected rather than partially trusted.
+- Source downloads use a shared weighted working-memory budget: 1,280 MiB for top-level feeds and 256 MiB for nested provider responses. Reservations account for the response buffer, decoded string and extracted line materialization; uncompressed declared Content-Length values are used when safe; compressed or unknown-length responses reserve their full configured ceiling. Large downloads therefore apply backpressure instead of allowing every source task to buffer at once.
+- Extracted lines are written to per-run temporary spool files; nested provider results are appended as they finish. The collector replays those files in configured source order, preserving deterministic first-contributor attribution without keeping all fetched lines in a run-wide in-memory collection.
+- `SourceFetcher` owns parallel source and nested-provider retrieval, retries, fetch diagnostics and spool coordination. Its network connector, weighted memory budget, spool store and Xray SOCKS/HTTP-204 probe are separate services with independently testable contracts. The integration suite starts real loopback sockets plus the pinned Xray executable.
+
+Run the network/Xray integration suite with XRAY_BIN pointing to an Xray executable:
+
+    XRAY_BIN=/path/to/xray dotnet run --configuration Release --project ProxyCollector.IntegrationTests
+
+The Xray process-level smoke test uses a local direct outbound so it is deterministic and does not depend on a public proxy being alive. The collection workflow separately exercises actual candidate outbounds against its live network vantage.
 ## Import
 
 1. Copy one of the subscription URLs above.

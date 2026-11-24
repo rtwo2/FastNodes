@@ -73,6 +73,11 @@ jobs:
           chmod +x /tmp/xraybin/xray
           /tmp/xraybin/xray version
 
+      - name: Run network and Xray integration tests
+        run: dotnet run --configuration Release --project ProxyCollector.IntegrationTests
+        env:
+          XRAY_BIN: /tmp/xraybin/xray
+
       - name: Run ProxyCollector
         id: collector
         shell: bash

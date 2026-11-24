@@ -16,7 +16,7 @@ concurrency:
 jobs:
   build-and-validate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -50,3 +50,20 @@ jobs:
         run: dotnet build ProxyCollector --configuration Release
       - name: Run parser regression tests
         run: dotnet run --configuration Release --project ProxyCollector.Tests
+      - name: Setup pinned Xray for integration tests
+        env:
+          XRAY_VERSION: 26.3.27
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/xraybin
+          curl --fail --location --retry 3 --retry-all-errors \
+            "https://github.com/XTLS/Xray-core/releases/download/v${XRAY_VERSION}/Xray-linux-64.zip" \
+            -o /tmp/xray.zip
+          echo "23cd9af937744d97776ee35ecad4972cf4b2109d1e0fe6be9930467608f7c8ae  /tmp/xray.zip" | sha256sum --check -
+          unzip -o -j /tmp/xray.zip xray -d /tmp/xraybin
+          chmod +x /tmp/xraybin/xray
+          /tmp/xraybin/xray version
+      - name: Run network and Xray integration tests
+        run: dotnet run --configuration Release --project ProxyCollector.IntegrationTests
+        env:
+          XRAY_BIN: /tmp/xraybin/xray

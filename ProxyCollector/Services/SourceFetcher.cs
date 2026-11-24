@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -23,8 +24,11 @@ public sealed class SourceFetcher
     private const int MaxConcurrentSources = 30;
     private const int MaxNestedProvidersPerSource = 8;
     internal const int MaxNestedLinesPerSource = 20000;
-    private const int MaxAttempts = 2;
+    private const int MaxAttempts = 3;
     private const int MaxProviderResponseBytes = 16 * 1024 * 1024;
+    private static readonly TimeSpan MaximumRetryAfter = TimeSpan.FromSeconds(60);
+    private static readonly ConcurrentDictionary<string, DateTimeOffset> HostBackoffUntil =
+        new(StringComparer.OrdinalIgnoreCase);
 
     public SourceFetcher(HttpClient http, SourceFetchBudget memoryBudget)
     {
@@ -78,6 +82,7 @@ public sealed class SourceFetcher
                         {
                             try
                             {
+                                await WaitForHostBackoffAsync(url, sourceCancellationToken);
                                 using var requestTimeout = CancellationTokenSource.CreateLinkedTokenSource(
                                     sourceCancellationToken);
                                 requestTimeout.CancelAfter(TimeSpan.FromSeconds(25));
@@ -86,7 +91,27 @@ public sealed class SourceFetcher
                                     url,
                                     HttpCompletionOption.ResponseHeadersRead,
                                     requestTimeout.Token);
-                                response.EnsureSuccessStatusCode();
+                                if (!response.IsSuccessStatusCode)
+                                {
+                                    if (IsRetryableStatus(response.StatusCode))
+                                    {
+                                        TimeSpan retryDelay = GetRetryDelay(response, attempt);
+                                        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                                            RegisterHostBackoff(url, retryDelay);
+                                        if (attempt == MaxAttempts)
+                                        {
+                                            logError($"Failed {url} after {MaxAttempts} attempts: HTTP {(int)response.StatusCode} {response.ReasonPhrase}");
+                                            return;
+                                        }
+                                        if (response.StatusCode != HttpStatusCode.TooManyRequests)
+                                            await Task.Delay(retryDelay, sourceCancellationToken);
+                                        continue;
+                                    }
+
+                                    // Permanent 4xx failures (notably 404/410) are not retried.
+                                    logError($"Failed {url}: HTTP {(int)response.StatusCode} {response.ReasonPhrase}");
+                                    return;
+                                }
 
                                 int maxResponseBytes = getResponseLimit(url);
                                 int reservationBytes = SourceFetchBudget.GetReservationBytes(
@@ -137,6 +162,7 @@ public sealed class SourceFetcher
                                             {
                                                 try
                                                 {
+                                                    await WaitForHostBackoffAsync(fetchUrl, sourceCancellationToken);
                                                     using var providerTimeout = CancellationTokenSource.CreateLinkedTokenSource(
                                                         sourceCancellationToken);
                                                     providerTimeout.CancelAfter(TimeSpan.FromSeconds(12));
@@ -145,7 +171,30 @@ public sealed class SourceFetcher
                                                         fetchUrl,
                                                         HttpCompletionOption.ResponseHeadersRead,
                                                         providerTimeout.Token);
-                                                    providerResponse.EnsureSuccessStatusCode();
+                                                    if (!providerResponse.IsSuccessStatusCode)
+                                                    {
+                                                        if (IsRetryableStatus(providerResponse.StatusCode))
+                                                        {
+                                                            TimeSpan retryDelay = GetRetryDelay(providerResponse, providerAttempt);
+                                                            if (providerResponse.StatusCode == HttpStatusCode.TooManyRequests)
+                                                                RegisterHostBackoff(fetchUrl, retryDelay);
+                                                            if (providerAttempt == MaxAttempts)
+                                                            {
+                                                                Interlocked.Increment(ref stat.ProviderFailures);
+                                                                logWarning(
+                                                                    $"  provider fetch failed after {MaxAttempts} attempts for {url} → {fetchUrl}: HTTP {(int)providerResponse.StatusCode} {providerResponse.ReasonPhrase}");
+                                                                break;
+                                                            }
+                                                            if (providerResponse.StatusCode != HttpStatusCode.TooManyRequests)
+                                                                await Task.Delay(retryDelay, sourceCancellationToken);
+                                                            continue;
+                                                        }
+
+                                                        Interlocked.Increment(ref stat.ProviderFailures);
+                                                        logWarning(
+                                                            $"  provider fetch unavailable (HTTP {(int)providerResponse.StatusCode}; no retry) for {url} → {fetchUrl}: {providerResponse.ReasonPhrase}");
+                                                        break;
+                                                    }
 
                                                     int providerReservationBytes = SourceFetchBudget.GetReservationBytes(
                                                         providerResponse.Content.Headers.ContentLength,
@@ -197,7 +246,7 @@ public sealed class SourceFetcher
                                                     }
                                                     else
                                                     {
-                                                        await Task.Delay(700, sourceCancellationToken);
+                                                        await Task.Delay(GetTransientRetryDelay(providerAttempt), sourceCancellationToken);
                                                     }
                                                 }
                                             }
@@ -227,7 +276,7 @@ public sealed class SourceFetcher
                                     return;
                                 }
 
-                                await Task.Delay(1500, sourceCancellationToken);
+                                await Task.Delay(GetTransientRetryDelay(attempt), sourceCancellationToken);
                             }
                         }
                     }
@@ -243,6 +292,68 @@ public sealed class SourceFetcher
         {
             spool.Dispose();
             throw;
+        }
+    }
+
+    private static bool IsRetryableStatus(HttpStatusCode statusCode)
+    {
+        int code = (int)statusCode;
+        return code is 408 or 429 || code >= 500;
+    }
+
+    internal static TimeSpan GetRetryDelay(HttpResponseMessage response, int attempt)
+    {
+        var retryAfter = response.Headers.RetryAfter;
+        if (retryAfter?.Delta is TimeSpan delta)
+            return ClampRetryDelay(delta);
+        if (retryAfter?.Date is DateTimeOffset date)
+            return ClampRetryDelay(date - DateTimeOffset.UtcNow);
+        return GetTransientRetryDelay(attempt);
+    }
+
+    private static TimeSpan ClampRetryDelay(TimeSpan delay)
+    {
+        if (delay <= TimeSpan.Zero) return TimeSpan.Zero;
+        return delay > MaximumRetryAfter ? MaximumRetryAfter : delay;
+    }
+
+    private static TimeSpan GetTransientRetryDelay(int attempt)
+    {
+        int exponent = Math.Clamp(attempt, 1, 5);
+        double milliseconds = Math.Pow(2, exponent - 1) * 1000 +
+                              Random.Shared.Next(100, 501);
+        return TimeSpan.FromMilliseconds(Math.Min(milliseconds, MaximumRetryAfter.TotalMilliseconds));
+    }
+
+    private static string? GetHostKey(string url)
+        => Uri.TryCreate(url, UriKind.Absolute, out var uri) ? uri.Host : null;
+
+    private static void RegisterHostBackoff(string url, TimeSpan delay)
+    {
+        string? host = GetHostKey(url);
+        if (host is null || delay <= TimeSpan.Zero) return;
+
+        DateTimeOffset until = DateTimeOffset.UtcNow + ClampRetryDelay(delay);
+        HostBackoffUntil.AddOrUpdate(
+            host,
+            until,
+            (_, current) => current > until ? current : until);
+    }
+
+    private static async Task WaitForHostBackoffAsync(string url, CancellationToken cancellationToken)
+    {
+        string? host = GetHostKey(url);
+        if (host is null) return;
+
+        while (HostBackoffUntil.TryGetValue(host, out DateTimeOffset until))
+        {
+            TimeSpan delay = until - DateTimeOffset.UtcNow;
+            if (delay <= TimeSpan.Zero)
+            {
+                HostBackoffUntil.TryRemove(host, out _);
+                return;
+            }
+            await Task.Delay(delay, cancellationToken);
         }
     }
 

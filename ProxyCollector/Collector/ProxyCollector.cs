@@ -3769,11 +3769,11 @@ namespace ProxyCollector.Collector
         }
 
         // ====================== SAVE OUTPUTS ======================
-        // everything.txt is always a single, full, uncapped file — never chunked.
-        // Every other category's <name>.txt holds the first ChunkSize lines (this
-        // filename never changes), overflow beyond that goes to <name>_part2.txt,
-        // _part3.txt, ...
+        // List files keep their stable base name and split overflow into _part2, _part3, ...
+        // chunks. Category feeds retain the 1,000-node cap; all generated text parts also
+        // stay below 50 MiB so GitHub can serve them as individual raw files.
         private const int ChunkSize = 1000;
+        internal const long SubscriptionPartMaxBytes = 50L * 1024 * 1024;
 
 
     }

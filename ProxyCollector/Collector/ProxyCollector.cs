@@ -189,6 +189,7 @@ namespace ProxyCollector.Collector
                 if (b[0] == 0 || b[0] == 10 || b[0] == 127) return true;                // 0/8, 10/8, 127/8
                 if (b[0] == 172 && b[1] is >= 16 and <= 31) return true;                // 172.16.0.0/12
                 if (b[0] == 192 && b[1] == 168) return true;                            // 192.168.0.0/16
+                if (b[0] == 192 && b[1] == 88 && b[2] == 99) return true;                 // 192.88.99.0/24 deprecated 6to4 relay anycast
                 if (b[0] == 169 && b[1] == 254) return true;                            // 169.254.0.0/16 link-local
                 if (b[0] == 100 && b[1] is >= 64 and <= 127) return true;               // 100.64.0.0/10 CGNAT
                 if (b[0] >= 224) return true;                                           // multicast + reserved + broadcast

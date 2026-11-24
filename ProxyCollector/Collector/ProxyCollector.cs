@@ -193,7 +193,10 @@ namespace ProxyCollector.Collector
                 if (b[0] == 169 && b[1] == 254) return true;                            // 169.254.0.0/16 link-local
                 if (b[0] == 100 && b[1] is >= 64 and <= 127) return true;               // 100.64.0.0/10 CGNAT
                 if (b[0] >= 224) return true;                                           // multicast + reserved + broadcast
-                if (b[0] == 192 && b[1] == 0 && (b[2] == 0 || b[2] == 2)) return true;  // 192.0.0.0/24, TEST-NET-1
+                // 192.0.0.0/24 is non-global by default, except the explicitly
+                // globally reachable PCP and TURN anycast assignments.
+                if (b[0] == 192 && b[1] == 0 && b[2] == 0 && b[3] is not (9 or 10)) return true;
+                if (b[0] == 192 && b[1] == 0 && b[2] == 2) return true;                // TEST-NET-1
                 if (b[0] == 198 && (b[1] == 18 || b[1] == 19)) return true;             // 198.18.0.0/15 benchmark
                 if (b[0] == 198 && b[1] == 51 && b[2] == 100) return true;              // TEST-NET-2
                 if (b[0] == 203 && b[1] == 0 && b[2] == 113) return true;               // TEST-NET-3
@@ -255,6 +258,7 @@ namespace ProxyCollector.Collector
             (IPAddress.Parse("2001:2::").GetAddressBytes(), 48),
             (IPAddress.Parse("2001:10::").GetAddressBytes(), 28),
             (IPAddress.Parse("2001:db8::").GetAddressBytes(), 32),
+            (IPAddress.Parse("2002::").GetAddressBytes(), 16), // 6to4 (Globally Reachable is N/A, not affirmative)
             (IPAddress.Parse("3fff::").GetAddressBytes(), 20),
             (IPAddress.Parse("5f00::").GetAddressBytes(), 16)
         };

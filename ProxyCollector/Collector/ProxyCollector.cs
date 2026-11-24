@@ -2253,10 +2253,11 @@ namespace ProxyCollector.Collector
         // Feeding it an unsupported cipher (like aes-256-cfb) crashes Xray on startup.
         private static readonly HashSet<string> XraySupportedSsCiphers = new(StringComparer.OrdinalIgnoreCase)
         {
-            "aes-256-gcm", "aes-128-gcm", "chacha20-ietf-poly1305", "xchacha20-ietf-poly1305",
-            "2022-blake3-aes-256-gcm", "2022-blake3-aes-128-gcm",
-            "2022-blake3-chacha20-poly1305", "2022-blake3-chacha8-poly1305",
-            "none", "plain"
+            "aes-256-gcm", "aes-128-gcm",
+            "chacha20-poly1305", "chacha20-ietf-poly1305",
+            "xchacha20-poly1305", "xchacha20-ietf-poly1305",
+            "2022-blake3-aes-128-gcm", "2022-blake3-aes-256-gcm",
+            "2022-blake3-chacha20-poly1305"
         };
 
         private static JsonElement? TryGetVmessJson(string baseLink)
@@ -2466,15 +2467,16 @@ namespace ProxyCollector.Collector
                 {
                     if (!IsValidVlessCredential(p.Credential)) return null;
                     var user = new Dictionary<string, object?> { ["id"] = p.Credential, ["encryption"] = "none" };
-                    if (!string.IsNullOrEmpty(p.Flow))
+                    if (!string.IsNullOrWhiteSpace(p.Flow))
                     {
                         // These are the two flow values supported by current Xray outbounds.
-                        // Unknown flow strings can invalidate the entire generated config.
-                        if (!(p.Flow.Equals("xtls-rprx-vision", StringComparison.OrdinalIgnoreCase) ||
-                              p.Flow.Equals("xtls-rprx-vision-udp443", StringComparison.OrdinalIgnoreCase)) ||
+                        // Normalize case before emitting the enum-like value; accepting mixed
+                        // case but passing it through verbatim can still invalidate the batch.
+                        string flow = p.Flow.Trim().ToLowerInvariant();
+                        if (flow is not ("xtls-rprx-vision" or "xtls-rprx-vision-udp443") ||
                             (!tls && !reality))
                             return null;
-                        user["flow"] = p.Flow;
+                        user["flow"] = flow;
                     }
                     settings = new Dictionary<string, object?>
                     {
@@ -2514,9 +2516,10 @@ namespace ProxyCollector.Collector
                 case "ss":
                 {
                     int colon = p.Credential.IndexOf(':');
-                    if (colon <= 0) return null;
-                    string method = p.Credential[..colon];
-                    // Xray panics on startup if it encounters an unsupported/legacy SS cipher
+                    if (colon <= 0 || colon == p.Credential.Length - 1) return null;
+                    string method = p.Credential[..colon].Trim().ToLowerInvariant();
+                    // Only current Xray-documented ciphers are sent to the batch config.
+                    // Normalize aliases/case because the core expects canonical labels.
                     if (!XraySupportedSsCiphers.Contains(method)) return null;
                     settings = new Dictionary<string, object?>
                     {
@@ -3757,14 +3760,20 @@ namespace ProxyCollector.Collector
             if (value.ValueKind == JsonValueKind.String)
             {
                 string encoded = value.GetString() ?? "";
-                if (encoded.Length == 0) return false;
-                try { return Convert.FromBase64String(encoded).Length == 3; }
+                if (encoded.Length == 0) return true;
+                try
+                {
+                    int length = Convert.FromBase64String(encoded).Length;
+                    return length is 0 or 3;
+                }
                 catch (FormatException) { return false; }
             }
             if (value.ValueKind != JsonValueKind.Array) return false;
 
             var bytes = value.EnumerateArray().ToArray();
-            return bytes.Length == 3 && bytes.All(item =>
+            // sing-box allows an empty per-peer reserved value to inherit the
+            // outbound-level reserved bytes. Empty means "not set", not malformed.
+            return (bytes.Length == 0 || bytes.Length == 3) && bytes.All(item =>
                 item.ValueKind == JsonValueKind.Number &&
                 item.TryGetInt32(out int number) &&
                 number is >= 0 and <= 255);

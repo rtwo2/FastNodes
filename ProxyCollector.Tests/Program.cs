@@ -257,7 +257,8 @@ internal static class Program
         foreach (var address in new[]
         {
             "0.0.0.0", "10.1.2.3", "100.64.0.1", "127.0.0.1", "169.254.1.1",
-            "172.16.0.1", "192.168.1.1", "192.0.2.1", "192.88.99.1", "192.88.99.2",
+            "172.16.0.1", "192.168.1.1", "192.0.0.8", "192.0.0.170", "192.0.0.171",
+            "192.0.2.1", "192.88.99.1", "192.88.99.2",
             "198.18.0.1", "198.51.100.1",
             "203.0.113.1", "224.0.0.1", "::", "::1", "fc00::1", "fe80::1",
             "2001:db8::1", "::ffff:127.0.0.1"
@@ -268,16 +269,19 @@ internal static class Program
         {
             "100::1", "100:0:0:1::1", "64:ff9b:1::1", "2001:2::1",
             "2001:10::1", "3fff::1", "5f00::1",
-            "2001:100::1", "2001:1ff::1", "2001::1", "2001:1::4"
+            "2001:100::1", "2001:1ff::1", "2001::1", "2001:1::4",
+            "2002:0102:0304::1"
         })
             Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.Parse(address)),
                 $"IANA non-global IPv6 prefix {address} is rejected");
         foreach (var address in new[]
         {
-            "1.1.1.1", "8.8.8.8", "2001:4860:4860::8888",
+            "1.1.1.1", "8.8.8.8", "192.0.0.9", "192.0.0.10",
+            "192.31.196.1", "192.52.193.1", "192.175.48.1",
+            "2001:4860:4860::8888",
             "2001:1::1", "2001:1::2", "2001:1::3",
             "2001:3::1", "2001:4:112::1", "2001:20::1", "2001:30::1",
-            "2001:200::1"
+            "2001:200::1", "2620:4f:8000::1", "64:ff9b::1"
         })
             Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse(address)),
                 $"public or globally reachable address {address} remains eligible");
@@ -333,6 +337,41 @@ internal static class Program
         string validWgLink = $"wireguard://{Uri.EscapeDataString(validWgPrivateKey)}@wg.example.net:51820?pk={Uri.EscapeDataString(validWgPublicKey)}&ip=10.0.0.2%2F32";
         Checks.That(CollectorType.IsValidWireguardLink(validWgLink),
             "valid WireGuard key material remains eligible for output feeds");
+
+        string fullWireguardConf =
+            "[Interface]\\r\\n" +
+            $"PrivateKey = {validWgPrivateKey}\\r\\n" +
+            "Address = 10.0.0.2/32, fd00::2/128 # keep both interface addresses\\r\\n" +
+            "DNS = 1.1.1.1, 2606:4700:4700::1111\\r\\n" +
+            "\\r\\n[Peer]\\r\\n" +
+            $"PublicKey = {validWgPublicKey}\\r\\n" +
+            "Endpoint = [2001:4860:4860::8888]:51820\\r\\n" +
+            "AllowedIPs = 0.0.0.0/0, ::/0\\r\\n" +
+            "PersistentKeepalive = 17\\r\\n";
+        string fullWireguardLink = "wireguard://" +
+            Convert.ToBase64String(Encoding.UTF8.GetBytes(fullWireguardConf));
+        var parsedFullWireguardConf = CollectorType.TryParseWireguardInfo(fullWireguardLink);
+        Checks.That(parsedFullWireguardConf is not null,
+            "a base64-encoded full WireGuard conf is parsed");
+        Checks.Equal("10.0.0.2/32, fd00::2/128", parsedFullWireguardConf!.Address,
+            "full WireGuard conf parsing preserves every comma-separated interface address");
+        Checks.Equal("1.1.1.1, 2606:4700:4700::1111", parsedFullWireguardConf.Dns,
+            "full WireGuard conf parsing preserves every comma-separated DNS server");
+        Checks.Equal(17, parsedFullWireguardConf.PersistentKeepalive,
+            "full WireGuard conf parsing preserves the source PersistentKeepalive value");
+        string rebuiltWireguardConf = CollectorType.BuildWireguardConf(parsedFullWireguardConf);
+        Checks.That(rebuiltWireguardConf.Contains("Address = 10.0.0.2/32, fd00::2/128") &&
+                    rebuiltWireguardConf.Contains("DNS = 1.1.1.1, 2606:4700:4700::1111") &&
+                    rebuiltWireguardConf.Contains("PersistentKeepalive = 17"),
+            "rebuilt WireGuard conf retains the original multi-value fields and keepalive");
+
+        string multiplePeerConf = fullWireguardConf +
+            $"\\r\\n[Peer]\\r\\nPublicKey = {validWgPublicKey}\\r\\n" +
+            "Endpoint = 192.0.2.10:51820\\r\\nAllowedIPs = 10.0.0.0/8\\r\\n";
+        string multiplePeerLink = "wireguard://" +
+            Convert.ToBase64String(Encoding.UTF8.GetBytes(multiplePeerConf));
+        Checks.That(CollectorType.TryParseWireguardInfo(multiplePeerLink) is null,
+            "multi-peer WireGuard profiles are rejected instead of silently truncating later peers");
 
         var wireguardDefaultPort = CollectorType.ParseProxyLine(
             "wireguard://privatekey@wg.example.net?pk=serverpub");

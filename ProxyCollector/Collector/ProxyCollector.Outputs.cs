@@ -95,7 +95,7 @@ namespace ProxyCollector.Collector
             LogSuccess($"Saved everything.txt ({proxies.Count})" +
                        (everythingPartCount > 1 ? $" across {everythingPartCount} parts (≤50 MiB each)" : ""));
 
-            // v6.13 quality tiers — single unsplit files, same policy as everything.txt.
+            // Quality/history feeds use the same byte cap as the full collection.
             var stable = proxies.Where(x => x.IsStable).ToList();
             int stablePartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "stable"), stable.Select(x => x.Link));
@@ -183,7 +183,7 @@ namespace ProxyCollector.Collector
             // modest prior. Keep the single unchunked 1000-node contract.
             var topCandidates = RankTopCandidates(proxies);
             var top = SelectTopWithIpv6Diversity(topCandidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 20);
-            await File.WriteAllLinesAsync(Path.Combine(sub, "top.txt"), top.Select(x => x.Link));
+            await WriteSubscriptionPartsAsync(Path.Combine(sub, "top"), top.Select(x => x.Link));
             int topIpv6Count = top.Count(x => ipv6Links.Contains(x.Link));
             LogSuccess($"Saved top.txt ({top.Count}) — global ranking with IPv6 diversity " +
                        $"({topIpv6Count} IPv6-capable); gate: TLS/Xray/edge-verified or source-tested; " +
@@ -203,7 +203,7 @@ namespace ProxyCollector.Collector
             var topIpv6Candidates = RankTopCandidates(ipv6Proxies);
             var topIpv6 = SelectTopWithIpv6Diversity(
                 topIpv6Candidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 100);
-            await File.WriteAllLinesAsync(Path.Combine(sub, "top_ipv6.txt"), topIpv6.Select(x => x.Link));
+            await WriteSubscriptionPartsAsync(Path.Combine(sub, "top_ipv6"), topIpv6.Select(x => x.Link));
 
             // Publish the family feed after the shortlist is finalized, and include the
             // shortlist as a defensive invariant. This is normally a no-op because

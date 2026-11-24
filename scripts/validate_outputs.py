@@ -150,7 +150,9 @@ def validate_tree(root: pathlib.Path) -> list[str]:
         if line.strip()
     }
     ipv6_links = {
-        line.strip() for line in ipv6_only_path.read_text(encoding="utf-8-sig").splitlines()
+        line.strip()
+        for path in all_parts(ipv6_only_path)
+        for line in path.read_text(encoding="utf-8-sig").splitlines()
         if line.strip()
     }
     missing_ipv6_links = top_ipv6_links - ipv6_links
@@ -168,36 +170,47 @@ def validate_tree(root: pathlib.Path) -> list[str]:
     # everything.txt is the stable first part. Large collections continue in
     # everything_part2.txt, everything_part3.txt, ...; validate the sequence and
     # use every part when checking that the other feeds are subsets of the master list.
-    everything_part_numbers: list[int] = []
-    everything_part_paths: list[pathlib.Path] = []
-    for path in root.glob("everything_part*.txt"):
-        match = re.fullmatch(r"everything_part([0-9]+)\.txt", path.name)
-        if not match or int(match.group(1)) < 2:
-            raise ValidationError(f"invalid everything part filename: {path.name}")
-        everything_part_numbers.append(int(match.group(1)))
-        everything_part_paths.append(path)
-    ordered_parts = sorted(zip(everything_part_numbers, everything_part_paths), key=lambda item: item[0])
-    expected_part_numbers = list(range(2, len(ordered_parts) + 2))
-    if [number for number, _ in ordered_parts] != expected_part_numbers:
-        raise ValidationError("everything parts must be contiguous and numbered from everything_part2.txt")
+    # Every _partN file must have a stable base file and a gap-free sequence
+    # beginning at part 2. This also protects protocol/country/continent chunks.
+    split_groups: dict[pathlib.Path, list[tuple[int, pathlib.Path]]] = {}
+    for path in root.rglob("*_part*.txt"):
+        match = re.fullmatch(r"(.+)_part([0-9]+)\.txt", path.name)
+        if not match or int(match.group(2)) < 2:
+            raise ValidationError(f"invalid subscription part filename: {path.relative_to(root).as_posix()}")
+        base_path = path.with_name(match.group(1) + ".txt")
+        if not base_path.is_file():
+            raise ValidationError(f"{path.relative_to(root).as_posix()} has no base file {base_path.name}")
+        rel = path.relative_to(root).as_posix()
+        if counts.get(rel, 0) == 0:
+            raise ValidationError(f"{rel} is empty; remove empty trailing subscription parts")
+        split_groups.setdefault(base_path, []).append((int(match.group(2)), path))
 
-    everything_paths = [root / "everything.txt"] + [path for _, path in ordered_parts]
+    for base_path, parts in split_groups.items():
+        ordered = sorted(parts, key=lambda item: item[0])
+        expected = list(range(2, len(ordered) + 2))
+        if [number for number, _ in ordered] != expected:
+            rel = base_path.relative_to(root).as_posix()
+            raise ValidationError(f"{rel} parts must be contiguous and numbered from _part2.txt")
+
+    def all_parts(base_path: pathlib.Path) -> list[pathlib.Path]:
+        ordered = sorted(split_groups.get(base_path, []), key=lambda item: item[0])
+        return [base_path] + [path for _, path in ordered]
+
+    everything_paths = all_parts(root / "everything.txt")
     everything_links: set[str] = set()
     everything_total_lines = 0
-    for index, path in enumerate(everything_paths):
+    for path in everything_paths:
         part_lines = [
             line.strip()
             for line in path.read_text(encoding="utf-8-sig").splitlines()
             if line.strip()
         ]
-        if index > 0 and not part_lines:
-            raise ValidationError(f"{path.name} is empty; remove empty trailing everything parts")
         everything_total_lines += len(part_lines)
         everything_links.update(part_lines)
     counts["everything.txt"] = everything_total_lines
     for path in sorted(root.rglob("*.txt")):
         rel = path.relative_to(root).as_posix()
-        if rel in {"everything.txt", "verified.txt"} or re.fullmatch(r"everything_part[0-9]+\.txt", path.name):
+        if rel in {"everything.txt", "verified.txt"} or path in everything_paths[1:] or path in all_parts(root / "verified.txt")[1:]:
             continue
         lines = [
             line.strip()
@@ -254,7 +267,8 @@ def self_test() -> None:
         (root / "everything.txt").write_text("\n".join(good[:3]) + "\n", encoding="utf-8")
         (root / "everything_part2.txt").write_text("\n".join(good[3:]) + "\n", encoding="utf-8")
         (root / "ipv4_only.txt").write_text(good[0] + "\n", encoding="utf-8")
-        (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
+        (root / "ipv6_only.txt").write_text(good[0] + "\n", encoding="utf-8")
+        (root / "ipv6_only_part2.txt").write_text(good[4] + "\n", encoding="utf-8")
         (root / "stable.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "verified_tls.txt").write_text(good[1] + "\n", encoding="utf-8")
         (root / "curated.txt").write_text(good[2] + "\n", encoding="utf-8")
@@ -272,7 +286,7 @@ def self_test() -> None:
 
         part2_path = root / "everything_part2.txt"
         original_part2 = part2_path.read_text(encoding="utf-8")
-        (root / "everything_part4.txt").write_text(good[4] + "\\n", encoding="utf-8")
+        (root / "everything_part4.txt").write_text(good[4] + "\n", encoding="utf-8")
         try:
             validate_tree(root)
         except ValidationError as exc:
@@ -326,6 +340,9 @@ def self_test() -> None:
         finally:
             (root / "top.txt").write_text(original_top, encoding="utf-8")
 
+        ipv6_part2_path = root / "ipv6_only_part2.txt"
+        original_ipv6_part2 = ipv6_part2_path.read_text(encoding="utf-8")
+        ipv6_part2_path.unlink()
         (root / "ipv6_only.txt").write_text(good[0] + "\n", encoding="utf-8")
         try:
             validate_tree(root)
@@ -334,7 +351,8 @@ def self_test() -> None:
                 raise
         else:
             raise ValidationError("self-test failed to catch top_ipv6.txt entries missing from ipv6_only.txt")
-        (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
+        finally:
+            ipv6_part2_path.write_text(original_ipv6_part2, encoding="utf-8")
         (root / "top.txt").write_text(good[0] + "\n" + good[0] + "\n", encoding="utf-8")
         try:
             validate_tree(root)

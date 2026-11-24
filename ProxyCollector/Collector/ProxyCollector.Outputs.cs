@@ -1109,7 +1109,7 @@ namespace ProxyCollector.Collector
         private static string GetWireguardDirective(string content, string sectionName, string directiveName)
         {
             string currentSection = "";
-            foreach (string rawLine in content.Split(new[] { "\\r\\n", "\\n", "\\r" }, StringSplitOptions.None))
+            foreach (string rawLine in content.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
             {
                 string line = rawLine.Trim();
                 if (line.Length == 0 || line.StartsWith('#') || line.StartsWith(';'))

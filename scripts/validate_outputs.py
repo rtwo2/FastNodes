@@ -307,7 +307,7 @@ def self_test() -> None:
         try:
             validate_tree(root)
         except ValidationError as exc:
-            if "everything parts must be contiguous" not in str(exc):
+            if "parts must be contiguous" not in str(exc):
                 raise
         else:
             raise ValidationError("self-test failed to catch a missing everything_part3.txt")

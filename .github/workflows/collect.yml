@@ -1469,10 +1469,12 @@ jobs:
         run: |
           set -euo pipefail
           shopt -s nullglob
+          top_part_files=(sub/top_part*.txt)
+          top_files=(sub/top.txt "${top_part_files[@]}")
           everything_files=(sub/everything*.txt)
           verified_part_files=(sub/verified_part*.txt)
           verified_files=(sub/verified.txt "${verified_part_files[@]}")
-          files_to_validate=(sub/top.txt "${verified_files[@]}" "${everything_files[@]}")
+          files_to_validate=("${top_files[@]}" "${verified_files[@]}" "${everything_files[@]}")
           for file in "${files_to_validate[@]}"; do
             if [[ ! -s "$file" ]]; then
               echo "::error::Required subscription part is missing or empty: $file"
@@ -1487,7 +1489,7 @@ jobs:
               exit 1
             fi
           done
-          top_count=$(wc -l < sub/top.txt)
+          top_count=$(awk 'END { print NR }' "${top_files[@]}")
           if (( top_count > 1000 )); then
             echo "::error::top.txt exceeds its 1000-node contract ($top_count)"
             exit 1

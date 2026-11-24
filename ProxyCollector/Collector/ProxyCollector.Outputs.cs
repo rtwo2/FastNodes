@@ -1184,7 +1184,7 @@ namespace ProxyCollector.Collector
             return $"{normalizedHost}:{port}";
         }
 
-        private static string BuildWireguardConf(WgInfo info)
+        internal static string BuildWireguardConf(WgInfo info)
         {
             var sb = new StringBuilder();
             sb.AppendLine("[Interface]");

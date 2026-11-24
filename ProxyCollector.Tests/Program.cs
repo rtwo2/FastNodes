@@ -610,6 +610,39 @@ internal static class Program
         };
         Checks.That(CollectorType.BuildXrayOutbound(invalidVlessFlow, "invalid-vless-flow") is null,
             "Xray builder skips unsupported VLESS flow values instead of invalidating the full batch");
+
+        const string validRealityPublicKey = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+        Checks.That(CollectorType.IsValidRealityPublicKey(validRealityPublicKey),
+            "REALITY public keys must decode to 32 bytes");
+        Checks.That(!CollectorType.IsValidRealityPublicKey("abc"),
+            "malformed REALITY public keys are rejected");
+        Checks.That(CollectorType.IsValidRealityShortId("0123") &&
+                    CollectorType.IsValidRealityShortId(""),
+            "REALITY short IDs accept empty or even-length hexadecimal values");
+        Checks.That(!CollectorType.IsValidRealityShortId("abc") &&
+                    !CollectorType.IsValidRealityShortId("0123456789abcdef00"),
+            "REALITY short IDs reject odd-length and over-16-character values");
+        var validRealityNode = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vless", Host = "reality.example.net", Port = "443",
+            Credential = validVlessUuid, Network = "tcp", Security = "reality",
+            Pbk = validRealityPublicKey, Sid = "0123"
+        };
+        var validRealityOutbound = CollectorType.BuildXrayOutbound(validRealityNode, "valid-reality")!;
+        var realityStream = (Dictionary<string, object?>)validRealityOutbound["streamSettings"]!;
+        var realitySettings = (Dictionary<string, object?>)realityStream["realitySettings"]!;
+        Checks.Equal(validRealityPublicKey, (string)realitySettings["password"]!,
+            "current Xray REALITY config uses password for the server public key");
+        Checks.That(!realitySettings.ContainsKey("publicKey"),
+            "Xray REALITY outbound no longer emits the legacy publicKey property");
+        var invalidRealityNode = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vless", Host = "reality.example.net", Port = "443",
+            Credential = validVlessUuid, Network = "tcp", Security = "reality",
+            Pbk = "abc", Sid = "0123"
+        };
+        Checks.That(CollectorType.BuildXrayOutbound(invalidRealityNode, "invalid-reality-key") is null,
+            "malformed REALITY material is skipped rather than poisoning the entire Xray batch");
         var validUdp443Flow = new ProxyCollector.Collector.ParsedProxy
         {
             Protocol = "vless", Host = "udp443-flow.example.net", Port = "443",

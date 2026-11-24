@@ -891,7 +891,7 @@ namespace ProxyCollector.Collector
         // WireGuard has NO standard share-link format — the official app only
         // imports .conf files, and wireguard:// URIs are unrecognized by every
         // major client. This extracts the parameters from whatever the source published.
-        private class WgInfo
+        internal sealed class WgInfo
         {
             public string? PrivateKey = null;
             public string? PublicKey = null;
@@ -901,6 +901,7 @@ namespace ProxyCollector.Collector
             public string? PresharedKey = null;
             public string Host = "";
             public int Port = 51820;
+            public int PersistentKeepalive = 25;
             public string[] Reserved = Array.Empty<string>();
         }
 
@@ -988,7 +989,7 @@ namespace ProxyCollector.Collector
         internal static bool IsValidWireguardLink(string link)
             => TryParseWireguardInfo(link) is not null;
 
-        private static WgInfo? TryParseWireguardInfo(string link)
+        internal static WgInfo? TryParseWireguardInfo(string link)
         {
             try
             {
@@ -1006,42 +1007,51 @@ namespace ProxyCollector.Collector
                     string b64 = rest.Replace('-', '+').Replace('_', '/');
                     int pad = b64.Length % 4; if (pad > 0) b64 += new string('=', 4 - pad);
                     string decoded = Encoding.UTF8.GetString(Convert.FromBase64String(b64));
-                    if (decoded.Contains("[Interface]") && decoded.Contains("[Peer]"))
+                    if (decoded.Contains("[Interface]", StringComparison.OrdinalIgnoreCase) &&
+                        decoded.Contains("[Peer]", StringComparison.OrdinalIgnoreCase))
                     {
-                        string pk = Regex.Match(decoded, @"PrivateKey\s*=\s*(\S+)").Groups[1].Value;
-                        if (!string.IsNullOrEmpty(pk)) info.PrivateKey = pk;
-                        
-                        string pubk = Regex.Match(decoded, @"PublicKey\s*=\s*(\S+)").Groups[1].Value;
-                        if (!string.IsNullOrEmpty(pubk)) info.PublicKey = pubk;
-                        
-                        string addr = Regex.Match(decoded, @"Address\s*=\s*(\S+)").Groups[1].Value;
-                        if (!string.IsNullOrEmpty(addr)) info.Address = addr;
-                        
-                        string dns = Regex.Match(decoded, @"DNS\s*=\s*(\S+)").Groups[1].Value;
+                        // One ParsedProxy represents one peer. Do not silently truncate a
+                        // valid multi-peer profile into a different one-peer configuration.
+                        int interfaceCount = Regex.Matches(decoded, @"(?im)^\s*\[Interface\]\s*$").Count;
+                        int peerCount = Regex.Matches(decoded, @"(?im)^\s*\[Peer\]\s*$").Count;
+                        if (interfaceCount != 1 || peerCount != 1) return null;
+
+                        info.PrivateKey = GetWireguardDirective(decoded, "Interface", "PrivateKey");
+                        info.PublicKey = GetWireguardDirective(decoded, "Peer", "PublicKey");
+                        string address = GetWireguardDirective(decoded, "Interface", "Address");
+                        if (!string.IsNullOrEmpty(address)) info.Address = address;
+                        string dns = GetWireguardDirective(decoded, "Interface", "DNS");
                         if (!string.IsNullOrEmpty(dns)) info.Dns = dns;
-                        
-                        string allowed = Regex.Match(decoded, @"AllowedIPs\s*=\s*(.+)").Groups[1].Value.Trim();
+                        string allowed = GetWireguardDirective(decoded, "Peer", "AllowedIPs");
                         if (!string.IsNullOrEmpty(allowed)) info.AllowedIPs = allowed;
-                        
-                        string psk = Regex.Match(decoded, @"PresharedKey\s*=\s*(\S+)").Groups[1].Value;
+                        string psk = GetWireguardDirective(decoded, "Peer", "PresharedKey");
                         if (!string.IsNullOrEmpty(psk)) info.PresharedKey = psk;
-                        
-                        string endpoint = Regex.Match(decoded, @"Endpoint\s*=\s*(.+)").Groups[1].Value.Trim();
+
+                        string endpoint = GetWireguardDirective(decoded, "Peer", "Endpoint");
                         if (!string.IsNullOrEmpty(endpoint))
                         {
                             if (endpoint.StartsWith('['))
                             {
                                 int close = endpoint.IndexOf(']');
+                                if (close <= 1 || close + 1 >= endpoint.Length || endpoint[close + 1] != ':')
+                                    return null;
                                 info.Host = endpoint[1..close];
-                                info.Port = int.Parse(endpoint[(close + 2)..]);
+                                if (!int.TryParse(endpoint[(close + 2)..], out info.Port)) return null;
                             }
                             else
                             {
                                 int colon = endpoint.LastIndexOf(':');
+                                if (colon <= 0 || !int.TryParse(endpoint[(colon + 1)..], out info.Port))
+                                    return null;
                                 info.Host = endpoint[..colon];
-                                info.Port = int.Parse(endpoint[(colon + 1)..]);
                             }
                         }
+
+                        string keepalive = GetWireguardDirective(decoded, "Peer", "PersistentKeepalive");
+                        if (!string.IsNullOrEmpty(keepalive) &&
+                            (!int.TryParse(keepalive, out info.PersistentKeepalive) ||
+                             info.PersistentKeepalive is < 0 or > 65535))
+                            return null;
                     }
                 }
                 catch { }
@@ -1064,6 +1074,11 @@ namespace ProxyCollector.Collector
                     info.Dns = q.GetValueOrDefault("dns", "1.1.1.1");
                     info.AllowedIPs = q.GetValueOrDefault("allowedips", q.GetValueOrDefault("allowed_ips", "0.0.0.0/0, ::/0"));
                     info.PresharedKey = q.GetValueOrDefault("psk", q.GetValueOrDefault("presharedkey", ""));
+                    string keepalive = q.GetValueOrDefault("persistentkeepalive", q.GetValueOrDefault("keepalive", ""));
+                    if (!string.IsNullOrEmpty(keepalive) &&
+                        (!int.TryParse(keepalive, out info.PersistentKeepalive) ||
+                         info.PersistentKeepalive is < 0 or > 65535))
+                        return null;
                     info.Reserved = q.GetValueOrDefault("reserved", "").Split(',', StringSplitOptions.RemoveEmptyEntries);
                 }
 
@@ -1077,7 +1092,8 @@ namespace ProxyCollector.Collector
                 info.PublicKey = SanitizeWgKey(info.PublicKey);
                 info.PresharedKey = SanitizeWgKey(info.PresharedKey); // Can be null if not present
 
-                if (info.PrivateKey == null || info.PublicKey == null)
+                if (info.PrivateKey == null || info.PublicKey == null ||
+                    info.PersistentKeepalive is < 0 or > 65535)
                     return null;
 
                 info.Host = info.Host.Trim().Trim('[', ']');
@@ -1088,6 +1104,38 @@ namespace ProxyCollector.Collector
                 return info;
             }
             catch { return null; }
+        }
+
+        private static string GetWireguardDirective(string content, string sectionName, string directiveName)
+        {
+            string currentSection = "";
+            foreach (string rawLine in content.Split(new[] { "\\r\\n", "\\n", "\\r" }, StringSplitOptions.None))
+            {
+                string line = rawLine.Trim();
+                if (line.Length == 0 || line.StartsWith('#') || line.StartsWith(';'))
+                    continue;
+
+                if (line.StartsWith('[') && line.EndsWith(']'))
+                {
+                    currentSection = line[1..^1].Trim();
+                    continue;
+                }
+
+                if (!currentSection.Equals(sectionName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                int separator = line.IndexOf('=');
+                if (separator <= 0 ||
+                    !line[..separator].Trim().Equals(directiveName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                string value = line[(separator + 1)..].Trim();
+                int comment = value.IndexOf('#');
+                if (comment >= 0) value = value[..comment].TrimEnd();
+                return value;
+            }
+
+            return "";
         }
 
         // Bulletproof key sanitizer: removes spaces, normalizes URL-safe base64,
@@ -1150,7 +1198,7 @@ namespace ProxyCollector.Collector
                 sb.AppendLine($"PresharedKey = {info.PresharedKey}");
             sb.AppendLine($"Endpoint = {FormatWireguardEndpoint(info.Host, info.Port)}");
             sb.AppendLine($"AllowedIPs = {info.AllowedIPs}");
-            sb.AppendLine("PersistentKeepalive = 25");
+            sb.AppendLine($"PersistentKeepalive = {info.PersistentKeepalive}");
             return sb.ToString();
         }
 

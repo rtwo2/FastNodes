@@ -34,6 +34,15 @@ internal static class Program
             }),
             "Happy Eyeballs interleaves IPv4 and IPv6 while preserving each resolver family order");
 
+        Checks.Equal(1024, SourceFetchBudget.GetReservationBytes(1024, false, 8192),
+            "uncompressed source responses reserve their declared working-set size");
+        Checks.Equal(8192, SourceFetchBudget.GetReservationBytes(1024, true, 8192),
+            "compressed source responses reserve their decompressed maximum, not compressed Content-Length");
+        Checks.Equal(8192, SourceFetchBudget.GetReservationBytes(null, false, 8192),
+            "unknown-length source responses reserve the configured maximum");
+        Checks.Equal(8192, SourceFetchBudget.GetReservationBytes(16384, false, 8192),
+            "declared source lengths above the hard cap reserve the full bounded ceiling");
+
         using (var memoryBudget = new SourceFetchBudget(8L * 1024 * 1024, 8L * 1024 * 1024))
         {
             var firstReservation = memoryBudget.AcquireSourceAsync(1024 * 1024, CancellationToken.None)

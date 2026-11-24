@@ -1468,9 +1468,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in sub/top.txt sub/verified.txt sub/everything.txt; do
+          shopt -s nullglob
+          everything_files=(sub/everything*.txt)
+          verified_part_files=(sub/verified_part*.txt)
+          verified_files=(sub/verified.txt "${verified_part_files[@]}")
+          files_to_validate=(sub/top.txt "${verified_files[@]}" "${everything_files[@]}")
+          for file in "${files_to_validate[@]}"; do
             if [[ ! -s "$file" ]]; then
-              echo "::error::Required subscription is missing or empty: $file"
+              echo "::error::Required subscription part is missing or empty: $file"
               exit 1
             fi
             if grep -Eiq '<!doctype html|<html|access denied|rate limit exceeded' "$file"; then
@@ -1487,12 +1492,13 @@ jobs:
             echo "::error::top.txt exceeds its 1000-node contract ($top_count)"
             exit 1
           fi
-          verified_count=$(wc -l < sub/verified.txt)
+          verified_count=$(awk 'END { print NR }' "${verified_files[@]}")
           if (( verified_count == 0 )); then
             echo "::error::verified.txt is empty; refusing to publish"
             exit 1
           fi
-          echo "Validated top.txt=$top_count verified.txt=$verified_count everything.txt=$(wc -l < sub/everything.txt)"
+          everything_count=$(awk 'END { print NR }' "${everything_files[@]}")
+          echo "Validated top.txt=$top_count verified.txt=$verified_count everything collection=$everything_count across ${#everything_files[@]} parts"
 
       - name: Validate every generated text subscription
         if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
@@ -1550,7 +1556,9 @@ jobs:
             exit 0
           fi
 
-          PROXY_COUNT=$(wc -l < sub/everything.txt 2>/dev/null || echo 0)
+          shopt -s nullglob
+          EVERYTHING_FILES=(sub/everything*.txt)
+          PROXY_COUNT=$(awk 'END { print NR }' "${EVERYTHING_FILES[@]}")
           # Remember the exact main revision checked out at the start of this run.
           BASE_SHA=$(git rev-parse HEAD)
 

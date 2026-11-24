@@ -36,10 +36,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v6
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6
         with:
           dotnet-version: 10.x
 
@@ -68,6 +68,7 @@ jobs:
           curl --fail --location --retry 3 --retry-all-errors \
             "https://github.com/XTLS/Xray-core/releases/download/v${XRAY_VERSION}/Xray-linux-64.zip" \
             -o /tmp/xray.zip
+          echo "23cd9af937744d97776ee35ecad4972cf4b2109d1e0fe6be9930467608f7c8ae  /tmp/xray.zip" | sha256sum --check -
           unzip -o -j /tmp/xray.zip xray -d /tmp/xraybin
           chmod +x /tmp/xraybin/xray
           /tmp/xraybin/xray version
@@ -1467,9 +1468,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in sub/top.txt sub/verified.txt sub/everything.txt; do
+          shopt -s nullglob
+          top_part_files=(sub/top_part*.txt)
+          top_files=(sub/top.txt "${top_part_files[@]}")
+          everything_files=(sub/everything*.txt)
+          verified_part_files=(sub/verified_part*.txt)
+          verified_files=(sub/verified.txt "${verified_part_files[@]}")
+          files_to_validate=("${top_files[@]}" "${verified_files[@]}" "${everything_files[@]}")
+          for file in "${files_to_validate[@]}"; do
             if [[ ! -s "$file" ]]; then
-              echo "::error::Required subscription is missing or empty: $file"
+              echo "::error::Required subscription part is missing or empty: $file"
               exit 1
             fi
             if grep -Eiq '<!doctype html|<html|access denied|rate limit exceeded' "$file"; then
@@ -1481,17 +1489,18 @@ jobs:
               exit 1
             fi
           done
-          top_count=$(wc -l < sub/top.txt)
+          top_count=$(awk 'END { print NR }' "${top_files[@]}")
           if (( top_count > 1000 )); then
             echo "::error::top.txt exceeds its 1000-node contract ($top_count)"
             exit 1
           fi
-          verified_count=$(wc -l < sub/verified.txt)
+          verified_count=$(awk 'END { print NR }' "${verified_files[@]}")
           if (( verified_count == 0 )); then
             echo "::error::verified.txt is empty; refusing to publish"
             exit 1
           fi
-          echo "Validated top.txt=$top_count verified.txt=$verified_count everything.txt=$(wc -l < sub/everything.txt)"
+          everything_count=$(awk 'END { print NR }' "${everything_files[@]}")
+          echo "Validated top.txt=$top_count verified.txt=$verified_count everything collection=$everything_count across ${#everything_files[@]} parts"
 
       - name: Validate every generated text subscription
         if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
@@ -1526,7 +1535,7 @@ jobs:
 
       - name: Upload build and collector logs
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: fastnodes-build-and-run-logs
           path: |
@@ -1549,7 +1558,9 @@ jobs:
             exit 0
           fi
 
-          PROXY_COUNT=$(wc -l < sub/everything.txt 2>/dev/null || echo 0)
+          shopt -s nullglob
+          EVERYTHING_FILES=(sub/everything*.txt)
+          PROXY_COUNT=$(awk 'END { print NR }' "${EVERYTHING_FILES[@]}")
           # Remember the exact main revision checked out at the start of this run.
           BASE_SHA=$(git rev-parse HEAD)
 

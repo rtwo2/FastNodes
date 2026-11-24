@@ -90,17 +90,23 @@ namespace ProxyCollector.Collector
             var ipv6Proxies = await FilterByFamilyAsync(proxies, AddressFamily.InterNetworkV6);
             var ipv6Links = new HashSet<string>(ipv6Proxies.Select(x => x.Link), StringComparer.Ordinal);
 
-            await File.WriteAllLinesAsync(Path.Combine(sub, "everything.txt"), proxies.Select(x => x.Link));
-            LogSuccess($"Saved everything.txt ({proxies.Count})");
+            int everythingPartCount = await WriteSubscriptionPartsAsync(
+                Path.Combine(sub, "everything"), proxies.Select(x => x.Link));
+            LogSuccess($"Saved everything.txt ({proxies.Count})" +
+                       (everythingPartCount > 1 ? $" across {everythingPartCount} parts (≤50 MiB each)" : ""));
 
-            // v6.13 quality tiers — single unsplit files, same policy as everything.txt.
+            // Quality/history feeds use the same byte cap as the full collection.
             var stable = proxies.Where(x => x.IsStable).ToList();
-            await File.WriteAllLinesAsync(Path.Combine(sub, "stable.txt"), stable.Select(x => x.Link));
-            LogSuccess($"Saved stable.txt ({stable.Count}) — present ≥{StableMinRuns} consecutive runs");
+            int stablePartCount = await WriteSubscriptionPartsAsync(
+                Path.Combine(sub, "stable"), stable.Select(x => x.Link));
+            LogSuccess($"Saved stable.txt ({stable.Count}) — present ≥{StableMinRuns} consecutive runs" +
+                       (stablePartCount > 1 ? $"; split into {stablePartCount} parts" : ""));
 
             var tlsVerified = proxies.Where(x => x.TlsVerified).ToList();
-            await File.WriteAllLinesAsync(Path.Combine(sub, "verified_tls.txt"), tlsVerified.Select(x => x.Link));
-            LogSuccess($"Saved verified_tls.txt ({tlsVerified.Count}) — TLS handshake completed (clean-vantage, promotion only)");
+            int tlsPartCount = await WriteSubscriptionPartsAsync(
+                Path.Combine(sub, "verified_tls"), tlsVerified.Select(x => x.Link));
+            LogSuccess($"Saved verified_tls.txt ({tlsVerified.Count}) — TLS handshake completed (clean-vantage, promotion only)" +
+                       (tlsPartCount > 1 ? $"; split into {tlsPartCount} parts" : ""));
 
             // v6.15: the strongest file in the repo — nodes that proxied a real HTTP
             // request end-to-end this run, through the actual protocol, via xray-core.
@@ -126,7 +132,7 @@ namespace ProxyCollector.Collector
                 ? 1 : Math.Max(25, (int)Math.Ceiling(previousVerifiedCount * 0.20));
             if (xrayVerified.Count >= replacementFloor)
             {
-                await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), xrayVerified.Select(x => x.Link));
+                await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), xrayVerified.Select(x => x.Link));
                 Directory.CreateDirectory("state");
                 await File.WriteAllLinesAsync(lastVerifiedPath, xrayVerified.Select(x => x.Link));
                 LogSuccess($"Saved verified.txt ({xrayVerified.Count}) — current-run full proxy roundtrip");
@@ -137,14 +143,14 @@ namespace ProxyCollector.Collector
                 var safeLastGood = await FilterSafeLastGoodLinksAsync(lastGoodLines);
                 if (safeLastGood.Count > 0)
                 {
-                    await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), safeLastGood);
+                    await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), safeLastGood);
                     LogWarning($"verified.txt: only {xrayVerified.Count} current-run successes (replacement floor {replacementFloor}); preserving {safeLastGood.Count}/{lastGoodLines.Length} safe last-good entries.");
                 }
                 else if (xrayVerified.Count > 0)
                 {
                     // Prefer a small, current-run verified set over an unsafe or wholly
                     // stale fallback. Do not rotate the last-good snapshot below its floor.
-                    await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), xrayVerified.Select(x => x.Link));
+                    await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), xrayVerified.Select(x => x.Link));
                     LogWarning($"verified.txt: no safe last-good entries; publishing {xrayVerified.Count} current-run roundtrip successes without rotating the snapshot.");
                 }
                 else
@@ -159,7 +165,7 @@ namespace ProxyCollector.Collector
             {
                 // No previous snapshot exists. Preserve any current successes; workflow
                 // validation will still prevent an empty first publication.
-                await File.WriteAllLinesAsync(Path.Combine(sub, "verified.txt"), xrayVerified.Select(x => x.Link));
+                await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), xrayVerified.Select(x => x.Link));
                 LogWarning($"verified.txt: first run has only {xrayVerified.Count} verified nodes.");
             }
 
@@ -167,15 +173,17 @@ namespace ProxyCollector.Collector
             // Source testing can include Iran-specific checks, but the output stays useful
             // internationally and does not assume the GitHub runner matches the user.
             var curated = proxies.Where(x => x.IranTested || (x.IsStable && x.TlsVerified)).ToList();
-            await File.WriteAllLinesAsync(Path.Combine(sub, "curated.txt"), curated.Select(x => x.Link));
-            LogSuccess($"Saved curated.txt ({curated.Count}) — Iran-tested source or stable+TLS-verified");
+            int curatedPartCount = await WriteSubscriptionPartsAsync(
+                Path.Combine(sub, "curated"), curated.Select(x => x.Link));
+            LogSuccess($"Saved curated.txt ({curated.Count}) — Iran-tested source or stable+TLS-verified" +
+                       (curatedPartCount > 1 ? $"; split into {curatedPartCount} parts" : ""));
 
             // /top is a globally ranked precision file. Require at least one affirmative
             // signal, then rank by converging evidence; geography contributes only a
             // modest prior. Keep the single unchunked 1000-node contract.
             var topCandidates = RankTopCandidates(proxies);
             var top = SelectTopWithIpv6Diversity(topCandidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 20);
-            await File.WriteAllLinesAsync(Path.Combine(sub, "top.txt"), top.Select(x => x.Link));
+            await WriteSubscriptionPartsAsync(Path.Combine(sub, "top"), top.Select(x => x.Link));
             int topIpv6Count = top.Count(x => ipv6Links.Contains(x.Link));
             LogSuccess($"Saved top.txt ({top.Count}) — global ranking with IPv6 diversity " +
                        $"({topIpv6Count} IPv6-capable); gate: TLS/Xray/edge-verified or source-tested; " +
@@ -184,8 +192,10 @@ namespace ProxyCollector.Collector
             // v6.13: IPv4/IPv6 by RESOLVED family — hostname nodes now classify too
             // (alias collapse swaps v6 literals for hostnames, which literal-only
             // classification undercounted). Warm cache ⇒ ~free.
-            await File.WriteAllLinesAsync(Path.Combine(sub, "ipv4_only.txt"), ipv4Proxies.Select(x => x.Link));
-            LogSuccess($"Saved ipv4_only.txt ({ipv4Proxies.Count})");
+            int ipv4PartCount = await WriteSubscriptionPartsAsync(
+                Path.Combine(sub, "ipv4_only"), ipv4Proxies.Select(x => x.Link));
+            LogSuccess($"Saved ipv4_only.txt ({ipv4Proxies.Count})" +
+                       (ipv4PartCount > 1 ? $"; split into {ipv4PartCount} parts" : ""));
 
             // A focused shortlist for IPv6-capable endpoints. Keep the same evidence
             // gate and score ordering as top.txt, but rank across the full IPv6-capable
@@ -193,7 +203,7 @@ namespace ProxyCollector.Collector
             var topIpv6Candidates = RankTopCandidates(ipv6Proxies);
             var topIpv6 = SelectTopWithIpv6Diversity(
                 topIpv6Candidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 100);
-            await File.WriteAllLinesAsync(Path.Combine(sub, "top_ipv6.txt"), topIpv6.Select(x => x.Link));
+            await WriteSubscriptionPartsAsync(Path.Combine(sub, "top_ipv6"), topIpv6.Select(x => x.Link));
 
             // Publish the family feed after the shortlist is finalized, and include the
             // shortlist as a defensive invariant. This is normally a no-op because
@@ -203,8 +213,10 @@ namespace ProxyCollector.Collector
                 .Concat(topIpv6.Select(x => x.Link))
                 .Distinct(StringComparer.Ordinal)
                 .ToList();
-            await File.WriteAllLinesAsync(Path.Combine(sub, "ipv6_only.txt"), ipv6OnlyLinks);
-            LogSuccess($"Saved ipv6_only.txt ({ipv6OnlyLinks.Count}) / top_ipv6.txt ({topIpv6.Count}) — shortlist membership guaranteed");
+            int ipv6PartCount = await WriteSubscriptionPartsAsync(
+                Path.Combine(sub, "ipv6_only"), ipv6OnlyLinks);
+            LogSuccess($"Saved ipv6_only.txt ({ipv6OnlyLinks.Count}) / top_ipv6.txt ({topIpv6.Count}) — shortlist membership guaranteed" +
+                       (ipv6PartCount > 1 ? $"; split ipv6_only into {ipv6PartCount} parts" : ""));
 
             if (topIpv6.Any(x => !ipv6OnlyLinks.Contains(x.Link, StringComparer.Ordinal)))
                 throw new InvalidOperationException("top_ipv6.txt contains a node missing from ipv6_only.txt");
@@ -1147,21 +1159,71 @@ namespace ProxyCollector.Collector
         // subscription link to it stays valid regardless of node count. Any overflow
         // beyond that goes to <name>_part2.txt, _part3.txt, ... (numbering starts at 2,
         // not 1, precisely so xx_part1.txt never exists and can't be confused with xx.txt).
+        internal static async Task<int> WriteSubscriptionPartsAsync(
+            string pathNoExt,
+            IEnumerable<string> lines,
+            long maxBytes = SubscriptionPartMaxBytes,
+            int maxLinesPerPart = int.MaxValue)
+        {
+            if (string.IsNullOrWhiteSpace(pathNoExt))
+                throw new ArgumentException("An output path is required.", nameof(pathNoExt));
+            if (maxBytes <= 0)
+                throw new ArgumentOutOfRangeException(nameof(maxBytes), "The part byte limit must be positive.");
+            if (maxLinesPerPart <= 0)
+                throw new ArgumentOutOfRangeException(nameof(maxLinesPerPart), "The part line limit must be positive.");
+
+            Directory.CreateDirectory(Path.GetDirectoryName(pathNoExt) ?? ".");
+            var currentPart = new List<string>();
+            int partNumber = 1;
+            int partCount = 0;
+            long bytesInPart = 0;
+
+            async Task FlushPartAsync()
+            {
+                string path = partNumber == 1
+                    ? pathNoExt + ".txt"
+                    : $"{pathNoExt}_part{partNumber}.txt";
+                await File.WriteAllLinesAsync(path, currentPart, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                partCount++;
+                partNumber++;
+                currentPart.Clear();
+                bytesInPart = 0;
+            }
+
+            foreach (string line in lines)
+            {
+                if (line is null)
+                    throw new InvalidDataException("A subscription entry cannot be null.");
+                if (line.Contains('\r') || line.Contains('\n'))
+                    throw new InvalidDataException("A subscription entry must occupy exactly one line.");
+
+                long lineBytes = Encoding.UTF8.GetByteCount(line) + 1; // UTF-8 line plus LF.
+                if (lineBytes > maxBytes)
+                    throw new InvalidDataException(
+                        $"A single subscription entry requires {lineBytes} bytes, exceeding the {maxBytes}-byte part limit.");
+
+                if (currentPart.Count > 0 &&
+                    (bytesInPart + lineBytes > maxBytes || currentPart.Count >= maxLinesPerPart))
+                    await FlushPartAsync();
+
+                currentPart.Add(line);
+                bytesInPart += lineBytes;
+            }
+
+            // Keep the original filename as part one, including for an empty feed.
+            if (currentPart.Count > 0 || partCount == 0)
+                await FlushPartAsync();
+            return partCount;
+        }
+
+        // Retain the existing 1,000-node category chunk behavior while applying
+        // the same per-file byte ceiling as the other subscription feeds.
         private static async Task WriteTxt(string pathNoExt, List<FinalProxy> proxies)
         {
-            await File.WriteAllLinesAsync(pathNoExt + ".txt", proxies.Take(ChunkSize).Select(x => x.Link));
-
-            if (proxies.Count <= ChunkSize) return;
-
-            int partNum = 2;
-            for (int i = ChunkSize; i < proxies.Count; i += ChunkSize)
-            {
-                var chunk = proxies.Skip(i).Take(ChunkSize).Select(x => x.Link);
-                await File.WriteAllLinesAsync($"{pathNoExt}_part{partNum}.txt", chunk);
-                partNum++;
-            }
+            await WriteSubscriptionPartsAsync(
+                pathNoExt, proxies.Select(x => x.Link), maxLinesPerPart: ChunkSize);
         }
-		
+
         // ====================== PARSE ======================
 
     }

@@ -77,6 +77,27 @@ internal static class Program
         Checks.Equal(4, distinctSources.Length,
             "source dedup normalizes host case and equivalent GitHub raw URLs without folding path or query-value case");
 
+        var rawRepoSource = "https://raw.githubusercontent.com/alpha/repo/main/nodes.txt";
+        var cdnRepoSource = "https://cdn.jsdelivr.net/gh/alpha/repo@main/other/nodes.txt";
+        Checks.Equal(CollectorType.GetSourceDiversityGroup(rawRepoSource),
+            CollectorType.GetSourceDiversityGroup(cdnRepoSource),
+            "raw GitHub and jsDelivr feeds from one repository share one consensus identity");
+        Checks.That(CollectorType.GetSourceDiversityGroup(rawRepoSource) !=
+                    CollectorType.GetSourceDiversityGroup("https://raw.githubusercontent.com/alpha/another-repo/main/nodes.txt"),
+            "different upstream repositories retain separate consensus identities");
+        Checks.That(CollectorType.IsIranTestedSource(
+            "https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/refs/heads/main/Best-Results/proxies.txt"),
+            "explicitly trusted tested-source repository/path receives the delegated evidence signal");
+        Checks.That(!CollectorType.IsIranTestedSource(
+            "https://raw.githubusercontent.com/random-owner/random-repo/main/HighSpeed.txt"),
+            "a generic HighSpeed filename cannot grant trusted source evidence");
+        Checks.That(!CollectorType.IsIranTestedSource(
+            "https://raw.githubusercontent.com/10Dream/sub-mod/main/sub/base64/F0rc3Run_vless"),
+            "an aggregator mirror mentioning F0rc3Run is not mistaken for the original tested source");
+        Checks.That(!CollectorType.IsIranTestedSource(
+            "https://raw.githubusercontent.com/hamedcode/port-based-v2ray-configs/main/sub/top100.txt"),
+            "an unrelated top100 feed does not inherit the trusted source signal");
+
         Checks.Equal(256 * 1024 * 1024,
             CollectorType.GetSourceResponseByteLimit("https://raw.githubusercontent.com/sevcator/5ubscrpt10n/main/protocols/vl.txt"),
             "the known oversized sevcator VLESS feed gets the larger response cap");
@@ -104,6 +125,56 @@ internal static class Program
         finally { oversizedContent.Dispose(); }
         Checks.That(oversizedBodyRejected,
             "bounded HTTP reader rejects bodies larger than its byte limit");
+
+        string splitTestRoot = Path.Combine(Path.GetTempPath(), "FastNodes-split-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(splitTestRoot);
+        try
+        {
+            int byteSplitParts = CollectorType.WriteSubscriptionPartsAsync(
+                Path.Combine(splitTestRoot, "everything"),
+                new[] { "abc", "éé", "x" },
+                maxBytes: 6).GetAwaiter().GetResult();
+            Checks.Equal(3, byteSplitParts,
+                "subscription feeds split at the byte ceiling even when the line count is small");
+            Checks.Equal("abc\n", File.ReadAllText(Path.Combine(splitTestRoot, "everything.txt")),
+                "the first byte-limited chunk keeps the stable base filename");
+            Checks.Equal("éé\n", File.ReadAllText(Path.Combine(splitTestRoot, "everything_part2.txt")),
+                "UTF-8 byte accounting creates the second chunk with the established _part2 suffix");
+            Checks.Equal("x\n", File.ReadAllText(Path.Combine(splitTestRoot, "everything_part3.txt")),
+                "additional byte overflow continues with monotonically numbered part files");
+            Checks.That(Directory.GetFiles(splitTestRoot, "everything*.txt")
+                    .All(file => new FileInfo(file).Length <= 6),
+                "every generated subscription part stays within its configured byte ceiling");
+
+            int lineSplitParts = CollectorType.WriteSubscriptionPartsAsync(
+                Path.Combine(splitTestRoot, "protocols-vless"),
+                new[] { "one", "two", "three" },
+                maxBytes: 100,
+                maxLinesPerPart: 2).GetAwaiter().GetResult();
+            Checks.Equal(2, lineSplitParts,
+                "the existing category node-count chunking remains active alongside the byte ceiling");
+            Checks.Equal("one\ntwo\n", File.ReadAllText(Path.Combine(splitTestRoot, "protocols-vless.txt")),
+                "category part one retains its first 1,000-node-style chunk contract");
+            Checks.Equal("three\n", File.ReadAllText(Path.Combine(splitTestRoot, "protocols-vless_part2.txt")),
+                "category overflow retains the established _part2 filename");
+
+            bool singleOversizedLineRejected = false;
+            try
+            {
+                CollectorType.WriteSubscriptionPartsAsync(
+                    Path.Combine(splitTestRoot, "oversized"),
+                    new[] { "123456" },
+                    maxBytes: 6).GetAwaiter().GetResult();
+            }
+            catch (InvalidDataException) { singleOversizedLineRejected = true; }
+            Checks.That(singleOversizedLineRejected,
+                "a single entry larger than the part limit fails instead of creating an oversized file");
+        }
+        finally
+        {
+            if (Directory.Exists(splitTestRoot))
+                Directory.Delete(splitTestRoot, recursive: true);
+        }
 
         var invalidDatabasePath = Path.Combine(Path.GetTempPath(), $"fastnodes-invalid-{Guid.NewGuid():N}.mmdb");
         try
@@ -282,7 +353,7 @@ internal static class Program
         Checks.Equal("example.com", ipv6.Sni, "VLESS SNI");
         Checks.Equal("xtls-rprx-vision", ipv6.Flow, "VLESS flow");
 
-        var vmessJson = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"sni.example.com","path":"/ws","aid":"0"}""";
+        var vmessJson = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"ws.example.com","sni":"tls.example.com","path":"/ws","aid":"1","scy":"chacha20-poly1305","fp":"chrome","alpn":["h2","http/1.1"]}""";
         var vmessWithFastCrypto = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"sni.example.com","path":"/ws","aid":0,"scy":"auto","fp":"chrome","ps":"name A"}""";
         var vmessWithDifferentCrypto = """{"add":"vmess.example.com","port":"8443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"sni.example.com","path":"/ws","aid":0,"scy":"chacha20-poly1305","fp":"chrome","ps":"name B"}""";
         var vmessExtraA = CollectorType.ParseProxyLine("vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessWithFastCrypto)));
@@ -301,7 +372,35 @@ internal static class Program
         Checks.Equal("vmess.example.com", vmess!.Host, "VMess endpoint");
         Checks.Equal("8443", vmess.Port, "VMess port");
         Checks.Equal("ws", vmess.Network, "VMess transport");
-        Checks.Equal("sni.example.com", vmess.Sni, "VMess SNI");
+        Checks.Equal("tls.example.com", vmess.Sni, "VMess explicit TLS SNI is kept separate from its WebSocket Host");
+        Checks.Equal(1, vmess.Aid, "VMess string-valued alterId is parsed");
+        var vmessOutbound = CollectorType.BuildXrayOutbound(vmess, "vmess-test")!;
+        var vmessStream = (Dictionary<string, object?>)vmessOutbound["streamSettings"]!;
+        var vmessWs = (Dictionary<string, object?>)vmessStream["wsSettings"]!;
+        var vmessHeaders = (Dictionary<string, object?>)vmessWs["headers"]!;
+        Checks.Equal("ws.example.com", (string)vmessHeaders["Host"]!,
+            "Xray VMess outbound preserves the original WebSocket Host header");
+        var vmessTls = (Dictionary<string, object?>)vmessStream["tlsSettings"]!;
+        Checks.Equal("tls.example.com", (string)vmessTls["serverName"]!,
+            "Xray VMess outbound uses the explicit SNI, not the WebSocket Host header");
+        Checks.Equal("chrome", (string)vmessTls["fingerprint"]!,
+            "Xray VMess outbound preserves the uTLS fingerprint");
+        Checks.That(((string[])vmessTls["alpn"]!).SequenceEqual(new[] { "h2", "http/1.1" }),
+            "Xray VMess outbound preserves the ALPN list");
+        var vmessSettings = (Dictionary<string, object?>)vmessOutbound["settings"]!;
+        var vmessVnext = (List<object>)vmessSettings["vnext"]!;
+        var vmessEndpoint = (Dictionary<string, object?>)vmessVnext[0];
+        var vmessUsers = (List<object>)vmessEndpoint["users"]!;
+        var vmessUser = (Dictionary<string, object?>)vmessUsers[0];
+        Checks.Equal("chacha20-poly1305", (string)vmessUser["security"]!,
+            "Xray VMess outbound preserves the source cipher");
+        Checks.Equal(1, (int)vmessUser["alterId"]!,
+            "Xray VMess outbound preserves the source alterId");
+        var vmessNoSniPayload = """{"add":"vmess.example.net","port":"443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","host":"ws-only.example.net","path":"/ws","aid":0}""";
+        var vmessNoSni = CollectorType.ParseProxyLine("vmess://" +
+            Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessNoSniPayload)))!;
+        Checks.Equal("", vmessNoSni.Sni,
+            "VMess WS Host is not silently promoted to explicit TLS SNI when SNI is absent");
 
         var singboxJson = """
         {

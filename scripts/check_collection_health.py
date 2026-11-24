@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Baseline-aware output regression and file-size checks for FastNodes."""
 from __future__ import annotations
-import argparse, json, math, pathlib, sys
+import argparse, json, math, pathlib, re, sys
 from datetime import datetime, timezone
 
 MIB = 1024 * 1024
@@ -63,20 +63,28 @@ def evaluate(root: pathlib.Path, baseline: dict | None = None,
 
     everything = files.get("everything.txt")
     top = files.get("top.txt")
-    everything_count = int((everything or {}).get("lines", 0))
+    everything_count = sum(
+        int(row.get("lines", 0) or 0)
+        for name, row in files.items()
+        if name == "everything.txt" or re.fullmatch(r"everything_part[0-9]+\.txt", name)
+    )
     if everything is None:
         errors.append("everything.txt is missing")
     elif everything_count < MIN_EVERYTHING_LINES:
-        errors.append(f"everything.txt has {everything_count:,} lines; minimum is {MIN_EVERYTHING_LINES:,}")
+        errors.append(f"everything collection has {everything_count:,} lines across all parts; minimum is {MIN_EVERYTHING_LINES:,}")
     if top is None:
         errors.append("top.txt is missing")
     elif int(top.get("lines", 0)) < MIN_TOP_LINES:
         errors.append(f"top.txt has {top.get('lines', 0):,} lines; minimum is {MIN_TOP_LINES}")
 
-    old_count = int(previous.get("everything.txt", {}).get("lines", 0) or 0)
+    old_count = sum(
+        int(row.get("lines", 0) or 0)
+        for name, row in previous.items()
+        if name == "everything.txt" or re.fullmatch(r"everything_part[0-9]+\.txt", name)
+    )
     required = max(MIN_EVERYTHING_LINES, math.ceil(old_count * MIN_RETAINED))
     if old_count >= MIN_EVERYTHING_LINES and everything_count < required:
-        errors.append(f"catastrophic everything.txt regression: {old_count:,} -> {everything_count:,} lines "
+        errors.append(f"catastrophic everything collection regression: {old_count:,} -> {everything_count:,} lines "
                       f"({everything_count / old_count:.1%} retained; need at least {required:,})")
 
     old_total = int((baseline or {}).get("total_bytes", 0) or 0)
@@ -101,6 +109,24 @@ def evaluate(root: pathlib.Path, baseline: dict | None = None,
                      key=lambda x: x["bytes"], reverse=True)[:10]
     keys = {}
     for name in KEY_OUTPUTS:
+        if name == "everything.txt":
+            current_parts = {
+                key: row for key, row in files.items()
+                if key == "everything.txt" or re.fullmatch(r"everything_part[0-9]+\.txt", key)
+            }
+            previous_parts = {
+                key: row for key, row in previous.items()
+                if key == "everything.txt" or re.fullmatch(r"everything_part[0-9]+\.txt", key)
+            }
+            keys[name] = ({"present": False} if everything is None else {
+                "present": True,
+                "lines": everything_count,
+                "bytes": sum(int(row.get("bytes", 0)) for row in current_parts.values()),
+                "previous_lines": old_count if previous_parts else None,
+                "previous_bytes": (sum(int(row.get("bytes", 0)) for row in previous_parts.values())
+                                   if previous_parts else None)
+            })
+            continue
         now, old = files.get(name), previous.get(name)
         keys[name] = ({"present": False} if now is None else
                       {"present": True, "lines": now.get("lines"), "bytes": now["bytes"],
@@ -123,18 +149,21 @@ def self_test() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         root = pathlib.Path(tmp) / "sub"
         root.mkdir()
-        (root / "everything.txt").write_text("n\n" * 20_000, encoding="utf-8")
+        (root / "everything.txt").write_text("n\n" * 12_000, encoding="utf-8")
+        (root / "everything_part2.txt").write_text("n\n" * 8_000, encoding="utf-8")
         (root / "top.txt").write_text("n\n" * 100, encoding="utf-8")
         (root / "verified.txt").write_text("n\n" * 100, encoding="utf-8")
         snap = inspect_tree(root)
         baseline = {"captured_at": "test", "total_bytes": snap["total_bytes"], "files": dict(snap["files"])}
-        baseline["files"]["everything.txt"] = {"bytes": snap["files"]["everything.txt"]["bytes"] * 2, "lines": 50_000}
+        baseline["files"]["everything.txt"] = {"bytes": snap["files"]["everything.txt"]["bytes"] * 2, "lines": 30_000}
+        baseline["files"]["everything_part2.txt"] = {"bytes": snap["files"]["everything_part2.txt"]["bytes"] * 2, "lines": 20_000}
         report, errors = evaluate(root, baseline)
         assert not errors, errors
         assert report["outputs"]["everything.txt"]["lines"] == 20_000
-        (root / "everything.txt").write_text("n\n" * 12_000, encoding="utf-8")
+        (root / "everything.txt").write_text("n\n" * 8_000, encoding="utf-8")
+        (root / "everything_part2.txt").write_text("n\n" * 4_000, encoding="utf-8")
         _, errors = evaluate(root, baseline)
-        assert any("catastrophic everything.txt regression" in x for x in errors), errors
+        assert any("catastrophic everything collection regression" in x for x in errors), errors
         assert over_limit_files({"large.bin": {"bytes": 11}}, 10) == [("large.bin", 11)]
         print("Collection-health self-tests passed: baseline, catastrophic drop, and size ceiling.")
 

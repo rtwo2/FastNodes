@@ -18,6 +18,7 @@ URI_RE = re.compile(rf"^(?:{SCHEME_PATTERN})://\S+", re.IGNORECASE)
 REQUIRED = ("top.txt", "verified.txt", "everything.txt")
 EXPECTED_FILES = ("top_ipv6.txt", "ipv4_only.txt", "ipv6_only.txt")
 MAX_TOP_LINES = 1000
+MAX_PART_BYTES = 50 * 1024 * 1024
 
 class ValidationError(Exception):
     pass
@@ -90,7 +91,7 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
     return len(lines), duplicates
 
 
-def validate_tree(root: pathlib.Path) -> list[str]:
+def validate_tree(root: pathlib.Path, allow_legacy_oversized: bool = False) -> list[str]:
     if not root.is_dir():
         raise ValidationError(f"output directory does not exist: {root}")
 
@@ -114,8 +115,15 @@ def validate_tree(root: pathlib.Path) -> list[str]:
         counts[rel] = count
         if duplicates:
             report.append(f"WARNING {rel}: {duplicates} duplicate line(s)")
-        if path.stat().st_size > 50 * 1024 * 1024:
-            report.append(f"WARNING {rel}: file exceeds 50 MiB ({path.stat().st_size} bytes)")
+        size = path.stat().st_size
+        if size > MAX_PART_BYTES:
+            message = (
+                f"{rel} is {size / (1024 * 1024):.1f} MiB; generated text files must not exceed 50 MiB per part"
+            )
+            if allow_legacy_oversized:
+                report.append(f"WARNING legacy committed output: {message}")
+            else:
+                raise ValidationError(message)
 
     for name in ("top.txt", "top_ipv6.txt"):
         if counts.get(name, 0) > MAX_TOP_LINES:
@@ -136,17 +144,47 @@ def validate_tree(root: pathlib.Path) -> list[str]:
         if counts.get(name, 0) == 0:
             raise ValidationError(f"{name} is empty; refusing to publish")
 
+    # Every _partN file must have a stable base file and a gap-free sequence
+    # beginning at part 2. This also protects protocol/country/continent chunks.
+    split_groups: dict[pathlib.Path, list[tuple[int, pathlib.Path]]] = {}
+    for path in root.rglob("*_part*.txt"):
+        match = re.fullmatch(r"(.+)_part([0-9]+)\.txt", path.name)
+        if not match or int(match.group(2)) < 2:
+            raise ValidationError(f"invalid subscription part filename: {path.relative_to(root).as_posix()}")
+        base_path = path.with_name(match.group(1) + ".txt")
+        if not base_path.is_file():
+            raise ValidationError(f"{path.relative_to(root).as_posix()} has no base file {base_path.name}")
+        rel = path.relative_to(root).as_posix()
+        if counts.get(rel, 0) == 0:
+            raise ValidationError(f"{rel} is empty; remove empty trailing subscription parts")
+        split_groups.setdefault(base_path, []).append((int(match.group(2)), path))
+
+    for base_path, parts in split_groups.items():
+        ordered = sorted(parts, key=lambda item: item[0])
+        expected = list(range(2, len(ordered) + 2))
+        if [number for number, _ in ordered] != expected:
+            rel = base_path.relative_to(root).as_posix()
+            raise ValidationError(f"{rel} parts must be contiguous and numbered from _part2.txt")
+
+    def all_parts(base_path: pathlib.Path) -> list[pathlib.Path]:
+        ordered = sorted(split_groups.get(base_path, []), key=lambda item: item[0])
+        return [base_path] + [path for _, path in ordered]
+
     # The ranked IPv6 shortlist is generated directly from ipv6_only.txt's
     # candidate pool. Every top_ipv6 entry must therefore exist in the family
     # feed; catch accidental truncation or mismatched output publication.
     top_ipv6_path = root / "top_ipv6.txt"
     ipv6_only_path = root / "ipv6_only.txt"
     top_ipv6_links = {
-        line.strip() for line in top_ipv6_path.read_text(encoding="utf-8-sig").splitlines()
+        line.strip()
+        for path in all_parts(top_ipv6_path)
+        for line in path.read_text(encoding="utf-8-sig").splitlines()
         if line.strip()
     }
     ipv6_links = {
-        line.strip() for line in ipv6_only_path.read_text(encoding="utf-8-sig").splitlines()
+        line.strip()
+        for path in all_parts(ipv6_only_path)
+        for line in path.read_text(encoding="utf-8-sig").splitlines()
         if line.strip()
     }
     missing_ipv6_links = top_ipv6_links - ipv6_links
@@ -161,13 +199,39 @@ def validate_tree(root: pathlib.Path) -> list[str]:
     # global shortlist and family feeds missed mismatched protocol, country, continent,
     # stable, TLS and curated outputs. verified.txt is the one intentional exception
     # because it may retain a sanitized last-good snapshot.
-    everything_links = {
-        line.strip() for line in (root / "everything.txt").read_text(encoding="utf-8-sig").splitlines()
-        if line.strip()
-    }
+    # everything.txt is the stable first part. Large collections continue in
+    # everything_part2.txt, everything_part3.txt, ...; validate the sequence and
+    # use every part when checking that the other feeds are subsets of the master list.
+    # Ranked shortlists can also be byte-split in the rare case of unusually
+    # long entries. Keep the 1,000-node limit and duplicate check across all parts.
+    for name in ("top.txt", "top_ipv6.txt"):
+        entries = [
+            line.strip()
+            for path in all_parts(root / name)
+            for line in path.read_text(encoding="utf-8-sig").splitlines()
+            if line.strip()
+        ]
+        counts[name] = len(entries)
+        if len(entries) > MAX_TOP_LINES:
+            raise ValidationError(f"{name} has {len(entries)} lines across all parts; maximum is {MAX_TOP_LINES}")
+        if len(entries) != len(set(entries)):
+            raise ValidationError(f"{name} contains duplicate entries across its parts")
+
+    everything_paths = all_parts(root / "everything.txt")
+    everything_links: set[str] = set()
+    everything_total_lines = 0
+    for path in everything_paths:
+        part_lines = [
+            line.strip()
+            for line in path.read_text(encoding="utf-8-sig").splitlines()
+            if line.strip()
+        ]
+        everything_total_lines += len(part_lines)
+        everything_links.update(part_lines)
+    counts["everything.txt"] = everything_total_lines
     for path in sorted(root.rglob("*.txt")):
         rel = path.relative_to(root).as_posix()
-        if rel in {"everything.txt", "verified.txt"}:
+        if rel in {"everything.txt", "verified.txt"} or path in everything_paths[1:] or path in all_parts(root / "verified.txt")[1:]:
             continue
         lines = [
             line.strip()
@@ -221,9 +285,11 @@ def self_test() -> None:
         (root / "top.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "top_ipv6.txt").write_text(good[4] + "\n", encoding="utf-8")
         (root / "verified.txt").write_text(good[0] + "\n", encoding="utf-8")
-        (root / "everything.txt").write_text("\n".join(good) + "\n", encoding="utf-8")
+        (root / "everything.txt").write_text("\n".join(good[:3]) + "\n", encoding="utf-8")
+        (root / "everything_part2.txt").write_text("\n".join(good[3:]) + "\n", encoding="utf-8")
         (root / "ipv4_only.txt").write_text(good[0] + "\n", encoding="utf-8")
-        (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
+        (root / "ipv6_only.txt").write_text(good[0] + "\n", encoding="utf-8")
+        (root / "ipv6_only_part2.txt").write_text(good[4] + "\n", encoding="utf-8")
         (root / "stable.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "verified_tls.txt").write_text(good[1] + "\n", encoding="utf-8")
         (root / "curated.txt").write_text(good[2] + "\n", encoding="utf-8")
@@ -238,6 +304,19 @@ def self_test() -> None:
                 '  - name: "WG test 2"\n    type: wireguard\n    server: "198.51.100.2"\n    port: 123\n')
         (root / "wireguard.txt").write_text(yaml, encoding="utf-8")
         validate_tree(root)
+
+        part2_path = root / "everything_part2.txt"
+        original_part2 = part2_path.read_text(encoding="utf-8")
+        (root / "everything_part4.txt").write_text(good[4] + "\n", encoding="utf-8")
+        try:
+            validate_tree(root)
+        except ValidationError as exc:
+            if "parts must be contiguous" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to catch a missing everything_part3.txt")
+        finally:
+            (root / "everything_part4.txt").unlink(missing_ok=True)
 
         rogue_link = "vless://rogue@example.net:443?security=tls"
         for rel in (
@@ -282,6 +361,9 @@ def self_test() -> None:
         finally:
             (root / "top.txt").write_text(original_top, encoding="utf-8")
 
+        ipv6_part2_path = root / "ipv6_only_part2.txt"
+        original_ipv6_part2 = ipv6_part2_path.read_text(encoding="utf-8")
+        ipv6_part2_path.unlink()
         (root / "ipv6_only.txt").write_text(good[0] + "\n", encoding="utf-8")
         try:
             validate_tree(root)
@@ -290,7 +372,8 @@ def self_test() -> None:
                 raise
         else:
             raise ValidationError("self-test failed to catch top_ipv6.txt entries missing from ipv6_only.txt")
-        (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
+        finally:
+            ipv6_part2_path.write_text(original_ipv6_part2, encoding="utf-8")
         (root / "top.txt").write_text(good[0] + "\n" + good[0] + "\n", encoding="utf-8")
         try:
             validate_tree(root)
@@ -326,6 +409,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("root", nargs="?", type=pathlib.Path, help="generated subscription directory")
     parser.add_argument("--self-test", action="store_true", help="run built-in tests without output files")
+    parser.add_argument(
+        "--allow-legacy-oversized",
+        action="store_true",
+        help="warn instead of failing for oversized files in the existing committed snapshot; never use for newly generated output"
+    )
     args = parser.parse_args()
     try:
         if args.self_test:
@@ -333,7 +421,7 @@ def main() -> int:
             return 0
         if args.root is None:
             parser.error("provide output directory or --self-test")
-        for line in validate_tree(args.root):
+        for line in validate_tree(args.root, allow_legacy_oversized=args.allow_legacy_oversized):
             print(line)
         return 0
     except ValidationError as exc:

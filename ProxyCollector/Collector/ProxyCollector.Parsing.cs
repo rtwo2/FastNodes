@@ -74,13 +74,19 @@ namespace ProxyCollector.Collector
                     if (string.IsNullOrEmpty(net)) net = "tcp";
                     string tls  = r.TryGetProperty("tls",  out var tlsEl)  ? (tlsEl.GetString()  ?? "") : "";
                     if (tls.Equals("none", StringComparison.OrdinalIgnoreCase)) tls = "";
+                    // VMess "host" is commonly the WebSocket HTTP Host header, not
+                    // TLS SNI. Keep the two settings separate; Xray falls back to the
+                    // endpoint hostname when no explicit "sni" is present.
                     string sni = r.TryGetProperty("sni", out var sniEl)
                         ? (sniEl.GetString() ?? "") : "";
-                    if (string.IsNullOrEmpty(sni) && r.TryGetProperty("host", out var hostHeaderEl))
-                        sni = hostHeaderEl.GetString() ?? "";
                     string path = r.TryGetProperty("path", out var pathEl) ? (pathEl.GetString() ?? "").TrimEnd('/') : "";
-                    int aid     = r.TryGetProperty("aid",  out var aidEl)
-                        ? (aidEl.ValueKind == JsonValueKind.Number ? aidEl.GetInt32() : 0) : 0;
+                    int aid = 0;
+                    if (r.TryGetProperty("aid", out var aidEl))
+                    {
+                        if (aidEl.ValueKind == JsonValueKind.Number) aid = aidEl.GetInt32();
+                        else if (aidEl.ValueKind == JsonValueKind.String)
+                            int.TryParse(aidEl.GetString(), out aid);
+                    }
 
                     if (string.IsNullOrEmpty(host) || host == "0.0.0.0") return null;
 

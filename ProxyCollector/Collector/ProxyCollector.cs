@@ -2406,13 +2406,14 @@ namespace ProxyCollector.Collector
             {
                 case "vless":
                 {
-                    if (!IsValidVlessUuidCredential(p.Credential)) return null;
+                    if (!IsValidVlessCredential(p.Credential)) return null;
                     var user = new Dictionary<string, object?> { ["id"] = p.Credential, ["encryption"] = "none" };
                     if (!string.IsNullOrEmpty(p.Flow))
                     {
-                        // Only Vision is supported by the current Xray VLESS outbound.
+                        // These are the two flow values supported by current Xray outbounds.
                         // Unknown flow strings can invalidate the entire generated config.
-                        if (!p.Flow.Equals("xtls-rprx-vision", StringComparison.OrdinalIgnoreCase) ||
+                        if (!(p.Flow.Equals("xtls-rprx-vision", StringComparison.OrdinalIgnoreCase) ||
+                              p.Flow.Equals("xtls-rprx-vision-udp443", StringComparison.OrdinalIgnoreCase)) ||
                             (!tls && !reality))
                             return null;
                         user["flow"] = p.Flow;
@@ -2428,7 +2429,7 @@ namespace ProxyCollector.Collector
                 case "vmess":
                 {
                     if (!IsValidVmessCredential(p.Credential)) return null;
-                    string vmessSecurity = GetVmessJsonString(vmessJson, "scy", "auto");
+                    string vmessSecurity = GetVmessJsonString(vmessJson, "scy", "auto").Trim().ToLowerInvariant();
                     if (string.IsNullOrWhiteSpace(vmessSecurity)) vmessSecurity = "auto";
                     if (vmessSecurity is not ("auto" or "none" or "zero" or "aes-128-gcm" or "chacha20-poly1305"))
                         return null;

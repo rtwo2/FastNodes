@@ -1194,7 +1194,7 @@ namespace ProxyCollector.Collector
             {
                 if (line is null)
                     throw new InvalidDataException("A subscription entry cannot be null.");
-                if (line.Contains('\\r') || line.Contains('\\n'))
+                if (line.Contains('\r') || line.Contains('\n'))
                     throw new InvalidDataException("A subscription entry must occupy exactly one line.");
 
                 long lineBytes = Encoding.UTF8.GetByteCount(line) + 1; // UTF-8 line plus LF.

@@ -18,6 +18,7 @@ URI_RE = re.compile(rf"^(?:{SCHEME_PATTERN})://\S+", re.IGNORECASE)
 REQUIRED = ("top.txt", "verified.txt", "everything.txt")
 EXPECTED_FILES = ("top_ipv6.txt", "ipv4_only.txt", "ipv6_only.txt")
 MAX_TOP_LINES = 1000
+MAX_PART_BYTES = 50 * 1024 * 1024
 
 class ValidationError(Exception):
     pass
@@ -114,8 +115,11 @@ def validate_tree(root: pathlib.Path) -> list[str]:
         counts[rel] = count
         if duplicates:
             report.append(f"WARNING {rel}: {duplicates} duplicate line(s)")
-        if path.stat().st_size > 50 * 1024 * 1024:
-            report.append(f"WARNING {rel}: file exceeds 50 MiB ({path.stat().st_size} bytes)")
+        size = path.stat().st_size
+        if size > MAX_PART_BYTES:
+            raise ValidationError(
+                f"{rel} is {size / (1024 * 1024):.1f} MiB; generated text files must not exceed 50 MiB per part"
+            )
 
     for name in ("top.txt", "top_ipv6.txt"):
         if counts.get(name, 0) > MAX_TOP_LINES:
@@ -161,13 +165,39 @@ def validate_tree(root: pathlib.Path) -> list[str]:
     # global shortlist and family feeds missed mismatched protocol, country, continent,
     # stable, TLS and curated outputs. verified.txt is the one intentional exception
     # because it may retain a sanitized last-good snapshot.
-    everything_links = {
-        line.strip() for line in (root / "everything.txt").read_text(encoding="utf-8-sig").splitlines()
-        if line.strip()
-    }
+    # everything.txt is the stable first part. Large collections continue in
+    # everything_part2.txt, everything_part3.txt, ...; validate the sequence and
+    # use every part when checking that the other feeds are subsets of the master list.
+    everything_part_numbers: list[int] = []
+    everything_part_paths: list[pathlib.Path] = []
+    for path in root.glob("everything_part*.txt"):
+        match = re.fullmatch(r"everything_part([2-9][0-9]*)\\.txt", path.name)
+        if not match:
+            raise ValidationError(f"invalid everything part filename: {path.name}")
+        everything_part_numbers.append(int(match.group(1)))
+        everything_part_paths.append(path)
+    ordered_parts = sorted(zip(everything_part_numbers, everything_part_paths), key=lambda item: item[0])
+    expected_part_numbers = list(range(2, len(ordered_parts) + 2))
+    if [number for number, _ in ordered_parts] != expected_part_numbers:
+        raise ValidationError("everything parts must be contiguous and numbered from everything_part2.txt")
+
+    everything_paths = [root / "everything.txt"] + [path for _, path in ordered_parts]
+    everything_links: set[str] = set()
+    everything_total_lines = 0
+    for index, path in enumerate(everything_paths):
+        part_lines = [
+            line.strip()
+            for line in path.read_text(encoding="utf-8-sig").splitlines()
+            if line.strip()
+        ]
+        if index > 0 and not part_lines:
+            raise ValidationError(f"{path.name} is empty; remove empty trailing everything parts")
+        everything_total_lines += len(part_lines)
+        everything_links.update(part_lines)
+    counts["everything.txt"] = everything_total_lines
     for path in sorted(root.rglob("*.txt")):
         rel = path.relative_to(root).as_posix()
-        if rel in {"everything.txt", "verified.txt"}:
+        if rel in {"everything.txt", "verified.txt"} or re.fullmatch(r"everything_part[2-9][0-9]*\\.txt", path.name):
             continue
         lines = [
             line.strip()
@@ -221,7 +251,8 @@ def self_test() -> None:
         (root / "top.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "top_ipv6.txt").write_text(good[4] + "\n", encoding="utf-8")
         (root / "verified.txt").write_text(good[0] + "\n", encoding="utf-8")
-        (root / "everything.txt").write_text("\n".join(good) + "\n", encoding="utf-8")
+        (root / "everything.txt").write_text("\n".join(good[:3]) + "\n", encoding="utf-8")
+        (root / "everything_part2.txt").write_text("\n".join(good[3:]) + "\n", encoding="utf-8")
         (root / "ipv4_only.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "ipv6_only.txt").write_text(good[4] + "\n", encoding="utf-8")
         (root / "stable.txt").write_text(good[0] + "\n", encoding="utf-8")
@@ -238,6 +269,19 @@ def self_test() -> None:
                 '  - name: "WG test 2"\n    type: wireguard\n    server: "198.51.100.2"\n    port: 123\n')
         (root / "wireguard.txt").write_text(yaml, encoding="utf-8")
         validate_tree(root)
+
+        part2_path = root / "everything_part2.txt"
+        original_part2 = part2_path.read_text(encoding="utf-8")
+        (root / "everything_part4.txt").write_text(good[4] + "\\n", encoding="utf-8")
+        try:
+            validate_tree(root)
+        except ValidationError as exc:
+            if "everything parts must be contiguous" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to catch a missing everything_part3.txt")
+        finally:
+            (root / "everything_part4.txt").unlink(missing_ok=True)
 
         rogue_link = "vless://rogue@example.net:443?security=tls"
         for rel in (

@@ -43,7 +43,7 @@ internal static class Program
         Checks.Equal(8192, SourceFetchBudget.GetReservationBytes(16384, false, 8192),
             "declared source lengths above the hard cap reserve the full bounded ceiling");
 
-        var memoryBudget = new SourceFetchBudget(8L * 1024 * 1024, 8L * 1024 * 1024);
+        var memoryBudget = new SourceFetchBudget(4L * 1024 * 1024, 4L * 1024 * 1024);
         {
             var firstReservation = memoryBudget.AcquireSourceAsync(1024 * 1024, CancellationToken.None)
                 .GetAwaiter().GetResult();

@@ -224,6 +224,15 @@ internal static class Program
                                         id = "123e4567-e89b-12d3-a456-426614174000",
                                         encryption = "none",
                                         flow = "xtls-rprx-vision"
+                                    },
+                                    new
+                                    {
+                                        // Xray permits short custom VLESS IDs (<30 UTF-8 bytes),
+                                        // including non-ASCII and reserved URI characters after
+                                        // the collector decodes them from the share link.
+                                        id = "Telegram🇨🇳 @WangCai2",
+                                        encryption = "none",
+                                        flow = "xtls-rprx-vision"
                                     }
                                 }
                             }

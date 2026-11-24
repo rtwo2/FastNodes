@@ -35,7 +35,7 @@ https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top.txt
 
 ### Top IPv6-capable
 
-A ranked shortlist of up to 1,000 IPv6-capable nodes with positive quality evidence.
+A ranked shortlist of up to 1,000 nodes with positive quality evidence and a native IPv6 DNS answer.
 
 ```text
 https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top_ipv6.txt
@@ -65,7 +65,7 @@ https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/everything.txt
 
 ### IPv6-capable
 
-Includes nodes whose resolved addresses support native IPv6. Dual-stack hostnames may also appear in the IPv4 feed.
+Includes nodes whose resolved addresses support native IPv6. Dual-stack hostnames may also appear in the IPv4 feed. This is DNS-family classification, not proof that the proxy completed a handshake or end-to-end round-trip over IPv6. Some verification stages prefer IPv4 when a hostname has multiple answers.
 
 ```text
 https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/ipv6_only.txt
@@ -201,7 +201,7 @@ FastNodes automatically collects public configurations, parses supported formats
 - **Global collection:** outputs are not limited to one country or region.
 - **Multiple quality signals:** ranking and verification files have different purposes; a successful check is not a permanent guarantee.
 - **IPv4 and IPv6:** family feeds include dual-stack hostnames in both lists when DNS returns both address families.
-- **Cloudflare exclusion:** Cloudflare-hosted/fronted nodes are intended to be excluded from published outputs.
+- **Cloudflare exclusion:** detected Cloudflare IPs, service domains, and labelled metadata are excluded. A hostname that cannot be resolved during collection cannot be conclusively classified; the final static audit also cannot guarantee that its DNS answers will not change later.
 - **Automatic updates:** follow the [Actions workflow](https://github.com/rtwo2/FastNodes/actions/workflows/collect.yml) to see run status and logs.
 - **Diagnostics:** `sub/diagnostics/source-health.csv` records per-source fetch, parse, and unique-contribution evidence. Workflow artifacts include a readable source summary and an output-regression/size report.
 

@@ -1381,9 +1381,10 @@ namespace ProxyCollector.Collector
                             sourceResponse.EnsureSuccessStatusCode();
 
                             int sourceLimit = GetSourceResponseByteLimit(url);
-                            int sourceReservationBytes = sourceResponse.Content.Headers.ContentLength is long sourceLength
-                                ? (int)Math.Clamp(sourceLength, 1L, sourceLimit)
-                                : sourceLimit;
+                            int sourceReservationBytes = SourceFetchBudget.GetReservationBytes(
+                                sourceResponse.Content.Headers.ContentLength,
+                                sourceResponse.Content.Headers.ContentEncoding.Count > 0,
+                                sourceLimit);
                             int extractedLineCount;
                             string[] providerUrls;
 
@@ -1441,9 +1442,10 @@ namespace ProxyCollector.Collector
                                                     fetchUrl, HttpCompletionOption.ResponseHeadersRead, providerCts.Token);
                                                 providerResponse.EnsureSuccessStatusCode();
 
-                                                int providerReservationBytes = providerResponse.Content.Headers.ContentLength is long providerLength
-                                                    ? (int)Math.Clamp(providerLength, 1L, MaxProviderResponseBytes)
-                                                    : MaxProviderResponseBytes;
+                                                int providerReservationBytes = SourceFetchBudget.GetReservationBytes(
+                                                    providerResponse.Content.Headers.ContentLength,
+                                                    providerResponse.Content.Headers.ContentEncoding.Count > 0,
+                                                    MaxProviderResponseBytes);
                                                 using (var providerMemoryLease = await FetchMemoryBudget.AcquireProviderAsync(
                                                     providerReservationBytes, providerCts.Token))
                                                 {

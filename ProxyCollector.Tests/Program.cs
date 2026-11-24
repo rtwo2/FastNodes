@@ -657,7 +657,7 @@ internal static class Program
             "Xray builder skips unsupported VMess security values");
         foreach (string obsoleteSecurity in new[] { "none", "zero" })
         {
-            var obsoleteVmessSecurityJson = $"""{"add":"legacy-security.example.net","port":"443","id":"123e4567-e89b-12d3-a456-426614174000","net":"tcp","tls":"tls","scy":"{{obsoleteSecurity}}"}""";
+            var obsoleteVmessSecurityJson = "{\"add\":\"legacy-security.example.net\",\"port\":\"443\",\"id\":\"123e4567-e89b-12d3-a456-426614174000\",\"net\":\"tcp\",\"tls\":\"tls\",\"scy\":\"" + obsoleteSecurity + "\"}";
             var obsoleteVmessSecurity = CollectorType.ParseProxyLine(
                 "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(obsoleteVmessSecurityJson)))!;
             Checks.That(CollectorType.BuildXrayOutbound(

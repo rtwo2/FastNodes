@@ -2368,7 +2368,7 @@ namespace ProxyCollector.Collector
 
             if (tls)
             {
-                string sni = string.IsNullOrWhiteSpace(p.Sni) ? p.Host : p.Sni;
+                string sni = string.IsNullOrEmpty(p.Sni) ? p.Host : p.Sni;
                 string fp = proto == "vmess" && vmessJson is not null
                     ? GetVmessJsonString(vmessJson, "fp")
                     : q.GetValueOrDefault("fp", "");
@@ -2558,7 +2558,7 @@ namespace ProxyCollector.Collector
                         : await Resolver.ResolveAllAsync(p.Host);
                     if (addresses.Any(IsCloudflareIp)) { cfSkipped++; return; }
                 }
-                string sni = string.IsNullOrEmpty(p.Sni) ? p.Host : p.Sni;
+                string sni = string.IsNullOrWhiteSpace(p.Sni) ? p.Host : p.Sni;
                 if (seen.Add((p.Host.Trim().ToLowerInvariant(), int.Parse(p.Port), sni.Trim().ToLowerInvariant())))
                     pool.Add(p);
             }

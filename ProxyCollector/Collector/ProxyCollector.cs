@@ -189,6 +189,7 @@ namespace ProxyCollector.Collector
                 if (b[0] == 0 || b[0] == 10 || b[0] == 127) return true;                // 0/8, 10/8, 127/8
                 if (b[0] == 172 && b[1] is >= 16 and <= 31) return true;                // 172.16.0.0/12
                 if (b[0] == 192 && b[1] == 168) return true;                            // 192.168.0.0/16
+                if (b[0] == 192 && b[1] == 88 && b[2] == 99) return true;                 // 192.88.99.0/24 deprecated 6to4 relay anycast
                 if (b[0] == 169 && b[1] == 254) return true;                            // 169.254.0.0/16 link-local
                 if (b[0] == 100 && b[1] is >= 64 and <= 127) return true;               // 100.64.0.0/10 CGNAT
                 if (b[0] >= 224) return true;                                           // multicast + reserved + broadcast
@@ -206,13 +207,44 @@ namespace ProxyCollector.Collector
                 if (b[0] == 0xFF) return true;                                          // ff00::/8 multicast
                 if (IPAddress.IsLoopback(ip) || ip.IsIPv6LinkLocal || ip.IsIPv6SiteLocal) return true;
                 if ((b[0] & 0xFE) == 0xFC) return true;                                 // fc00::/7 unique local
+
+                // IANA marks 2001::/23 as non-globally-reachable by default unless a
+                // more-specific assignment says otherwise. Reject the rest of that
+                // parent block, but preserve the specific allocations whose registry
+                // entries explicitly mark them globally reachable.
+                if (IsWithinIpv6Prefix(b, IanaIetfProtocolAssignmentsNetwork, 23) &&
+                    !GloballyReachableIetfProtocolAssignments.Any(range =>
+                        IsWithinIpv6Prefix(b, range.Network, range.Prefix)))
+                    return true;
+
                 if (NonPublicIpv6Ranges.Any(range => IsWithinIpv6Prefix(b, range.Network, range.Prefix)))
                     return true;
             }
             return false;
         }
 
-        // IANA special-purpose IPv6 blocks that must not be treated as public proxy
+        // IANA IPv6 Special-Purpose Registry: 2001::/23 is an IETF protocol
+        // assignment block whose default Globally Reachable value is False, unless
+        // a more-specific registry entry overrides it.
+        // https://www.iana.org/assignments/iana-ipv6-special-registry
+        private static readonly byte[] IanaIetfProtocolAssignmentsNetwork =
+            IPAddress.Parse("2001::").GetAddressBytes();
+
+        // More-specific entries in 2001::/23 explicitly marked Globally Reachable=True.
+        // Teredo (2001::/32) is deliberately not exempted: its registry value is N/A,
+        // not True, so it does not meet the public-endpoint policy.
+        private static readonly (byte[] Network, int Prefix)[] GloballyReachableIetfProtocolAssignments =
+        {
+            (IPAddress.Parse("2001:1::1").GetAddressBytes(), 128), // PCP anycast
+            (IPAddress.Parse("2001:1::2").GetAddressBytes(), 128), // NAT traversal relay anycast
+            (IPAddress.Parse("2001:1::3").GetAddressBytes(), 128), // DNS-SD registration anycast
+            (IPAddress.Parse("2001:3::").GetAddressBytes(), 32),   // AMT
+            (IPAddress.Parse("2001:4:112::").GetAddressBytes(), 48), // AS112-v6
+            (IPAddress.Parse("2001:20::").GetAddressBytes(), 28),  // ORCHIDv2
+            (IPAddress.Parse("2001:30::").GetAddressBytes(), 28)   // Drone Remote ID DETs
+        };
+
+        // Other IANA special-purpose IPv6 blocks that must not be treated as public proxy
         // endpoints. Keep this explicit list covered by regression tests when the registry
         // changes.
         private static readonly (byte[] Network, int Prefix)[] NonPublicIpv6Ranges =

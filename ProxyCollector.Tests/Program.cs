@@ -257,7 +257,8 @@ internal static class Program
         foreach (var address in new[]
         {
             "0.0.0.0", "10.1.2.3", "100.64.0.1", "127.0.0.1", "169.254.1.1",
-            "172.16.0.1", "192.168.1.1", "192.0.2.1", "198.18.0.1", "198.51.100.1",
+            "172.16.0.1", "192.168.1.1", "192.0.2.1", "192.88.99.1", "192.88.99.2",
+            "198.18.0.1", "198.51.100.1",
             "203.0.113.1", "224.0.0.1", "::", "::1", "fc00::1", "fe80::1",
             "2001:db8::1", "::ffff:127.0.0.1"
         })
@@ -266,11 +267,18 @@ internal static class Program
         foreach (var address in new[]
         {
             "100::1", "100:0:0:1::1", "64:ff9b:1::1", "2001:2::1",
-            "2001:10::1", "3fff::1", "5f00::1"
+            "2001:10::1", "3fff::1", "5f00::1",
+            "2001:100::1", "2001:1ff::1", "2001::1", "2001:1::4"
         })
             Checks.That(CollectorType.IsPrivateOrReservedIp(IPAddress.Parse(address)),
                 $"IANA non-global IPv6 prefix {address} is rejected");
-        foreach (var address in new[] { "1.1.1.1", "8.8.8.8", "2001:4860:4860::8888", "2001:20::1" })
+        foreach (var address in new[]
+        {
+            "1.1.1.1", "8.8.8.8", "2001:4860:4860::8888",
+            "2001:1::1", "2001:1::2", "2001:1::3",
+            "2001:3::1", "2001:4:112::1", "2001:20::1", "2001:30::1",
+            "2001:200::1"
+        })
             Checks.That(!CollectorType.IsPrivateOrReservedIp(IPAddress.Parse(address)),
                 $"public or globally reachable address {address} remains eligible");
 

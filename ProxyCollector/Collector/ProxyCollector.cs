@@ -2305,6 +2305,23 @@ namespace ProxyCollector.Collector
         // Link → Xray outbound. URI protocols read query options; standard VMess
         // share links read their settings from the original base64 JSON payload.
         // Unconvertible nodes are skipped for this probe only, never dropped.
+        internal static bool IsValidRealityPublicKey(string? publicKey)
+        {
+            if (string.IsNullOrWhiteSpace(publicKey)) return false;
+            string value = publicKey.Replace('-', '+').Replace('_', '/');
+            if (value.Length % 4 == 1) return false;
+            int padding = value.Length % 4;
+            if (padding > 0) value += new string('=', 4 - padding);
+            try { return Convert.FromBase64String(value).Length == 32; }
+            catch (FormatException) { return false; }
+        }
+
+        internal static bool IsValidRealityShortId(string? shortId)
+            => shortId is not null &&
+               shortId.Length <= 16 &&
+               shortId.Length % 2 == 0 &&
+               shortId.All(Uri.IsHexDigit);
+
         internal static Dictionary<string, object?>? BuildXrayOutbound(
             ParsedProxy p, string tag, string? connectAddress = null)
         {
@@ -2378,13 +2395,17 @@ namespace ProxyCollector.Collector
                 if (string.IsNullOrEmpty(fp) && reality) fp = "chrome";   // REALITY requires a uTLS fingerprint
                 if (reality)
                 {
-                    // Xray crashes if REALITY is enabled but publicKey is empty
-                    if (string.IsNullOrEmpty(p.Pbk)) return null;
+                    // Xray requires a 32-byte X25519 public key and an even-length
+                    // hexadecimal shortId (0-16 chars). Reject malformed fields before
+                    // they can make the whole batched Xray config fail at startup.
+                    if (!IsValidRealityPublicKey(p.Pbk) || !IsValidRealityShortId(p.Sid))
+                        return null;
                     stream["security"] = "reality";
                     stream["realitySettings"] = new Dictionary<string, object?>
                     {
                         ["serverName"] = sni, ["fingerprint"] = fp,
-                        ["publicKey"] = p.Pbk, ["shortId"] = p.Sid, ["spiderX"] = "/"
+                        // Xray renamed the legacy "publicKey" field to "password".
+                        ["password"] = p.Pbk, ["shortId"] = p.Sid, ["spiderX"] = "/"
                     };
                 }
                 else

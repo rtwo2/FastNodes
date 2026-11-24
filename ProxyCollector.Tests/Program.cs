@@ -114,6 +114,12 @@ internal static class Program
             "edge verification does not credit a legacy host-only result for a different explicit SNI");
         Checks.That(!CollectorType.IsValidEdgeSniEcho("tls.example.net", "other.example.net", "endpoint.example.net"),
             "edge verification rejects a result for a different TLS SNI");
+        Checks.That(CollectorType.IsEdgeProbeSniSupported("endpoint.example.net", null),
+            "the current edge Worker supports an implicit endpoint-hostname SNI");
+        Checks.That(CollectorType.IsEdgeProbeSniSupported("endpoint.example.net", "ENDPOINT.EXAMPLE.NET"),
+            "the current edge Worker supports an explicit SNI matching the endpoint hostname case-insensitively");
+        Checks.That(!CollectorType.IsEdgeProbeSniSupported("endpoint.example.net", "tls.example.net"),
+            "the current edge Worker skips custom SNI rather than falsely verifying it");
         Checks.That(ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c", "d" }, 2)
                 .SequenceEqual(new[] { "a", "b" }),
             "positive source limit selects only the first N sources in priority order");
@@ -707,6 +713,87 @@ internal static class Program
                     convertedHy2.Contains("insecure=1", StringComparison.Ordinal),
             "sing-box Hysteria2 conversion retains obfuscation, ALPN and bandwidth options");
 
+        const string arrayOutboundsJson = """
+        [
+          {
+            "type": "vless", "tag": "array-export", "server": "array.example.net",
+            "server_port": 443, "uuid": "01234567-89ab-cdef-0123-456789abcdef",
+            "tls": { "enabled": true, "server_name": "tls.array.example.net" }
+          },
+          { "type": "selector", "tag": "unsupported-selector", "outbounds": ["array-export"] }
+        ]
+        """;
+        var arrayOutbounds = CollectorType.DecodeAndExtractLines(
+            arrayOutboundsJson, "https://example.net/all_sources_nekobox.json");
+        Checks.Equal(1, arrayOutbounds.Count,
+            "root-level arrays of sing-box outbounds extract supported nodes and skip group entries");
+        Checks.That(CollectorType.ParseProxyLine(arrayOutbounds.Single()) is not null,
+            "root-array outbound conversion produces a valid common share link");
+
+        const string rawEntriesJson = """
+        {
+          "total": 1,
+          "entries": [
+            {
+              "protocol": "vless",
+              "raw": "vless://01234567-89ab-cdef-0123-456789abcdef@raw.example.net:443?security=tls&type=tcp&sni=tls.raw.example.net#raw-entry"
+            }
+          ]
+        }
+        """;
+        var rawEntries = CollectorType.DecodeAndExtractLines(
+            rawEntriesJson, "https://example.net/all_sources.json");
+        Checks.Equal(1, rawEntries.Count,
+            "wrapper JSON entries.raw share links are recovered without rebuilding their options");
+        Checks.That(CollectorType.ParseProxyLine(rawEntries.Single()) is not null,
+            "recovered entries.raw URI is accepted by the common parser");
+
+        const string mobileJson = """
+        {
+          "count": 2,
+          "MOBILE": [
+            "vless://01234567-89ab-cdef-0123-456789abcdef@mobile.example.net:443?security=tls&type=tcp#mobile",
+            "not-a-proxy"
+          ]
+        }
+        """;
+        var mobileLinks = CollectorType.DecodeAndExtractLines(
+            mobileJson, "https://example.net/mobile.json");
+        Checks.Equal(1, mobileLinks.Count,
+            "MOBILE string arrays contribute only valid share-link-shaped values");
+
+        const string simpleSingboxProfile = """
+        {
+          "outbounds": [
+            {
+              "type": "vless", "tag": "profile-header", "server": "profile.example.net",
+              "server_port": 443, "uuid": "01234567-89ab-cdef-0123-456789abcdef",
+              "tls": { "enabled": true, "server_name": "tls.profile.example.net" }
+            }
+          ]
+        }
+        """;
+        var hashHeaderProfile = CollectorType.DecodeAndExtractLines(
+            "#profile-title: base64:VGVzdA==\n#profile-update-interval: 1\n" + simpleSingboxProfile,
+            "https://example.net/profile.json");
+        Checks.Equal(1, hashHeaderProfile.Count,
+            "sing-box JSON with #profile metadata headers is parsed");
+        var slashHeaderProfile = CollectorType.DecodeAndExtractLines(
+            "//profile-title: base64:VGVzdA==\n//profile-update-interval: 48\n" + simpleSingboxProfile,
+            "https://example.net/profile-feed");
+        Checks.Equal(1, slashHeaderProfile.Count,
+            "extensionless sing-box JSON with //profile metadata headers is parsed");
+        var malformedTrailingJson = CollectorType.DecodeAndExtractLines(
+            "//profile-title: test\n" + simpleSingboxProfile + "\n1",
+            "https://example.net/malformed-profile");
+        Checks.Equal(0, malformedTrailingJson.Count,
+            "profile parsing does not discard arbitrary trailing data after JSON");
+        var incompleteOutbound = CollectorType.DecodeAndExtractLines(
+            """{"outbounds":[{"type":"vless","tag":"incomplete","server":"incomplete.example.net"}]}""",
+            "https://example.net/incomplete.json");
+        Checks.Equal(0, incompleteOutbound.Count,
+            "incomplete JSON outbounds without a valid port and credentials are not fabricated");
+
 
 
         var vmessIpv6 = CollectorType.ParseProxyLine(
@@ -1270,6 +1357,7 @@ internal static class Program
             "TLS/Xray verification attempts every vetted IPv4 and IPv6 address in interleaved order");
 
         TestSourceFetcherMixedProvidersAndLineCap();
+        TestSourceFetcherRetryBehavior();
 
         Console.WriteLine($"Parser regression tests passed ({Checks.Count} assertions).");
     }
@@ -1318,6 +1406,74 @@ internal static class Program
             "nested provider writes are capped before append even when one provider exceeds the remaining allowance");
         Checks.Equal($"provider-node-{SourceFetcher.MaxNestedLinesPerSource - 1}", extracted[^1],
             "the nested-provider cap preserves the first configured number of provider entries");
+    }
+
+    private static void TestSourceFetcherRetryBehavior()
+    {
+        const string retryUrl = "https://retry.example.net/nodes.txt";
+        int retryCalls = 0;
+        using (var retryHttp = new HttpClient(new StubHttpMessageHandler(_ =>
+        {
+            retryCalls++;
+            if (retryCalls == 1)
+            {
+                var limited = new HttpResponseMessage(HttpStatusCode.TooManyRequests);
+                limited.Headers.RetryAfter = new System.Net.Http.Headers.RetryConditionHeaderValue(TimeSpan.FromMilliseconds(20));
+                return limited;
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("recovered-node")
+            };
+        })))
+        {
+            var fetcher = new SourceFetcher(
+                retryHttp,
+                new SourceFetchBudget(8L * 1024 * 1024, 8L * 1024 * 1024));
+            using var result = fetcher.FetchAsync(
+                new[] { retryUrl },
+                _ => 1024 * 1024,
+                (body, _) => body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList(),
+                _ => new List<string>(),
+                url => new List<string> { url },
+                body => body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length,
+                _ => { },
+                _ => { }).GetAwaiter().GetResult();
+
+            Checks.Equal(2, retryCalls,
+                "HTTP 429 is retried after the server-provided Retry-After interval");
+            Checks.That(result.Spool.ReadSourceLines(0).SequenceEqual(new[] { "recovered-node" }),
+                "a source that recovers after HTTP 429 contributes its extracted data");
+        }
+
+        const string missingUrl = "https://missing.example.net/nodes.txt";
+        int missingCalls = 0;
+        var permanentErrors = new List<string>();
+        using (var missingHttp = new HttpClient(new StubHttpMessageHandler(_ =>
+        {
+            missingCalls++;
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        })))
+        {
+            var fetcher = new SourceFetcher(
+                missingHttp,
+                new SourceFetchBudget(8L * 1024 * 1024, 8L * 1024 * 1024));
+            using var result = fetcher.FetchAsync(
+                new[] { missingUrl },
+                _ => 1024 * 1024,
+                (body, _) => new List<string>(),
+                _ => new List<string>(),
+                url => new List<string> { url },
+                _ => 0,
+                permanentErrors.Add,
+                _ => { }).GetAwaiter().GetResult();
+        }
+
+        Checks.Equal(1, missingCalls,
+            "permanent HTTP 404 responses are not pointlessly retried");
+        Checks.That(permanentErrors.Any(message => message.Contains("HTTP 404", StringComparison.Ordinal)),
+            "permanent source failures are logged with their HTTP status");
     }
 
     private sealed class StubHttpMessageHandler : HttpMessageHandler

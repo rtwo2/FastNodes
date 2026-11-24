@@ -2368,7 +2368,7 @@ namespace ProxyCollector.Collector
 
             if (tls)
             {
-                string sni = string.IsNullOrEmpty(p.Sni) ? p.Host : p.Sni;
+                string sni = string.IsNullOrWhiteSpace(p.Sni) ? p.Host : p.Sni;
                 string fp = proto == "vmess" && vmessJson is not null
                     ? GetVmessJsonString(vmessJson, "fp")
                     : q.GetValueOrDefault("fp", "");
@@ -2493,6 +2493,19 @@ namespace ProxyCollector.Collector
         internal static bool IsValidEdgeResultId(int id, IReadOnlySet<int> expectedBatchIds, int poolCount)
             => id >= 0 && id < poolCount && expectedBatchIds.Contains(id);
 
+        // The deployed Worker uses Cloudflare's native TLS socket path, which can
+        // verify the endpoint hostname but cannot reliably set a different custom SNI.
+        // Do not send unsupported custom-SNI targets to that Worker or credit them.
+        internal static bool IsEdgeProbeSniSupported(string endpointHost, string? requestedSni)
+        {
+            if (string.IsNullOrWhiteSpace(endpointHost)) return false;
+            if (string.IsNullOrWhiteSpace(requestedSni)) return true;
+            return string.Equals(
+                endpointHost.Trim(),
+                requestedSni.Trim(),
+                StringComparison.OrdinalIgnoreCase);
+        }
+
         internal static bool IsValidEdgeSniEcho(
             string expectedSni, string? reportedSni, string endpointHost)
         {
@@ -2521,8 +2534,18 @@ namespace ProxyCollector.Collector
             // components are already lowercased below before being added.
             var seen = new HashSet<(string, int, string)>();
             int cfSkipped = 0;
+            int sniSkipped = 0;
             async Task AddToPoolAsync(ParsedProxy p)
             {
+                // The current Worker can only establish TLS using the endpoint hostname.
+                // A different explicit SNI cannot be verified by this socket API; leave
+                // those nodes not-tested instead of sending them for a misleading result.
+                if (!IsEdgeProbeSniSupported(p.Host, p.Sni))
+                {
+                    sniSkipped++;
+                    return;
+                }
+
                 // CF-fronted hosts are unprovable from a Worker (CF blocks Worker→CF
                 // connects) — skip them and spend the budget on hosts this vantage
                 // can actually judge. Resolver cache is warm (GeoIP resolved every
@@ -2567,6 +2590,8 @@ namespace ProxyCollector.Collector
             }
             if (cfSkipped > 0)
                 LogInfo($"Edge pool: skipped {cfSkipped} CF-fronted hosts (unprovable from a Worker vantage).");
+            if (sniSkipped > 0)
+                LogInfo($"Edge pool: skipped {sniSkipped} targets with explicit SNI different from endpoint hostname; the current Worker cannot verify custom SNI.");
             if (pool.Count == 0) { LogInfo("Edge verification: no candidates."); return; }
 
             int ok = 0, cfBlocked = 0, refused = 0, timeouts = 0, errors = 0, dnsFails = 0, tlsFails = 0;
@@ -3131,13 +3156,42 @@ namespace ProxyCollector.Collector
         }
 
         // ====================== SOURCE DECODING ======================
+        // Only recognized subscription profile metadata comments are removed. Arbitrary
+        // leading/trailing garbage is never repaired or silently discarded.
+        private static string StripKnownProfilePreamble(string text)
+        {
+            var lines = text.Split('\n');
+            int firstPayloadLine = 0;
+            while (firstPayloadLine < lines.Length)
+            {
+                string line = lines[firstPayloadLine].TrimStart('\uFEFF').Trim();
+                if (line.Length == 0 ||
+                    line.StartsWith("#profile-", StringComparison.OrdinalIgnoreCase) ||
+                    line.StartsWith("//profile-", StringComparison.OrdinalIgnoreCase))
+                {
+                    firstPayloadLine++;
+                    continue;
+                }
+                break;
+            }
+
+            return firstPayloadLine == 0 ? text : string.Join("\n", lines.Skip(firstPayloadLine));
+        }
+
         internal static List<string> DecodeAndExtractLines(string text, string url)
         {
             var results = new List<string>();
-            bool isYaml = url.EndsWith(".yaml") || url.EndsWith(".yml");
-            bool isJson = url.EndsWith(".json");
-            bool isHtml = url.EndsWith(".html") || url.EndsWith(".htm")
-                       || url.Contains("t.me/s/", StringComparison.OrdinalIgnoreCase);
+            string sourcePath = url.Split('?', '#')[0];
+            bool isYaml = sourcePath.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) ||
+                          sourcePath.EndsWith(".yml", StringComparison.OrdinalIgnoreCase);
+            bool isJson = sourcePath.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
+            string jsonText = StripKnownProfilePreamble(text);
+            string jsonProbe = jsonText.TrimStart('\uFEFF').TrimStart();
+            bool startsWithJsonDocument = jsonProbe.StartsWith("{", StringComparison.Ordinal) ||
+                                          jsonProbe.StartsWith("[", StringComparison.Ordinal);
+            bool isHtml = sourcePath.EndsWith(".html", StringComparison.OrdinalIgnoreCase) ||
+                          sourcePath.EndsWith(".htm", StringComparison.OrdinalIgnoreCase) ||
+                          url.Contains("t.me/s/", StringComparison.OrdinalIgnoreCase);
                        
             // Base64 peel FIRST, before any format dispatch. A source serving
             // base64-of-a-Clash-YAML or base64-of-sing-box-JSON has no "://",
@@ -3170,14 +3224,13 @@ namespace ProxyCollector.Collector
                 return results;
             }
 
-            // sing-box config JSON ({"outbounds": [{"type":"vless","server":...}, ...]}) has
-            // no literal "scheme://" text anywhere in it — it's structured JSON, so the plain
-            // line scan below would silently find nothing at all. Parse it for real.
-            if (isJson || (text.TrimStart().StartsWith("{") && text.Contains("\"outbounds\"")))
+            // Structured sing-box and generated subscription JSON may be root objects,
+            // root arrays, or known profile-header-prefixed documents without a .json URL.
+            if (isJson || startsWithJsonDocument)
             {
-                var fromJson = ExtractFromSingboxJson(text);
+                var fromJson = ExtractFromSingboxJson(jsonProbe);
                 if (fromJson.Count > 0) return fromJson;
-                if (isJson) return results; // was declared JSON but didn't parse — don't fall through to line scanning garbage
+                return results; // malformed/unsupported JSON must not fall through to line scanning
             }
 
             if (isYaml || text.Contains("proxies:"))
@@ -3251,10 +3304,53 @@ namespace ProxyCollector.Collector
             try
             {
                 using var doc = JsonDocument.Parse(text);
-                if (!doc.RootElement.TryGetProperty("outbounds", out var outbounds) ||
-                    outbounds.ValueKind != JsonValueKind.Array) return results;
+                var root = doc.RootElement;
+                JsonElement outbounds = default;
 
-                foreach (var ob in outbounds.EnumerateArray())
+                void AddRawLink(JsonElement value)
+                {
+                    if (value.ValueKind != JsonValueKind.String) return;
+                    string raw = value.GetString()?.Trim() ?? "";
+                    Match match = SchemeLineRegex.Match(raw);
+                    if (match.Success && match.Index == 0)
+                        results.Add(CleanExtracted(match.Value));
+                }
+
+                if (root.ValueKind == JsonValueKind.Array)
+                {
+                    outbounds = root;
+                    foreach (var item in root.EnumerateArray())
+                        AddRawLink(item);
+                }
+                else if (root.ValueKind == JsonValueKind.Object)
+                {
+                    if (root.TryGetProperty("outbounds", out var configuredOutbounds) &&
+                        configuredOutbounds.ValueKind == JsonValueKind.Array)
+                        outbounds = configuredOutbounds;
+
+                    // Some exporters wrap share links instead of complete sing-box outbounds.
+                    // Keep raw URIs intact and defer protocol validation to the common pipeline.
+                    if (root.TryGetProperty("entries", out var entries) &&
+                        entries.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var entry in entries.EnumerateArray())
+                            if (entry.ValueKind == JsonValueKind.Object &&
+                                entry.TryGetProperty("raw", out var raw))
+                                AddRawLink(raw);
+                    }
+
+                    // Freedom Finder publishes ordinary share links in a MOBILE string array.
+                    if (root.TryGetProperty("MOBILE", out var mobile) &&
+                        mobile.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var item in mobile.EnumerateArray())
+                            AddRawLink(item);
+                    }
+                }
+
+                if (outbounds.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var ob in outbounds.EnumerateArray())
                 {
                     try
                     {
@@ -3387,7 +3483,9 @@ namespace ProxyCollector.Collector
                         if (link != null) results.Add(link);
                     }
                     catch { } // one malformed outbound entry shouldn't sink the rest of the file
+                    }
                 }
+                return results.Distinct(StringComparer.Ordinal).ToList();
             }
             catch { }
             return results;

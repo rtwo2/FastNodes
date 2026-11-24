@@ -84,7 +84,7 @@ def evaluate(root: pathlib.Path, baseline: dict | None = None,
     )
     required = max(MIN_EVERYTHING_LINES, math.ceil(old_count * MIN_RETAINED))
     if old_count >= MIN_EVERYTHING_LINES and everything_count < required:
-        errors.append(f"catastrophic everything.txt regression: {old_count:,} -> {everything_count:,} lines "
+        errors.append(f"catastrophic everything collection regression: {old_count:,} -> {everything_count:,} lines "
                       f"({everything_count / old_count:.1%} retained; need at least {required:,})")
 
     old_total = int((baseline or {}).get("total_bytes", 0) or 0)

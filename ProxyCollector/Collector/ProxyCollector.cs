@@ -2452,7 +2452,7 @@ namespace ProxyCollector.Collector
                     if (!IsValidVmessCredential(p.Credential)) return null;
                     string vmessSecurity = GetVmessJsonString(vmessJson, "scy", "auto").Trim().ToLowerInvariant();
                     if (string.IsNullOrWhiteSpace(vmessSecurity)) vmessSecurity = "auto";
-                    if (vmessSecurity is not ("auto" or "none" or "zero" or "aes-128-gcm" or "chacha20-poly1305"))
+                    if (vmessSecurity is not ("auto" or "aes-128-gcm" or "chacha20-poly1305"))
                         return null;
                     if (p.Aid is < 0 or > 65535) return null;
                     settings = new Dictionary<string, object?>

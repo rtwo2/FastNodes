@@ -570,12 +570,19 @@ internal static class Program
             "vless://Telegram%F0%9F%87%A8%F0%9F%87%B3%20%40WangCai2@bad-uuid.example.net:443?security=tls") is null,
             "non-UUID VLESS credentials are rejected before they can poison an Xray batch");
         Checks.That(CollectorType.ParseProxyLine(
-            "vmess://not-a-uuid@bad-vmess.example.net:443?security=tls") is null,
-            "non-UUID URI-form VMess credentials are rejected");
-        var malformedVmessJson = """{"add":"bad-vmess.example.net","port":"443","id":"Telegram @channel","net":"tcp","tls":"tls"}""";
+            "vmess://not-a-uuid@valid-vmess.example.net:443?security=tls") is not null,
+            "short custom VMess IDs remain valid as documented by Xray");
+        Checks.That(CollectorType.ParseProxyLine(
+            "vmess://this-is-a-deliberately-invalid-vmess-credential-over-30@example.net:443?security=tls") is null,
+            "VMess custom IDs of 30 UTF-8 bytes or more are rejected unless they are UUIDs");
+        var shortCustomVmessJson = """{"add":"custom-vmess.example.net","port":"443","id":"Telegram @channel","net":"tcp","tls":"tls"}""";
+        Checks.That(CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(shortCustomVmessJson))) is not null,
+            "short custom IDs in Base64-JSON VMess profiles remain valid");
+        var malformedVmessJson = """{"add":"bad-vmess.example.net","port":"443","id":"this-is-a-deliberately-invalid-vmess-credential-over-30","net":"tcp","tls":"tls"}""";
         Checks.That(CollectorType.ParseProxyLine(
             "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(malformedVmessJson))) is null,
-            "non-UUID Base64-JSON VMess IDs are rejected");
+            "overlength non-UUID Base64-JSON VMess IDs are rejected");
         var invalidXrayVless = new ProxyCollector.Collector.ParsedProxy
         {
             Protocol = "vless", Host = "bad-xray.example.net", Port = "443",
@@ -583,6 +590,25 @@ internal static class Program
         };
         Checks.That(CollectorType.BuildXrayOutbound(invalidXrayVless, "invalid-vless-uuid") is null,
             "Xray builder independently rejects malformed VLESS UUIDs even if a ParsedProxy bypasses parsing");
+        var invalidXrayVmess = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vmess", Host = "bad-vmess.example.net", Port = "443",
+            Credential = "this-is-a-deliberately-invalid-vmess-credential-over-30"
+        };
+        Checks.That(CollectorType.BuildXrayOutbound(invalidXrayVmess, "invalid-vmess-id") is null,
+            "Xray builder independently rejects overlength VMess IDs");
+        var invalidVlessFlow = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vless", Host = "invalid-flow.example.net", Port = "443",
+            Credential = validVlessUuid, Flow = "not-a-real-flow", Security = "tls"
+        };
+        Checks.That(CollectorType.BuildXrayOutbound(invalidVlessFlow, "invalid-vless-flow") is null,
+            "Xray builder skips unsupported VLESS flow values instead of invalidating the full batch");
+        var invalidVmessSecurityJson = """{"add":"bad-security.example.net","port":"443","id":"123e4567-e89b-12d3-a456-426614174000","net":"tcp","tls":"tls","scy":"not-a-security"}""";
+        var invalidVmessSecurity = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(invalidVmessSecurityJson)))!;
+        Checks.That(CollectorType.BuildXrayOutbound(invalidVmessSecurity, "invalid-vmess-security") is null,
+            "Xray builder skips unsupported VMess security values");
 
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");

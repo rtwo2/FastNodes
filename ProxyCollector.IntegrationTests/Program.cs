@@ -12,6 +12,7 @@ internal static class Program
         await TestDualStackFallbackAsync();
         await TestXrayProbeCallerCancellationAsync();
         await TestXrayLoopbackRoundtripAsync();
+        await TestXrayRealityConfigValidationAsync();
         Console.WriteLine("Network/Xray integration tests passed.");
     }
 
@@ -171,6 +172,120 @@ internal static class Program
             }
             catch { }
 
+            process?.Dispose();
+            try { File.Delete(configPath); } catch { }
+        }
+    }
+
+    private static async Task TestXrayRealityConfigValidationAsync()
+    {
+        string? xrayPath = Environment.GetEnvironmentVariable("XRAY_BIN");
+        if (string.IsNullOrWhiteSpace(xrayPath) || !File.Exists(xrayPath))
+            throw new FileNotFoundException("XRAY_BIN must point to the pinned Xray binary for integration tests.", xrayPath);
+
+        string configPath = Path.Combine(Path.GetTempPath(),
+            "fastnodes-xray-reality-validation-" + Guid.NewGuid().ToString("N") + ".json");
+        // This is deliberately a config-validation-only probe. It does not connect to
+        // the example endpoint; Xray must accept the current REALITY schema and its
+        // public-key field name before production can batch this outbound with others.
+        var config = new
+        {
+            log = new { loglevel = "error" },
+            inbounds = new object[]
+            {
+                new
+                {
+                    listen = "127.0.0.1",
+                    port = ReserveTcpPort(),
+                    protocol = "socks",
+                    settings = new { auth = "noauth", udp = false },
+                    tag = "reality-validation-inbound"
+                }
+            },
+            outbounds = new object[]
+            {
+                new
+                {
+                    tag = "reality-validation",
+                    protocol = "vless",
+                    settings = new
+                    {
+                        vnext = new[]
+                        {
+                            new
+                            {
+                                address = "reality.example.invalid",
+                                port = 443,
+                                users = new[]
+                                {
+                                    new
+                                    {
+                                        id = "123e4567-e89b-12d3-a456-426614174000",
+                                        encryption = "none",
+                                        flow = "xtls-rprx-vision"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    streamSettings = new
+                    {
+                        network = "tcp",
+                        security = "reality",
+                        realitySettings = new
+                        {
+                            serverName = "reality.example.invalid",
+                            fingerprint = "chrome",
+                            password = "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA=",
+                            shortId = "0123",
+                            spiderX = "/"
+                        }
+                    }
+                },
+                new { tag = "direct", protocol = "freedom" }
+            }
+        };
+
+        await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(config));
+        Process? process = null;
+        try
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = xrayPath,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+            startInfo.ArgumentList.Add("run");
+            startInfo.ArgumentList.Add("-test");
+            startInfo.ArgumentList.Add("-c");
+            startInfo.ArgumentList.Add(configPath);
+
+            process = Process.Start(startInfo) ?? throw new InvalidOperationException("Could not start Xray config validation.");
+            Task<string> stdout = process.StandardOutput.ReadToEndAsync();
+            Task<string> stderr = process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(15));
+            string output = await stdout;
+            string error = await stderr;
+            if (process.ExitCode != 0)
+                throw new InvalidOperationException(
+                    $"Pinned Xray rejected the REALITY outbound config (exit {process.ExitCode}). stdout: {output} stderr: {error}");
+
+            Console.WriteLine("  pinned Xray REALITY config validation: passed");
+        }
+        finally
+        {
+            try
+            {
+                if (process is { HasExited: false })
+                {
+                    process.Kill(entireProcessTree: true);
+                    await process.WaitForExitAsync();
+                }
+            }
+            catch { }
             process?.Dispose();
             try { File.Delete(configPath); } catch { }
         }

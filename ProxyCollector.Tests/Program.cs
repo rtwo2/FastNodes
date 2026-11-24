@@ -126,6 +126,56 @@ internal static class Program
         Checks.That(oversizedBodyRejected,
             "bounded HTTP reader rejects bodies larger than its byte limit");
 
+        string splitTestRoot = Path.Combine(Path.GetTempPath(), "FastNodes-split-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(splitTestRoot);
+        try
+        {
+            int byteSplitParts = CollectorType.WriteSubscriptionPartsAsync(
+                Path.Combine(splitTestRoot, "everything"),
+                new[] { "abc", "éé", "x" },
+                maxBytes: 6).GetAwaiter().GetResult();
+            Checks.Equal(3, byteSplitParts,
+                "subscription feeds split at the byte ceiling even when the line count is small");
+            Checks.Equal("abc\n", File.ReadAllText(Path.Combine(splitTestRoot, "everything.txt")),
+                "the first byte-limited chunk keeps the stable base filename");
+            Checks.Equal("éé\n", File.ReadAllText(Path.Combine(splitTestRoot, "everything_part2.txt")),
+                "UTF-8 byte accounting creates the second chunk with the established _part2 suffix");
+            Checks.Equal("x\n", File.ReadAllText(Path.Combine(splitTestRoot, "everything_part3.txt")),
+                "additional byte overflow continues with monotonically numbered part files");
+            Checks.That(Directory.GetFiles(splitTestRoot, "everything*.txt")
+                    .All(file => new FileInfo(file).Length <= 6),
+                "every generated subscription part stays within its configured byte ceiling");
+
+            int lineSplitParts = CollectorType.WriteSubscriptionPartsAsync(
+                Path.Combine(splitTestRoot, "protocols-vless"),
+                new[] { "one", "two", "three" },
+                maxBytes: 100,
+                maxLinesPerPart: 2).GetAwaiter().GetResult();
+            Checks.Equal(2, lineSplitParts,
+                "the existing category node-count chunking remains active alongside the byte ceiling");
+            Checks.Equal("one\ntwo\n", File.ReadAllText(Path.Combine(splitTestRoot, "protocols-vless.txt")),
+                "category part one retains its first 1,000-node-style chunk contract");
+            Checks.Equal("three\n", File.ReadAllText(Path.Combine(splitTestRoot, "protocols-vless_part2.txt")),
+                "category overflow retains the established _part2 filename");
+
+            bool singleOversizedLineRejected = false;
+            try
+            {
+                CollectorType.WriteSubscriptionPartsAsync(
+                    Path.Combine(splitTestRoot, "oversized"),
+                    new[] { "123456" },
+                    maxBytes: 6).GetAwaiter().GetResult();
+            }
+            catch (InvalidDataException) { singleOversizedLineRejected = true; }
+            Checks.That(singleOversizedLineRejected,
+                "a single entry larger than the part limit fails instead of creating an oversized file");
+        }
+        finally
+        {
+            if (Directory.Exists(splitTestRoot))
+                Directory.Delete(splitTestRoot, recursive: true);
+        }
+
         var invalidDatabasePath = Path.Combine(Path.GetTempPath(), $"fastnodes-invalid-{Guid.NewGuid():N}.mmdb");
         try
         {

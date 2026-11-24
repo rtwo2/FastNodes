@@ -140,6 +140,32 @@ def validate_tree(root: pathlib.Path) -> list[str]:
         if counts.get(name, 0) == 0:
             raise ValidationError(f"{name} is empty; refusing to publish")
 
+    # Every _partN file must have a stable base file and a gap-free sequence
+    # beginning at part 2. This also protects protocol/country/continent chunks.
+    split_groups: dict[pathlib.Path, list[tuple[int, pathlib.Path]]] = {}
+    for path in root.rglob("*_part*.txt"):
+        match = re.fullmatch(r"(.+)_part([0-9]+)\.txt", path.name)
+        if not match or int(match.group(2)) < 2:
+            raise ValidationError(f"invalid subscription part filename: {path.relative_to(root).as_posix()}")
+        base_path = path.with_name(match.group(1) + ".txt")
+        if not base_path.is_file():
+            raise ValidationError(f"{path.relative_to(root).as_posix()} has no base file {base_path.name}")
+        rel = path.relative_to(root).as_posix()
+        if counts.get(rel, 0) == 0:
+            raise ValidationError(f"{rel} is empty; remove empty trailing subscription parts")
+        split_groups.setdefault(base_path, []).append((int(match.group(2)), path))
+
+    for base_path, parts in split_groups.items():
+        ordered = sorted(parts, key=lambda item: item[0])
+        expected = list(range(2, len(ordered) + 2))
+        if [number for number, _ in ordered] != expected:
+            rel = base_path.relative_to(root).as_posix()
+            raise ValidationError(f"{rel} parts must be contiguous and numbered from _part2.txt")
+
+    def all_parts(base_path: pathlib.Path) -> list[pathlib.Path]:
+        ordered = sorted(split_groups.get(base_path, []), key=lambda item: item[0])
+        return [base_path] + [path for _, path in ordered]
+
     # The ranked IPv6 shortlist is generated directly from ipv6_only.txt's
     # candidate pool. Every top_ipv6 entry must therefore exist in the family
     # feed; catch accidental truncation or mismatched output publication.
@@ -172,32 +198,6 @@ def validate_tree(root: pathlib.Path) -> list[str]:
     # everything.txt is the stable first part. Large collections continue in
     # everything_part2.txt, everything_part3.txt, ...; validate the sequence and
     # use every part when checking that the other feeds are subsets of the master list.
-    # Every _partN file must have a stable base file and a gap-free sequence
-    # beginning at part 2. This also protects protocol/country/continent chunks.
-    split_groups: dict[pathlib.Path, list[tuple[int, pathlib.Path]]] = {}
-    for path in root.rglob("*_part*.txt"):
-        match = re.fullmatch(r"(.+)_part([0-9]+)\.txt", path.name)
-        if not match or int(match.group(2)) < 2:
-            raise ValidationError(f"invalid subscription part filename: {path.relative_to(root).as_posix()}")
-        base_path = path.with_name(match.group(1) + ".txt")
-        if not base_path.is_file():
-            raise ValidationError(f"{path.relative_to(root).as_posix()} has no base file {base_path.name}")
-        rel = path.relative_to(root).as_posix()
-        if counts.get(rel, 0) == 0:
-            raise ValidationError(f"{rel} is empty; remove empty trailing subscription parts")
-        split_groups.setdefault(base_path, []).append((int(match.group(2)), path))
-
-    for base_path, parts in split_groups.items():
-        ordered = sorted(parts, key=lambda item: item[0])
-        expected = list(range(2, len(ordered) + 2))
-        if [number for number, _ in ordered] != expected:
-            rel = base_path.relative_to(root).as_posix()
-            raise ValidationError(f"{rel} parts must be contiguous and numbered from _part2.txt")
-
-    def all_parts(base_path: pathlib.Path) -> list[pathlib.Path]:
-        ordered = sorted(split_groups.get(base_path, []), key=lambda item: item[0])
-        return [base_path] + [path for _, path in ordered]
-
     # Ranked shortlists can also be byte-split in the rare case of unusually
     # long entries. Keep the 1,000-node limit and duplicate check across all parts.
     for name in ("top.txt", "top_ipv6.txt"):

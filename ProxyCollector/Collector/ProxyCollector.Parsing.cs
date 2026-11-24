@@ -115,8 +115,9 @@ namespace ProxyCollector.Collector
                     if (string.IsNullOrEmpty(net)) net = "tcp";
                     string sec = q.GetValueOrDefault("security", "");
                     if (sec.Equals("none", StringComparison.OrdinalIgnoreCase)) sec = "";
-                    string sni = q.GetValueOrDefault("sni", "") is var s && !string.IsNullOrEmpty(s)
-                                  ? s : q.GetValueOrDefault("host", "");
+                    // URI-form VMess follows the same rule as other URI protocols:
+                    // the transport Host header is not an implicit TLS SNI.
+                    string sni = q.GetValueOrDefault("sni", "");
                     return new ParsedProxy
                     {
                         Protocol = "vmess", Host = NormalizeUriHost(uri.Host),
@@ -162,8 +163,9 @@ namespace ProxyCollector.Collector
                 if (sec.Equals("none", StringComparison.OrdinalIgnoreCase)) sec = ""; // "security=none" and no security param at all mean the same thing
                 string net  = q.GetValueOrDefault("type", "tcp");
                 if (string.IsNullOrEmpty(net)) net = "tcp"; // GetValueOrDefault only falls back when the key is ABSENT — an explicit "type=" (present, empty) slipped through otherwise
-                string sni  = q.GetValueOrDefault("sni", "") is var s && !string.IsNullOrEmpty(s)
-                              ? s : q.GetValueOrDefault("host", "");
+                // "host" is a transport HTTP Host/authority override, not an implicit TLS SNI.
+                // The TLS layer falls back to the endpoint hostname when SNI is absent.
+                string sni  = q.GetValueOrDefault("sni", "");
                 string path = q.GetValueOrDefault("path", "").TrimEnd('/'); // trailing-slash-only difference shouldn't produce a different dedup key
                 string pbk  = q.GetValueOrDefault("pbk", "");
                 string sid  = q.GetValueOrDefault("sid", "");

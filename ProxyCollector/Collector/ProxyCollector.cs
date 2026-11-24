@@ -2157,8 +2157,24 @@ namespace ProxyCollector.Collector
 
             foreach (var p in candidates)
             {
+                // Xray is a separate process and would otherwise resolve the hostname again.
+                // Pin its socket destination to an address already inspected by FastNodes,
+                // while retaining the original hostname for SNI and transport Host settings.
+                IPAddress[] resolved = await Resolver.ResolveAllAsync(p.Host);
+                if (resolved.Length == 0 ||
+                    resolved.Any(ip => IsPrivateOrReservedIp(ip) ||
+                                       IsFireholBlacklisted(ip) ||
+                                       IsCloudflareIp(ip)))
+                    continue;
+
+                string connectAddress = resolved
+                    .OrderBy(ip => ip.AddressFamily == AddressFamily.InterNetwork ? 0 : 1)
+                    .ThenBy(ip => ip.ToString(), StringComparer.Ordinal)
+                    .First()
+                    .ToString();
+
                 int localPort = basePort + portMap.Count;
-                var ob = BuildXrayOutbound(p, $"ob{localPort}");
+                var ob = BuildXrayOutbound(p, $"ob{localPort}", connectAddress);
                 if (ob == null) continue;   // unconvertible node — just not deep-checked
                 inbounds.Add(new Dictionary<string, object?>
                 {
@@ -2272,8 +2288,8 @@ namespace ProxyCollector.Collector
             }
         }
 
-        // Full roundtrip probe: socks5 handshake (no auth) → CONNECT www.gstatic.com:80 →
-        // minimal HTTP/1.1 GET /generate_204 → any 2xx status = affirmative life.
+        // Full roundtrip probe: SOCKS5 handshake → CONNECT www.gstatic.com:80 →
+        // HTTP GET /generate_204 → the expected 204 response is affirmative life.
         private static async Task<bool> ProbeViaSocksAsync(int localPort, CancellationToken ct)
         {
             try
@@ -2318,13 +2334,41 @@ namespace ProxyCollector.Collector
                 var http = Encoding.ASCII.GetBytes(
                     "GET /generate_204 HTTP/1.1\r\nHost: www.gstatic.com\r\nUser-Agent: FastNodes-probe\r\nConnection: close\r\n\r\n");
                 await s.WriteAsync(http, cts.Token);
-                var status = new byte[12];
-                await ReadExactAsync(s, status, cts.Token);
-                string line = Encoding.ASCII.GetString(status);     // "HTTP/1.1 204"
-                int sp = line.IndexOf(' ');
-                return sp >= 0 && sp + 1 < line.Length && line[sp + 1] == '2';
+                string statusLine = await ReadHttpStatusLineAsync(s, cts.Token);
+                return IsExpectedConnectivityStatusLine(statusLine);
             }
             catch { return false; }
+        }
+
+        internal static bool IsExpectedConnectivityStatusLine(string statusLine)
+        {
+            if (string.IsNullOrWhiteSpace(statusLine)) return false;
+            var parts = statusLine.Split(' ', 3, StringSplitOptions.RemoveEmptyEntries);
+            return parts.Length >= 2 &&
+                parts[0].StartsWith("HTTP/", StringComparison.OrdinalIgnoreCase) &&
+                int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out int statusCode) &&
+                statusCode == 204;
+        }
+
+        private static async Task<string> ReadHttpStatusLineAsync(NetworkStream stream, CancellationToken ct)
+        {
+            const int MaxStatusLineBytes = 1024;
+            var buffer = new byte[MaxStatusLineBytes];
+            var singleByte = new byte[1];
+            int length = 0;
+
+            while (length < buffer.Length)
+            {
+                int read = await stream.ReadAsync(singleByte.AsMemory(0, 1), ct);
+                if (read == 0) throw new IOException("HTTP response closed before its status line completed.");
+                if (singleByte[0] == (byte)'\n') break;
+                if (singleByte[0] != (byte)'\r') buffer[length++] = singleByte[0];
+            }
+
+            if (length == buffer.Length)
+                throw new InvalidDataException("HTTP response status line exceeded the 1 KiB limit.");
+
+            return Encoding.ASCII.GetString(buffer, 0, length);
         }
 
         private static async Task ReadExactAsync(NetworkStream s, byte[] buf, CancellationToken ct)
@@ -2394,8 +2438,12 @@ namespace ProxyCollector.Collector
         // Link → Xray outbound. URI protocols read query options; standard VMess
         // share links read their settings from the original base64 JSON payload.
         // Unconvertible nodes are skipped for this probe only, never dropped.
-        internal static Dictionary<string, object?>? BuildXrayOutbound(ParsedProxy p, string tag)
+        internal static Dictionary<string, object?>? BuildXrayOutbound(
+            ParsedProxy p, string tag, string? connectAddress = null)
         {
+            // Socket destination may be pinned to a previously vetted DNS answer.
+            // Protocol identity stays based on the original link and hostname.
+            string endpointAddress = string.IsNullOrWhiteSpace(connectAddress) ? p.Host : connectAddress;
             string proto = NormalizeProto(p.Protocol);
             var q = QueryFromBaseLink(p);
             JsonElement? vmessJson = proto == "vmess" ? TryGetVmessJson(p.BaseLink) : null;
@@ -2418,7 +2466,7 @@ namespace ProxyCollector.Collector
                 case "ws":
                     stream["network"] = "ws";
                     var ws = new Dictionary<string, object?> { ["path"] = string.IsNullOrEmpty(p.Path) ? "/" : p.Path };
-                    string wsHost = proto == "vmess"
+                    string wsHost = proto == "vmess" && vmessJson is not null
                         ? GetVmessJsonString(vmessJson, "host")
                         : q.GetValueOrDefault("host", "");
                     if (!string.IsNullOrEmpty(wsHost))
@@ -2429,15 +2477,21 @@ namespace ProxyCollector.Collector
                     stream["network"] = "grpc";
                     stream["grpcSettings"] = new Dictionary<string, object?>
                     {
-                        ["serviceName"] = q.GetValueOrDefault("serviceName", ""),
+                        ["serviceName"] = proto == "vmess"
+                            ? p.Path
+                            : q.GetValueOrDefault("serviceName", ""),
                         ["multiMode"] = q.GetValueOrDefault("mode", "") == "multi"
                     };
                     break;
                 case "h2":
                     stream["network"] = "h2";
+                    string h2Host = proto == "vmess" && vmessJson is not null
+                        ? GetVmessJsonString(vmessJson, "host")
+                        : q.GetValueOrDefault("host", "");
+                    if (string.IsNullOrEmpty(h2Host)) h2Host = p.Host;
                     stream["h2Settings"] = new Dictionary<string, object?>
                     {
-                        ["host"] = new List<string> { string.IsNullOrEmpty(p.Sni) ? p.Host : p.Sni },
+                        ["host"] = new List<string> { h2Host },
                         ["path"] = string.IsNullOrEmpty(p.Path) ? "/" : p.Path
                     };
                     break;
@@ -2448,10 +2502,10 @@ namespace ProxyCollector.Collector
             if (tls)
             {
                 string sni = string.IsNullOrEmpty(p.Sni) ? p.Host : p.Sni;
-                string fp = proto == "vmess"
+                string fp = proto == "vmess" && vmessJson is not null
                     ? GetVmessJsonString(vmessJson, "fp")
                     : q.GetValueOrDefault("fp", "");
-                string alpn = proto == "vmess"
+                string alpn = proto == "vmess" && vmessJson is not null
                     ? GetVmessJsonAlpn(vmessJson)
                     : q.GetValueOrDefault("alpn", "");
                 if (string.IsNullOrEmpty(fp) && reality) fp = "chrome";   // REALITY requires a uTLS fingerprint
@@ -2496,7 +2550,7 @@ namespace ProxyCollector.Collector
                     settings = new Dictionary<string, object?>
                     {
                         ["vnext"] = new List<object> { new Dictionary<string, object?>
-                            { ["address"] = p.Host, ["port"] = int.Parse(p.Port),
+                            { ["address"] = endpointAddress, ["port"] = int.Parse(p.Port),
                               ["users"] = new List<object> { user } } }
                     };
                     break;
@@ -2509,7 +2563,7 @@ namespace ProxyCollector.Collector
                     settings = new Dictionary<string, object?>
                     {
                         ["vnext"] = new List<object> { new Dictionary<string, object?>
-                            { ["address"] = p.Host, ["port"] = int.Parse(p.Port),
+                            { ["address"] = endpointAddress, ["port"] = int.Parse(p.Port),
                               ["users"] = new List<object> { new Dictionary<string, object?>
                                   { ["id"] = p.Credential, ["alterId"] = p.Aid, ["security"] = vmessSecurity } } } }
                     };
@@ -2521,7 +2575,7 @@ namespace ProxyCollector.Collector
                     settings = new Dictionary<string, object?>
                     {
                         ["servers"] = new List<object> { new Dictionary<string, object?>
-                            { ["address"] = p.Host, ["port"] = int.Parse(p.Port), ["password"] = p.Credential } }
+                            { ["address"] = endpointAddress, ["port"] = int.Parse(p.Port), ["password"] = p.Credential } }
                     };
                     break;
                 }
@@ -2535,7 +2589,7 @@ namespace ProxyCollector.Collector
                     settings = new Dictionary<string, object?>
                     {
                         ["servers"] = new List<object> { new Dictionary<string, object?>
-                            { ["address"] = p.Host, ["port"] = int.Parse(p.Port),
+                            { ["address"] = endpointAddress, ["port"] = int.Parse(p.Port),
                               ["method"] = method,
                               ["password"] = p.Credential[(colon + 1)..] } }
                     };
@@ -2571,6 +2625,18 @@ namespace ProxyCollector.Collector
 
         internal static bool IsValidEdgeResultId(int id, IReadOnlySet<int> expectedBatchIds, int poolCount)
             => id >= 0 && id < poolCount && expectedBatchIds.Contains(id);
+
+        internal static bool IsValidEdgeSniEcho(
+            string expectedSni, string? reportedSni, string endpointHost)
+        {
+            if (!string.IsNullOrWhiteSpace(reportedSni))
+                return string.Equals(expectedSni, reportedSni, StringComparison.OrdinalIgnoreCase);
+
+            // Backward compatibility for the existing Worker contract: when the intended
+            // SNI equals the endpoint hostname, the legacy host-only probe tests the same
+            // TLS name. A different explicit SNI must be echoed or it remains unverified.
+            return string.Equals(expectedSni, endpointHost, StringComparison.OrdinalIgnoreCase);
+        }
 
         private async Task EdgeVerifyAsync(List<ParsedProxy> proxies,
             ConcurrentDictionary<string, string> countryCache)
@@ -2652,7 +2718,13 @@ namespace ProxyCollector.Collector
                         {
                             targets = batch.Select(b => new
                             {
-                                id = b.Idx, host = b.Node.Host, port = int.Parse(b.Node.Port), tls = true
+                                id = b.Idx,
+                                host = b.Node.Host,
+                                port = int.Parse(b.Node.Port),
+                                tls = true,
+                                // Worker implementations should use this explicit value for
+                                // TLS SNI rather than assuming it always equals the endpoint.
+                                sni = string.IsNullOrEmpty(b.Node.Sni) ? b.Node.Host : b.Node.Sni
                             }).ToList()
                         });
                         using var req = new HttpRequestMessage(HttpMethod.Post, url)
@@ -2678,6 +2750,17 @@ namespace ProxyCollector.Collector
                                     !IsValidEdgeResultId(id, expectedBatchIds, pool.Count))
                                 {
                                     LogWarning("Edge verification returned an invalid or out-of-batch result ID; ignoring it.");
+                                    continue;
+                                }
+
+                                string expectedSni = string.IsNullOrEmpty(pool[id].Sni)
+                                    ? pool[id].Host : pool[id].Sni;
+                                string? reportedSni = r.TryGetProperty("sni", out var sniElement) &&
+                                    sniElement.ValueKind == JsonValueKind.String
+                                    ? sniElement.GetString() : null;
+                                if (!IsValidEdgeSniEcho(expectedSni, reportedSni, pool[id].Host))
+                                {
+                                    LogWarning($"Edge verification result for pool index {id} did not confirm the requested SNI; leaving it not-tested. Update the Worker to consume and echo target.sni when it differs from host.");
                                     continue;
                                 }
 

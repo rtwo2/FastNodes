@@ -23,7 +23,8 @@ NUMERIC_FIELDS = (
 )
 OUTPUT_FIELDS = (
     "url", "snapshots_seen", "fetch_success_runs", "fetch_failed_runs", "parse_success_runs",
-    "unparsed_runs", "parsed_zero_unique_runs", "latest_status", "latest_parsed", "latest_unique",
+    "unparsed_runs", "provider_failure_runs", "parsed_zero_unique_runs",
+    "latest_status", "latest_parsed", "latest_unique",
     "average_parsed", "average_unique", "latest_fetch_elapsed_ms", "max_fetch_elapsed_ms",
     "latest_parse_elapsed_ms", "classification",
 )
@@ -82,13 +83,18 @@ def load_history(path: pathlib.Path) -> dict:
 
 
 def classify(values: list[dict], latest: dict, fetch_failures: int, parse_successes: int,
-             unparsed: int, parsed_zero_unique: int) -> str:
+             unparsed: int, parsed_zero_unique: int, provider_failure_runs: int = 0) -> str:
     seen = len(values)
     recurring_threshold = max(2, math.ceil(seen * 0.30))
     if unparsed >= 2 and latest["status"] in {"fetched-but-unparsed", "extracted-but-rejected"}:
         return "recurring-parser-gap"
     if fetch_failures >= recurring_threshold:
         return "recurring-fetch-failure"
+    if provider_failure_runs >= recurring_threshold and (
+        latest.get("provider_failures", 0) > 0 or
+        latest["status"] in {"provider-failed-or-unparsed", "healthy-with-provider-errors"}
+    ):
+        return "recurring-provider-failure"
     if parse_successes >= 3 and parsed_zero_unique >= max(3, math.ceil(seen * 0.75)):
         return "repeated-zero-unique"
     if latest["unique"] > 0:
@@ -109,7 +115,11 @@ def render_trends(snapshots: list[dict]) -> str:
         parse_successes = sum(v["parsed"] > 0 for v in values)
         unparsed = sum(v["status"] in {"fetched-but-unparsed", "extracted-but-rejected"} for v in values)
         parsed_zero_unique = sum(v["parsed"] > 0 and v["unique"] == 0 for v in values)
-        classification = classify(values, latest, fetch_failures, parse_successes, unparsed, parsed_zero_unique)
+        provider_failure_runs = sum(v.get("provider_failures", 0) > 0 for v in values)
+        classification = classify(
+            values, latest, fetch_failures, parse_successes, unparsed,
+            parsed_zero_unique, provider_failure_runs
+        )
         rows.append({
             "url": url,
             "snapshots_seen": len(values),
@@ -117,6 +127,7 @@ def render_trends(snapshots: list[dict]) -> str:
             "fetch_failed_runs": fetch_failures,
             "parse_success_runs": parse_successes,
             "unparsed_runs": unparsed,
+            "provider_failure_runs": provider_failure_runs,
             "parsed_zero_unique_runs": parsed_zero_unique,
             "latest_status": latest["status"],
             "latest_parsed": latest["parsed"],
@@ -131,10 +142,11 @@ def render_trends(snapshots: list[dict]) -> str:
     priority = {
         "recurring-parser-gap": 0,
         "recurring-fetch-failure": 1,
-        "repeated-zero-unique": 2,
-        "intermittent-no-unique": 3,
-        "monitor": 4,
-        "contributing": 5,
+        "recurring-provider-failure": 2,
+        "repeated-zero-unique": 3,
+        "intermittent-no-unique": 4,
+        "monitor": 5,
+        "contributing": 6,
     }
     rows.sort(key=lambda row: (
         priority.get(row["classification"], 99),
@@ -192,6 +204,7 @@ def self_test() -> None:
     parser_gap = "https://example.test/unsupported.yaml"
     redundant = "https://example.test/duplicate.txt"
     contributor = "https://example.test/useful.txt"
+    provider_failure = "https://example.test/profile-with-providers.yaml"
     with tempfile.TemporaryDirectory() as tmp:
         root = pathlib.Path(tmp)
         history = root / "state" / "source-health-history.json"
@@ -202,6 +215,7 @@ def self_test() -> None:
                 (parser_gap, 1, 1000, 20, 0, 0, 0, 0, 0, 100 + idx, 0, "fetched-but-unparsed"),
                 (redundant, 1, 1000, 20, 15, 10, 0, 0, 0, 200 + idx, 20, "healthy"),
                 (contributor, 1, 1000, 20, 10, 10, 4, 0, 0, 50 + idx, 10, "healthy"),
+                (provider_failure, 1, 1200, 30, 0, 0, 0, 0, 2, 80 + idx, 10, "provider-failed-or-unparsed"),
             ])
             process(source_csv, history, output, captured_at=f"2026-01-0{idx + 1}T00:00:00Z")
         with output.open("r", encoding="utf-8", newline="") as stream:
@@ -209,9 +223,11 @@ def self_test() -> None:
         assert rows[parser_gap]["classification"] == "recurring-parser-gap", rows[parser_gap]
         assert rows[redundant]["classification"] == "repeated-zero-unique", rows[redundant]
         assert rows[contributor]["classification"] == "contributing", rows[contributor]
+        assert rows[provider_failure]["classification"] == "recurring-provider-failure", rows[provider_failure]
+        assert rows[provider_failure]["provider_failure_runs"] == "3", rows[provider_failure]
         persisted = json.loads(history.read_text(encoding="utf-8"))
         assert len(persisted["snapshots"]) == 3
-        print("Source-health trend self-tests passed: recurring parser gap, repeated zero contribution, useful source.")
+        print("Source-health trend self-tests passed: parser gaps, provider failures, repeated zero contribution, useful source.")
 
 
 def main() -> int:

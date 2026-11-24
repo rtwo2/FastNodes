@@ -20,7 +20,7 @@ internal static class Program
         listener.Start();
         int port = ((IPEndPoint)listener.LocalEndpoint).Port;
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-        Task<Socket> acceptTask = listener.AcceptSocketAsync(timeout.Token);
+        Task<Socket> acceptTask = listener.AcceptSocketAsync(timeout.Token).AsTask();
 
         // The first candidate is IPv6, but this fixture listens only on IPv4.
         // The connector must tolerate that failed family and complete on IPv4.

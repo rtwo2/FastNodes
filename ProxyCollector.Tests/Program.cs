@@ -655,6 +655,15 @@ internal static class Program
             "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(invalidVmessSecurityJson)))!;
         Checks.That(CollectorType.BuildXrayOutbound(invalidVmessSecurity, "invalid-vmess-security") is null,
             "Xray builder skips unsupported VMess security values");
+        foreach (string obsoleteSecurity in new[] { "none", "zero" })
+        {
+            var obsoleteVmessSecurityJson = $"""{"add":"legacy-security.example.net","port":"443","id":"123e4567-e89b-12d3-a456-426614174000","net":"tcp","tls":"tls","scy":"{{obsoleteSecurity}}"}""";
+            var obsoleteVmessSecurity = CollectorType.ParseProxyLine(
+                "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(obsoleteVmessSecurityJson)))!;
+            Checks.That(CollectorType.BuildXrayOutbound(
+                obsoleteVmessSecurity, "obsolete-vmess-security-" + obsoleteSecurity) is null,
+                "unsupported legacy VMess security labels are rejected: " + obsoleteSecurity);
+        }
 
         var ipv6 = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@[2001:4860:4860::8888]:443?security=reality&type=tcp&sni=example.com&flow=xtls-rprx-vision&pbk=abc&sid=01#ipv6");

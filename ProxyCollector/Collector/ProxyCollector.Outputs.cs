@@ -1214,17 +1214,48 @@ namespace ProxyCollector.Collector
             return new RankingBaselineSnapshot();
         }
 
+        internal static List<(FinalProxy Current, RankingBaselineEntry Previous)> MatchRankingBaselineEntries(
+            IEnumerable<FinalProxy> currentProxies,
+            IEnumerable<RankingBaselineEntry> previousEntries)
+        {
+            var current = currentProxies
+                .Where(x => x.XrayTested && !string.IsNullOrWhiteSpace(x.NodeId))
+                .ToList();
+            var exactCurrent = current
+                .GroupBy(x => x.NodeId, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+            // A legacy identity can map to multiple current profiles after a stricter
+            // canonical split. Such matches are ambiguous and must not be double-counted.
+            var uniqueLegacyCurrent = current
+                .Where(x => !string.IsNullOrWhiteSpace(x.LegacyNodeId))
+                .GroupBy(x => x.LegacyNodeId, StringComparer.Ordinal)
+                .Where(g => g.Count() == 1)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+
+            var matches = new List<(FinalProxy Current, RankingBaselineEntry Previous)>();
+            var matchedCurrentIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var previous in previousEntries
+                .Where(x => !string.IsNullOrWhiteSpace(x.NodeId))
+                .GroupBy(x => x.NodeId, StringComparer.Ordinal)
+                .Select(g => g.First()))
+            {
+                FinalProxy? match = null;
+                if (exactCurrent.TryGetValue(previous.NodeId, out var exact))
+                    match = exact;
+                else if (uniqueLegacyCurrent.TryGetValue(previous.NodeId, out var legacy))
+                    match = legacy;
+
+                if (match is not null && matchedCurrentIds.Add(match.NodeId))
+                    matches.Add((match, previous));
+            }
+            return matches;
+        }
+
         private static async Task WriteRankingCalibrationAsync(
             string samplePath, string summaryPath, IReadOnlyList<FinalProxy> proxies)
         {
             var prior = LoadRankingBaseline();
-            var priorById = prior.Nodes
-                .Where(x => !string.IsNullOrWhiteSpace(x.NodeId))
-                .GroupBy(x => x.NodeId, StringComparer.Ordinal)
-                .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
-            var samples = proxies
-                .Where(x => x.XrayTested && !string.IsNullOrWhiteSpace(x.NodeId) && priorById.ContainsKey(x.NodeId))
-                .Select(x => (Current: x, Previous: priorById[x.NodeId]))
+            var samples = MatchRankingBaselineEntries(proxies, prior.Nodes)
                 .OrderBy(x => x.Previous.Score)
                 .ToList();
 

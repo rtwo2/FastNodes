@@ -3309,6 +3309,15 @@ namespace ProxyCollector.Collector
         internal static List<string> DecodeAndExtractLines(string text, string url)
         {
             var results = new List<string>();
+            void AddExtractedLink(string rawLink)
+            {
+                string cleaned = CleanExtracted(rawLink.Replace("&amp;", "&", StringComparison.OrdinalIgnoreCase));
+                if (cleaned.StartsWith("mierus://", StringComparison.OrdinalIgnoreCase))
+                    results.AddRange(ExpandMieruSimpleLink(cleaned));
+                else
+                    results.Add(cleaned);
+            }
+
             string sourcePath = url.Split('?', '#')[0];
             bool isYaml = sourcePath.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) ||
                           sourcePath.EndsWith(".yml", StringComparison.OrdinalIgnoreCase);
@@ -3350,7 +3359,7 @@ namespace ProxyCollector.Collector
                 // broken downstream. Unescape after extraction. The char class still
                 // doesn't stop at '&' — real links legitimately contain it.
                 foreach (Match m in SchemeHtmlRegex.Matches(text))
-                    results.Add(CleanExtracted(m.Value.Replace("&amp;", "&")));
+                    AddExtractedLink(m.Value);
                 return results;
             }
 
@@ -3370,8 +3379,8 @@ namespace ProxyCollector.Collector
                 // literal URI embedded as a string value gets caught by the line scan below.
                 // Try structured extraction first; the line scan still runs afterward to catch
                 // any embedded literal links a structured parse would miss.
-                results.AddRange(ExtractFromClashYaml(text));       // block-style (common)
-                results.AddRange(ExtractFromClashFlowYaml(text));   // flow-style (rare)
+                foreach (string link in ExtractFromClashYaml(text)) AddExtractedLink(link);       // block-style (common)
+                foreach (string link in ExtractFromClashFlowYaml(text)) AddExtractedLink(link);   // flow-style (rare)
 
                 foreach (var line in text.Split('\n', '\r'))
                 {
@@ -3380,7 +3389,7 @@ namespace ProxyCollector.Collector
                     // YAML often contains ordinary https:// provider URLs. They are not
                     // proxy nodes and were incorrectly reported as FORMAT GAP entries.
                     var m = SchemeLineRegex.Match(t);
-                    if (m.Success) results.Add(CleanExtracted(m.Value));
+                    if (m.Success) AddExtractedLink(m.Value);
                 }
                 // Both YAML extractors may recognize a flow-style node. Preserve each
                 // unique generated link only once before source-level scoring/deduplication.
@@ -3413,7 +3422,7 @@ namespace ProxyCollector.Collector
                             foreach (var dl in decoded.Split('\n', '\r'))
                             {
                                 var dm = SchemeLineRegex.Match(dl.Trim());
-                                if (dm.Success) results.Add(CleanExtracted(dm.Value));
+                                if (dm.Success) AddExtractedLink(dm.Value);
                             }
                     }
                     catch { }
@@ -3443,7 +3452,13 @@ namespace ProxyCollector.Collector
                     string raw = value.GetString()?.Trim() ?? "";
                     Match match = SchemeLineRegex.Match(raw);
                     if (match.Success && match.Index == 0)
-                        results.Add(CleanExtracted(match.Value));
+                    {
+                        string cleaned = CleanExtracted(match.Value);
+                        if (cleaned.StartsWith("mierus://", StringComparison.OrdinalIgnoreCase))
+                            results.AddRange(ExpandMieruSimpleLink(cleaned));
+                        else
+                            results.Add(cleaned);
+                    }
                 }
 
                 if (root.ValueKind == JsonValueKind.Array)
@@ -3499,6 +3514,11 @@ namespace ProxyCollector.Collector
                         if (type == "wireguard")
                         {
                             results.AddRange(ExtractWireguardJsonLinks(ob, modernEndpoint: false));
+                            continue;
+                        }
+                        if (type == "mieru")
+                        {
+                            results.AddRange(ExtractMieruJsonLinks(ob));
                             continue;
                         }
                         if (!ob.TryGetProperty("server", out var serverEl)) continue;
@@ -3634,6 +3654,59 @@ namespace ProxyCollector.Collector
             }
             catch { }
             return results;
+        }
+
+        // sing-box Mieru bindings use one server address with one or more
+        // TCP/UDP ports or ranges. Convert each binding to a separate simple-share URI.
+        private static List<string> ExtractMieruJsonLinks(JsonElement outbound)
+        {
+            var results = new List<string>();
+            try
+            {
+                string server = GetJsonString(outbound, "server");
+                string username = GetJsonString(outbound, "username");
+                string password = GetJsonString(outbound, "password");
+                string transport = GetJsonString(outbound, "transport").Trim().ToUpperInvariant();
+                if (server.Length == 0 || username.Length == 0 || password.Length == 0 ||
+                    transport is not ("TCP" or "UDP"))
+                    return results;
+
+                var bindings = new List<string>();
+                int singlePort = GetJsonInt(outbound, "server_port");
+                if (singlePort is >= 1 and <= 65535)
+                    bindings.Add(singlePort.ToString(CultureInfo.InvariantCulture));
+                if (outbound.TryGetProperty("server_ports", out var ports))
+                {
+                    if (ports.ValueKind == JsonValueKind.Array)
+                        bindings.AddRange(ports.EnumerateArray()
+                            .Where(item => item.ValueKind == JsonValueKind.String)
+                            .Select(item => item.GetString() ?? ""));
+                    else if (ports.ValueKind == JsonValueKind.String)
+                        bindings.Add(ports.GetString() ?? "");
+                }
+
+                string tag = GetJsonString(outbound, "tag");
+                var common = new List<(string Key, string Value)>
+                {
+                    ("profile", GetJsonString(outbound, "profile", "default"))
+                };
+                foreach (var option in new[]
+                {
+                    ("mtu", GetJsonString(outbound, "mtu")),
+                    ("multiplexing", GetJsonString(outbound, "multiplexing")),
+                    ("handshake-mode", GetJsonString(outbound, "handshake_mode")),
+                    ("traffic-pattern", GetJsonString(outbound, "traffic_pattern"))
+                })
+                    if (option.Item2.Length > 0) common.Add(option);
+
+                foreach (string binding in bindings.Distinct(StringComparer.Ordinal))
+                {
+                    if (!IsValidMieruPortBinding(binding, out _)) continue;
+                    results.Add(BuildMieruSimpleLink(server, username, password, binding, transport, common, tag));
+                }
+            }
+            catch { }
+            return results.Distinct(StringComparer.Ordinal).ToList();
         }
 
         // Converts sing-box WireGuard profiles into one share link per peer.
@@ -4000,8 +4073,10 @@ namespace ProxyCollector.Collector
         private static string? ClashFieldsToLinkV2(Dictionary<string, string> f)
         {
             if (!f.TryGetValue("type", out var type)) return null;
-            if (!f.TryGetValue("server", out var server) || !f.TryGetValue("port", out var port)) return null;
+            if (!f.TryGetValue("server", out var server)) return null;
             type = type.ToLowerInvariant();
+            string port = f.GetValueOrDefault("port",
+                type == "mieru" ? f.GetValueOrDefault("port-range", f.GetValueOrDefault("port_range", "")) : "");
             if (string.IsNullOrEmpty(server) || string.IsNullOrEmpty(port)) return null;
             string uriServer = FormatUriHost(server);
 
@@ -4027,6 +4102,31 @@ namespace ProxyCollector.Collector
 
             var q = new List<string>();
             void Q(string k, string v) { if (!string.IsNullOrEmpty(v)) q.Add($"{k}={Uri.EscapeDataString(v)}"); }
+
+            if (type == "mieru")
+            {
+                string username = f.GetValueOrDefault("username", "");
+                string password = f.GetValueOrDefault("password", "");
+                string transport = f.GetValueOrDefault("transport", "TCP").Trim().ToUpperInvariant();
+                if (username.Length == 0 || password.Length == 0 ||
+                    transport is not ("TCP" or "UDP") || !IsValidMieruPortBinding(port, out _))
+                    return null;
+
+                var common = new List<(string Key, string Value)>
+                {
+                    ("profile", f.GetValueOrDefault("profile", "default"))
+                };
+                foreach (var option in new[]
+                {
+                    ("mtu", f.GetValueOrDefault("mtu", "")),
+                    ("multiplexing", f.GetValueOrDefault("multiplexing", "")),
+                    ("handshake-mode", f.GetValueOrDefault("handshake-mode", f.GetValueOrDefault("handshake_mode", ""))),
+                    ("traffic-pattern", f.GetValueOrDefault("traffic-pattern", f.GetValueOrDefault("traffic_pattern", "")))
+                })
+                    if (option.Item2.Length > 0) common.Add(option);
+
+                return BuildMieruSimpleLink(server, username, password, port, transport, common, f.GetValueOrDefault("name", ""));
+            }
 
             switch (type)
             {

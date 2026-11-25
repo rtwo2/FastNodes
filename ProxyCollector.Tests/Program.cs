@@ -580,7 +580,7 @@ internal static class Program
             "full WireGuard conf parsing preserves every comma-separated DNS server");
         Checks.Equal(17, parsedFullWireguardConf.PersistentKeepalive,
             "full WireGuard conf parsing preserves the source PersistentKeepalive value");
-        Checks.Equal(1380, parsedFullWireguardConf.Mtu,
+        Checks.Equal<int?>(1380, parsedFullWireguardConf.Mtu,
             "full WireGuard conf parsing preserves the source MTU");
         string rebuiltWireguardConf = CollectorType.BuildWireguardConf(parsedFullWireguardConf);
         Checks.That(rebuiltWireguardConf.Contains("Address = 10.0.0.2/32, fd00::2/128") &&

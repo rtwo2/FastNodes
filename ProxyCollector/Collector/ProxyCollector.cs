@@ -1644,6 +1644,11 @@ namespace ProxyCollector.Collector
                 .ThenBy(p => p.Proto, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
+            int finalDuplicateCount = finalProxies.Count;
+            finalProxies = DeduplicateFinalProxies(finalProxies);
+            if (finalDuplicateCount != finalProxies.Count)
+                LogSuccess($"Final identity audit: collapsed {finalDuplicateCount - finalProxies.Count} exact duplicate configuration(s) before category generation.");
+
             await SaveAllCategories(finalProxies, sourceReportCsv);
             GroupEnd();
 

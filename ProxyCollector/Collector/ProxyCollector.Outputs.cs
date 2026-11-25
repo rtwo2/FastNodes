@@ -682,13 +682,94 @@ namespace ProxyCollector.Collector
             return Math.Min(outputCount, Math.Max(shareCap, balancedCap));
         }
 
-        // Endpoint profile identity excludes credentials and remarks. Repeated
-        // subscriptions for the same host/port/SNI/transport/security/path/flow are
-        // one choice, not 38 separate "top" entries. A different SNI or transport path
-        // remains eligible because it can represent a genuinely different service.
+        // Endpoint profile identity excludes access credentials except for WireGuard,
+        // where the private key defines a different local tunnel interface. Parsed
+        // candidates carry this key from the single canonical identity implementation.
+        internal static string GetFinalConnectionIdentityKey(FinalProxy p)
+        {
+            if (!string.IsNullOrWhiteSpace(p.ConnectionIdentityKey))
+                return p.ConnectionIdentityKey;
+
+            // Test fixtures and older serialized snapshots may not carry the parsed key.
+            // Reconstruct exact configuration identity from the service profile plus its
+            // credential (WireGuard already includes its private key in the profile).
+            string credential = NormalizeTopProtocol(p.Proto) == "wireguard" ? "" : p.Credential ?? "";
+            return JsonSerializer.Serialize(new[] { GetTopEndpointProfileKey(p), credential });
+        }
+
+        internal static List<FinalProxy> DeduplicateFinalProxies(IEnumerable<FinalProxy> proxies)
+        {
+            var groups = proxies
+                .Where(p => !string.IsNullOrWhiteSpace(p.Link))
+                .GroupBy(GetFinalConnectionIdentityKey, StringComparer.Ordinal)
+                .ToList();
+
+            var result = new List<FinalProxy>(groups.Count);
+            foreach (var group in groups)
+            {
+                var items = group.ToList();
+                var winner = items
+                    .OrderByDescending(x => x.EvidenceTier)
+                    .ThenByDescending(CalculateTopSelectionScore)
+                    .ThenByDescending(x => x.SourceCount)
+                    .ThenBy(x => x.Link, StringComparer.Ordinal)
+                    .First();
+
+                // Preserve all corroborated metadata when two representations collapse
+                // to one exact connection configuration.
+                winner.IranTested |= items.Any(x => x.IranTested);
+                winner.IsStable |= items.Any(x => x.IsStable);
+                winner.TlsTested |= items.Any(x => x.TlsTested);
+                winner.TlsVerified |= items.Any(x => x.TlsVerified);
+                winner.XrayTested |= items.Any(x => x.XrayTested);
+                winner.XrayVerified |= items.Any(x => x.XrayVerified);
+                winner.EdgeTested |= items.Any(x => x.EdgeTested);
+                winner.EdgeVerified |= items.Any(x => x.EdgeVerified);
+                winner.SourceCount = items.Max(x => x.SourceCount);
+                winner.Streak = items.Max(x => x.Streak);
+                winner.VerifiedStreak = items.Max(x => x.VerifiedStreak);
+                winner.XrayStreak = items.Max(x => x.XrayStreak);
+                winner.Score = items.Max(x => x.Score);
+                result.Add(winner);
+            }
+
+            return result
+                .OrderBy(x => x.Host, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Proto, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Port, StringComparer.Ordinal)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
+                .ToList();
+        }
+
+        // Compact category feeds use one best representative per connection profile.
+        // The master catalogue still retains distinct credentials as distinct configs.
+        internal static List<FinalProxy> SelectBestEndpointProfiles(IEnumerable<FinalProxy> candidates)
+            => candidates
+                .Where(x => !string.IsNullOrWhiteSpace(x.Link))
+                .GroupBy(GetTopEndpointProfileKey, StringComparer.Ordinal)
+                .Select(group => group
+                    .OrderByDescending(x => x.XrayVerified)
+                    .ThenByDescending(x => x.TlsVerified || x.EdgeVerified)
+                    .ThenByDescending(x => x.IranTested)
+                    .ThenByDescending(x => x.IsStable)
+                    .ThenByDescending(x => x.XrayStreak)
+                    .ThenByDescending(x => x.VerifiedStreak)
+                    .ThenByDescending(CalculateTopSelectionScore)
+                    .ThenByDescending(x => x.SourceCount)
+                    .ThenBy(x => x.Link, StringComparer.Ordinal)
+                    .First())
+                .OrderBy(x => x.Host, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Proto, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Port, StringComparer.Ordinal)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
+                .ToList();
+
         internal static string GetTopEndpointProfileKey(FinalProxy p)
         {
-            string host = (p.Host ?? "").Trim().Trim('[', ']').TrimEnd('.').ToLowerInvariant();
+            if (!string.IsNullOrWhiteSpace(p.SelectionProfileKey))
+                return p.SelectionProfileKey;
+
+            string host = NormalizeIdentityHost(p.Host);
             string port = (p.Port ?? "").Trim();
             if ((host.Length == 0 || port.Length == 0) &&
                 Uri.TryCreate(p.Link, UriKind.Absolute, out var uri))
@@ -700,7 +781,8 @@ namespace ProxyCollector.Collector
                 port = portNumber.ToString(CultureInfo.InvariantCulture);
 
             string protocol = NormalizeTopProtocol(p.Proto);
-            string sni = string.IsNullOrWhiteSpace(p.Sni) ? host : p.Sni.Trim().TrimEnd('.').ToLowerInvariant();
+            string sni = string.IsNullOrWhiteSpace(p.Sni) ? host : NormalizeIdentityHost(p.Sni);
+            string credential = protocol == "wireguard" ? p.Credential ?? "" : "";
             string network = string.IsNullOrWhiteSpace(p.Network) ? "tcp" : p.Network.Trim().ToLowerInvariant();
             string security = string.IsNullOrWhiteSpace(p.Security) ? "none" : p.Security.Trim().ToLowerInvariant();
             string path = (p.Path ?? "").Trim();
@@ -710,8 +792,11 @@ namespace ProxyCollector.Collector
             string obfuscation = (p.ObfsPassword ?? "").Trim();
             string alterId = p.Aid.ToString(CultureInfo.InvariantCulture);
             string options = (p.ConnectionOptionsKey ?? "").Trim();
-            return string.Join("|", protocol, host, port, sni, network, security, path,
-                flow, realityKey, realityId, obfuscation, alterId, options);
+            return JsonSerializer.Serialize(new[]
+            {
+                protocol, host, port, credential, sni, network, security, path,
+                flow, realityKey, realityId, obfuscation, alterId, options
+            });
         }
 
         private static string NormalizeTopProtocol(string protocol)
@@ -1211,7 +1296,13 @@ namespace ProxyCollector.Collector
         internal static List<string> DeduplicateFallbackLinks(IEnumerable<string> links)
             => links
                 .Where(link => !string.IsNullOrWhiteSpace(link))
-                .Distinct(StringComparer.Ordinal)
+                .Select(link => link.Trim())
+                .GroupBy(link =>
+                {
+                    var parsed = ParseProxyLine(link);
+                    return parsed?.SelectionProfileKey ?? "raw:" + link;
+                }, StringComparer.Ordinal)
+                .Select(group => group.OrderBy(link => link, StringComparer.Ordinal).First())
                 .OrderBy(link => link, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(link => link, StringComparer.Ordinal)
                 .ToList();

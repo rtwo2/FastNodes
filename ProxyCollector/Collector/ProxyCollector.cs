@@ -1673,10 +1673,9 @@ namespace ProxyCollector.Collector
         //
         // A timeout from GitHub means dead / firewalled / datacenter-blocked / geo-fenced
         // to Iran — indistinguishable — so it always KEEPS the node. MaxDropFraction is
-        // a circuit breaker: if a filter would ever drop more than that fraction in one
-        // run, the signal itself is suspect (resolver outage, network flake) and the
-        // filter no-ops instead of mass-dropping. False drops self-heal next run since
-        // output is rebuilt from scratch.
+        // a circuit breaker: if a filter would drop an implausibly large fraction, abort
+        // the run and preserve the last committed publication instead of publishing
+        // either a mass-dropped or a known-stale snapshot.
 
         private const double MaxDropFraction = 0.20;
 
@@ -1709,6 +1708,10 @@ namespace ProxyCollector.Collector
         // The high-rate breaker is a last-resort guard, not the normal 50% threshold:
         // expired proxy domains can legitimately exceed half of the observed hostnames.
         private const double MaxDnsDropFraction = 0.80;
+
+        internal static bool DnsDropWouldTripCircuitBreaker(int deadHostCount, int totalHostCount)
+            => deadHostCount > 0 && totalHostCount > 0 &&
+               deadHostCount > totalHostCount * MaxDnsDropFraction;
         private const int DnsCanaryMinimumSuccesses = 3;
         private static readonly string[] DnsHealthCanaries =
         {
@@ -1775,10 +1778,15 @@ namespace ProxyCollector.Collector
             if (dead.IsEmpty) return proxies;
 
             var deadSet = dead.ToHashSet(StringComparer.OrdinalIgnoreCase);
-            if (deadSet.Count > hosts.Count * MaxDnsDropFraction)
+            if (DnsDropWouldTripCircuitBreaker(deadSet.Count, hosts.Count))
             {
-                LogWarning($"DNS filter: {deadSet.Count}/{hosts.Count} explicit NXDOMAINs exceed the {MaxDnsDropFraction:P0} emergency breaker despite healthy canaries; retaining all hostname nodes as a final safety measure.");
-                return proxies;
+                // The canaries are healthy, but an extreme per-source NXDOMAIN wave
+                // still may indicate a resolver view affecting only the feed domains.
+                // Never turn that ambiguity into a successful publish containing all
+                // confirmed-dead nodes; fail this run so main keeps its last good tree.
+                LogWarning($"DNS filter: {deadSet.Count}/{hosts.Count} explicit NXDOMAINs exceed the {MaxDnsDropFraction:P0} emergency breaker; aborting publication and preserving the previous snapshot.");
+                throw new InvalidOperationException(
+                    $"DNS filter emergency breaker tripped: {deadSet.Count}/{hosts.Count} hostname lookups returned explicit NXDOMAIN.");
             }
 
             int before = proxies.Count;

@@ -846,7 +846,8 @@ namespace ProxyCollector.Collector
             // source/stability evidence and keep their verification status explicit.
             int nativeTarget = Math.Min(sourceTarget,
                 (int)Math.Ceiling(outputCount * 0.10));
-            AddCandidates(lanes[2].Where(IsTopProbeLimitedProtocol), nativeTarget);
+            AddCandidates(lanes[2].Where(IsTopProbeLimitedProtocol), nativeTarget,
+                ipv6Only: ipv6SharePercent == 100);
 
             // IPv6 is a floor, not a reason to duplicate or bypass diversity limits.
             int availableIpv6 = ranked.Count(IsIpv6Profile);

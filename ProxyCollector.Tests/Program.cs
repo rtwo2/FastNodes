@@ -1669,6 +1669,14 @@ internal static class Program
             "top_ipv6 also preserves its partial-connectivity lane");
         Checks.That(stratifiedIpv6Top.All(x => stratifiedIpv6Links.Contains(x.Link)),
             "top_ipv6 contains only IPv6-capable candidates");
+        var partialIpv6Links = stratifiedCandidates
+            .Where(x => x.Proto != "hysteria2")
+            .Select(x => x.Link)
+            .ToHashSet(StringComparer.Ordinal);
+        var partialIpv6Top = CollectorType.SelectTopWithIpv6Diversity(
+            stratifiedRanked, partialIpv6Links, maxCount: 1000, ipv6SharePercent: 100);
+        Checks.That(partialIpv6Top.All(x => partialIpv6Links.Contains(x.Link)),
+            "top_ipv6 never leaks unfiltered native-protocol candidates from its reserve lane");
 
         Checks.That(CollectorType.IsTlsCandidate(new ProxyCollector.Collector.ParsedProxy { Protocol = "anytls" }),
             "AnyTLS is included in TCP/TLS handshake candidate selection");

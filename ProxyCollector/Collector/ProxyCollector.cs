@@ -888,7 +888,7 @@ namespace ProxyCollector.Collector
             return false;
         }
 
-        private static bool IsCloudflareMetadata(ParsedProxy p)
+        internal static bool IsCloudflareMetadata(ParsedProxy p)
         {
             static bool IsCfDomain(string value)
             {
@@ -915,20 +915,25 @@ namespace ProxyCollector.Collector
             if (IPAddress.TryParse(p.Host.Trim('[', ']'), out var literal) && IsCloudflareIp(literal)) return true;
             string link = p.BaseLink ?? "";
             if (HasSuspiciousCloudflareTransportReference(link)) return true;
-            string remark = "";
-            int hash = link.IndexOf('#');
-            if (hash >= 0) remark = link[(hash + 1)..];
-            else if (link.StartsWith("vmess://", StringComparison.OrdinalIgnoreCase))
+            // Prefer the source label captured before ParseProxyLine stripped its
+            // fragment. Keep a defensive fallback for manually constructed ParsedProxy
+            // instances and legacy VMess objects created outside the normal parser.
+            string remark = p.SourceRemark ?? "";
+            if (remark.Length == 0)
             {
-                // VMess stores the display name inside base64 JSON rather than after #.
-                try
+                int hash = link.IndexOf('#');
+                if (hash >= 0) remark = link[(hash + 1)..];
+                else if (link.StartsWith("vmess://", StringComparison.OrdinalIgnoreCase))
                 {
-                    string b64 = link["vmess://".Length..].Replace('-', '+').Replace('_', '/');
-                    int pad = b64.Length % 4; if (pad > 0) b64 += new string('=', 4 - pad);
-                    using var doc = JsonDocument.Parse(Encoding.UTF8.GetString(Convert.FromBase64String(b64)));
-                    if (doc.RootElement.TryGetProperty("ps", out var ps)) remark = ps.GetString() ?? "";
+                    try
+                    {
+                        string b64 = link["vmess://".Length..].Replace('-', '+').Replace('_', '/');
+                        int pad = b64.Length % 4; if (pad > 0) b64 += new string('=', 4 - pad);
+                        using var doc = JsonDocument.Parse(Encoding.UTF8.GetString(Convert.FromBase64String(b64)));
+                        if (doc.RootElement.TryGetProperty("ps", out var ps)) remark = ps.GetString() ?? "";
+                    }
+                    catch { }
                 }
-                catch { }
             }
             if (remark.Contains("cloudflare", StringComparison.OrdinalIgnoreCase)) return true;
             if (IsWarpMetadata(remark)) return true;
@@ -4302,6 +4307,9 @@ namespace ProxyCollector.Collector
         public bool   EdgeTested    { get; set; }  // current-run edge probe returned a per-node result
         public bool   EdgeVerified  { get; set; }  // TLS verified from the CF edge vantage (this run)
         public string BaseLink    { get; set; } = "";
+        // Original display metadata is kept separately because BaseLink is canonicalized
+        // without fragments before connection parsing and identity calculation.
+        public string SourceRemark { get; set; } = "";
 
         // Canonical signature of connection-affecting options not represented by the
         // normalized fields above (for example VMess scy/fp/alpn and SS plugin options).

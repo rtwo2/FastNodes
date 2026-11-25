@@ -1482,7 +1482,7 @@ jobs:
           # Publish only the generated snapshot, persistent collector state and
           # the user-facing terms/docs. Source history remains intact on main.
           git checkout --orphan fastnodes-output
-          git rm -rf --cached -q .
+          git rm -rf --cached -q . || true
           git add -f -A -- sub state
           git add README.md DATA-TERMS.md LICENSE docs/EDGE-WORKER-CONTRACT.md docs/REPOSITORY-OPERATIONS.md
           git commit -m "FastNodes output update $(date +'%Y-%m-%d %H:%M UTC') — ${PROXY_COUNT} profiles"

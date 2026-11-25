@@ -594,9 +594,9 @@ namespace ProxyCollector.Collector
         // source/stability lane, but are never mislabeled as currently verified.
         internal static bool IsTopProbeLimitedProtocol(FinalProxy p)
         {
-            string proto = (p.Proto ?? "").Trim().ToLowerInvariant();
-            return proto is "hysteria" or "hysteria2" or "hy2" or "tuic" or
-                "juicity" or "wireguard" or "wg" or "mieru";
+            string proto = NormalizeProto(p.Proto);
+            return proto is "hysteria" or "hysteria2" or "tuic" or
+                "juicity" or "wireguard" or "mieru";
         }
 
         internal static int CalculateTopSelectionScore(FinalProxy p)
@@ -691,7 +691,7 @@ namespace ProxyCollector.Collector
             // Test fixtures and older serialized snapshots may not carry the parsed key.
             // Reconstruct exact configuration identity from the service profile plus its
             // credential (WireGuard already includes its private key in the profile).
-            string credential = NormalizeTopProtocol(p.Proto) == "wireguard" ? "" : p.Credential ?? "";
+            string credential = NormalizeProto(p.Proto) == "wireguard" ? "" : p.Credential ?? "";
             return JsonSerializer.Serialize(new[] { GetTopEndpointProfileKey(p), credential });
         }
 
@@ -789,7 +789,7 @@ namespace ProxyCollector.Collector
             if (int.TryParse(port, NumberStyles.Integer, CultureInfo.InvariantCulture, out int portNumber))
                 port = portNumber.ToString(CultureInfo.InvariantCulture);
 
-            string protocol = NormalizeTopProtocol(p.Proto);
+            string protocol = NormalizeProto(p.Proto);
             string sni = string.IsNullOrWhiteSpace(p.Sni) ? host : NormalizeIdentityHost(p.Sni);
             string rawCredential = p.Credential ?? "";
             string credential = protocol == "wireguard"
@@ -812,18 +812,6 @@ namespace ProxyCollector.Collector
                 protocol, host, port, credential, sni, network, security, path,
                 flow, realityKey, realityId, obfuscation, alterId, options
             });
-        }
-
-        private static string NormalizeTopProtocol(string protocol)
-        {
-            string value = (protocol ?? "").Trim().ToLowerInvariant();
-            return value switch
-            {
-                "hy2" => "hysteria2",
-                "wg" => "wireguard",
-                "shadowsocks" => "ss",
-                _ => value
-            };
         }
 
         internal static List<FinalProxy> SelectTopWithIpv6Diversity(
@@ -866,7 +854,7 @@ namespace ProxyCollector.Collector
             int providerCap = DiversityCap(ranked, x => x.ProviderGroup, outputCount, 8);
             int hostnameCap = DiversityCap(ranked, x => x.HostGroup, outputCount, 2);
             int transportCap = DiversityCap(ranked, x => x.TransportGroup, outputCount, 30);
-            int protocolCap = DiversityCap(ranked, x => NormalizeTopProtocol(x.Proto), outputCount, 60);
+            int protocolCap = DiversityCap(ranked, x => NormalizeProto(x.Proto), outputCount, 60);
 
             var selected = new List<FinalProxy>(outputCount);
             var selectedProfiles = new HashSet<string>(StringComparer.Ordinal);
@@ -894,7 +882,7 @@ namespace ProxyCollector.Collector
                 string profile = GetTopEndpointProfileKey(candidate);
                 if (selectedProfiles.Contains(profile)) return false;
 
-                string protocol = NormalizeTopProtocol(candidate.Proto);
+                string protocol = NormalizeProto(candidate.Proto);
                 if (!WithinCap(sourceCounts, candidate.SourceGroup, sourceCap) ||
                     !WithinCap(providerCounts, candidate.ProviderGroup, providerCap) ||
                     !WithinCap(hostnameCounts, candidate.HostGroup, hostnameCap) ||

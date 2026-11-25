@@ -15,6 +15,36 @@ internal static class Program
         Checks.Equal(3, ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c" }, 0).Length,
             "zero source limit preserves full production source list");
 
+        Checks.Equal("hysteria2", CollectorType.NormalizeProto("hy2"),
+            "hy2 alias resolves to canonical Hysteria2 protocol");
+        Checks.Equal("hysteria2", CollectorType.NormalizeProto("HYSTERIA2"),
+            "canonical protocol normalization is case-insensitive");
+        Checks.Equal("wireguard", CollectorType.NormalizeProto("wg"),
+            "WireGuard shorthand resolves to its canonical protocol");
+        Checks.Equal("ss", CollectorType.NormalizeProto("Shadowsocks"),
+            "Shadowsocks legacy spelling resolves to the canonical SS protocol");
+        Checks.Equal("hysteria", CollectorType.NormalizeProto("hysteria"),
+            "Hysteria v1 is not incorrectly merged with Hysteria2");
+
+        var hy2Alias = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "hy2://user-a@alias.example.net:443", Proto = "hy2",
+            Host = "alias.example.net", Port = "443", Network = "udp", Security = "tls"
+        };
+        var hysteria2Canonical = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "hysteria2://user-b@alias.example.net:443", Proto = "hysteria2",
+            Host = "alias.example.net", Port = "443", Network = "udp", Security = "tls"
+        };
+        var hysteriaV1 = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "hysteria://user-c@alias.example.net:443", Proto = "hysteria",
+            Host = "alias.example.net", Port = "443", Network = "udp", Security = "tls"
+        };
+        Checks.Equal(2, CollectorType.SelectBestEndpointProfiles(
+                new[] { hy2Alias, hysteria2Canonical, hysteriaV1 }).Count,
+            "Hysteria2 aliases share one service profile while Hysteria v1 remains distinct");
+
         Checks.Equal(0, CollectorType.CountRawLines(""),
             "empty source bodies contain zero raw lines");
         Checks.Equal(1, CollectorType.CountRawLines("one\n"),

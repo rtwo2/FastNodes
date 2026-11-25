@@ -509,7 +509,7 @@ namespace ProxyCollector.Collector
             catch { return value.ToLowerInvariant(); }
         }
 
-        private static string NormalizeProto(string proto)
+        internal static string NormalizeProto(string proto)
         {
             if (string.IsNullOrEmpty(proto)) return "unknown";
             proto = proto.ToLowerInvariant();

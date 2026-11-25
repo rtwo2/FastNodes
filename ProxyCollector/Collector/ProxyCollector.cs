@@ -4191,14 +4191,14 @@ namespace ProxyCollector.Collector
         // Precision feeds collapse credential variants of the same service profile.
         // WireGuard is the exception: its private key identifies the local tunnel.
         public string SelectionProfileKey =>
-            BuildIdentityKey(Host, includeCredential: NP(Protocol) == "wireguard", aliasMode: false);
+            BuildIdentityKey(Host, includeCredential: ProxyCollector.NormalizeProto(Protocol) == "wireguard", aliasMode: false);
 
         public string EndpointKey(string canonicalHost) =>
             BuildIdentityKey(canonicalHost, includeCredential: true, aliasMode: true);
 
         private string BuildIdentityKey(string identityHost, bool includeCredential, bool aliasMode)
         {
-            string protocol = NP(Protocol);
+            string protocol = ProxyCollector.NormalizeProto(Protocol);
             string hostKey = ProxyCollector.NormalizeIdentityHost(identityHost);
             string originalHostKey = ProxyCollector.NormalizeIdentityHost(Host);
             string portKey = int.TryParse(Port, out int pn)
@@ -4243,7 +4243,7 @@ namespace ProxyCollector.Collector
                 string hostKey = Host.Trim().ToLowerInvariant();
                 string portKey = int.TryParse(Port, out int pn) ? pn.ToString() : Port.Trim();
                 string sniKey = string.IsNullOrEmpty(Sni) ? hostKey : Sni.Trim().ToLowerInvariant();
-                return $"{NP(Protocol)}:{hostKey}:{portKey}:{LegacyCredKey(Protocol, Credential)}:" +
+                return $"{ProxyCollector.NormalizeProto(Protocol)}:{hostKey}:{portKey}:{LegacyCredKey(Protocol, Credential)}:" +
                     $"{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:" +
                     $"{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{LegacyConnectionOptionsKey}";
             }
@@ -4257,7 +4257,7 @@ namespace ProxyCollector.Collector
         // passwords are not.
         private static string CredKey(string proto, string cred)
         {
-            proto = NP(proto);
+            proto = ProxyCollector.NormalizeProto(proto);
             // UUIDs are case-insensitive. Xray custom VLESS/VMess IDs are not.
             if (proto is "vmess" or "vless" &&
                 Guid.TryParseExact(cred.Trim(), "D", out var uuid))
@@ -4272,7 +4272,7 @@ namespace ProxyCollector.Collector
 
         private static string ProfileCredKey(string proto, string cred)
         {
-            proto = NP(proto);
+            proto = ProxyCollector.NormalizeProto(proto);
             // Cipher selection is a connection setting for SS/SSR, while the password
             // is an access credential. Compact feeds collapse passwords, not cipher modes.
             if ((proto == "ss" || proto == "ssr") && cred.Contains(':'))
@@ -4282,7 +4282,7 @@ namespace ProxyCollector.Collector
 
         private static string LegacyCredKey(string proto, string cred)
         {
-            proto = NP(proto);
+            proto = ProxyCollector.NormalizeProto(proto);
             if (proto is "vmess" or "vless" or "tuic" or "juicity")
                 return cred.Trim().ToLowerInvariant();
             if ((proto == "ss" || proto == "ssr") && cred.Contains(':'))
@@ -4293,15 +4293,7 @@ namespace ProxyCollector.Collector
             return cred;
         }
 
-        private static string NP(string p)
-        {
-            if (string.IsNullOrEmpty(p)) return "unknown";
-            p = p.ToLowerInvariant();
-            if (p == "hy2") return "hysteria2"; // alias only — "hysteria" (v1) stays separate, see NormalizeProto
-            if (p == "shadowsocks") return "ss";
-            if (p == "wg") return "wireguard";
-            return p;
-        }
+
     }
 
     public class FinalProxy

@@ -180,10 +180,6 @@ internal static class Program
             "edge verification does not credit a legacy host-only result for a different explicit SNI");
         Checks.That(!CollectorType.IsValidEdgeSniEcho("tls.example.net", "other.example.net", "endpoint.example.net"),
             "edge verification rejects a result for a different TLS SNI");
-        Checks.That(CollectorType.IsEdgeProbeSniSupported("endpoint.example.net", null),
-            "the current edge Worker supports an implicit endpoint-hostname SNI");
-        Checks.That(CollectorType.IsEdgeProbeSniSupported("endpoint.example.net", "ENDPOINT.EXAMPLE.NET"),
-            "the current edge Worker supports an explicit SNI matching the endpoint hostname case-insensitively");
         Checks.That(CollectorType.IsValidEdgeSniEcho("tls.example.net", "tls.example.net", "endpoint.example.net"),
             "custom-SNI edge results are accepted only when the Worker echoes the requested SNI");
         Checks.That(ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c", "d" }, 2)

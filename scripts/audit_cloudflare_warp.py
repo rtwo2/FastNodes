@@ -3,7 +3,7 @@
 import base64, html, ipaddress, json, pathlib, re, sys
 from urllib.parse import parse_qs, unquote, urlsplit
 
-URI_RE = re.compile(r"(?i)\b(vless|vmess|trojan|ss|shadowsocks|ssr|hysteria2?|hy2|tuic|naive|anytls|brook|snell|juicity|mieru|mierus|socks5?|socks4?|wireguard|wg)://([^\s<>\"']+)")
+URI_RE = re.compile(r"(?i)\b(vless|vmess|trojan|ss|shadowsocks|ssr|hysteria2?|hy2|tuic|naive|anytls|brook|snell|juicity|mierus|socks5?|socks4?|wireguard|wg)://([^\s<>\"']+)")
 WARP_RE = re.compile(r"(?i)(?<![a-z0-9])warp(?:\+)?(?![a-z0-9])")
 TRANSPORT_RE = re.compile(r"(?i)(?:^|[?&;])\s*(host|sni|server_name|servername|authority)\s*=\s*([^&;#\s]+)")
 KV_RE = re.compile(r"(?i)^\s*(server|server-host|server_host|endpoint|address|remote|host|sni|server_name|servername|authority)\s*[:=]\s*(.*?)\s*$")

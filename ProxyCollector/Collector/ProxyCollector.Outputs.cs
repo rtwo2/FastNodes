@@ -704,8 +704,13 @@ namespace ProxyCollector.Collector
             string security = string.IsNullOrWhiteSpace(p.Security) ? "none" : p.Security.Trim().ToLowerInvariant();
             string path = (p.Path ?? "").Trim();
             string flow = (p.Flow ?? "").Trim().ToLowerInvariant();
+            string realityKey = (p.Pbk ?? "").Trim();
+            string realityId = (p.Sid ?? "").Trim().ToLowerInvariant();
+            string obfuscation = (p.ObfsPassword ?? "").Trim();
+            string alterId = p.Aid.ToString(CultureInfo.InvariantCulture);
             string options = (p.ConnectionOptionsKey ?? "").Trim();
-            return string.Join("|", protocol, host, port, sni, network, security, path, flow, options);
+            return string.Join("|", protocol, host, port, sni, network, security, path,
+                flow, realityKey, realityId, obfuscation, alterId, options);
         }
 
         private static string NormalizeTopProtocol(string protocol)
@@ -834,12 +839,24 @@ namespace ProxyCollector.Collector
             AddCandidates(lanes[2].Where(IsTopProbeLimitedProtocol), nativeTarget);
 
             // IPv6 is a floor, not a reason to duplicate or bypass diversity limits.
-            int availableIpv6 = ranked.Count(x => ipv6Links.Contains(x.Link));
+            // Resolve membership at connection-profile level so a credential/remark
+            // duplicate does not erase the IPv6 classification of its winning variant.
+            var ipv6Profiles = rankedCandidates
+                .Where(x => ipv6Links.Contains(x.Link))
+                .Select(GetTopEndpointProfileKey)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            bool IsIpv6Profile(FinalProxy candidate) =>
+                ipv6Profiles.Contains(GetTopEndpointProfileKey(candidate));
+            int availableIpv6 = ranked.Count(IsIpv6Profile);
             int ipv6Target = Math.Min(availableIpv6,
                 (int)Math.Ceiling(outputCount * (ipv6SharePercent / 100.0)));
-            int selectedIpv6 = selected.Count(x => ipv6Links.Contains(x.Link));
-            if (selectedIpv6 < ipv6Target)
-                AddCandidates(ranked, ipv6Target - selectedIpv6, ipv6Only: true);
+
+            // For the global list, satisfy the IPv6 floor before lane allocation.
+            // For top_ipv6 (100%), do not pre-fill the whole list here: that would
+            // bypass the evidence mix. Instead, each lane fills its own quota from
+            // the IPv6-filtered candidate pool.
+            if (ipv6SharePercent < 100 && ipv6Target > 0)
+                AddCandidates(ranked.Where(IsIpv6Profile), ipv6Target);
 
             int[] laneTargets = { fullTarget, partialTarget, sourceTarget };
             for (int lane = 0; lane < lanes.Length && selected.Count < outputCount; lane++)
@@ -847,13 +864,14 @@ namespace ProxyCollector.Collector
                 int alreadySelected = selected.Count(x => GetTopEvidenceLane(x) == lane);
                 int remaining = Math.Max(0, laneTargets[lane] - alreadySelected);
                 if (remaining > 0)
-                    AddCandidates(lanes[lane], remaining);
+                    AddCandidates(lanes[lane], remaining, ipv6Only: ipv6SharePercent == 100);
             }
 
             // Reallocate any unused lane quota by evidence order, while preserving the
             // same hard endpoint/source/provider/domain/transport/protocol caps.
             if (selected.Count < outputCount)
-                AddCandidates(ranked, outputCount - selected.Count);
+                AddCandidates(ranked, outputCount - selected.Count,
+                    ipv6Only: ipv6SharePercent == 100);
 
             return selected
                 .OrderBy(GetTopEvidenceLane)

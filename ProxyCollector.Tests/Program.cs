@@ -1630,6 +1630,17 @@ internal static class Program
                 .Distinct(StringComparer.OrdinalIgnoreCase).Count(),
             "top output contains one entry per endpoint connection profile");
 
+        var stratifiedIpv6Links = stratifiedCandidates.Select(x => x.Link)
+            .ToHashSet(StringComparer.Ordinal);
+        var stratifiedIpv6Top = CollectorType.SelectTopWithIpv6Diversity(
+            stratifiedRanked, stratifiedIpv6Links, maxCount: 1000, ipv6SharePercent: 100);
+        Checks.Equal(550, stratifiedIpv6Top.Count(x => x.XrayVerified),
+            "top_ipv6 keeps the full-roundtrip lane target instead of being filled entirely by Xray nodes");
+        Checks.Equal(300, stratifiedIpv6Top.Count(x => x.TlsVerified),
+            "top_ipv6 also preserves its partial-connectivity lane");
+        Checks.That(stratifiedIpv6Top.All(x => stratifiedIpv6Links.Contains(x.Link)),
+            "top_ipv6 contains only IPv6-capable candidates");
+
         Checks.That(CollectorType.IsTlsCandidate(new ProxyCollector.Collector.ParsedProxy { Protocol = "anytls" }),
             "AnyTLS is included in TCP/TLS handshake candidate selection");
         Checks.That(CollectorType.IsTlsCandidate(new ProxyCollector.Collector.ParsedProxy { Protocol = "naive" }),

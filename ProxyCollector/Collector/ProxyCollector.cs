@@ -1610,7 +1610,9 @@ namespace ProxyCollector.Collector
                     Continent = continent, Remark = remark, Host = p.Host,
                     Port = p.Port, NodeId = HistKey(p.DeduplicationKey),
                     Sni = p.Sni, Network = p.Network, Security = p.Security,
-                    Path = p.Path, Flow = p.Flow, ConnectionOptionsKey = p.ConnectionOptionsKey,
+                    Path = p.Path, Flow = p.Flow, Pbk = p.Pbk, Sid = p.Sid,
+                    ObfsPassword = p.ObfsPassword, Aid = p.Aid,
+                    ConnectionOptionsKey = p.ConnectionOptionsKey,
                     IranTested = p.IranTested, IsStable = p.IsStable,
                     TlsTested = p.TlsTested, TlsVerified = p.TlsVerified,
                     XrayTested = p.XrayTested, XrayVerified = p.XrayVerified,
@@ -4252,6 +4254,10 @@ namespace ProxyCollector.Collector
         public string  Security         { get; set; } = "";
         public string  Path             { get; set; } = "";
         public string  Flow             { get; set; } = "";
+        public string  Pbk              { get; set; } = "";
+        public string  Sid              { get; set; } = "";
+        public string  ObfsPassword     { get; set; } = "";
+        public int     Aid              { get; set; }
         public string  ConnectionOptionsKey { get; set; } = "";
         public string  CountryCode      { get; set; } = "XX";
         public string  Continent        { get; set; } = "Unknown";

@@ -1819,6 +1819,28 @@ internal static class Program
                 new[] { casePathUpper, casePathLower }).Count,
             "profile dedup preserves case-sensitive transport paths in compact outputs");
 
+        var ssFallbackA = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "ss://method:password-a@fallback-ss.example.net:8388",
+            Proto = "ss", Host = "fallback-ss.example.net", Port = "8388",
+            Credential = "aes-256-gcm:password-a"
+        };
+        var ssFallbackB = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "ss://method:password-b@fallback-ss.example.net:8388",
+            Proto = "ss", Host = "fallback-ss.example.net", Port = "8388",
+            Credential = "aes-256-gcm:password-b"
+        };
+        var ssFallbackOtherCipher = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "ss://other:password-c@fallback-ss.example.net:8388",
+            Proto = "ss", Host = "fallback-ss.example.net", Port = "8388",
+            Credential = "chacha20-ietf-poly1305:password-c"
+        };
+        Checks.Equal(2, CollectorType.SelectBestEndpointProfiles(
+                new[] { ssFallbackA, ssFallbackB, ssFallbackOtherCipher }).Count,
+            "fallback FinalProxy service profiles collapse password variants but preserve different Shadowsocks ciphers");
+
         var optionsVariantA = new ProxyCollector.Collector.FinalProxy
         {
             Link = "vmess://a@same.example.net:443", Proto = "vmess",

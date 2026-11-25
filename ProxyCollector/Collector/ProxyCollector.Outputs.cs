@@ -794,12 +794,18 @@ namespace ProxyCollector.Collector
 
             string protocol = NormalizeTopProtocol(p.Proto);
             string sni = string.IsNullOrWhiteSpace(p.Sni) ? host : NormalizeIdentityHost(p.Sni);
-            string credential = protocol == "wireguard" ? p.Credential ?? "" : "";
+            string rawCredential = p.Credential ?? "";
+            string credential = protocol == "wireguard"
+                ? rawCredential
+                : (protocol is "ss" or "ssr") && rawCredential.Contains(':')
+                    ? rawCredential[..rawCredential.IndexOf(':')].ToLowerInvariant()
+                    : "";
             string network = string.IsNullOrWhiteSpace(p.Network) ? "tcp" : p.Network.Trim().ToLowerInvariant();
             string security = string.IsNullOrWhiteSpace(p.Security) ? "none" : p.Security.Trim().ToLowerInvariant();
             string path = (p.Path ?? "").Trim();
             string flow = (p.Flow ?? "").Trim().ToLowerInvariant();
-            string realityKey = (p.Pbk ?? "").Trim();
+            string realityKey = TryNormalizeRealityPublicKey(p.Pbk, out var normalizedRealityKey)
+                ? normalizedRealityKey : (p.Pbk ?? "").Trim();
             string realityId = (p.Sid ?? "").Trim().ToLowerInvariant();
             string obfuscation = (p.ObfsPassword ?? "").Trim();
             string alterId = p.Aid.ToString(CultureInfo.InvariantCulture);

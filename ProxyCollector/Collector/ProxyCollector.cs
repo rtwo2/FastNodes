@@ -1687,6 +1687,16 @@ namespace ProxyCollector.Collector
                 : UdpProtocols.Contains(protocol);
         }
 
+        // A Mieru port range is one multi-port binding. The generic TCP filter tests
+        // only one port, so a refusal on the first port cannot prove the whole range dead.
+        internal static bool IsMieruPortRange(ParsedProxy proxy)
+        {
+            if (NormalizeProto(proxy.Protocol) != "mieru" ||
+                !Uri.TryCreate(proxy.BaseLink, UriKind.Absolute, out var uri))
+                return false;
+            return ParseQuery(uri.Query).GetValueOrDefault("port", "").Contains('-', StringComparison.Ordinal);
+        }
+
         // DNS verdicts are asymmetric: only a fresh, explicit NXDOMAIN is evidence
         // that a hostname does not exist. Timeouts, SERVFAIL, throttling and other
         // inconclusive results always keep the node. A resolver-health canary runs
@@ -1924,7 +1934,7 @@ namespace ProxyCollector.Collector
             // RST on connect = the server's own TCP stack saying nothing listens on that
             // port. A timeout or other error is inconclusive and always keeps the node.
             var candidates = proxies
-                .Where(p => !UsesUdpTransport(p) && int.TryParse(p.Port, out _))
+                .Where(p => !UsesUdpTransport(p) && !IsMieruPortRange(p) && int.TryParse(p.Port, out _))
                 .ToList();
             if (candidates.Count == 0) return proxies;
 

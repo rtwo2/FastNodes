@@ -13,7 +13,7 @@ from collections import Counter
 SCHEMES = (
     "vmess", "vless", "trojan", "ss", "shadowsocks", "ssr", "hysteria",
     "hysteria2", "hy2", "tuic", "naive", "anytls", "brook", "snell",
-    "juicity", "mieru", "wireguard", "wg", "socks5", "socks4", "socks",
+    "juicity", "mieru", "mierus", "wireguard", "wg", "socks5", "socks4", "socks",
 )
 SCHEME_PATTERN = "|".join(sorted((re.escape(s) for s in SCHEMES), key=len, reverse=True))
 URI_RE = re.compile(rf"^(?:{SCHEME_PATTERN})://\S+", re.IGNORECASE)

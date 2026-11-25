@@ -72,6 +72,11 @@ namespace ProxyCollector.Collector
             // already removed above.
             if (baseLink.Any(char.IsWhiteSpace)) return null;
 
+            if (baseLink.StartsWith("mieru://", StringComparison.OrdinalIgnoreCase))
+                return null; // standard mieru:// is a Base64 protobuf profile, not a host URI
+            if (baseLink.StartsWith("mierus://", StringComparison.OrdinalIgnoreCase))
+                return ParseMieruSimpleLink(baseLink);
+
             if (baseLink.StartsWith("vmess://", StringComparison.OrdinalIgnoreCase))
             {
                 // Standard vmess share link: base64(JSON). URL-safe base64 tolerated —

@@ -81,7 +81,7 @@ namespace ProxyCollector.Collector
         {
             "vmess", "vless", "trojan", "ss", "shadowsocks", "ssr",
             "hysteria", "hysteria2", "hy2", "tuic",
-            "naive", "anytls", "brook", "snell", "juicity", "mieru",
+            "naive", "anytls", "brook", "snell", "juicity", "mieru", "mierus",
             "wireguard", "wg", "socks5", "socks4", "socks"
         };
 
@@ -147,7 +147,7 @@ namespace ProxyCollector.Collector
         // are deliberately absent: public SOCKS proxies legitimately run credential-less.
         private static readonly HashSet<string> CredentialRequiredProtocols = new(StringComparer.OrdinalIgnoreCase)
         { "vless", "vmess", "trojan", "ss", "ssr", "hysteria", "hysteria2", "tuic",
-          "naive", "anytls", "brook", "snell", "juicity" };
+          "naive", "anytls", "brook", "snell", "juicity", "mieru" };
 
         // Private/reserved IP ranges can never be reachable as a public proxy from outside
         // that network — these only ever show up as leftover example/template values.
@@ -290,7 +290,7 @@ namespace ProxyCollector.Collector
             // the beginning misses placeholder passwords after the separator (for
             // example "aes-128-gcm:password123" or "uuid:123456").
             string proto = NormalizeProto(protocol);
-            if (proto is not ("ss" or "ssr" or "tuic" or "juicity" or "naive" or "socks" or "socks4" or "socks5"))
+            if (proto is not ("ss" or "ssr" or "tuic" or "juicity" or "naive" or "socks" or "socks4" or "socks5" or "mieru"))
                 return false;
 
             int separator = credential.IndexOf(':');
@@ -1675,7 +1675,16 @@ namespace ProxyCollector.Collector
         private const double MaxDropFraction = 0.20;
 
         private static readonly HashSet<string> UdpProtocols = new(StringComparer.OrdinalIgnoreCase)
-        { "hysteria", "hysteria2", "hy2", "tuic", "juicity", "wireguard", "wg", "mieru" };
+        { "hysteria", "hysteria2", "hy2", "tuic", "juicity", "wireguard", "wg" };
+
+        // Mieru permits TCP or UDP per port binding; transport is not fixed by scheme.
+        internal static bool UsesUdpTransport(ParsedProxy proxy)
+        {
+            string protocol = NormalizeProto(proxy.Protocol);
+            return protocol == "mieru"
+                ? (proxy.Network ?? "tcp").Equals("udp", StringComparison.OrdinalIgnoreCase)
+                : UdpProtocols.Contains(protocol);
+        }
 
         // DNS verdicts are asymmetric: only a fresh, explicit NXDOMAIN is evidence
         // that a hostname does not exist. Timeouts, SERVFAIL, throttling and other
@@ -1914,7 +1923,7 @@ namespace ProxyCollector.Collector
             // RST on connect = the server's own TCP stack saying nothing listens on that
             // port. A timeout or other error is inconclusive and always keeps the node.
             var candidates = proxies
-                .Where(p => !UdpProtocols.Contains(p.Protocol) && int.TryParse(p.Port, out _))
+                .Where(p => !UsesUdpTransport(p) && int.TryParse(p.Port, out _))
                 .ToList();
             if (candidates.Count == 0) return proxies;
 
@@ -2974,7 +2983,7 @@ namespace ProxyCollector.Collector
         internal static bool IsTlsCandidate(ParsedProxy p)
         {
             string protocol = NormalizeProto(p.Protocol);
-            if (UdpProtocols.Contains(protocol)) return false; // QUIC/UDP: no TCP-TLS handshake probe
+            if (UsesUdpTransport(p)) return false; // QUIC/UDP: no TCP-TLS handshake probe
             if (protocol is "trojan" or "anytls" or "naive") return true; // TLS by protocol definition
             return p.Security.Equals("tls", StringComparison.OrdinalIgnoreCase)
                 || p.Security.Equals("reality", StringComparison.OrdinalIgnoreCase)

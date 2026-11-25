@@ -2521,6 +2521,26 @@ internal static class Program
         Checks.Equal("8.8.8.8",
             resolver.ResolveAllAsync("transient.example").GetAwaiter().GetResult().Single().ToString(),
             "a successful DNS retry replaces the cached inconclusive result");
+
+        int privateLookups = 0;
+        using var privateResolver = new IPToCountryResolver((_, cancellationToken) =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            int attempt = Interlocked.Increment(ref privateLookups);
+            IPAddress[] addresses = attempt == 1
+                ? Array.Empty<IPAddress>()
+                : new[] { IPAddress.Parse("10.23.4.5") };
+            return Task.FromResult(addresses);
+        }, requireGeoDatabases: false);
+
+        Checks.Equal(0, privateResolver.ResolveAllAsync("recovered-private.example").GetAwaiter().GetResult().Length,
+            "a transient DNS failure does not prematurely expose an address");
+        Checks.Equal(DnsVerdict.Resolved,
+            privateResolver.ResolveVerdictUncachedAsync("recovered-private.example").GetAwaiter().GetResult(),
+            "a hostname can recover to a private address on the final DNS retry");
+        Checks.That(CollectorType.HasUnsafeResolvedAddress(
+                privateResolver.ResolveAllAsync("recovered-private.example").GetAwaiter().GetResult()),
+            "a recovered private address is still classified as unsafe after DNS cache repair");
     }
 
     private sealed class StubHttpMessageHandler : HttpMessageHandler

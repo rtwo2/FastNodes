@@ -4220,7 +4220,7 @@ namespace ProxyCollector.Collector
                 (Network.Equals("h2", StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(Sni));
             string endpointHostKey = aliasMode && implicitTransportHost ? originalHostKey : hostKey;
 
-            string credential = includeCredential ? CredKey(Protocol, Credential) : "";
+            string credential = includeCredential ? CredKey(Protocol, Credential) : ProfileCredKey(Protocol, Credential);
             string publicKey = ProxyCollector.TryNormalizeRealityPublicKey(Pbk, out var normalizedKey)
                 ? normalizedKey : (Pbk ?? "").Trim();
 
@@ -4272,6 +4272,16 @@ namespace ProxyCollector.Collector
                 return cred[..c].ToLowerInvariant() + cred[c..];
             }
             return cred;
+        }
+
+        private static string ProfileCredKey(string proto, string cred)
+        {
+            proto = NP(proto);
+            // Cipher selection is a connection setting for SS/SSR, while the password
+            // is an access credential. Compact feeds collapse passwords, not cipher modes.
+            if ((proto == "ss" || proto == "ssr") && cred.Contains(':'))
+                return cred[..cred.IndexOf(':')].ToLowerInvariant();
+            return "";
         }
 
         private static string LegacyCredKey(string proto, string cred)

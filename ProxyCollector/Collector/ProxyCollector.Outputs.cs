@@ -121,7 +121,7 @@ namespace ProxyCollector.Collector
             // verified.txt is a strict current-run claim: every entry must have passed
             // the full Xray proxy round-trip (including the expected HTTP 204) in THIS
             // collection run. Never mix old successes into this feed.
-            var xrayVerified = SelectBestEndpointProfiles(proxies.Where(x => x.XrayVerified))
+            var xrayVerified = SelectCurrentVerifiedProfiles(proxies)
                 .OrderByDescending(x => ipv6Links.Contains(x.Link))
                 .ThenByDescending(x => x.XrayStreak)
                 .ThenByDescending(x => x.Score)
@@ -740,6 +740,13 @@ namespace ProxyCollector.Collector
 
         // Compact category feeds use one best representative per connection profile.
         // The master catalogue still retains distinct credentials as distinct configs.
+        internal static List<FinalProxy> SelectCurrentVerifiedProfiles(IEnumerable<FinalProxy> candidates)
+            => SelectBestEndpointProfiles(candidates.Where(x => x.XrayVerified))
+                .OrderByDescending(x => x.XrayStreak)
+                .ThenByDescending(x => x.Score)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
+                .ToList();
+
         internal static List<FinalProxy> SelectBestEndpointProfiles(IEnumerable<FinalProxy> candidates)
             => candidates
                 .Where(x => !string.IsNullOrWhiteSpace(x.Link))

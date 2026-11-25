@@ -1525,6 +1525,28 @@ internal static class Program
         Checks.Equal(0, CollectorType.SelectTopWithIpv6Diversity(ranked, ipv6Links, maxCount: 0).Count,
             "IPv6-aware shortlist handles a zero-size request");
 
+        var ipv6ProfileCandidates = new[]
+        {
+            new ProxyCollector.Collector.FinalProxy
+            {
+                Link = "vless://ipv4@dual.example.net:443", Host = "dual.example.net",
+                Port = "443", Proto = "vless", SelectionProfileKey = "dual-stack-service",
+                XrayVerified = true, Score = 100
+            },
+            new ProxyCollector.Collector.FinalProxy
+            {
+                Link = "vless://ipv6@dual.example.net:443", Host = "dual.example.net",
+                Port = "443", Proto = "vless", SelectionProfileKey = "dual-stack-service",
+                XrayVerified = true, Score = 80
+            }
+        };
+        var ipv6ProfileWinner = CollectorType.SelectTopWithIpv6Diversity(
+            ipv6ProfileCandidates,
+            new HashSet<string>(StringComparer.Ordinal) { "vless://ipv6@dual.example.net:443" },
+            maxCount: 1, ipv6SharePercent: 100);
+        Checks.Equal("vless://ipv6@dual.example.net:443", ipv6ProfileWinner.Single().Link,
+            "global IPv6 reservation chooses the IPv6-capable representative when credentials share a service profile");
+
         var tied = new[]
         {
             new ProxyCollector.Collector.FinalProxy { Link = "vless://c@c.example.net:443", Host = "c.example.net", Port = "443", Remark = "tie", Score = 10, TlsVerified = true },
@@ -1716,6 +1738,31 @@ internal static class Program
                 .Distinct(StringComparer.OrdinalIgnoreCase).Count(),
             "top output contains one entry per endpoint connection profile");
 
+        var failedVerifiedCandidate = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://failed@verified.example.net:443", Host = "verified.example.net",
+            Port = "443", Proto = "vless", SelectionProfileKey = "verified-profile",
+            XrayTested = true, XrayVerified = false
+        };
+        var currentVerifiedCandidateA = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://a@verified.example.net:443", Host = "verified.example.net",
+            Port = "443", Proto = "vless", SelectionProfileKey = "verified-profile",
+            XrayTested = true, XrayVerified = true, XrayStreak = 2, Score = 80
+        };
+        var currentVerifiedCandidateB = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://b@verified.example.net:443", Host = "verified.example.net",
+            Port = "443", Proto = "vless", SelectionProfileKey = "verified-profile",
+            XrayTested = true, XrayVerified = true, XrayStreak = 5, Score = 90
+        };
+        var currentVerifiedProfiles = CollectorType.SelectCurrentVerifiedProfiles(
+            new[] { failedVerifiedCandidate, currentVerifiedCandidateA, currentVerifiedCandidateB });
+        Checks.Equal(1, currentVerifiedProfiles.Count,
+            "verified feed selects only current Xray successes and one credential per service profile");
+        Checks.That(currentVerifiedProfiles[0].Link.Contains("b@", StringComparison.Ordinal),
+            "verified feed chooses the best current-roundtrip credential representative");
+
         var stratifiedIpv6Links = stratifiedCandidates.Select(x => x.Link)
             .ToHashSet(StringComparer.Ordinal);
         var stratifiedIpv6Top = CollectorType.SelectTopWithIpv6Diversity(
@@ -1860,6 +1907,20 @@ internal static class Program
             "compact category feeds collapse multiple credentials into one service profile");
         Checks.That(compactProfiles[0].XrayVerified,
             "compact profile selection prefers the credential with the strongest current verification evidence");
+
+        var ssProfileA = CollectorType.ParseProxyLine(
+            "ss://YWVzLTI1Ni1nY206cGFzc3dvcmQtYQ==@example.net:8388");
+        var ssProfileB = CollectorType.ParseProxyLine(
+            "ss://YWVzLTI1Ni1nY206cGFzc3dvcmQtYg==@example.net:8388");
+        var ssDifferentCipher = CollectorType.ParseProxyLine(
+            "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNzd29yZC1h@example.net:8388");
+        Checks.That(ssProfileA is not null && ssProfileB is not null &&
+                    ssProfileA.DeduplicationKey != ssProfileB.DeduplicationKey &&
+                    ssProfileA.SelectionProfileKey == ssProfileB.SelectionProfileKey,
+            "Shadowsocks password variants are distinct configs but one service profile");
+        Checks.That(ssProfileA is not null && ssDifferentCipher is not null &&
+                    ssProfileA.SelectionProfileKey != ssDifferentCipher.SelectionProfileKey,
+            "Shadowsocks cipher methods remain part of service-profile identity");
 
         var nearbySingleSource = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@nearby.example.net:443?security=tls")!;

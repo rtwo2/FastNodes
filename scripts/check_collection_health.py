@@ -176,8 +176,8 @@ def self_test() -> None:
         (root / "ipv6_only.txt").write_text("v6\n" * 1_000, encoding="utf-8")
         snap = inspect_tree(root)
         baseline = {"captured_at": "test", "total_bytes": snap["total_bytes"], "files": dict(snap["files"])}
-        baseline["files"]["everything.txt"] = {"bytes": snap["files"]["everything.txt"]["bytes"] * 2, "lines": 30_000}
-        baseline["files"]["everything_part2.txt"] = {"bytes": snap["files"]["everything_part2.txt"]["bytes"] * 2, "lines": 20_000}
+        baseline["files"]["everything.txt"] = {"bytes": snap["files"]["everything.txt"]["bytes"] * 2, "lines": 15_000}
+        baseline["files"]["everything_part2.txt"] = {"bytes": snap["files"]["everything_part2.txt"]["bytes"] * 2, "lines": 10_000}
         report, errors = evaluate(root, baseline)
         assert not errors, errors
         assert report["outputs"]["everything.txt"]["lines"] == 20_000

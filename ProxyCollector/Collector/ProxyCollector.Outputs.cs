@@ -771,6 +771,15 @@ namespace ProxyCollector.Collector
             var transportCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var protocolCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
+            // Resolve IPv6 membership before local selection helpers capture it.
+            // Profile-level membership survives credential/remark duplicate collapse.
+            var ipv6Profiles = rankedCandidates
+                .Where(x => ipv6Links.Contains(x.Link))
+                .Select(GetTopEndpointProfileKey)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            bool IsIpv6Profile(FinalProxy candidate) =>
+                ipv6Profiles.Contains(GetTopEndpointProfileKey(candidate));
+
             static bool WithinCap(Dictionary<string, int> counts, string group, int cap) =>
                 string.IsNullOrWhiteSpace(group) || !counts.TryGetValue(group, out int count) || count < cap;
 
@@ -838,14 +847,6 @@ namespace ProxyCollector.Collector
             AddCandidates(lanes[2].Where(IsTopProbeLimitedProtocol), nativeTarget);
 
             // IPv6 is a floor, not a reason to duplicate or bypass diversity limits.
-            // Resolve membership at connection-profile level so a credential/remark
-            // duplicate does not erase the IPv6 classification of its winning variant.
-            var ipv6Profiles = rankedCandidates
-                .Where(x => ipv6Links.Contains(x.Link))
-                .Select(GetTopEndpointProfileKey)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-            bool IsIpv6Profile(FinalProxy candidate) =>
-                ipv6Profiles.Contains(GetTopEndpointProfileKey(candidate));
             int availableIpv6 = ranked.Count(IsIpv6Profile);
             int ipv6Target = Math.Min(availableIpv6,
                 (int)Math.Ceiling(outputCount * (ipv6SharePercent / 100.0)));

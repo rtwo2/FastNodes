@@ -608,13 +608,17 @@ namespace ProxyCollector.Collector
             score += Math.Min(Math.Max(p.SourceCount - 1, 0), 8) * 3;
             score += Math.Min(Math.Max(p.VerifiedStreak, 0), 3);
             score += Math.Min(Math.Max(p.XrayStreak, 0), 3) * 2;
+            if (p.TlsTested && !p.TlsVerified) score -= 20;
+            if (p.XrayTested && !p.XrayVerified) score -= 25;
+            if (p.EdgeTested && !p.EdgeVerified) score -= 15;
             return score;
         }
 
         internal static List<FinalProxy> RankTopCandidates(IEnumerable<FinalProxy> proxies) =>
             proxies
-                .Where(x => x.XrayVerified || x.TlsVerified || x.EdgeVerified ||
-                    x.IranTested || x.IsStable || (x.SourceCount >= 2 && x.Streak >= 2))
+                .Where(x => x.XrayVerified || x.TlsVerified || x.EdgeVerified || x.IranTested ||
+                    (!x.TlsTested && !x.XrayTested && !x.EdgeTested &&
+                     (x.IsStable || (x.SourceCount >= 2 && x.Streak >= 2))))
                 .OrderBy(GetTopEvidenceLane)
                 .ThenByDescending(CalculateTopSelectionScore)
                 .ThenByDescending(x => x.SourceCount)

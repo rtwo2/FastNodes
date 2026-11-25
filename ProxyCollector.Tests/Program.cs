@@ -1594,21 +1594,21 @@ internal static class Program
                 Link = $"vless://xray{i}@xray{i}.example.net:443", Host = $"xray{i}.example.net",
                 Port = "443", Proto = "vless", Network = "tcp", Security = "reality",
                 XrayTested = true, XrayVerified = true, Score = 1000 - i,
-                SourceGroup = "xray-repo", HostGroup = $"xray{i}.example.net"
+                HostGroup = $"xray{i}.example.net"
             });
             stratifiedCandidates.Add(new ProxyCollector.Collector.FinalProxy
             {
                 Link = $"trojan://tls{i}@tls{i}.example.org:443", Host = $"tls{i}.example.org",
                 Port = "443", Proto = "trojan", Network = "tcp", Security = "tls",
                 TlsTested = true, TlsVerified = true, Score = 800 - i,
-                SourceGroup = "tls-repo", HostGroup = $"tls{i}.example.org"
+                HostGroup = $"tls{i}.example.org"
             });
             stratifiedCandidates.Add(new ProxyCollector.Collector.FinalProxy
             {
                 Link = $"hysteria2://modern{i}@modern{i}.example.com:443", Host = $"modern{i}.example.com",
                 Port = "443", Proto = "hysteria2", Network = "udp", Security = "tls",
                 IsStable = true, Streak = 4, SourceCount = 2, Score = 60 - i,
-                SourceGroup = "modern-repo", HostGroup = $"modern{i}.example.com"
+                HostGroup = $"modern{i}.example.com"
             });
         }
         var stratifiedRanked = CollectorType.RankTopCandidates(stratifiedCandidates);

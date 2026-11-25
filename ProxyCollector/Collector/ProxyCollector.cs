@@ -1609,6 +1609,8 @@ namespace ProxyCollector.Collector
                     Link = cleanLink, Proto = proto, CountryCode = cc,
                     Continent = continent, Remark = remark, Host = p.Host,
                     Port = p.Port, NodeId = HistKey(p.DeduplicationKey),
+                    Sni = p.Sni, Network = p.Network, Security = p.Security,
+                    Path = p.Path, Flow = p.Flow,
                     IranTested = p.IranTested, IsStable = p.IsStable,
                     TlsTested = p.TlsTested, TlsVerified = p.TlsVerified,
                     XrayTested = p.XrayTested, XrayVerified = p.XrayVerified,
@@ -4244,6 +4246,11 @@ namespace ProxyCollector.Collector
         public string  Proto            { get; set; } = "";
         public string  Host             { get; set; } = "";
         public string  Port             { get; set; } = "";
+        public string  Sni              { get; set; } = "";
+        public string  Network          { get; set; } = "tcp";
+        public string  Security         { get; set; } = "";
+        public string  Path             { get; set; } = "";
+        public string  Flow             { get; set; } = "";
         public string  CountryCode      { get; set; } = "XX";
         public string  Continent        { get; set; } = "Unknown";
         public string  Remark           { get; set; } = "";

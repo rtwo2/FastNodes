@@ -34,7 +34,7 @@ These are the four links most visitors need. Each URL points directly to the cur
 
 | List | Best for | Subscription |
 |---|---|---|
-| **⚡ Top ranked** | A globally ranked shortlist of up to 1,000 candidates, with quality evidence and diversity controls | [Open top.txt ↗](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top.txt) |
+| **⚡ Top ranked** | An evidence-stratified shortlist of up to 1,000 distinct connection profiles, with source, provider, domain, protocol and IPv6 diversity | [Open top.txt ↗](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top.txt) |
 | **✅ Xray verified** | Nodes that completed a full proxy round-trip through Xray when the list was generated | [Open verified.txt ↗](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/verified.txt) |
 | **🌐 Top IPv6** | A ranked shortlist of IPv6-capable candidates | [Open top_ipv6.txt ↗](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top_ipv6.txt) |
 | **📚 Everything** | The broad collection of configurations that survive parsing and safety filters | [Open everything.txt ↗](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/everything.txt) |
@@ -72,11 +72,13 @@ FastNodes keeps different kinds of evidence separate. A TLS handshake is not the
 |---|---|
 | `verified.txt` | Full Xray proxy round-trip completed, including an HTTP request with the expected **204** response. If a run produces too few successes, a sanitized last-good snapshot may be retained. |
 | `verified_tls.txt` | A TLS handshake completed from the collection runner. This is partial connectivity evidence, not a full proxy test. |
-| `top.txt` | Ranked candidates with at least one positive signal, such as current TLS/Xray/edge verification or a trusted tested-source signal. Stronger evidence leads the ranking. |
+| `top.txt` | Evidence-stratified candidates: target mix of full Xray round trips, partial TLS/edge passes, and source-tested or persistent nodes. It also reserves up to 10% for stable/source-backed QUIC or native-tunnel protocols that the current TCP/Xray probes do not cover. |
 | `top_ipv6.txt` | A ranked shortlist selected from IPv6-capable candidates. |
 | `stable.txt` | Configurations present across at least three consecutive collection runs. Stability measures persistence in sources, not guaranteed reachability. |
 | `curated.txt` | Trusted source-tested candidates or nodes that are both stable and TLS-verified. |
 | `everything.txt` | The broad surviving collection. Many entries are not individually verified. |
+
+The top selector aims for a **55% full-roundtrip / 30% partial-connectivity / 15% source-and-stability mix**. It redistributes unused capacity when a lane is short, collapses credential-only duplicates for the same endpoint/SNI/transport profile, and enforces source, provider, hostname, transport and protocol caps. A native-transport reserve helps keep supported QUIC/UDP and tunnel protocols visible when they have stable or trusted-source evidence. The selector never upgrades those entries to a verified status: the diagnostics continue to show them as **not tested** when no compatible full-proxy probe ran.
 
 **A verification result is a snapshot, not a promise.** Availability can change between collection and import. Results also depend on the runner's network vantage; some nodes may work from your ISP or country even when a remote runner cannot reach them.
 

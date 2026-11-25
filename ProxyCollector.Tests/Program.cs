@@ -1449,7 +1449,8 @@ internal static class Program
         var ranked = Enumerable.Range(0, 1200)
             .Select(i => new ProxyCollector.Collector.FinalProxy
             {
-                Link = $"vless://node{i}@example.com:443",
+                Link = $"vless://node{i}@node{i}.example.net:443",
+                Host = $"node{i}.example.net", Port = "443",
                 Remark = $"node{i}",
                 Score = 1200 - i,
                 TlsVerified = true
@@ -1469,9 +1470,9 @@ internal static class Program
 
         var tied = new[]
         {
-            new ProxyCollector.Collector.FinalProxy { Link = "vless://c@example.com:443", Remark = "tie", Score = 10, TlsVerified = true },
-            new ProxyCollector.Collector.FinalProxy { Link = "vless://a@example.com:443", Remark = "tie", Score = 10, TlsVerified = true },
-            new ProxyCollector.Collector.FinalProxy { Link = "vless://b@example.com:443", Remark = "tie", Score = 10, TlsVerified = true }
+            new ProxyCollector.Collector.FinalProxy { Link = "vless://c@c.example.net:443", Host = "c.example.net", Port = "443", Remark = "tie", Score = 10, TlsVerified = true },
+            new ProxyCollector.Collector.FinalProxy { Link = "vless://a@a.example.net:443", Host = "a.example.net", Port = "443", Remark = "tie", Score = 10, TlsVerified = true },
+            new ProxyCollector.Collector.FinalProxy { Link = "vless://b@b.example.net:443", Host = "b.example.net", Port = "443", Remark = "tie", Score = 10, TlsVerified = true }
         };
         var tiedTop = CollectorType.SelectTopWithIpv6Diversity(tied, new HashSet<string>(StringComparer.Ordinal));
         Checks.That(tiedTop.Select(x => x.Link).SequenceEqual(tied.Select(x => x.Link).OrderBy(x => x, StringComparer.Ordinal)),
@@ -1551,6 +1552,83 @@ internal static class Program
             "top shortlist preserves choice across source groups instead of one feed dominating");
         Checks.That(diverseTop.GroupBy(x => x.SourceGroup, StringComparer.OrdinalIgnoreCase).All(g => g.Count() <= 10),
             "source-group caps prevent one feed family from taking over an otherwise diverse top shortlist");
+
+        var duplicateProfiles = new[]
+        {
+            new ProxyCollector.Collector.FinalProxy
+            {
+                Link = "vless://credential-a@shared.example.net:443?security=reality&type=tcp&flow=xtls-rprx-vision&sni=cdn.example.net",
+                Host = "shared.example.net", Port = "443", Proto = "vless", Sni = "cdn.example.net",
+                Network = "tcp", Security = "reality", Flow = "xtls-rprx-vision",
+                XrayVerified = true, Score = 80, SourceGroup = "repo-a", HostGroup = "shared.example.net"
+            },
+            new ProxyCollector.Collector.FinalProxy
+            {
+                Link = "vless://credential-b@shared.example.net:443?security=reality&type=tcp&flow=xtls-rprx-vision&sni=cdn.example.net",
+                Host = "shared.example.net", Port = "443", Proto = "vless", Sni = "cdn.example.net",
+                Network = "tcp", Security = "reality", Flow = "xtls-rprx-vision",
+                XrayVerified = true, Score = 120, SourceGroup = "repo-b", HostGroup = "shared.example.net"
+            },
+            new ProxyCollector.Collector.FinalProxy
+            {
+                Link = "vless://credential-c@shared.example.net:443?security=reality&type=tcp&flow=xtls-rprx-vision&sni=other.example.net",
+                Host = "shared.example.net", Port = "443", Proto = "vless", Sni = "other.example.net",
+                Network = "tcp", Security = "reality", Flow = "xtls-rprx-vision",
+                XrayVerified = true, Score = 100, SourceGroup = "repo-c", HostGroup = "shared.example.net"
+            }
+        };
+        var deduplicatedProfiles = CollectorType.SelectTopWithIpv6Diversity(
+            duplicateProfiles, new HashSet<string>(StringComparer.Ordinal), maxCount: 10, ipv6SharePercent: 0);
+        Checks.Equal(2, deduplicatedProfiles.Count,
+            "top selection collapses credential-only duplicates at the same connection profile");
+        Checks.That(deduplicatedProfiles.Any(x => x.Link.Contains("credential-b", StringComparison.Ordinal)),
+            "duplicate profile keeps the strongest-scored usable credential");
+        Checks.That(deduplicatedProfiles.Any(x => x.Link.Contains("credential-c", StringComparison.Ordinal)),
+            "same endpoint with a different SNI is preserved as a distinct virtual-host profile");
+
+        var stratifiedCandidates = new List<ProxyCollector.Collector.FinalProxy>();
+        for (int i = 0; i < 700; i++)
+        {
+            stratifiedCandidates.Add(new ProxyCollector.Collector.FinalProxy
+            {
+                Link = $"vless://xray{i}@xray{i}.example.net:443", Host = $"xray{i}.example.net",
+                Port = "443", Proto = "vless", Network = "tcp", Security = "reality",
+                XrayTested = true, XrayVerified = true, Score = 1000 - i,
+                SourceGroup = "xray-repo", HostGroup = $"xray{i}.example.net"
+            });
+            stratifiedCandidates.Add(new ProxyCollector.Collector.FinalProxy
+            {
+                Link = $"trojan://tls{i}@tls{i}.example.org:443", Host = $"tls{i}.example.org",
+                Port = "443", Proto = "trojan", Network = "tcp", Security = "tls",
+                TlsTested = true, TlsVerified = true, Score = 800 - i,
+                SourceGroup = "tls-repo", HostGroup = $"tls{i}.example.org"
+            });
+            stratifiedCandidates.Add(new ProxyCollector.Collector.FinalProxy
+            {
+                Link = $"hysteria2://modern{i}@modern{i}.example.com:443", Host = $"modern{i}.example.com",
+                Port = "443", Proto = "hysteria2", Network = "udp", Security = "tls",
+                IsStable = true, Streak = 4, SourceCount = 2, Score = 60 - i,
+                SourceGroup = "modern-repo", HostGroup = $"modern{i}.example.com"
+            });
+        }
+        var stratifiedRanked = CollectorType.RankTopCandidates(stratifiedCandidates);
+        var stratifiedTop = CollectorType.SelectTopWithIpv6Diversity(
+            stratifiedRanked, new HashSet<string>(StringComparer.Ordinal), maxCount: 1000, ipv6SharePercent: 0);
+        Checks.Equal(1000, stratifiedTop.Count,
+            "stratified shortlist fills the requested size from independent evidence lanes");
+        Checks.Equal(550, stratifiedTop.Count(x => x.XrayVerified),
+            "full Xray successes use the target 55 percent lane rather than monopolizing the list");
+        Checks.Equal(300, stratifiedTop.Count(x => x.TlsVerified),
+            "TLS/edge successes retain their target 30 percent lane");
+        Checks.That(stratifiedTop.Count(CollectorType.IsTopProbeLimitedProtocol) >= 100,
+            "modern QUIC/native-tunnel protocols receive a reserved share when stable/source-backed candidates exist");
+        Checks.That(stratifiedTop.Any(x => x.IsStable && !x.XrayVerified && !x.TlsVerified &&
+                                           x.VerificationStatus == "not-tested"),
+            "stable nodes outside current probe coverage remain eligible without being mislabeled as verified");
+        Checks.Equal(stratifiedTop.Count,
+            stratifiedTop.Select(CollectorType.GetTopEndpointProfileKey)
+                .Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+            "top output contains one entry per endpoint connection profile");
 
         var nearbySingleSource = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@nearby.example.net:443?security=tls")!;

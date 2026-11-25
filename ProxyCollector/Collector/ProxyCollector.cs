@@ -3407,7 +3407,7 @@ namespace ProxyCollector.Collector
                     // The old "else results.Add(t)" fed whitelist-rejected lines into
                     // ParseProxyLine — which applies the SAME whitelist, so they could
                     // never parse. Dead code; removed.
-                    if (m.Success) results.Add(CleanExtracted(m.Value));
+                    if (m.Success) AddExtractedLink(m.Value);
                 }
                 else if (t.Length > 20)
                 {

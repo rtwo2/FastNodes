@@ -1694,7 +1694,7 @@ namespace ProxyCollector.Collector
             if (NormalizeProto(proxy.Protocol) != "mieru" ||
                 !Uri.TryCreate(proxy.BaseLink, UriKind.Absolute, out var uri))
                 return false;
-            return ParseQuery(uri.Query).GetValueOrDefault("port", "").Contains('-', StringComparison.Ordinal);
+            return ParseQuery(uri.Query).GetValueOrDefault("port", "").Contains('-');
         }
 
         // DNS verdicts are asymmetric: only a fresh, explicit NXDOMAIN is evidence

@@ -1310,6 +1310,46 @@ internal static class Program
         Checks.Equal("8388", ss.Port, "Shadowsocks port");
         Checks.Equal("aes-128-gcm:CaseSensitive", ss.Credential, "Shadowsocks credentials");
 
+        const string mieruSimpleShare =
+            "mierus://alice:Pass%40Word@mieru.example.net?handshake-mode=HANDSHAKE_NO_WAIT&mtu=1400&multiplexing=MULTIPLEXING_HIGH&port=6666&port=9998-9999&profile=default&protocol=TCP&protocol=UDP&traffic-pattern=GgQIARAK#Mieru%20edge";
+        var mieruLinks = CollectorType.DecodeAndExtractLines(mieruSimpleShare, "https://example.net/mieru-subscription.txt");
+        Checks.Equal(2, mieruLinks.Count, "Mieru simple-share links expand paired port/protocol bindings into individual nodes");
+        var mieruTcp = CollectorType.ParseProxyLine(mieruLinks.Single(link => link.Contains("port=6666", StringComparison.Ordinal)));
+        var mieruUdp = CollectorType.ParseProxyLine(mieruLinks.Single(link => link.Contains("port=9998-9999", StringComparison.Ordinal)));
+        Checks.That(mieruTcp is not null && mieruUdp is not null, "expanded Mieru links pass the common parser");
+        Checks.Equal("mieru", CollectorType.NormalizeProto(mieruTcp!.Protocol), "mierus links normalize to Mieru");
+        Checks.Equal("Pass@Word", mieruTcp.Credential[(mieruTcp.Credential.IndexOf(':') + 1)..], "Mieru parsing preserves escaped password case");
+        Checks.Equal("6666", mieruTcp.Port, "Mieru TCP binding uses its numeric endpoint port");
+        Checks.Equal("9998", mieruUdp!.Port, "Mieru UDP range uses its first port for endpoint metadata");
+        Checks.That(!CollectorType.UsesUdpTransport(mieruTcp) && CollectorType.UsesUdpTransport(mieruUdp), "Mieru TCP/UDP bindings classify independently");
+        Checks.That(CollectorType.ParseProxyLine("mieru://CpsBCgdkZWZhdWx0ElgKBWJhb3ppEg1tYW5saWFucGVuZmVu") is null,
+            "Base64 protobuf mieru:// shares are not misclassified as proxy hostnames");
+
+        const string mieruSingboxJson = """
+        {"outbounds":[{"type":"mieru","tag":"singbox-mieru","server":"mieru-singbox.example.net","server_port":7777,
+          "server_ports":["8888-8890"],"transport":"TCP","username":"singbox-user","password":"singbox-secret",
+          "multiplexing":"MULTIPLEXING_MIDDLE","traffic_pattern":"GgQIARAK","mtu":1400,"handshake_mode":"HANDSHAKE_STANDARD"}]}
+        """;
+        var mieruSingboxLinks = CollectorType.DecodeAndExtractLines(mieruSingboxJson, "https://example.net/mieru-singbox.json");
+        Checks.Equal(2, mieruSingboxLinks.Count, "sing-box Mieru outbounds preserve single ports and port ranges");
+        Checks.That(mieruSingboxLinks.All(link => CollectorType.ParseProxyLine(link) is not null), "sing-box Mieru conversions remain parseable");
+
+        const string mieruClashYaml = """
+        proxies:
+          - name: clash-mieru
+            type: mieru
+            server: mieru-clash.example.net
+            port-range: 9000-9010
+            transport: UDP
+            username: clash-user
+            password: clash-secret
+            multiplexing: MULTIPLEXING_LOW
+        """;
+        var mieruClashLinks = CollectorType.DecodeAndExtractLines(mieruClashYaml, "https://example.net/mieru-clash.yaml");
+        Checks.Equal(1, mieruClashLinks.Count, "Clash Mieru port-range entries convert to simple-share links");
+        var mieruClashParsed = CollectorType.ParseProxyLine(mieruClashLinks.Single());
+        Checks.That(mieruClashParsed is not null && CollectorType.UsesUdpTransport(mieruClashParsed), "Clash Mieru UDP transport survives YAML conversion");
+
         var flowA = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&flow=xtls-rprx-vision");
         var flowB = CollectorType.ParseProxyLine(

@@ -617,8 +617,7 @@ namespace ProxyCollector.Collector
         internal static List<FinalProxy> RankTopCandidates(IEnumerable<FinalProxy> proxies) =>
             proxies
                 .Where(x => x.XrayVerified || x.TlsVerified || x.EdgeVerified || x.IranTested ||
-                    (!x.TlsTested && !x.XrayTested && !x.EdgeTested &&
-                     (x.IsStable || (x.SourceCount >= 2 && x.Streak >= 2))))
+                    x.IsStable || x.SourceCount >= 2)
                 .OrderBy(GetTopEvidenceLane)
                 .ThenByDescending(CalculateTopSelectionScore)
                 .ThenByDescending(x => x.SourceCount)

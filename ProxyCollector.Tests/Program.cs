@@ -1506,6 +1506,30 @@ internal static class Program
         Checks.Equal("not-tested", CollectorType.GetTestStatus(false, false),
             "per-test status does not confuse an omitted check with failure");
 
+        var remoteVantageFailure = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://history@remote-failure.example.net:443",
+            Host = "remote-failure.example.net", Port = "443", Proto = "vless",
+            IsStable = true, Streak = 8, SourceCount = 4,
+            TlsTested = true, XrayTested = true, EdgeTested = true,
+            Score = 40
+        };
+        var singleSourceFailure = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://single@single-failure.example.net:443",
+            Host = "single-failure.example.net", Port = "443", Proto = "vless",
+            TlsTested = true, XrayTested = true, EdgeTested = true,
+            Score = 40
+        };
+        var sourceBackedAfterFailure = CollectorType.RankTopCandidates(
+            new[] { remoteVantageFailure, singleSourceFailure });
+        Checks.That(sourceBackedAfterFailure.Any(x => x.Link == remoteVantageFailure.Link),
+            "stable multi-source candidates remain in the source/stability lane after remote-vantage probe failures");
+        Checks.Equal("tested-failed", CollectorType.GetVerificationStatus(remoteVantageFailure),
+            "source/stability retention never mislabels remote-vantage failures as passing");
+        Checks.That(sourceBackedAfterFailure.All(x => x.Link != singleSourceFailure.Link),
+            "unverified single-source candidates without stability do not enter the top shortlist");
+
         var staleVeteran = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@veteran.example.net:443?security=tls")!;
         staleVeteran.IranTested = true;

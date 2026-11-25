@@ -381,6 +381,8 @@ internal static class Program
         });
         Checks.Equal(2, semanticFallbackLinks.Count,
             "fallback feed collapses credential and query-order duplicates but preserves a distinct SNI profile");
+        Checks.That(semanticFallbackLinks[0].Contains("credential-a@", StringComparison.Ordinal),
+            "last-good dedup keeps the first evidence-ranked service representative instead of alphabetizing credentials");
 
         string verificationReportPath = Path.Combine(
             Path.GetTempPath(), "fastnodes-verification-report-" + Guid.NewGuid().ToString("N") + ".csv.gz");

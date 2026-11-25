@@ -64,11 +64,9 @@ namespace ProxyCollector.Collector
 
         private async Task SaveAllCategories(List<FinalProxy> proxies, string sourceReportCsv)
         {
-            int receivedCount = proxies.Count;
-            proxies = DeduplicateFinalProxies(proxies);
-            if (proxies.Count != receivedCount)
-                LogSuccess($"Output identity audit: collapsed {receivedCount - proxies.Count} repeated exact configuration(s); compact feeds will additionally collapse credential variants by connection profile.");
-
+            // RunFullCollectionMode performs the exact-identity audit immediately before
+            // this single output boundary, so category generation does not repeat O(n)
+            // grouping over the full catalogue.
             var root = Directory.GetCurrentDirectory();
             var finalSub = Path.Combine(root, "sub");
             var stagingSub = Path.Combine(root, "sub.staging");
@@ -189,7 +187,7 @@ namespace ProxyCollector.Collector
                 .Select(g => $"{GetTopEvidenceLaneName(g.First())}={g.Count()}"));
             int topNativeCount = top.Count(IsTopProbeLimitedProtocol);
             int topDistinctProfiles = top.Select(GetTopEndpointProfileKey)
-                .Distinct(StringComparer.OrdinalIgnoreCase).Count();
+                .Distinct(StringComparer.Ordinal).Count();
             LogSuccess($"Saved top.txt ({top.Count}) — evidence-stratified ranking; " +
                        $"IPv6 {topIpv6Count}, native/QUIC probe-limited {topNativeCount}, " +
                        $"unique connection profiles {topDistinctProfiles}; lanes: {topLaneSummary}; " +
@@ -213,7 +211,7 @@ namespace ProxyCollector.Collector
                 topIpv6Candidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 100);
             await WriteSubscriptionPartsAsync(Path.Combine(sub, "top_ipv6"), topIpv6.Select(x => x.Link));
             LogSuccess($"Saved top_ipv6.txt ({topIpv6.Count}) — independent IPv6 candidate pool, " +
-                       $"unique profiles {topIpv6.Select(GetTopEndpointProfileKey).Distinct(StringComparer.OrdinalIgnoreCase).Count()}, " +
+                       $"unique profiles {topIpv6.Select(GetTopEndpointProfileKey).Distinct(StringComparer.Ordinal).Count()}, " +
                        $"source/stability/QUIC lane retained where evidence is available.");
 
             // Publish the family feed after the shortlist is finalized, and include the
@@ -829,7 +827,7 @@ namespace ProxyCollector.Collector
             // the best-evidenced version of each actual connection profile.
             var ranked = rankedCandidates
                 .Where(x => !string.IsNullOrWhiteSpace(x.Link))
-                .GroupBy(GetTopEndpointProfileKey, StringComparer.OrdinalIgnoreCase)
+                .GroupBy(GetTopEndpointProfileKey, StringComparer.Ordinal)
                 .Select(g => g
                     // When a service has both IPv4-only and IPv6-capable host spellings,
                     // choose its IPv6 candidate for the global IPv6 reservation too.
@@ -858,7 +856,7 @@ namespace ProxyCollector.Collector
             int protocolCap = DiversityCap(ranked, x => NormalizeTopProtocol(x.Proto), outputCount, 60);
 
             var selected = new List<FinalProxy>(outputCount);
-            var selectedProfiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var selectedProfiles = new HashSet<string>(StringComparer.Ordinal);
             var sourceCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var providerCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var hostnameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -870,7 +868,7 @@ namespace ProxyCollector.Collector
             var ipv6Profiles = rankedCandidates
                 .Where(x => ipv6Links.Contains(x.Link))
                 .Select(GetTopEndpointProfileKey)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                .ToHashSet(StringComparer.Ordinal);
             bool IsIpv6Profile(FinalProxy candidate) =>
                 ipv6Profiles.Contains(GetTopEndpointProfileKey(candidate));
 
@@ -1301,18 +1299,21 @@ namespace ProxyCollector.Collector
         }
 
         internal static List<string> DeduplicateFallbackLinks(IEnumerable<string> links)
-            => links
-                .Where(link => !string.IsNullOrWhiteSpace(link))
-                .Select(link => link.Trim())
-                .GroupBy(link =>
-                {
-                    var parsed = ParseProxyLine(link);
-                    return parsed?.SelectionProfileKey ?? "raw:" + link;
-                }, StringComparer.Ordinal)
-                .Select(group => group.OrderBy(link => link, StringComparer.Ordinal).First())
-                .OrderBy(link => link, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(link => link, StringComparer.Ordinal)
-                .ToList();
+        {
+            var result = new List<string>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (string raw in links)
+            {
+                string link = (raw ?? "").Trim();
+                if (link.Length == 0) continue;
+                var parsed = ParseProxyLine(link);
+                string key = parsed?.SelectionProfileKey ?? "raw:" + link;
+                // Last-good snapshots are stored in evidence order. Preserve the first
+                // viable representative instead of alphabetizing away that ranking.
+                if (seen.Add(key)) result.Add(link);
+            }
+            return result;
+        }
 
         internal static List<IGrouping<string, FinalProxy>> GetRawProtocolGroups(
             IEnumerable<FinalProxy> proxies)

@@ -1638,12 +1638,8 @@ namespace ProxyCollector.Collector
             if (finalCloudflareDropped > 0)
                 LogWarning($"Final-output Cloudflare/WARP safety filter dropped {finalCloudflareDropped} converted entries before any files were written.");
 
-            // Sort deterministically by Host -> Protocol.
-            finalProxies = finalProxies
-                .OrderBy(p => p.Host, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(p => p.Proto, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
+            // DeduplicateFinalProxies is the single identity boundary and returns a
+            // deterministic Host -> Protocol -> Port -> Link order.
             int finalDuplicateCount = finalProxies.Count;
             finalProxies = DeduplicateFinalProxies(finalProxies);
             if (finalDuplicateCount != finalProxies.Count)

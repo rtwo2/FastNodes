@@ -88,13 +88,12 @@ namespace ProxyCollector.Collector
             foreach (var d in new[] { "protocols", "countries", "continents" })
                 Directory.CreateDirectory(Path.Combine(sub, d));
 
-            // Resolve family once per staged snapshot. Compact category feeds use one
-            // representative per connection profile, but the master list retains every
-            // genuinely distinct credential/configuration.
-            var ipv4Proxies = SelectBestEndpointProfiles(
-                await FilterByFamilyAsync(proxies, AddressFamily.InterNetwork));
-            var ipv6Proxies = SelectBestEndpointProfiles(
-                await FilterByFamilyAsync(proxies, AddressFamily.InterNetworkV6));
+            // Classify each candidate into both address families in one pass. DNS
+            // answers are cached, but the combined pass also avoids a second traversal
+            // and repeated resolver lookups across the 300k+ node master list.
+            var (ipv4Candidates, ipv6Candidates) = await FilterByFamiliesAsync(proxies);
+            var ipv4Proxies = SelectBestEndpointProfiles(ipv4Candidates);
+            var ipv6Proxies = SelectBestEndpointProfiles(ipv6Candidates);
             var ipv6Links = new HashSet<string>(ipv6Proxies.Select(x => x.Link), StringComparer.Ordinal);
 
             int everythingPartCount = await WriteSubscriptionPartsAsync(
@@ -749,11 +748,7 @@ namespace ProxyCollector.Collector
             currentVerifiedCount >= GetVerifiedSnapshotReplacementFloor(previousVerifiedCount);
 
         internal static List<FinalProxy> SelectCurrentVerifiedProfiles(IEnumerable<FinalProxy> candidates)
-            => SelectBestEndpointProfiles(candidates.Where(x => x.XrayVerified))
-                .OrderByDescending(x => x.XrayStreak)
-                .ThenByDescending(x => x.Score)
-                .ThenBy(x => x.Link, StringComparer.Ordinal)
-                .ToList();
+            => SelectBestEndpointProfiles(candidates.Where(x => x.XrayVerified));
 
         internal static List<FinalProxy> SelectBestEndpointProfiles(IEnumerable<FinalProxy> candidates)
             => candidates
@@ -1169,17 +1164,23 @@ namespace ProxyCollector.Collector
                 LogInfo($"Ranking calibration baseline kept unchanged: only {nextNodes.Count} actual Xray attempts (need 50 to refresh).");
         }
 
-        private async Task<List<FinalProxy>> FilterByFamilyAsync(List<FinalProxy> proxies, AddressFamily family)
+        private async Task<(List<FinalProxy> Ipv4, List<FinalProxy> Ipv6)> FilterByFamiliesAsync(
+            IReadOnlyList<FinalProxy> proxies)
         {
-            var result = new List<FinalProxy>();
-            foreach (var x in proxies)
+            var ipv4 = new List<FinalProxy>();
+            var ipv6 = new List<FinalProxy>();
+            foreach (var proxy in proxies)
             {
-                var addresses = IPAddress.TryParse(x.Host, out var literal)
+                var addresses = IPAddress.TryParse(proxy.Host, out var literal)
                     ? new[] { literal }
-                    : await Resolver.ResolveAllAsync(x.Host); // cached full A/AAAA set from GeoIP stage
-                if (HasAddressFamily(addresses, family)) result.Add(x);
+                    : await Resolver.ResolveAllAsync(proxy.Host); // cached full A/AAAA set from GeoIP stage
+
+                if (HasAddressFamily(addresses, AddressFamily.InterNetwork))
+                    ipv4.Add(proxy);
+                if (HasAddressFamily(addresses, AddressFamily.InterNetworkV6))
+                    ipv6.Add(proxy);
             }
-            return result;
+            return (ipv4, ipv6);
         }
 
         // ====================== WIREGUARD CONF DECODER (v6.16) ======================

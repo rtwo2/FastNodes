@@ -131,8 +131,7 @@ namespace ProxyCollector.Collector
             int previousVerifiedCount = File.Exists(lastVerifiedPath)
                 ? (await File.ReadAllLinesAsync(lastVerifiedPath)).Count(line => !string.IsNullOrWhiteSpace(line))
                 : 0;
-            int replacementFloor = previousVerifiedCount == 0
-                ? 1 : Math.Max(25, (int)Math.Ceiling(previousVerifiedCount * 0.20));
+            int replacementFloor = GetVerifiedSnapshotReplacementFloor(previousVerifiedCount);
 
             List<string> safeLastGood;
             if (xrayVerified.Count >= replacementFloor)
@@ -140,8 +139,11 @@ namespace ProxyCollector.Collector
                 Directory.CreateDirectory("state");
                 var currentLinks = xrayVerified.Select(x => x.Link).ToList();
                 await File.WriteAllLinesAsync(lastVerifiedPath, currentLinks);
-                safeLastGood = currentLinks;
-                LogSuccess($"Rotated last-good Xray snapshot with {safeLastGood.Count} current-run verified endpoint profile(s).");
+                // The current feed now contains the new best snapshot. Keep the
+                // historical fallback feed empty instead of publishing the same
+                // entries twice. The state file remains available for a later weak run.
+                safeLastGood = new List<string>();
+                LogSuccess($"Rotated last-good Xray snapshot with {currentLinks.Count} current-run verified endpoint profile(s); fallback feed empty while current verification is healthy.");
             }
             else if (File.Exists(lastVerifiedPath))
             {
@@ -738,6 +740,14 @@ namespace ProxyCollector.Collector
 
         // Compact category feeds use one best representative per connection profile.
         // The master catalogue still retains distinct credentials as distinct configs.
+        internal static int GetVerifiedSnapshotReplacementFloor(int previousVerifiedCount) =>
+            previousVerifiedCount <= 0
+                ? 1
+                : Math.Max(25, (int)Math.Ceiling(previousVerifiedCount * 0.20));
+
+        internal static bool ShouldReplaceVerifiedSnapshot(int currentVerifiedCount, int previousVerifiedCount) =>
+            currentVerifiedCount >= GetVerifiedSnapshotReplacementFloor(previousVerifiedCount);
+
         internal static List<FinalProxy> SelectCurrentVerifiedProfiles(IEnumerable<FinalProxy> candidates)
             => SelectBestEndpointProfiles(candidates.Where(x => x.XrayVerified))
                 .OrderByDescending(x => x.XrayStreak)

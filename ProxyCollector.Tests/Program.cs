@@ -1740,6 +1740,16 @@ internal static class Program
                 .Distinct(StringComparer.OrdinalIgnoreCase).Count(),
             "top output contains one entry per endpoint connection profile");
 
+        Checks.Equal(1, CollectorType.GetVerifiedSnapshotReplacementFloor(0),
+            "a first verified snapshot can be established from any non-empty current result");
+        Checks.Equal(25, CollectorType.GetVerifiedSnapshotReplacementFloor(100),
+            "existing snapshots have a minimum replacement floor of 25 profiles");
+        Checks.Equal(200, CollectorType.GetVerifiedSnapshotReplacementFloor(1000),
+            "large snapshots require 20 percent current verification before rotation");
+        Checks.That(!CollectorType.ShouldReplaceVerifiedSnapshot(199, 1000) &&
+                    CollectorType.ShouldReplaceVerifiedSnapshot(200, 1000),
+            "the last-good snapshot rotates exactly at its evidence threshold");
+
         var failedVerifiedCandidate = new ProxyCollector.Collector.FinalProxy
         {
             Link = "vless://failed@verified.example.net:443", Host = "verified.example.net",
@@ -1792,6 +1802,22 @@ internal static class Program
             "Hysteria2 is not incorrectly tested with a TCP/TLS handshake");
         Checks.That(!CollectorType.IsTlsCandidate(new ProxyCollector.Collector.ParsedProxy { Protocol = "tuic" }),
             "TUIC is not incorrectly tested with a TCP/TLS handshake");
+
+        var casePathUpper = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://one@case-path.example.net:443?security=reality&type=ws&path=%2FABC",
+            Proto = "vless", Host = "case-path.example.net", Port = "443",
+            Network = "ws", Security = "reality", Path = "/ABC"
+        };
+        var casePathLower = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://two@case-path.example.net:443?security=reality&type=ws&path=%2Fabc",
+            Proto = "vless", Host = "case-path.example.net", Port = "443",
+            Network = "ws", Security = "reality", Path = "/abc"
+        };
+        Checks.Equal(2, CollectorType.SelectBestEndpointProfiles(
+                new[] { casePathUpper, casePathLower }).Count,
+            "profile dedup preserves case-sensitive transport paths in compact outputs");
 
         var optionsVariantA = new ProxyCollector.Collector.FinalProxy
         {

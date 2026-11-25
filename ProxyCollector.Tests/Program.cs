@@ -1696,6 +1696,24 @@ internal static class Program
         Checks.That(deduplicatedProfiles.Any(x => x.Link.Contains("credential-c", StringComparison.Ordinal)),
             "same endpoint with a different SNI is preserved as a distinct virtual-host profile");
 
+        var freshNativeCandidate = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "hysteria2://fresh@fresh-native.example.net:443",
+            Host = "fresh-native.example.net", Port = "443", Proto = "hysteria2",
+            Network = "udp", Security = "tls", SourceCount = 1, Score = 18
+        };
+        var freshNativeRanked = CollectorType.RankTopCandidates(new[] { freshNativeCandidate });
+        Checks.Equal(1, freshNativeRanked.Count,
+            "a new single-source QUIC candidate remains eligible when no compatible current probe exists");
+        Checks.Equal("probe-limited-source-candidate", CollectorType.GetEvidenceLevel(freshNativeRanked[0]),
+            "unprobed QUIC inclusion is labelled as source evidence, not a verification pass");
+        Checks.Equal("not-tested", CollectorType.GetVerificationStatus(freshNativeRanked[0]),
+            "source-only QUIC inclusion remains explicitly not-tested");
+        var freshNativeTop = CollectorType.SelectTopWithIpv6Diversity(
+            freshNativeRanked, new HashSet<string>(StringComparer.Ordinal), maxCount: 10, ipv6SharePercent: 0);
+        Checks.Equal(1, freshNativeTop.Count,
+            "a fresh source-backed QUIC candidate can occupy the reserved native-protocol lane");
+
         var stratifiedCandidates = new List<ProxyCollector.Collector.FinalProxy>();
         for (int i = 0; i < 700; i++)
         {

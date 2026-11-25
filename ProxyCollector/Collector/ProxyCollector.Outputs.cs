@@ -564,6 +564,7 @@ namespace ProxyCollector.Collector
             _ when p.IsStable => "stable-across-runs",
             _ when p.SourceCount >= 2 && p.Streak >= 2 => "multi-source-and-persistent",
             _ when p.SourceCount >= 2 => "multi-source-corroborated",
+            _ when IsTopProbeLimitedProtocol(p) && p.SourceCount > 0 => "probe-limited-source-candidate",
             _ => "no-positive-evidence"
         };
 
@@ -585,7 +586,7 @@ namespace ProxyCollector.Collector
             {
                 0 => "full-roundtrip",
                 1 => "partial-connectivity",
-                _ => "source-or-stability"
+                _ => "source-stability-or-probe-limited"
             };
 
         // These protocols use QUIC/UDP or a protocol-native tunnel and are outside
@@ -615,7 +616,8 @@ namespace ProxyCollector.Collector
         internal static List<FinalProxy> RankTopCandidates(IEnumerable<FinalProxy> proxies) =>
             proxies
                 .Where(x => x.XrayVerified || x.TlsVerified || x.EdgeVerified || x.IranTested ||
-                    x.IsStable || x.SourceCount >= 2)
+                    x.IsStable || x.SourceCount >= 2 ||
+                    (IsTopProbeLimitedProtocol(x) && x.SourceCount > 0))
                 .OrderBy(GetTopEvidenceLane)
                 .ThenByDescending(CalculateTopSelectionScore)
                 .ThenByDescending(x => x.SourceCount)

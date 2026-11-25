@@ -1609,6 +1609,9 @@ namespace ProxyCollector.Collector
                     Link = cleanLink, Proto = proto, CountryCode = cc,
                     Continent = continent, Remark = remark, Host = p.Host,
                     Port = p.Port, NodeId = HistKey(p.DeduplicationKey),
+                    ConnectionIdentityKey = p.DeduplicationKey,
+                    SelectionProfileKey = p.SelectionProfileKey,
+                    Credential = p.Credential,
                     Sni = p.Sni, Network = p.Network, Security = p.Security,
                     Path = p.Path, Flow = p.Flow, Pbk = p.Pbk, Sid = p.Sid,
                     ObfsPassword = p.ObfsPassword, Aid = p.Aid,
@@ -2896,15 +2899,25 @@ namespace ProxyCollector.Collector
             {
                 string k = HistKey(p.DeduplicationKey);
                 seenNow.Add(k);
-                if (history.TryGetValue(k, out var h))
+                if (!history.TryGetValue(k, out var h))
                 {
-                    h.Streak = Math.Min(h.Streak + 1, MaxStreak);
-                    h.Misses = 0;                       // returning from probation resumes its streak
+                    // Identity keys became canonical (IDN/IP normalization, semantic
+                    // options and UUID-only case folding). Migrate the matching old key
+                    // once so a safe dedup upgrade does not reset all stability streaks.
+                    string legacyKey = HistKey(p.LegacyDeduplicationKey);
+                    if (legacyKey != k && history.TryGetValue(legacyKey, out var legacyHistory))
+                    {
+                        h = legacyHistory;
+                        history.Remove(legacyKey);
+                        history[k] = h;
+                    }
+                    else
+                    {
+                        h = history[k] = new NodeHistory { Streak = 1, Misses = 0 };
+                    }
                 }
-                else
-                {
-                    h = history[k] = new NodeHistory { Streak = 1, Misses = 0 };
-                }
+                h.Streak = Math.Min(h.Streak + 1, MaxStreak);
+                h.Misses = 0; // returning from probation resumes its streak
 
                 // A completed failed probe decays the corresponding streak. A node
                 // outside this run's probe budget (or unsupported by the probe adapter)
@@ -4284,6 +4297,9 @@ namespace ProxyCollector.Collector
     {
         public string  Link             { get; set; } = "";
         public string  NodeId           { get; set; } = "";
+        public string  ConnectionIdentityKey { get; set; } = "";
+        public string  SelectionProfileKey { get; set; } = "";
+        public string  Credential       { get; set; } = "";
         public string  Proto            { get; set; } = "";
         public string  Host             { get; set; } = "";
         public string  Port             { get; set; } = "";

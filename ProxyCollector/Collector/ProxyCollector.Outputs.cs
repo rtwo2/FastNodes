@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using ProxyCollector.Configuration;
 using ProxyCollector.Services;
 using YamlDotNet.Serialization;
+using Nager.PublicSuffix;
 
 namespace ProxyCollector.Collector
 {
@@ -670,22 +671,34 @@ namespace ProxyCollector.Collector
             "id", "mil", "ne", "net", "nom", "or", "org", "web"
         };
 
+        private static readonly Lazy<DomainParser?> PublicSuffixParser = new(() =>
+        {
+            try
+            {
+                var provider = new SimpleHttpRuleProvider();
+                provider.BuildAsync().GetAwaiter().GetResult();
+                return new DomainParser(provider);
+            }
+            catch { return null; }
+        });
+
         internal static string GetHostnameDiversityGroup(string host)
         {
             string normalized = (host ?? "").Trim().Trim('[', ']').TrimEnd('.').ToLowerInvariant();
             if (normalized.Length == 0) return "";
             if (IPAddress.TryParse(normalized, out var ip)) return "ip:" + ip.ToString().ToLowerInvariant();
-
+            try
+            {
+                var domain = PublicSuffixParser.Value?.Parse(normalized);
+                if (!string.IsNullOrWhiteSpace(domain?.RegistrableDomain))
+                    return domain.RegistrableDomain.ToLowerInvariant();
+            }
+            catch { }
             string[] labels = normalized.Split('.', StringSplitOptions.RemoveEmptyEntries);
             if (labels.Length <= 2) return string.Join(".", labels);
             string suffix2 = labels[^2] + "." + labels[^1];
-
-            // Many country-code registries use common second-level categories rather
-            // than one universal public suffix. Recognize those categories generically
-            // so new ccTLDs such as .nz/.pl/.ua don't collapse unrelated registrable domains.
             return labels[^1].Length == 2 && CommonCountrySecondLevelLabels.Contains(labels[^2])
-                ? string.Join(".", labels[^3..])
-                : suffix2;
+                ? string.Join(".", labels[^3..]) : suffix2;
         }
 
         private static int DiversityCap(

@@ -91,7 +91,7 @@ Both top feeds use the same evidence mix:
 - **30% — Partial connectivity:** useful TLS/connectivity signals, without pretending they prove a working tunnel.
 - **15% — Source and stability:** source quality and persistence, including candidates a remote runner cannot currently reach.
 
-The selector collapses credential-only duplicates for the same service profile while preserving connection-affecting differences such as SNI, transport, path, REALITY keys, obfuscation options, Shadowsocks cipher modes, and WireGuard tunnel keys. Source, provider, hostname, transport, and protocol caps help prevent one large feed or host family from taking over. A reserved share also keeps source-backed QUIC and native-tunnel candidates in consideration when the current TCP/Xray probes cannot test them.
+The selector collapses credential-only duplicates for the same service profile while preserving connection-affecting differences such as SNI, transport, path, REALITY keys, obfuscation options, Shadowsocks cipher modes, and WireGuard tunnel keys. Source, provider, hostname, transport, and protocol caps help prevent one large feed or host family from taking over. Hostname grouping uses the Public Suffix List, including wildcard and exception rules, with the previous heuristic retained as a fallback if the list cannot be loaded. A reserved share also keeps source-backed QUIC and native-tunnel candidates in consideration when the current TCP/Xray probes cannot test them.
 
 The global feed also reserves its configured IPv6 share. When one evidence lane or diversity group cannot fill its allocation, other lanes can backfill available slots without turning off diversity controls.
 
@@ -103,7 +103,7 @@ The optional Cloudflare edge check currently supports targets whose effective TL
 
 FastNodes supports Mieru's human-readable `mierus://` simple-share format, including repeated port/protocol bindings expanded into separate TCP or UDP nodes. Supported sing-box and Clash Mieru definitions are also converted.
 
-The official binary protobuf `mieru://` share format is currently skipped rather than misread as a hostname; it is **not yet decoded**.
+The official binary protobuf `mieru://` share format is decoded into normalized per-server, per-port `mierus://` entries.
 
 ## 🗂️ The full collection
 

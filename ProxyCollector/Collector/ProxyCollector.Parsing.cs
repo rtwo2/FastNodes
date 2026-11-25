@@ -374,6 +374,117 @@ namespace ProxyCollector.Collector
             return results;
         }
 
+        private static bool TryReadMieruVarint(byte[] data, ref int offset, out ulong value)
+        {
+            value = 0;
+            int shift = 0;
+            while (offset < data.Length && shift < 64)
+            {
+                byte current = data[offset++];
+                value |= (ulong)(current & 0x7F) << shift;
+                if ((current & 0x80) == 0) return true;
+                shift += 7;
+            }
+            return false;
+        }
+
+        private static List<(int Field, int Wire, ulong Number, byte[] Bytes)> ReadMieruProtoFields(byte[] data)
+        {
+            var fields = new List<(int, int, ulong, byte[])>();
+            int offset = 0;
+            while (offset < data.Length)
+            {
+                if (!TryReadMieruVarint(data, ref offset, out ulong tag) || tag == 0)
+                    throw new FormatException("Invalid Mieru protobuf tag.");
+                int field = (int)(tag >> 3), wire = (int)(tag & 7);
+                if (field <= 0) throw new FormatException("Invalid Mieru protobuf field.");
+                if (wire == 0)
+                {
+                    if (!TryReadMieruVarint(data, ref offset, out ulong number))
+                        throw new FormatException("Truncated Mieru protobuf varint.");
+                    fields.Add((field, wire, number, Array.Empty<byte>()));
+                }
+                else if (wire == 2)
+                {
+                    if (!TryReadMieruVarint(data, ref offset, out ulong length) ||
+                        length > (ulong)(data.Length - offset) || length > 1_048_576)
+                        throw new FormatException("Invalid Mieru protobuf length.");
+                    int count = (int)length;
+                    fields.Add((field, wire, 0, data.AsSpan(offset, count).ToArray()));
+                    offset += count;
+                }
+                else if (wire == 1 || wire == 5)
+                {
+                    int count = wire == 1 ? 8 : 4;
+                    if (data.Length - offset < count) throw new FormatException("Truncated Mieru protobuf fixed field.");
+                    offset += count;
+                }
+                else throw new FormatException("Unsupported Mieru protobuf wire type.");
+            }
+            return fields;
+        }
+
+        private static string? MieruProtoString(List<(int Field, int Wire, ulong Number, byte[] Bytes)> fields, int field)
+        {
+            var item = fields.LastOrDefault(x => x.Field == field && x.Wire == 2);
+            return item.Bytes is { Length: > 0 } ? Encoding.UTF8.GetString(item.Bytes) : null;
+        }
+
+        private static List<string> ExpandMieruProtobufShare(string link)
+        {
+            var results = new List<string>();
+            try
+            {
+                const string prefix = "mieru://";
+                if (!link.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) return results;
+                string encoded = link[prefix.Length..].Trim();
+                int fragment = encoded.IndexOf('#');
+                if (fragment >= 0) encoded = encoded[..fragment];
+                encoded = encoded.Replace('-', '+').Replace('_', '/');
+                int padding = encoded.Length % 4;
+                if (padding == 1) return results;
+                if (padding > 0) encoded += new string('=', 4 - padding);
+                byte[] payload = Convert.FromBase64String(encoded);
+                if (payload.Length is 0 or > 1_048_576) return results;
+
+                var root = ReadMieruProtoFields(payload);
+                foreach (var profileField in root.Where(x => x.Field == 1 && x.Wire == 2))
+                {
+                    var profile = ReadMieruProtoFields(profileField.Bytes);
+                    string profileName = MieruProtoString(profile, 1) ?? "default";
+                    var userField = profile.LastOrDefault(x => x.Field == 2 && x.Wire == 2);
+                    if (userField.Bytes is null || userField.Bytes.Length == 0) continue;
+                    var user = ReadMieruProtoFields(userField.Bytes);
+                    string? username = MieruProtoString(user, 1);
+                    string? password = MieruProtoString(user, 2);
+                    if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password)) continue;
+
+                    foreach (var serverField in profile.Where(x => x.Field == 3 && x.Wire == 2))
+                    {
+                        var server = ReadMieruProtoFields(serverField.Bytes);
+                        string? host = MieruProtoString(server, 2) ?? MieruProtoString(server, 1);
+                        if (string.IsNullOrWhiteSpace(host)) continue;
+                        var common = new List<(string Key, string Value)> { ("profile", profileName) };
+                        foreach (var bindingField in server.Where(x => x.Field == 3 && x.Wire == 2))
+                        {
+                            var binding = ReadMieruProtoFields(bindingField.Bytes);
+                            var portField = binding.LastOrDefault(x => x.Field == 1 && x.Wire == 0);
+                            var protocolField = binding.LastOrDefault(x => x.Field == 2 && x.Wire == 0);
+                            string? range = MieruProtoString(binding, 3);
+                            string port = range ?? (portField.Number > 0 && portField.Number <= 65535
+                                ? portField.Number.ToString(CultureInfo.InvariantCulture) : "");
+                            string transport = protocolField.Number switch { 1 => "UDP", 2 => "TCP", _ => "" };
+                            if (port.Length == 0 || transport.Length == 0 || !IsValidMieruPortBinding(port, out _))
+                                continue;
+                            results.Add(BuildMieruSimpleLink(host, username, password, port, transport, common, profileName));
+                        }
+                    }
+                }
+            }
+            catch { return new List<string>(); }
+            return results;
+        }
+
         private static ParsedProxy? ParseMieruSimpleLink(string baseLink)
         {
             try

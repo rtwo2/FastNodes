@@ -3336,7 +3336,9 @@ namespace ProxyCollector.Collector
             void AddExtractedLink(string rawLink)
             {
                 string cleaned = CleanExtracted(rawLink.Replace("&amp;", "&", StringComparison.OrdinalIgnoreCase));
-                if (cleaned.StartsWith("mierus://", StringComparison.OrdinalIgnoreCase))
+                if (cleaned.StartsWith("mieru://", StringComparison.OrdinalIgnoreCase))
+                    results.AddRange(ExpandMieruProtobufShare(cleaned));
+                else if (cleaned.StartsWith("mierus://", StringComparison.OrdinalIgnoreCase))
                     results.AddRange(ExpandMieruSimpleLink(cleaned));
                 else
                     results.Add(cleaned);

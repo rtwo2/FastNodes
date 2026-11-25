@@ -215,6 +215,12 @@ internal static class Program
             "hostname diversity groups subdomains by registrable domain under a country-code category");
         Checks.Equal("other.co.nz", CollectorType.GetHostnameDiversityGroup("b.other.co.nz"),
             "unrelated registrable domains under the same country-code category remain independent");
+        Checks.Equal("example.com", CollectorType.GetHostnameDiversityGroup("a.b.example.com"),
+            "PSL grouping uses the registrable domain rather than a fixed two-label suffix");
+        Checks.Equal("foo.ck", CollectorType.GetHostnameDiversityGroup("a.foo.ck"),
+            "PSL wildcard rules are honored for delegated wildcard suffixes");
+        Checks.Equal("www.ck", CollectorType.GetHostnameDiversityGroup("www.ck"),
+            "PSL exception rules are honored for public-suffix exceptions");
         Checks.That(CollectorType.IsIranTestedSource(
             "https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/refs/heads/main/Best-Results/proxies.txt"),
             "explicitly trusted tested-source repository/path receives the delegated evidence signal");
@@ -1344,6 +1350,14 @@ internal static class Program
             "a TCP port range is not reduced to one definitive endpoint for drop filtering");
         Checks.That(CollectorType.ParseProxyLine("mieru://CpsBCgdkZWZhdWx0ElgKBWJhb3ppEg1tYW5saWFucGVuZmVu") is null,
             "Base64 protobuf mieru:// shares are not misclassified as proxy hostnames");
+        const string officialMieruShare = "mieru://CpsBCgdkZWZhdWx0ElgKBWJhb3ppEg1tYW5saWFucGVuZmVuGkA0MGFiYWM0MGY1OWRhNTVkYWQ2YTk5ODMxYTUxMTY1MjJmYmM4MGUzODViYjFhYjE0ZGM1MmRiMzY4ZjczOGE0Gi8SCWxvY2FsaG9zdBoFCIo0EAIaDRACGgk5OTk5LTk5OTkaBQjZMhABGgUIoCYQASD4CioCCAQSB2RlZmF1bHQYnUYguAgwBTgA";
+        var decodedOfficialMieru = CollectorType.DecodeAndExtractLines(officialMieruShare, "https://example.net/mieru.txt");
+        Checks.Equal(4, decodedOfficialMieru.Count,
+            "official binary protobuf Mieru share expands all server port/protocol bindings");
+        Checks.That(decodedOfficialMieru.All(x => x.StartsWith("mierus://", StringComparison.Ordinal)),
+            "official protobuf Mieru shares normalize into the existing simple-link parser path");
+        Checks.That(decodedOfficialMieru.Any(x => x.Contains("port=6666", StringComparison.Ordinal) && x.Contains("protocol=TCP", StringComparison.Ordinal)),
+            "official protobuf Mieru TCP binding is decoded");
 
         const string mieruSingboxJson = """
         {"outbounds":[{"type":"mieru","tag":"singbox-mieru","server":"mieru-singbox.example.net","server_port":7777,

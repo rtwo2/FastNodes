@@ -52,10 +52,11 @@ namespace ProxyCollector.Collector
 
         private static string ExtractSourceRemark(string sourceLine, ParsedProxy parsed)
         {
-            int fragment = (sourceLine ?? "").IndexOf('#');
-            if (fragment >= 0 && fragment < sourceLine.Length - 1)
+            string safeSourceLine = sourceLine ?? "";
+            int fragment = safeSourceLine.IndexOf('#');
+            if (fragment >= 0 && fragment < safeSourceLine.Length - 1)
             {
-                string raw = sourceLine[(fragment + 1)..].Trim();
+                string raw = safeSourceLine[(fragment + 1)..].Trim();
                 try { return Uri.UnescapeDataString(raw); }
                 catch { return raw; }
             }

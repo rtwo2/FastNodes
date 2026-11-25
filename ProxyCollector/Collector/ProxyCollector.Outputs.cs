@@ -22,6 +22,7 @@ using ProxyCollector.Configuration;
 using ProxyCollector.Services;
 using YamlDotNet.Serialization;
 using Nager.PublicSuffix;
+using Nager.PublicSuffix.RuleProviders;
 
 namespace ProxyCollector.Collector
 {

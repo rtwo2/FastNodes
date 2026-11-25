@@ -1578,8 +1578,8 @@ namespace ProxyCollector.Collector
             catch (Exception ex) { LogWarning($"Edge verification failed (non-fatal): {ex.Message}"); }
             GroupEnd();
 
-            // v6.13: cross-run stability. state/history.json is committed by this run's
-            // orphan commit; the next run's checkout of main IS the restore.
+            // v6.13: cross-run stability. state/history.json is published on the
+            // outputs branch and restored before the next collection run.
             GroupStart("📚 Stability tracking (state/history.json)");
             try
             {

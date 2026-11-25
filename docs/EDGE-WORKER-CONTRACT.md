@@ -24,12 +24,20 @@ with the endpoint hostname.
 Return a JSON object with a `results` array. Each result must include:
 
 - `id`: the exact target ID
-- `tcp`: a non-empty status string
-- `tls`: a TLS status string
-- `sni`: the exact SNI value actually applied to the TLS handshake
+- `tcp`: a non-empty status string; `ok` means the endpoint TCP connection was established
+- `tls`: a TLS status string when the TLS outcome is known
+- `sni`: the exact SNI value actually configured for the TLS handshake, when the handshake was reached and an SNI hostname was sent
 
 The Worker must echo `sni` only after it has configured that value for the handshake.
-Echoing the request value without applying it is not valid evidence.
+Echoing the request value without applying it is not valid evidence. Do not invent an SNI
+echo when the TCP connection did not establish or when no SNI hostname was sent.
+
+A result whose `tcp` status is not `ok` is a connection/vantage outcome: the collector
+records the reported connection error but leaves the node **not tested** by the edge TLS
+stage. Missing SNI on such a result is expected and is not counted as an SNI-confirmation
+failure. Once `tcp` is `ok`, the collector requires SNI confirmation for a custom SNI
+before it evaluates the TLS outcome. A confirmed TLS handshake failure is a tested failure;
+a pre-TCP connection failure is not.
 
 ## Collector acceptance rules
 

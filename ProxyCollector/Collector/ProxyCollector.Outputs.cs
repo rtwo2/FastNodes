@@ -617,12 +617,12 @@ namespace ProxyCollector.Collector
 
         internal static List<FinalProxy> RankTopCandidates(IEnumerable<FinalProxy> proxies) =>
             proxies
-                .Where(x => x.TlsVerified || x.IranTested || x.XrayVerified || x.EdgeVerified)
-                .OrderByDescending(x => x.EvidenceTier)
-                .ThenByDescending(x => x.Score)
+                .Where(x => x.XrayVerified || x.TlsVerified || x.EdgeVerified || x.IranTested ||
+                    x.IsStable || x.SourceCount >= 2 ||
+                    (IsTopProbeLimitedProtocol(x) && x.SourceCount > 0))
+                .OrderBy(GetTopEvidenceLane)
+                .ThenByDescending(CalculateTopSelectionScore)
                 .ThenByDescending(x => x.SourceCount)
-                .ThenByDescending(x => x.XrayVerified)
-                .ThenByDescending(x => x.TlsVerified)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .ToList();
@@ -839,81 +839,127 @@ namespace ProxyCollector.Collector
                 throw new ArgumentOutOfRangeException(nameof(ipv6SharePercent));
 
             var ranked = rankedCandidates
-                .GroupBy(x => x.Link, StringComparer.Ordinal)
-                .Select(g => g.First())
-                .OrderByDescending(x => x.EvidenceTier)
-                .ThenByDescending(x => x.Score)
+                .Where(x => !string.IsNullOrWhiteSpace(x.Link))
+                .GroupBy(GetTopEndpointProfileKey, StringComparer.Ordinal)
+                .Select(group => group
+                    .OrderByDescending(x => x.XrayVerified)
+                    .ThenByDescending(x => x.TlsVerified || x.EdgeVerified)
+                    .ThenByDescending(x => x.IranTested)
+                    .ThenByDescending(x => x.IsStable)
+                    .ThenByDescending(x => x.XrayStreak)
+                    .ThenByDescending(x => x.VerifiedStreak)
+                    .ThenByDescending(CalculateTopSelectionScore)
+                    .ThenByDescending(x => x.SourceCount)
+                    .ThenBy(x => x.Link, StringComparer.Ordinal)
+                    .First())
+                .OrderBy(GetTopEvidenceLane)
+                .ThenByDescending(CalculateTopSelectionScore)
                 .ThenByDescending(x => x.SourceCount)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .ToList();
+
             int outputCount = Math.Min(maxCount, ranked.Count);
-            int ipv6Target = (int)Math.Ceiling(outputCount * (ipv6SharePercent / 100.0));
+            if (outputCount == 0) return new List<FinalProxy>();
+            int ipv6Target = (int)Math.Ceiling(outputCount * ipv6SharePercent / 100.0);
             int sourceCap = DiversityCap(ranked, x => x.SourceGroup, outputCount, 5);
-            int providerCap = DiversityCap(ranked, x => x.ProviderGroup, outputCount, 10);
-            int hostnameCap = DiversityCap(ranked, x => x.HostGroup, outputCount, 5);
-            int transportCap = DiversityCap(ranked, x => x.TransportGroup, outputCount, 25);
+            int providerCap = DiversityCap(ranked, x => x.ProviderGroup, outputCount, 8);
+            int hostnameCap = DiversityCap(ranked,
+                x => string.IsNullOrWhiteSpace(x.HostGroup) ? GetHostnameDiversityGroup(x.Host) : x.HostGroup,
+                outputCount, 2);
+            int transportCap = DiversityCap(ranked, x => x.TransportGroup, outputCount, 30);
+            int protocolCap = DiversityCap(ranked, x => NormalizeProto(x.Proto), outputCount, 60);
 
             var selected = new List<FinalProxy>(outputCount);
-            var selectedLinks = new HashSet<string>(StringComparer.Ordinal);
+            var profiles = new HashSet<string>(StringComparer.Ordinal);
             var sourceCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var providerCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var hostnameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var transportCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var protocolCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-            bool CanAdd(FinalProxy candidate, bool enforceCaps)
+            static bool WithinCap(Dictionary<string, int> counts, string group, int cap) =>
+                string.IsNullOrWhiteSpace(group) ||
+                !counts.TryGetValue(group, out int count) || count < cap;
+
+            bool TryAdd(FinalProxy candidate)
             {
-                if (selectedLinks.Contains(candidate.Link)) return false;
-                if (!enforceCaps) return true;
-                static bool WithinCap(Dictionary<string, int> counts, string group, int cap) =>
-                    string.IsNullOrWhiteSpace(group) || !counts.TryGetValue(group, out int count) || count < cap;
-                return WithinCap(sourceCounts, candidate.SourceGroup, sourceCap)
-                    && WithinCap(providerCounts, candidate.ProviderGroup, providerCap)
-                    && WithinCap(hostnameCounts, candidate.HostGroup, hostnameCap)
-                    && WithinCap(transportCounts, candidate.TransportGroup, transportCap);
+                string profile = GetTopEndpointProfileKey(candidate);
+                if (selected.Count >= outputCount || profiles.Contains(profile)) return false;
+                string hostname = string.IsNullOrWhiteSpace(candidate.HostGroup)
+                    ? GetHostnameDiversityGroup(candidate.Host) : candidate.HostGroup;
+                string protocol = NormalizeProto(candidate.Proto);
+                if (!WithinCap(sourceCounts, candidate.SourceGroup, sourceCap) ||
+                    !WithinCap(providerCounts, candidate.ProviderGroup, providerCap) ||
+                    !WithinCap(hostnameCounts, hostname, hostnameCap) ||
+                    !WithinCap(transportCounts, candidate.TransportGroup, transportCap) ||
+                    !WithinCap(protocolCounts, protocol, protocolCap))
+                    return false;
+
+                profiles.Add(profile);
+                selected.Add(candidate);
+                static void Bump(Dictionary<string, int> counts, string group)
+                {
+                    if (string.IsNullOrWhiteSpace(group)) return;
+                    counts.TryGetValue(group, out int count);
+                    counts[group] = count + 1;
+                }
+                Bump(sourceCounts, candidate.SourceGroup);
+                Bump(providerCounts, candidate.ProviderGroup);
+                Bump(hostnameCounts, hostname);
+                Bump(transportCounts, candidate.TransportGroup);
+                Bump(protocolCounts, protocol);
+                return true;
             }
 
-            void AddCandidates(IEnumerable<FinalProxy> candidates, int limit, bool enforceCaps = true)
+            int Add(IEnumerable<FinalProxy> candidates, int limit)
             {
                 int added = 0;
                 foreach (var candidate in candidates)
                 {
                     if (selected.Count >= outputCount || added >= limit) break;
-                    if (!CanAdd(candidate, enforceCaps)) continue;
-                    selected.Add(candidate);
-                    selectedLinks.Add(candidate.Link);
-                    added++;
-                    static void Bump(Dictionary<string, int> counts, string group)
-                    {
-                        if (string.IsNullOrWhiteSpace(group)) return;
-                        counts.TryGetValue(group, out int current);
-                        counts[group] = current + 1;
-                    }
-                    Bump(sourceCounts, candidate.SourceGroup);
-                    Bump(providerCounts, candidate.ProviderGroup);
-                    Bump(hostnameCounts, candidate.HostGroup);
-                    Bump(transportCounts, candidate.TransportGroup);
+                    if (TryAdd(candidate)) added++;
                 }
+                return added;
             }
 
-            var ipv6Candidates = ranked.Where(x => ipv6Links.Contains(x.Link)).ToList();
-            AddCandidates(ipv6Candidates, ipv6Target);
-            int selectedIpv6 = selected.Count(x => ipv6Links.Contains(x.Link));
-            if (selectedIpv6 < ipv6Target)
-                AddCandidates(ipv6Candidates, ipv6Target - selectedIpv6, enforceCaps: false);
-
-            AddCandidates(ranked.Where(x => !ipv6Links.Contains(x.Link)), outputCount - selected.Count);
-            AddCandidates(ranked, outputCount - selected.Count);
-            if (selected.Count < outputCount && selected.Count(x => ipv6Links.Contains(x.Link)) < ipv6Target)
+            var lanes = new[]
             {
-                selectedIpv6 = selected.Count(x => ipv6Links.Contains(x.Link));
-                AddCandidates(ipv6Candidates, ipv6Target - selectedIpv6, enforceCaps: false);
+                ranked.Where(x => GetTopEvidenceLane(x) == 0).ToList(),
+                ranked.Where(x => GetTopEvidenceLane(x) == 1).ToList(),
+                ranked.Where(x => GetTopEvidenceLane(x) == 2).ToList()
+            };
+            int fullTarget = (int)Math.Round(outputCount * 0.55, MidpointRounding.AwayFromZero);
+            int partialTarget = (int)Math.Round(outputCount * 0.30, MidpointRounding.AwayFromZero);
+            int sourceTarget = outputCount - fullTarget - partialTarget;
+            int[] targets = { fullTarget, partialTarget, sourceTarget };
+
+            int remainingIpv6 = ipv6Target;
+            for (int lane = 0; lane < lanes.Length && remainingIpv6 > 0; lane++)
+            {
+                int laneQuota = Math.Min(remainingIpv6, targets[lane]);
+                int added = Add(lanes[lane].Where(x => ipv6Links.Contains(x.Link)), laneQuota);
+                remainingIpv6 -= added;
             }
-            AddCandidates(ranked, outputCount - selected.Count, enforceCaps: false);
+
+            int nativeTarget = Math.Min(sourceTarget, (int)Math.Ceiling(outputCount * 0.10));
+            int nativeAlready = selected.Count(x => GetTopEvidenceLane(x) == 2 && IsTopProbeLimitedProtocol(x));
+            if (nativeAlready < nativeTarget)
+                Add(lanes[2].Where(IsTopProbeLimitedProtocol), nativeTarget - nativeAlready);
+
+            for (int lane = 0; lane < lanes.Length && selected.Count < outputCount; lane++)
+            {
+                int already = selected.Count(x => GetTopEvidenceLane(x) == lane);
+                int remaining = Math.Max(0, targets[lane] - already);
+                if (remaining > 0) Add(lanes[lane], remaining);
+            }
+
+            // Scarce lanes are backfilled in evidence order without bypassing any cap.
+            if (selected.Count < outputCount) Add(ranked, outputCount - selected.Count);
 
             return selected
-                .OrderByDescending(x => x.EvidenceTier)
-                .ThenByDescending(x => x.Score)
+                .OrderBy(GetTopEvidenceLane)
+                .ThenByDescending(CalculateTopSelectionScore)
                 .ThenByDescending(x => x.SourceCount)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(x => x.Link, StringComparer.Ordinal)

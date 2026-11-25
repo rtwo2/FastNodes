@@ -18,9 +18,12 @@ SCHEMES = (
 SCHEME_PATTERN = "|".join(sorted((re.escape(s) for s in SCHEMES), key=len, reverse=True))
 URI_RE = re.compile(rf"^(?:{SCHEME_PATTERN})://\S+", re.IGNORECASE)
 REQUIRED = ("top.txt", "everything.txt")
+# The committed public snapshot predates the historical-feed split. The
+# collection workflow independently requires verified_last_good.txt after a
+# fresh run, while this validator allows legacy checked-in snapshots to migrate.
 EXPECTED_FILES = (
     "top_ipv6.txt", "ipv4_only.txt", "ipv6_only.txt",
-    "verified.txt", "verified_last_good.txt",
+    "verified.txt",
 )
 MAX_TOP_LINES = 1000
 MAX_PART_BYTES = 50 * 1024 * 1024

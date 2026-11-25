@@ -484,6 +484,15 @@ namespace ProxyCollector.Collector
             return JsonSerializer.Serialize(canonical);
         }
 
+        private static string NormalizeUriHost(string host)
+        {
+            // Uri.Host can include brackets around IPv6 literals. ParsedProxy stores
+            // the bare address consistently for resolver, GeoIP and family checks.
+            return host.Length >= 2 && host[0] == '[' && host[^1] == ']'
+                ? host[1..^1]
+                : host;
+        }
+
         internal static string NormalizeIdentityHost(string? host)
         {
             if (string.IsNullOrWhiteSpace(host)) return "";

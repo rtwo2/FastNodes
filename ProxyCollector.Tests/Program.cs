@@ -1572,7 +1572,7 @@ internal static class Program
                 XrayVerified = true, Score = 80
             }
         };
-        var ipv6ProfileWinner = CollectorType.SelectTopWithIpv6Diversity(
+        var ipv6ProfileWinner = CollectorType.SelectTopIpv6Profiles(
             ipv6ProfileCandidates,
             new HashSet<string>(StringComparer.Ordinal) { "vless://ipv6@dual.example.net:443" },
             maxCount: 1, ipv6SharePercent: 100);
@@ -1632,7 +1632,7 @@ internal static class Program
             TlsTested = true, XrayTested = true, EdgeTested = true,
             Score = 40
         };
-        var sourceBackedAfterFailure = CollectorType.RankTopCandidates(
+        var sourceBackedAfterFailure = CollectorType.RankTopIpv6Candidates(
             new[] { remoteVantageFailure, singleSourceFailure });
         Checks.That(sourceBackedAfterFailure.Any(x => x.Link == remoteVantageFailure.Link),
             "stable multi-source candidates remain in the source/stability lane after remote-vantage probe failures");
@@ -1717,7 +1717,7 @@ internal static class Program
                 XrayVerified = true, Score = 100, SourceGroup = "repo-c", HostGroup = "shared.example.net"
             }
         };
-        var deduplicatedProfiles = CollectorType.SelectTopWithIpv6Diversity(
+        var deduplicatedProfiles = CollectorType.SelectTopIpv6Profiles(
             duplicateProfiles, new HashSet<string>(StringComparer.Ordinal), maxCount: 10, ipv6SharePercent: 0);
         Checks.Equal(2, deduplicatedProfiles.Count,
             "top selection collapses credential-only duplicates at the same connection profile");
@@ -1732,15 +1732,15 @@ internal static class Program
             Host = "fresh-native.example.net", Port = "443", Proto = "hysteria2",
             Network = "udp", Security = "tls", SourceCount = 1, Score = 18
         };
-        var freshNativeRanked = CollectorType.RankTopCandidates(new[] { freshNativeCandidate });
+        var freshNativeRanked = CollectorType.RankTopIpv6Candidates(new[] { freshNativeCandidate });
         Checks.Equal(1, freshNativeRanked.Count,
             "a new single-source QUIC candidate remains eligible when no compatible current probe exists");
         Checks.Equal("probe-limited-source-candidate", CollectorType.GetEvidenceLevel(freshNativeRanked[0]),
             "unprobed QUIC inclusion is labelled as source evidence, not a verification pass");
         Checks.Equal("not-tested", CollectorType.GetVerificationStatus(freshNativeRanked[0]),
             "source-only QUIC inclusion remains explicitly not-tested");
-        var freshNativeTop = CollectorType.SelectTopWithIpv6Diversity(
-            freshNativeRanked, new HashSet<string>(StringComparer.Ordinal), maxCount: 10, ipv6SharePercent: 0);
+        var freshNativeTop = CollectorType.SelectTopIpv6Profiles(
+            freshNativeRanked, new HashSet<string>(StringComparer.Ordinal) { freshNativeCandidate.Link }, maxCount: 10);
         Checks.Equal(1, freshNativeTop.Count,
             "a fresh source-backed QUIC candidate can occupy the reserved native-protocol lane");
 
@@ -1769,9 +1769,10 @@ internal static class Program
                 HostGroup = $"modern{i}.example.com"
             });
         }
-        var stratifiedRanked = CollectorType.RankTopCandidates(stratifiedCandidates);
-        var stratifiedTop = CollectorType.SelectTopWithIpv6Diversity(
-            stratifiedRanked, new HashSet<string>(StringComparer.Ordinal), maxCount: 1000, ipv6SharePercent: 0);
+        var stratifiedRanked = CollectorType.RankTopIpv6Candidates(stratifiedCandidates);
+        var allStratifiedIpv6Links = stratifiedCandidates.Select(x => x.Link).ToHashSet(StringComparer.Ordinal);
+        var stratifiedTop = CollectorType.SelectTopIpv6Profiles(
+            stratifiedRanked, allStratifiedIpv6Links, maxCount: 1000);
         Checks.Equal(1000, stratifiedTop.Count,
             "stratified shortlist fills the requested size from independent evidence lanes");
         Checks.Equal(550, stratifiedTop.Count(x => x.XrayVerified),
@@ -1825,8 +1826,8 @@ internal static class Program
 
         var stratifiedIpv6Links = stratifiedCandidates.Select(x => x.Link)
             .ToHashSet(StringComparer.Ordinal);
-        var stratifiedIpv6Top = CollectorType.SelectTopWithIpv6Diversity(
-            stratifiedRanked, stratifiedIpv6Links, maxCount: 1000, ipv6SharePercent: 100);
+        var stratifiedIpv6Top = CollectorType.SelectTopIpv6Profiles(
+            stratifiedRanked, stratifiedIpv6Links, maxCount: 1000);
         Checks.Equal(550, stratifiedIpv6Top.Count(x => x.XrayVerified),
             "top_ipv6 keeps the full-roundtrip lane target instead of being filled entirely by Xray nodes");
         Checks.Equal(300, stratifiedIpv6Top.Count(x => x.TlsVerified),
@@ -1837,8 +1838,8 @@ internal static class Program
             .Where(x => x.Proto != "hysteria2")
             .Select(x => x.Link)
             .ToHashSet(StringComparer.Ordinal);
-        var partialIpv6Top = CollectorType.SelectTopWithIpv6Diversity(
-            stratifiedRanked, partialIpv6Links, maxCount: 1000, ipv6SharePercent: 100);
+        var partialIpv6Top = CollectorType.SelectTopIpv6Profiles(
+            stratifiedRanked, partialIpv6Links, maxCount: 1000);
         Checks.That(partialIpv6Top.All(x => partialIpv6Links.Contains(x.Link)),
             "top_ipv6 never leaks unfiltered native-protocol candidates from its reserve lane");
 

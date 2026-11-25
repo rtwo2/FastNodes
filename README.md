@@ -34,9 +34,9 @@ These are the four links most visitors need. Each URL points directly to the cur
 
 | List | Best for | Subscription |
 |---|---|---|
-| **⚡ Top ranked** | A globally ranked shortlist of up to 1,000 candidates, with quality evidence and diversity controls | [Open top.txt ↗](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top.txt) |
+| **⚡ Top ranked** | An evidence-stratified shortlist of up to 1,000 distinct connection profiles, with source, provider, domain, protocol and IPv6 diversity | [Open top.txt ↗](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top.txt) |
 | **✅ Xray verified** | Nodes that completed a full proxy round-trip through Xray when the list was generated | [Open verified.txt ↗](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/verified.txt) |
-| **🌐 Top IPv6** | A ranked shortlist of IPv6-capable candidates | [Open top_ipv6.txt ↗](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top_ipv6.txt) |
+| **🌐 Top IPv6** | An independently ranked, evidence-balanced shortlist of IPv6-capable candidates | [Open top_ipv6.txt ↗](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top_ipv6.txt) |
 | **📚 Everything** | The broad collection of configurations that survive parsing and safety filters | [Open everything.txt ↗](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/everything.txt) |
 
 <details>
@@ -70,13 +70,15 @@ FastNodes keeps different kinds of evidence separate. A TLS handshake is not the
 
 | Feed | What it means |
 |---|---|
-| `verified.txt` | Full Xray proxy round-trip completed, including an HTTP request with the expected **204** response. If a run produces too few successes, a sanitized last-good snapshot may be retained. |
-| `verified_tls.txt` | A TLS handshake completed from the collection runner. This is partial connectivity evidence, not a full proxy test. |
-| `top.txt` | Ranked candidates with at least one positive signal, such as current TLS/Xray/edge verification or a trusted tested-source signal. Stronger evidence leads the ranking. |
-| `top_ipv6.txt` | A ranked shortlist selected from IPv6-capable candidates. |
-| `stable.txt` | Configurations present across at least three consecutive collection runs. Stability measures persistence in sources, not guaranteed reachability. |
+| `verified.txt` | Only nodes that completed a full Xray proxy round-trip, including the expected **204** response, during the current collection run. It can be empty if no node passes. |
+| `verified_tls.txt` | One best configuration per endpoint profile with a TLS handshake in the current run. This is partial connectivity evidence, not a full proxy test. |
+| `top.txt` | Globally ranked shortlist using the same 55% full-roundtrip / 30% partial-connectivity / 15% source-and-stability evidence lanes as `top_ipv6.txt`, with an IPv6 share reservation and source/provider/hostname/transport/protocol diversity caps. |
+| `top_ipv6.txt` | Up to 1,000 IPv6-capable service profiles, ranked in 55% full-roundtrip, 30% partial-connectivity and 15% source/stability lanes, with source/provider/hostname/transport/protocol diversity caps. |
+| `stable.txt` | Best representative per connection profile present across at least three consecutive collection runs. Stability measures persistence in sources, not guaranteed reachability. |
 | `curated.txt` | Trusted source-tested candidates or nodes that are both stable and TLS-verified. |
-| `everything.txt` | The broad surviving collection. Many entries are not individually verified. |
+| `everything.txt` | One best representative per distinct service profile that survives parsing and safety filters. Credential-only variants of the same service are collapsed; different SNI, transport, path, REALITY keys, obfuscation options, Shadowsocks cipher modes and WireGuard tunnel keys remain distinct. Many entries are not individually verified. |
+
+Both **top shortlists** (`top.txt` and `top_ipv6.txt`) use a **55% full-roundtrip / 30% partial-connectivity / 15% source-and-stability mix**. It collapses credential-only duplicates for the same protocol/endpoint/SNI/transport profile while preserving REALITY keys, obfuscation settings, Shadowsocks cipher modes, VMess options and other connection-affecting fields. Source, provider, hostname, transport and protocol caps stop one feed, provider or host family from dominating. The source/stability lane retains stable or corroborated nodes even when a remote runner cannot reach them, while a reserved share admits source-backed QUIC and native-tunnel protocols that the current TCP/Xray probes do not cover. These entries remain **not tested** rather than being mislabeled as verified. The global shortlist also reserves its configured IPv6 share; both selectors use the same evidence-lane scoring, semantic service-profile deduplication and diversity enforcement. If a lane or diversity group cannot supply enough eligible candidates, remaining slots are backfilled from other evidence lanes without disabling diversity limits.
 
 **A verification result is a snapshot, not a promise.** Availability can change between collection and import. Results also depend on the runner's network vantage; some nodes may work from your ISP or country even when a remote runner cannot reach them.
 
@@ -96,7 +98,8 @@ https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/
 |---|---|
 | `top.txt` | Globally ranked shortlist |
 | `top_ipv6.txt` | Ranked IPv6-capable shortlist |
-| `verified.txt` | Full Xray round-trip results / safe last-good fallback |
+| `verified.txt` | Current-run full Xray round-trip results only; may be empty |
+| `verified_last_good.txt` | Sanitized historical snapshot from a previous successful run; not a current verification claim |
 | `verified_tls.txt` | TLS-handshake results |
 | `stable.txt` | Nodes present across consecutive runs |
 | `curated.txt` | Trusted-source or stable-plus-TLS candidates |
@@ -106,8 +109,8 @@ https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/
 
 | File | Description |
 |---|---|
-| [`ipv4_only.txt`](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/ipv4_only.txt) | Nodes with at least one resolved IPv4 address |
-| [`ipv6_only.txt`](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/ipv6_only.txt) | Nodes with at least one resolved IPv6 address |
+| [`ipv4_only.txt`](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/ipv4_only.txt) | One best representative per service profile with at least one resolved IPv4 address |
+| [`ipv6_only.txt`](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/ipv6_only.txt) | One best representative per connection profile with at least one resolved IPv6 address; includes candidates beyond the 1,000-node `top_ipv6.txt` shortlist |
 
 Dual-stack hostnames can appear in both lists. These feeds classify DNS address-family support; they do not guarantee that a proxy handshake or full traffic round-trip succeeds over that family.
 

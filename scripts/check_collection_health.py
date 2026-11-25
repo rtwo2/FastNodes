@@ -11,7 +11,7 @@ MIN_TOP_LINES = 100
 MIN_RETAINED = 0.30
 KEY_OUTPUTS = ("everything.txt", "top.txt", "verified.txt", "stable.txt",
                "ipv4_only.txt", "ipv6_only.txt", "top_ipv6.txt",
-               "verified_tls.txt", "curated.txt")
+               "verified_tls.txt", "verified_last_good.txt", "curated.txt")
 
 class HealthError(Exception):
     pass

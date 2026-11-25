@@ -1609,6 +1609,13 @@ namespace ProxyCollector.Collector
                     Link = cleanLink, Proto = proto, CountryCode = cc,
                     Continent = continent, Remark = remark, Host = p.Host,
                     Port = p.Port, NodeId = HistKey(p.DeduplicationKey),
+                    ConnectionIdentityKey = p.DeduplicationKey,
+                    SelectionProfileKey = p.SelectionProfileKey,
+                    Credential = p.Credential,
+                    Sni = p.Sni, Network = p.Network, Security = p.Security,
+                    Path = p.Path, Flow = p.Flow, Pbk = p.Pbk, Sid = p.Sid,
+                    ObfsPassword = p.ObfsPassword, Aid = p.Aid,
+                    ConnectionOptionsKey = p.ConnectionOptionsKey,
                     IranTested = p.IranTested, IsStable = p.IsStable,
                     TlsTested = p.TlsTested, TlsVerified = p.TlsVerified,
                     XrayTested = p.XrayTested, XrayVerified = p.XrayVerified,
@@ -1631,11 +1638,12 @@ namespace ProxyCollector.Collector
             if (finalCloudflareDropped > 0)
                 LogWarning($"Final-output Cloudflare/WARP safety filter dropped {finalCloudflareDropped} converted entries before any files were written.");
 
-            // Sort deterministically by Host -> Protocol.
-            finalProxies = finalProxies
-                .OrderBy(p => p.Host, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(p => p.Proto, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            // DeduplicateFinalProxies is the single identity boundary and returns a
+            // deterministic Host -> Protocol -> Port -> Link order.
+            int finalDuplicateCount = finalProxies.Count;
+            finalProxies = DeduplicateFinalProxies(finalProxies);
+            if (finalDuplicateCount != finalProxies.Count)
+                LogSuccess($"Final identity audit: collapsed {finalDuplicateCount - finalProxies.Count} exact duplicate configuration(s) before category generation.");
 
             await SaveAllCategories(finalProxies, sourceReportCsv);
             GroupEnd();
@@ -2892,15 +2900,25 @@ namespace ProxyCollector.Collector
             {
                 string k = HistKey(p.DeduplicationKey);
                 seenNow.Add(k);
-                if (history.TryGetValue(k, out var h))
+                if (!history.TryGetValue(k, out var h))
                 {
-                    h.Streak = Math.Min(h.Streak + 1, MaxStreak);
-                    h.Misses = 0;                       // returning from probation resumes its streak
+                    // Identity keys became canonical (IDN/IP normalization, semantic
+                    // options and UUID-only case folding). Migrate the matching old key
+                    // once so a safe dedup upgrade does not reset all stability streaks.
+                    string legacyKey = HistKey(p.LegacyDeduplicationKey);
+                    if (legacyKey != k && history.TryGetValue(legacyKey, out var legacyHistory))
+                    {
+                        h = legacyHistory;
+                        history.Remove(legacyKey);
+                        history[k] = h;
+                    }
+                    else
+                    {
+                        h = history[k] = new NodeHistory { Streak = 1, Misses = 0 };
+                    }
                 }
-                else
-                {
-                    h = history[k] = new NodeHistory { Streak = 1, Misses = 0 };
-                }
+                h.Streak = Math.Min(h.Streak + 1, MaxStreak);
+                h.Misses = 0; // returning from probation resumes its streak
 
                 // A completed failed probe decays the corresponding streak. A node
                 // outside this run's probe budget (or unsupported by the probe adapter)
@@ -2948,10 +2966,11 @@ namespace ProxyCollector.Collector
         private static readonly TimeSpan TlsBudget = TimeSpan.FromMinutes(8);
         private static readonly TimeSpan TlsProbeTimeout = TimeSpan.FromSeconds(4);
 
-        private static bool IsTlsCandidate(ParsedProxy p)
+        internal static bool IsTlsCandidate(ParsedProxy p)
         {
-            if (UdpProtocols.Contains(p.Protocol)) return false;      // QUIC: no TLS-over-TCP to probe
-            if (NormalizeProto(p.Protocol) == "trojan") return true;  // trojan is TLS by definition
+            string protocol = NormalizeProto(p.Protocol);
+            if (UdpProtocols.Contains(protocol)) return false; // QUIC/UDP: no TCP-TLS handshake probe
+            if (protocol is "trojan" or "anytls" or "naive") return true; // TLS by protocol definition
             return p.Security.Equals("tls", StringComparison.OrdinalIgnoreCase)
                 || p.Security.Equals("reality", StringComparison.OrdinalIgnoreCase)
                 || !string.IsNullOrEmpty(p.Pbk);
@@ -4163,48 +4182,71 @@ namespace ProxyCollector.Collector
         // normalized fields above (for example VMess scy/fp/alpn and SS plugin options).
         // Omitting these lets different functional links collapse as identical nodes.
         public string ConnectionOptionsKey { get; set; } = "";
+        // Kept only for state/history migration from the previous identity schema.
+        public string LegacyConnectionOptionsKey { get; set; } = "";
 
-        public string DeduplicationKey
+        public string DeduplicationKey =>
+            BuildIdentityKey(Host, includeCredential: true, aliasMode: false);
+
+        // Precision feeds collapse credential variants of the same service profile.
+        // WireGuard is the exception: its private key identifies the local tunnel.
+        public string SelectionProfileKey =>
+            BuildIdentityKey(Host, includeCredential: ProxyCollector.NormalizeProto(Protocol) == "wireguard", aliasMode: false);
+
+        public string EndpointKey(string canonicalHost) =>
+            BuildIdentityKey(canonicalHost, includeCredential: true, aliasMode: true);
+
+        private string BuildIdentityKey(string identityHost, bool includeCredential, bool aliasMode)
+        {
+            string protocol = ProxyCollector.NormalizeProto(Protocol);
+            string hostKey = ProxyCollector.NormalizeIdentityHost(identityHost);
+            string originalHostKey = ProxyCollector.NormalizeIdentityHost(Host);
+            string portKey = int.TryParse(Port, out int pn)
+                ? pn.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                : Port.Trim();
+
+            bool implicitTlsSni = !string.IsNullOrEmpty(Security) ||
+                protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
+            string sniKey = !string.IsNullOrWhiteSpace(Sni)
+                ? ProxyCollector.NormalizeIdentityHost(Sni)
+                : implicitTlsSni ? originalHostKey : hostKey;
+            bool implicitTransportHost =
+                Network.Equals("ws", StringComparison.OrdinalIgnoreCase) ||
+                Network.Equals("httpupgrade", StringComparison.OrdinalIgnoreCase) ||
+                (Network.Equals("h2", StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(Sni));
+            string endpointHostKey = aliasMode && implicitTransportHost ? originalHostKey : hostKey;
+
+            string credential = includeCredential ? CredKey(Protocol, Credential) : ProfileCredKey(Protocol, Credential);
+            string publicKey = ProxyCollector.TryNormalizeRealityPublicKey(Pbk, out var normalizedKey)
+                ? normalizedKey : (Pbk ?? "").Trim();
+
+            // JSON framing prevents delimiters inside credentials, paths and plug-in options
+            // from creating accidental identity collisions.
+            return JsonSerializer.Serialize(new[]
+            {
+                protocol, endpointHostKey, portKey, credential,
+                (Network ?? "tcp").Trim().ToLowerInvariant(),
+                (Security ?? "").Trim().ToLowerInvariant(),
+                sniKey, Path ?? "", publicKey,
+                (Sid ?? "").Trim().ToLowerInvariant(),
+                (Flow ?? "").Trim().ToLowerInvariant(),
+                ObfsPassword ?? "",
+                Aid.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                ConnectionOptionsKey ?? ""
+            });
+        }
+
+        public string LegacyDeduplicationKey
         {
             get
             {
                 string hostKey = Host.Trim().ToLowerInvariant();
                 string portKey = int.TryParse(Port, out int pn) ? pn.ToString() : Port.Trim();
-                string sniKey  = string.IsNullOrEmpty(Sni) ? hostKey : Sni.Trim().ToLowerInvariant();
-                // v6.12: Flow and ObfsPassword appended — see ParseProxyLine. Without them,
-                // "vless://u@h:443?flow=xtls-rprx-vision" and "vless://u@h:443" collapsed
-                // into one key and one variant was silently lost.
-                return $"{NP(Protocol)}:{hostKey}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";
+                string sniKey = string.IsNullOrEmpty(Sni) ? hostKey : Sni.Trim().ToLowerInvariant();
+                return $"{ProxyCollector.NormalizeProto(Protocol)}:{hostKey}:{portKey}:{LegacyCredKey(Protocol, Credential)}:" +
+                    $"{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:" +
+                    $"{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{LegacyConnectionOptionsKey}";
             }
-        }
-		
-        // Same identity as DeduplicationKey, but with the host component replaced by a
-        // caller-supplied canonical form (the resolved IP) — used by alias collapse to
-        // merge IP-literal vs hostname spellings of one endpoint.
-        public string EndpointKey(string canonicalHost)
-        {
-            string portKey = int.TryParse(Port, out int pn) ? pn.ToString() : Port.Trim();
-            string protocol = NP(Protocol);
-            bool implicitTlsSni = !string.IsNullOrEmpty(Security) ||
-                protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
-            // When TLS is enabled and SNI is omitted, clients use the original host as
-            // the effective SNI. Do not merge different TLS hostnames just because they
-            // resolve to the same IP; that can silently discard a working TLS virtual host.
-            string sniKey = !string.IsNullOrEmpty(Sni)
-                ? Sni.Trim().ToLowerInvariant()
-                : implicitTlsSni ? Host.Trim().ToLowerInvariant() : canonicalHost;
-            // WebSocket/HTTP-upgrade Host defaults to the endpoint hostname; H2 also
-            // uses it when SNI/host is omitted. Keep those implicit host identities distinct
-            // to avoid merging different virtual hosts. For WS/HTTP-upgrade this is
-            // conservative even when an explicit Host override is present.
-            bool implicitTransportHost =
-                Network.Equals("ws", StringComparison.OrdinalIgnoreCase) ||
-                Network.Equals("httpupgrade", StringComparison.OrdinalIgnoreCase) ||
-                (Network.Equals("h2", StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(Sni));
-            string endpointKeyHost = implicitTransportHost
-                ? Host.Trim().ToLowerInvariant()
-                : canonicalHost.ToLowerInvariant();
-            return $"{protocol}:{endpointKeyHost}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";
         }
 
         // Case handling in the credential part of the dedup key. The old blanket
@@ -4215,7 +4257,32 @@ namespace ProxyCollector.Collector
         // passwords are not.
         private static string CredKey(string proto, string cred)
         {
-            proto = NP(proto);
+            proto = ProxyCollector.NormalizeProto(proto);
+            // UUIDs are case-insensitive. Xray custom VLESS/VMess IDs are not.
+            if (proto is "vmess" or "vless" &&
+                Guid.TryParseExact(cred.Trim(), "D", out var uuid))
+                return uuid.ToString("D");
+            if ((proto == "ss" || proto == "ssr") && cred.Contains(':'))
+            {
+                int c = cred.IndexOf(':');
+                return cred[..c].ToLowerInvariant() + cred[c..];
+            }
+            return cred;
+        }
+
+        private static string ProfileCredKey(string proto, string cred)
+        {
+            proto = ProxyCollector.NormalizeProto(proto);
+            // Cipher selection is a connection setting for SS/SSR, while the password
+            // is an access credential. Compact feeds collapse passwords, not cipher modes.
+            if ((proto == "ss" || proto == "ssr") && cred.Contains(':'))
+                return cred[..cred.IndexOf(':')].ToLowerInvariant();
+            return "";
+        }
+
+        private static string LegacyCredKey(string proto, string cred)
+        {
+            proto = ProxyCollector.NormalizeProto(proto);
             if (proto is "vmess" or "vless" or "tuic" or "juicity")
                 return cred.Trim().ToLowerInvariant();
             if ((proto == "ss" || proto == "ssr") && cred.Contains(':'))
@@ -4223,27 +4290,32 @@ namespace ProxyCollector.Collector
                 int c = cred.IndexOf(':');
                 return cred[..c].ToLowerInvariant() + cred[c..];
             }
-            return cred;   // trojan, hysteria2, naive, ... — case-sensitive passwords
+            return cred;
         }
 
-        private static string NP(string p)
-        {
-            if (string.IsNullOrEmpty(p)) return "unknown";
-            p = p.ToLowerInvariant();
-            if (p == "hy2") return "hysteria2"; // alias only — "hysteria" (v1) stays separate, see NormalizeProto
-            if (p == "shadowsocks") return "ss";
-            if (p == "wg") return "wireguard";
-            return p;
-        }
+
     }
 
     public class FinalProxy
     {
         public string  Link             { get; set; } = "";
         public string  NodeId           { get; set; } = "";
+        public string  ConnectionIdentityKey { get; set; } = "";
+        public string  SelectionProfileKey { get; set; } = "";
+        public string  Credential       { get; set; } = "";
         public string  Proto            { get; set; } = "";
         public string  Host             { get; set; } = "";
         public string  Port             { get; set; } = "";
+        public string  Sni              { get; set; } = "";
+        public string  Network          { get; set; } = "tcp";
+        public string  Security         { get; set; } = "";
+        public string  Path             { get; set; } = "";
+        public string  Flow             { get; set; } = "";
+        public string  Pbk              { get; set; } = "";
+        public string  Sid              { get; set; } = "";
+        public string  ObfsPassword     { get; set; } = "";
+        public int     Aid              { get; set; }
+        public string  ConnectionOptionsKey { get; set; } = "";
         public string  CountryCode      { get; set; } = "XX";
         public string  Continent        { get; set; } = "Unknown";
         public string  Remark           { get; set; } = "";

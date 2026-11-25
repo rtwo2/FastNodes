@@ -1360,7 +1360,11 @@ jobs:
           everything_files=(sub/everything*.txt)
           verified_part_files=(sub/verified_part*.txt)
           verified_files=(sub/verified.txt "${verified_part_files[@]}")
-          files_to_validate=("${top_files[@]}" "${verified_files[@]}" "${everything_files[@]}")
+          verified_last_good_part_files=(sub/verified_last_good_part*.txt)
+          verified_last_good_files=(sub/verified_last_good.txt "${verified_last_good_part_files[@]}")
+
+          # Only the main shortlist and master catalogue must be non-empty.
+          files_to_validate=("${top_files[@]}" "${everything_files[@]}")
           for file in "${files_to_validate[@]}"; do
             if [[ ! -s "$file" ]]; then
               echo "::error::Required subscription part is missing or empty: $file"
@@ -1375,18 +1379,33 @@ jobs:
               exit 1
             fi
           done
+
+          for file in "${verified_files[@]}" "${verified_last_good_files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              echo "::error::Verification feed is missing: $file"
+              exit 1
+            fi
+            if [[ -s "$file" ]]; then
+              if grep -Eiq '<!doctype html|<html|access denied|rate limit exceeded' "$file"; then
+                echo "::error::HTML/error response detected in verification feed: $file"
+                exit 1
+              fi
+              if ! grep -Eiq '^(vmess|vless|trojan|ss|shadowsocks|ssr|hysteria2?|hy2|tuic|naive|anytls|brook|snell|juicity|mieru|wireguard|wg|socks5?|socks4)://' "$file"; then
+                echo "::error::No recognized proxy URI schemes found in verification feed: $file"
+                exit 1
+              fi
+            fi
+          done
+
           top_count=$(awk 'END { print NR }' "${top_files[@]}")
           if (( top_count > 1000 )); then
             echo "::error::top.txt exceeds its 1000-node contract ($top_count)"
             exit 1
           fi
           verified_count=$(awk 'END { print NR }' "${verified_files[@]}")
-          if (( verified_count == 0 )); then
-            echo "::error::verified.txt is empty; refusing to publish"
-            exit 1
-          fi
+          verified_last_good_count=$(awk 'END { print NR }' "${verified_last_good_files[@]}")
           everything_count=$(awk 'END { print NR }' "${everything_files[@]}")
-          echo "Validated top.txt=$top_count verified.txt=$verified_count everything collection=$everything_count across ${#everything_files[@]} parts"
+          echo "Validated top.txt=$top_count verified-current=$verified_count verified-last-good=$verified_last_good_count everything collection=$everything_count across ${#everything_files[@]} parts"
 
       - name: Validate every generated text subscription
         if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
@@ -1406,10 +1425,6 @@ jobs:
           curl --fail --silent --show-error --location --retry 3 --retry-all-errors https://www.cloudflare.com/ips-v6 -o /tmp/cf-ips-v6
           python3 scripts/audit_cloudflare_warp.py --self-test
           python3 scripts/audit_cloudflare_warp.py sub /tmp/cf-ips-v4 /tmp/cf-ips-v6
-
-      - name: Revalidate final output tree before commit
-        if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
-        run: python3 scripts/validate_outputs.py sub
 
       - name: Summarize per-source contribution and failures
         if: ${{ always() && steps.collector.outcome == 'success' }}

@@ -64,6 +64,9 @@ namespace ProxyCollector.Collector
 
         private async Task SaveAllCategories(List<FinalProxy> proxies, string sourceReportCsv)
         {
+            // RunFullCollectionMode performs the exact-identity audit immediately before
+            // this single output boundary, so category generation does not repeat O(n)
+            // grouping over the full catalogue.
             var root = Directory.GetCurrentDirectory();
             var finalSub = Path.Combine(root, "sub");
             var stagingSub = Path.Combine(root, "sub.staging");
@@ -85,110 +88,117 @@ namespace ProxyCollector.Collector
             foreach (var d in new[] { "protocols", "countries", "continents" })
                 Directory.CreateDirectory(Path.Combine(sub, d));
 
-            // Resolve family once per staged snapshot, then reuse the result for /top,
-            // /verified ordering, and the dedicated IPv4/IPv6 feeds.
-            var ipv4Proxies = await FilterByFamilyAsync(proxies, AddressFamily.InterNetwork);
-            var ipv6Proxies = await FilterByFamilyAsync(proxies, AddressFamily.InterNetworkV6);
+            // Classify each candidate into both address families in one pass. DNS
+            // answers are cached, but the combined pass also avoids a second traversal
+            // and repeated resolver lookups across the 300k+ node master list.
+            var (ipv4Candidates, ipv6Candidates) = await FilterByFamiliesAsync(proxies);
+            var ipv4Proxies = SelectBestEndpointProfiles(ipv4Candidates);
+            var ipv6Proxies = SelectBestEndpointProfiles(ipv6Candidates);
             var ipv6Links = new HashSet<string>(ipv6Proxies.Select(x => x.Link), StringComparer.Ordinal);
 
+            var catalogueProfiles = SelectBestEndpointProfiles(proxies);
+            int collapsedCatalogueVariants = proxies.Count - catalogueProfiles.Count;
             int everythingPartCount = await WriteSubscriptionPartsAsync(
-                Path.Combine(sub, "everything"), proxies.Select(x => x.Link));
-            LogSuccess($"Saved everything.txt ({proxies.Count})" +
+                Path.Combine(sub, "everything"), catalogueProfiles.Select(x => x.Link));
+            LogSuccess($"Saved everything.txt ({catalogueProfiles.Count} distinct service profiles; " +
+                       $"{collapsedCatalogueVariants} credential/URI variants collapsed)" +
                        (everythingPartCount > 1 ? $" across {everythingPartCount} parts (≤50 MiB each)" : ""));
 
-            // Quality/history feeds use the same byte cap as the full collection.
-            var stable = proxies.Where(x => x.IsStable).ToList();
+            // Compact history/evidence feeds use one best representative per service
+            // profile. The master everything.txt remains credential-complete.
+            var stable = SelectBestEndpointProfiles(proxies.Where(x => x.IsStable));
             int stablePartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "stable"), stable.Select(x => x.Link));
             LogSuccess($"Saved stable.txt ({stable.Count}) — present ≥{StableMinRuns} consecutive runs" +
                        (stablePartCount > 1 ? $"; split into {stablePartCount} parts" : ""));
 
-            var tlsVerified = proxies.Where(x => x.TlsVerified).ToList();
+            var tlsVerified = SelectBestEndpointProfiles(proxies.Where(x => x.TlsVerified));
             int tlsPartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "verified_tls"), tlsVerified.Select(x => x.Link));
-            LogSuccess($"Saved verified_tls.txt ({tlsVerified.Count}) — TLS handshake completed (clean-vantage, promotion only)" +
+            LogSuccess($"Saved verified_tls.txt ({tlsVerified.Count}) — distinct endpoint profiles with a current TLS handshake" +
                        (tlsPartCount > 1 ? $"; split into {tlsPartCount} parts" : ""));
 
-            // v6.15: the strongest file in the repo — nodes that proxied a real HTTP
-            // request end-to-end this run, through the actual protocol, via xray-core.
-            // The runner can only establish success from its own vantage, but the
-            // resulting evidence is still valid globally. Do not silently exclude
-            // working nodes merely because their server is outside a preferred region.
-            // Keep this file strictly roundtrip-verified; among those verified nodes,
-            // put native-IPv6-capable endpoints first without promoting unverified nodes.
-            var xrayVerified = proxies.Where(x => x.XrayVerified)
+            // verified.txt is a strict current-run claim: every entry must have passed
+            // the full Xray proxy round-trip (including the expected HTTP 204) in THIS
+            // collection run. Never mix old successes into this feed.
+            var xrayVerified = SelectCurrentVerifiedProfiles(proxies)
                 .OrderByDescending(x => ipv6Links.Contains(x.Link))
+                .ThenByDescending(x => x.XrayStreak)
                 .ThenByDescending(x => x.Score)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .ToList();
+
             string lastVerifiedPath = Path.Combine("state", "verified_last.txt");
             int previousVerifiedCount = File.Exists(lastVerifiedPath)
                 ? (await File.ReadAllLinesAsync(lastVerifiedPath)).Count(line => !string.IsNullOrWhiteSpace(line))
                 : 0;
-            // Don't replace a useful last-good set with a suspiciously tiny partial run.
-            // On first-ever success, any non-empty result is useful; after that, require
-            // at least 25 nodes and 20% of the previous set before rotating the fallback.
-            int replacementFloor = previousVerifiedCount == 0
-                ? 1 : Math.Max(25, (int)Math.Ceiling(previousVerifiedCount * 0.20));
+            int replacementFloor = GetVerifiedSnapshotReplacementFloor(previousVerifiedCount);
+
+            List<string> safeLastGood;
             if (xrayVerified.Count >= replacementFloor)
             {
-                await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), xrayVerified.Select(x => x.Link));
                 Directory.CreateDirectory("state");
-                await File.WriteAllLinesAsync(lastVerifiedPath, xrayVerified.Select(x => x.Link));
-                LogSuccess($"Saved verified.txt ({xrayVerified.Count}) — current-run full proxy roundtrip");
+                var currentLinks = xrayVerified.Select(x => x.Link).ToList();
+                await File.WriteAllLinesAsync(lastVerifiedPath, currentLinks);
+                // The current feed now contains the new best snapshot. Keep the
+                // historical fallback feed empty instead of publishing the same
+                // entries twice. The state file remains available for a later weak run.
+                safeLastGood = new List<string>();
+                LogSuccess($"Rotated last-good Xray snapshot with {currentLinks.Count} current-run verified endpoint profile(s); fallback feed empty while current verification is healthy.");
             }
             else if (File.Exists(lastVerifiedPath))
             {
                 var lastGoodLines = await File.ReadAllLinesAsync(lastVerifiedPath);
-                var safeLastGood = await FilterSafeLastGoodLinksAsync(lastGoodLines);
-                if (safeLastGood.Count > 0)
-                {
-                    await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), safeLastGood);
-                    LogWarning($"verified.txt: only {xrayVerified.Count} current-run successes (replacement floor {replacementFloor}); preserving {safeLastGood.Count}/{lastGoodLines.Length} safe last-good entries.");
-                }
-                else if (xrayVerified.Count > 0)
-                {
-                    // Prefer a small, current-run verified set over an unsafe or wholly
-                    // stale fallback. Do not rotate the last-good snapshot below its floor.
-                    await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), xrayVerified.Select(x => x.Link));
-                    LogWarning($"verified.txt: no safe last-good entries; publishing {xrayVerified.Count} current-run roundtrip successes without rotating the snapshot.");
-                }
-                else
-                {
-                    // Fail before swapping the staged output tree. Publishing an unsafe
-                    // fallback is worse than keeping the previous complete publication.
-                    throw new InvalidOperationException(
-                        "No current Xray-verified nodes and no safe last-good fallback; refusing to publish verified.txt.");
-                }
+                safeLastGood = await FilterSafeLastGoodLinksAsync(lastGoodLines);
+                if (safeLastGood.Count == 0 && xrayVerified.Count > 0)
+                    safeLastGood = xrayVerified.Select(x => x.Link).ToList();
+                LogWarning($"Current Xray successes: {xrayVerified.Count} (snapshot replacement floor {replacementFloor}); sanitized last-good snapshot contains {safeLastGood.Count} profile(s).");
             }
             else
             {
-                // No previous snapshot exists. Preserve any current successes; workflow
-                // validation will still prevent an empty first publication.
-                await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), xrayVerified.Select(x => x.Link));
-                LogWarning($"verified.txt: first run has only {xrayVerified.Count} verified nodes.");
+                safeLastGood = xrayVerified.Select(x => x.Link).ToList();
+                LogWarning($"No prior last-good Xray snapshot exists; retaining {safeLastGood.Count} current verified profile(s) as the initial fallback.");
             }
+
+            // Keep the names semantically honest and consumers stable: verified.txt is
+            // current-run only; verified_last_good.txt is explicitly historical fallback.
+            await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), xrayVerified.Select(x => x.Link));
+            await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified_last_good"), safeLastGood);
+            LogSuccess($"Saved verified.txt ({xrayVerified.Count}) — current-run full Xray round-trip only.");
+            LogSuccess($"Saved verified_last_good.txt ({safeLastGood.Count}) — sanitized historical snapshot, not a current verification claim.");
 
             // Curated evidence tier: source-tested nodes plus the stable+TLS-verified core.
             // Source testing can include Iran-specific checks, but the output stays useful
             // internationally and does not assume the GitHub runner matches the user.
-            var curated = proxies.Where(x => x.IranTested || (x.IsStable && x.TlsVerified)).ToList();
+            var curated = SelectBestEndpointProfiles(
+                proxies.Where(x => x.IranTested || (x.IsStable && x.TlsVerified)));
             int curatedPartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "curated"), curated.Select(x => x.Link));
             LogSuccess($"Saved curated.txt ({curated.Count}) — Iran-tested source or stable+TLS-verified" +
                        (curatedPartCount > 1 ? $"; split into {curatedPartCount} parts" : ""));
 
-            // /top is a globally ranked precision file. Require at least one affirmative
-            // signal, then rank by converging evidence; geography contributes only a
-            // modest prior. Keep the single unchunked 1000-node contract.
+            // /top is a globally ranked precision file. Keep the raw candidate
+            // representatives until the selector can prefer an IPv6-capable member
+            // of each shared service profile; pre-collapsing here can discard the
+            // representative needed to satisfy the global IPv6 reservation.
             var topCandidates = RankTopCandidates(proxies);
             var top = SelectTopWithIpv6Diversity(topCandidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 20);
             await WriteSubscriptionPartsAsync(Path.Combine(sub, "top"), top.Select(x => x.Link));
             int topIpv6Count = top.Count(x => ipv6Links.Contains(x.Link));
-            LogSuccess($"Saved top.txt ({top.Count}) — global ranking with IPv6 diversity " +
-                       $"({topIpv6Count} IPv6-capable); gate: TLS/Xray/edge-verified or source-tested; " +
+            string topLaneSummary = string.Join(", ", top
+                .GroupBy(GetTopEvidenceLane)
+                .OrderBy(g => g.Key)
+                .Select(g => $"{GetTopEvidenceLaneName(g.First())}={g.Count()}"));
+            int topNativeCount = top.Count(IsTopProbeLimitedProtocol);
+            int topDistinctProfiles = top.Select(GetTopEndpointProfileKey)
+                .Distinct(StringComparer.Ordinal).Count();
+            LogSuccess($"Saved top.txt ({top.Count}) — evidence-stratified ranking; " +
+                       $"IPv6 {topIpv6Count}, native/QUIC probe-limited {topNativeCount}, " +
+                       $"unique connection profiles {topDistinctProfiles}; lanes: {topLaneSummary}; " +
                        $"score range {top.LastOrDefault()?.Score ?? 0}–{top.FirstOrDefault()?.Score ?? 0}");
+            if (top.Count < 1000)
+                LogWarning($"top.txt contains {top.Count}/1000 entries: strict endpoint and diversity caps left no additional eligible profiles.");
 
             // v6.13: IPv4/IPv6 by RESOLVED family — hostname nodes now classify too
             // (alias collapse swaps v6 literals for hostnames, which literal-only
@@ -201,10 +211,12 @@ namespace ProxyCollector.Collector
             // A focused shortlist for IPv6-capable endpoints. Keep the same evidence
             // gate and score ordering as top.txt, but rank across the full IPv6-capable
             // candidate pool instead of only intersecting the global top 1,000.
-            var topIpv6Candidates = RankTopCandidates(ipv6Proxies);
-            var topIpv6 = SelectTopWithIpv6Diversity(
-                topIpv6Candidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 100);
+            var topIpv6Candidates = RankTopIpv6Candidates(ipv6Proxies);
+            var topIpv6 = SelectTopIpv6Profiles(topIpv6Candidates, ipv6Links, maxCount: 1000);
             await WriteSubscriptionPartsAsync(Path.Combine(sub, "top_ipv6"), topIpv6.Select(x => x.Link));
+            LogSuccess($"Saved top_ipv6.txt ({topIpv6.Count}) — independent IPv6 candidate pool, " +
+                       $"unique profiles {topIpv6.Select(GetTopEndpointProfileKey).Distinct(StringComparer.Ordinal).Count()}, " +
+                       $"source/stability/QUIC lane retained where evidence is available.");
 
             // Publish the family feed after the shortlist is finalized, and include the
             // shortlist as a defensive invariant. This is normally a no-op because
@@ -226,7 +238,7 @@ namespace ProxyCollector.Collector
             {
                 string key = g.Key.Trim().ToLowerInvariant();
 
-                await WriteTxt(Path.Combine(sub, "protocols", key), g.ToList());
+                await WriteTxt(Path.Combine(sub, "protocols", key), SelectBestEndpointProfiles(g));
                 LogSuccess($"  → protocols/{key} ({g.Count()})");
             }
 
@@ -235,14 +247,14 @@ namespace ProxyCollector.Collector
                 if (string.IsNullOrEmpty(g.Key) || g.Key == "XX" || g.Count() < 3) continue;
                 string safe = Regex.Replace(g.Key, @"[^A-Z0-9]", "");
                 if (string.IsNullOrEmpty(safe)) continue;
-                await WriteTxt(Path.Combine(sub, "countries", safe), g.ToList());
+                await WriteTxt(Path.Combine(sub, "countries", safe), SelectBestEndpointProfiles(g));
                 LogSuccess($"  → countries/{safe} ({g.Count()})");
             }
 
             foreach (var g in proxies.GroupBy(x => x.Continent))
             {
                 if (g.Key == "Unknown" || g.Count() < 3) continue;
-                await WriteTxt(Path.Combine(sub, "continents", g.Key), g.ToList());
+                await WriteTxt(Path.Combine(sub, "continents", g.Key), SelectBestEndpointProfiles(g));
                 LogSuccess($"  → continents/{g.Key} ({g.Count()})");
             }
 
@@ -250,7 +262,7 @@ namespace ProxyCollector.Collector
             // NekoBox's JSON parser has a bug with WireGuard outbounds, so we output
             // Clash YAML which NekoBox parses perfectly. The official WireGuard app
             // imports .conf files. We output BOTH so either client can use the data.
-            var wgNodes = proxies.Where(x => x.Proto == "wireguard").ToList();
+            var wgNodes = SelectBestEndpointProfiles(proxies.Where(x => x.Proto == "wireguard"));
             if (wgNodes.Count > 0)
             {
                 var wgDir = Path.Combine(sub, "wireguard");
@@ -551,6 +563,11 @@ namespace ProxyCollector.Collector
             3 => "full-proxy-roundtrip",
             2 => "partial-connectivity",
             1 => "source-tested-only",
+            _ when p.IsStable && p.SourceCount >= 2 => "stable-and-multi-source",
+            _ when p.IsStable => "stable-across-runs",
+            _ when p.SourceCount >= 2 && p.Streak >= 2 => "multi-source-and-persistent",
+            _ when p.SourceCount >= 2 => "multi-source-corroborated",
+            _ when IsTopProbeLimitedProtocol(p) && p.SourceCount > 0 => "probe-limited-source-candidate",
             _ => "no-positive-evidence"
         };
 
@@ -559,14 +576,66 @@ namespace ProxyCollector.Collector
 
         internal static string GetVerificationStatus(FinalProxy p) => p.VerificationStatus;
 
+        // The top feed has three explicit evidence lanes. Current full round trips
+        // lead, partial TLS/edge checks remain competitive, and source-tested or
+        // historically persistent nodes retain a reserved lane instead of being
+        // starved by a large Xray pass pool.
+        internal static int GetTopEvidenceLane(FinalProxy p) =>
+            p.XrayVerified ? 0 :
+            (p.TlsVerified || p.EdgeVerified) ? 1 : 2;
+
+        internal static string GetTopEvidenceLaneName(FinalProxy p) =>
+            GetTopEvidenceLane(p) switch
+            {
+                0 => "full-roundtrip",
+                1 => "partial-connectivity",
+                _ => "source-stability-or-probe-limited"
+            };
+
+        // These protocols use QUIC/UDP or a protocol-native tunnel and are outside
+        // the current TCP/TLS and Xray probe coverage. They may enter the reserved
+        // source/stability lane, but are never mislabeled as currently verified.
+        internal static bool IsTopProbeLimitedProtocol(FinalProxy p)
+        {
+            string proto = NormalizeProto(p.Proto);
+            return proto is "hysteria" or "hysteria2" or "tuic" or
+                "juicity" or "wireguard" or "mieru";
+        }
+
+        internal static int CalculateTopSelectionScore(FinalProxy p)
+        {
+            int score = p.Score;
+            if (p.IsStable) score += 20;
+            score += Math.Min(Math.Max(p.Streak, 0), 5) * 2;
+            score += Math.Min(Math.Max(p.SourceCount - 1, 0), 8) * 3;
+            score += Math.Min(Math.Max(p.VerifiedStreak, 0), 3);
+            score += Math.Min(Math.Max(p.XrayStreak, 0), 3) * 2;
+            if (p.TlsTested && !p.TlsVerified) score -= 20;
+            if (p.XrayTested && !p.XrayVerified) score -= 25;
+            if (p.EdgeTested && !p.EdgeVerified) score -= 15;
+            return score;
+        }
+
         internal static List<FinalProxy> RankTopCandidates(IEnumerable<FinalProxy> proxies) =>
             proxies
-                .Where(x => x.TlsVerified || x.IranTested || x.XrayVerified || x.EdgeVerified)
-                .OrderByDescending(x => x.EvidenceTier)
-                .ThenByDescending(x => x.Score)
+                .Where(x => x.XrayVerified || x.TlsVerified || x.EdgeVerified || x.IranTested ||
+                    x.IsStable || x.SourceCount >= 2 ||
+                    (IsTopProbeLimitedProtocol(x) && x.SourceCount > 0))
+                .OrderBy(GetTopEvidenceLane)
+                .ThenByDescending(CalculateTopSelectionScore)
                 .ThenByDescending(x => x.SourceCount)
-                .ThenByDescending(x => x.XrayVerified)
-                .ThenByDescending(x => x.TlsVerified)
+                .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
+                .ToList();
+
+        internal static List<FinalProxy> RankTopIpv6Candidates(IEnumerable<FinalProxy> proxies) =>
+            proxies
+                .Where(x => x.XrayVerified || x.TlsVerified || x.EdgeVerified || x.IranTested ||
+                    x.IsStable || x.SourceCount >= 2 ||
+                    (IsTopProbeLimitedProtocol(x) && x.SourceCount > 0))
+                .OrderBy(GetTopEvidenceLane)
+                .ThenByDescending(CalculateTopSelectionScore)
+                .ThenByDescending(x => x.SourceCount)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .ToList();
@@ -626,6 +695,140 @@ namespace ProxyCollector.Collector
             return Math.Min(outputCount, Math.Max(shareCap, balancedCap));
         }
 
+        // Endpoint profile identity excludes access credentials except for WireGuard,
+        // where the private key defines a different local tunnel interface. Parsed
+        // candidates carry this key from the single canonical identity implementation.
+        internal static string GetFinalConnectionIdentityKey(FinalProxy p)
+        {
+            if (!string.IsNullOrWhiteSpace(p.ConnectionIdentityKey))
+                return p.ConnectionIdentityKey;
+
+            // Test fixtures and older serialized snapshots may not carry the parsed key.
+            // Reconstruct exact configuration identity from the service profile plus its
+            // credential (WireGuard already includes its private key in the profile).
+            string credential = NormalizeProto(p.Proto) == "wireguard" ? "" : p.Credential ?? "";
+            return JsonSerializer.Serialize(new[] { GetTopEndpointProfileKey(p), credential });
+        }
+
+        internal static List<FinalProxy> DeduplicateFinalProxies(IEnumerable<FinalProxy> proxies)
+        {
+            var groups = proxies
+                .Where(p => !string.IsNullOrWhiteSpace(p.Link))
+                .GroupBy(GetFinalConnectionIdentityKey, StringComparer.Ordinal)
+                .ToList();
+
+            var result = new List<FinalProxy>(groups.Count);
+            foreach (var group in groups)
+            {
+                var items = group.ToList();
+                var winner = items
+                    .OrderByDescending(x => x.EvidenceTier)
+                    .ThenByDescending(CalculateTopSelectionScore)
+                    .ThenByDescending(x => x.SourceCount)
+                    .ThenBy(x => x.Link, StringComparer.Ordinal)
+                    .First();
+
+                // Preserve all corroborated metadata when two representations collapse
+                // to one exact connection configuration.
+                winner.IranTested |= items.Any(x => x.IranTested);
+                winner.IsStable |= items.Any(x => x.IsStable);
+                winner.TlsTested |= items.Any(x => x.TlsTested);
+                winner.TlsVerified |= items.Any(x => x.TlsVerified);
+                winner.XrayTested |= items.Any(x => x.XrayTested);
+                winner.XrayVerified |= items.Any(x => x.XrayVerified);
+                winner.EdgeTested |= items.Any(x => x.EdgeTested);
+                winner.EdgeVerified |= items.Any(x => x.EdgeVerified);
+                winner.SourceCount = items.Max(x => x.SourceCount);
+                winner.Streak = items.Max(x => x.Streak);
+                winner.VerifiedStreak = items.Max(x => x.VerifiedStreak);
+                winner.XrayStreak = items.Max(x => x.XrayStreak);
+                winner.Score = items.Max(x => x.Score);
+                result.Add(winner);
+            }
+
+            return result
+                .OrderBy(x => x.Host, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Proto, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Port, StringComparer.Ordinal)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
+                .ToList();
+        }
+
+        // Compact category feeds use one best representative per connection profile.
+        // The master catalogue still retains distinct credentials as distinct configs.
+        internal static int GetVerifiedSnapshotReplacementFloor(int previousVerifiedCount) =>
+            previousVerifiedCount <= 0
+                ? 1
+                : Math.Max(25, (int)Math.Ceiling(previousVerifiedCount * 0.20));
+
+        internal static bool ShouldReplaceVerifiedSnapshot(int currentVerifiedCount, int previousVerifiedCount) =>
+            currentVerifiedCount >= GetVerifiedSnapshotReplacementFloor(previousVerifiedCount);
+
+        internal static List<FinalProxy> SelectCurrentVerifiedProfiles(IEnumerable<FinalProxy> candidates)
+            => SelectBestEndpointProfiles(candidates.Where(x => x.XrayVerified));
+
+        internal static List<FinalProxy> SelectBestEndpointProfiles(IEnumerable<FinalProxy> candidates)
+            => candidates
+                .Where(x => !string.IsNullOrWhiteSpace(x.Link))
+                .GroupBy(GetTopEndpointProfileKey, StringComparer.Ordinal)
+                .Select(group => group
+                    .OrderByDescending(x => x.XrayVerified)
+                    .ThenByDescending(x => x.TlsVerified || x.EdgeVerified)
+                    .ThenByDescending(x => x.IranTested)
+                    .ThenByDescending(x => x.IsStable)
+                    .ThenByDescending(x => x.XrayStreak)
+                    .ThenByDescending(x => x.VerifiedStreak)
+                    .ThenByDescending(CalculateTopSelectionScore)
+                    .ThenByDescending(x => x.SourceCount)
+                    .ThenBy(x => x.Link, StringComparer.Ordinal)
+                    .First())
+                .OrderBy(x => x.Host, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Proto, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Port, StringComparer.Ordinal)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
+                .ToList();
+
+        internal static string GetTopEndpointProfileKey(FinalProxy p)
+        {
+            if (!string.IsNullOrWhiteSpace(p.SelectionProfileKey))
+                return p.SelectionProfileKey;
+
+            string host = NormalizeIdentityHost(p.Host);
+            string port = (p.Port ?? "").Trim();
+            if ((host.Length == 0 || port.Length == 0) &&
+                Uri.TryCreate(p.Link, UriKind.Absolute, out var uri))
+            {
+                if (host.Length == 0) host = uri.Host.Trim('[', ']').TrimEnd('.').ToLowerInvariant();
+                if (port.Length == 0 && !uri.IsDefaultPort) port = uri.Port.ToString(CultureInfo.InvariantCulture);
+            }
+            if (int.TryParse(port, NumberStyles.Integer, CultureInfo.InvariantCulture, out int portNumber))
+                port = portNumber.ToString(CultureInfo.InvariantCulture);
+
+            string protocol = NormalizeProto(p.Proto);
+            string sni = string.IsNullOrWhiteSpace(p.Sni) ? host : NormalizeIdentityHost(p.Sni);
+            string rawCredential = p.Credential ?? "";
+            string credential = protocol == "wireguard"
+                ? rawCredential
+                : (protocol is "ss" or "ssr") && rawCredential.Contains(':')
+                    ? rawCredential[..rawCredential.IndexOf(':')].ToLowerInvariant()
+                    : "";
+            string network = string.IsNullOrWhiteSpace(p.Network) ? "tcp" : p.Network.Trim().ToLowerInvariant();
+            string security = string.IsNullOrWhiteSpace(p.Security) ? "none" : p.Security.Trim().ToLowerInvariant();
+            string path = (p.Path ?? "").Trim();
+            string flow = (p.Flow ?? "").Trim().ToLowerInvariant();
+            string realityKey = TryNormalizeRealityPublicKey(p.Pbk, out var normalizedRealityKey)
+                ? normalizedRealityKey : (p.Pbk ?? "").Trim();
+            string realityId = (p.Sid ?? "").Trim().ToLowerInvariant();
+            string obfuscation = (p.ObfsPassword ?? "").Trim();
+            string alterId = p.Aid.ToString(CultureInfo.InvariantCulture);
+            string options = (p.ConnectionOptionsKey ?? "").Trim();
+            return JsonSerializer.Serialize(new[]
+            {
+                protocol, host, port, credential, sni, network, security, path,
+                flow, realityKey, realityId, obfuscation, alterId, options
+            });
+        }
+
         internal static List<FinalProxy> SelectTopWithIpv6Diversity(
             IReadOnlyList<FinalProxy> rankedCandidates,
             ISet<string> ipv6Links,
@@ -637,81 +840,267 @@ namespace ProxyCollector.Collector
                 throw new ArgumentOutOfRangeException(nameof(ipv6SharePercent));
 
             var ranked = rankedCandidates
-                .GroupBy(x => x.Link, StringComparer.Ordinal)
-                .Select(g => g.First())
-                .OrderByDescending(x => x.EvidenceTier)
-                .ThenByDescending(x => x.Score)
+                .Where(x => !string.IsNullOrWhiteSpace(x.Link))
+                .GroupBy(GetTopEndpointProfileKey, StringComparer.Ordinal)
+                .Select(group => group
+                    // When credentials share one service profile, retain the IPv6-capable
+                    // representative if the profile is dual-stack; otherwise the IPv6
+                    // reservation could be lost before selection even begins.
+                    .OrderByDescending(x => ipv6Links.Contains(x.Link))
+                    .ThenByDescending(x => x.XrayVerified)
+                    .ThenByDescending(x => x.TlsVerified || x.EdgeVerified)
+                    .ThenByDescending(x => x.IranTested)
+                    .ThenByDescending(x => x.IsStable)
+                    .ThenByDescending(x => x.XrayStreak)
+                    .ThenByDescending(x => x.VerifiedStreak)
+                    .ThenByDescending(CalculateTopSelectionScore)
+                    .ThenByDescending(x => x.SourceCount)
+                    .ThenBy(x => x.Link, StringComparer.Ordinal)
+                    .First())
+                .OrderBy(GetTopEvidenceLane)
+                .ThenByDescending(CalculateTopSelectionScore)
                 .ThenByDescending(x => x.SourceCount)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .ToList();
+
             int outputCount = Math.Min(maxCount, ranked.Count);
-            int ipv6Target = (int)Math.Ceiling(outputCount * (ipv6SharePercent / 100.0));
+            if (outputCount == 0) return new List<FinalProxy>();
+            int ipv6Target = (int)Math.Ceiling(outputCount * ipv6SharePercent / 100.0);
             int sourceCap = DiversityCap(ranked, x => x.SourceGroup, outputCount, 5);
-            int providerCap = DiversityCap(ranked, x => x.ProviderGroup, outputCount, 10);
-            int hostnameCap = DiversityCap(ranked, x => x.HostGroup, outputCount, 5);
-            int transportCap = DiversityCap(ranked, x => x.TransportGroup, outputCount, 25);
+            int providerCap = DiversityCap(ranked, x => x.ProviderGroup, outputCount, 8);
+            int hostnameCap = DiversityCap(ranked, x => x.HostGroup, outputCount, 2);
+            int transportCap = DiversityCap(ranked, x => x.TransportGroup, outputCount, 30);
+            int protocolCap = DiversityCap(ranked, x => NormalizeProto(x.Proto), outputCount, 60);
 
             var selected = new List<FinalProxy>(outputCount);
-            var selectedLinks = new HashSet<string>(StringComparer.Ordinal);
+            var profiles = new HashSet<string>(StringComparer.Ordinal);
             var sourceCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var providerCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var hostnameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var transportCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var protocolCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-            bool CanAdd(FinalProxy candidate, bool enforceCaps)
+            static bool WithinCap(Dictionary<string, int> counts, string group, int cap) =>
+                string.IsNullOrWhiteSpace(group) ||
+                !counts.TryGetValue(group, out int count) || count < cap;
+
+            bool TryAdd(FinalProxy candidate)
             {
-                if (selectedLinks.Contains(candidate.Link)) return false;
-                if (!enforceCaps) return true;
-                static bool WithinCap(Dictionary<string, int> counts, string group, int cap) =>
-                    string.IsNullOrWhiteSpace(group) || !counts.TryGetValue(group, out int count) || count < cap;
-                return WithinCap(sourceCounts, candidate.SourceGroup, sourceCap)
-                    && WithinCap(providerCounts, candidate.ProviderGroup, providerCap)
-                    && WithinCap(hostnameCounts, candidate.HostGroup, hostnameCap)
-                    && WithinCap(transportCounts, candidate.TransportGroup, transportCap);
+                string profile = GetTopEndpointProfileKey(candidate);
+                if (selected.Count >= outputCount || profiles.Contains(profile)) return false;
+                string hostname = candidate.HostGroup;
+                string protocol = NormalizeProto(candidate.Proto);
+                if (!WithinCap(sourceCounts, candidate.SourceGroup, sourceCap) ||
+                    !WithinCap(providerCounts, candidate.ProviderGroup, providerCap) ||
+                    !WithinCap(hostnameCounts, hostname, hostnameCap) ||
+                    !WithinCap(transportCounts, candidate.TransportGroup, transportCap) ||
+                    !WithinCap(protocolCounts, protocol, protocolCap))
+                    return false;
+
+                profiles.Add(profile);
+                selected.Add(candidate);
+                static void Bump(Dictionary<string, int> counts, string group)
+                {
+                    if (string.IsNullOrWhiteSpace(group)) return;
+                    counts.TryGetValue(group, out int count);
+                    counts[group] = count + 1;
+                }
+                Bump(sourceCounts, candidate.SourceGroup);
+                Bump(providerCounts, candidate.ProviderGroup);
+                Bump(hostnameCounts, hostname);
+                Bump(transportCounts, candidate.TransportGroup);
+                Bump(protocolCounts, protocol);
+                return true;
             }
 
-            void AddCandidates(IEnumerable<FinalProxy> candidates, int limit, bool enforceCaps = true)
+            int Add(IEnumerable<FinalProxy> candidates, int limit)
             {
                 int added = 0;
                 foreach (var candidate in candidates)
                 {
                     if (selected.Count >= outputCount || added >= limit) break;
-                    if (!CanAdd(candidate, enforceCaps)) continue;
-                    selected.Add(candidate);
-                    selectedLinks.Add(candidate.Link);
-                    added++;
-                    static void Bump(Dictionary<string, int> counts, string group)
-                    {
-                        if (string.IsNullOrWhiteSpace(group)) return;
-                        counts.TryGetValue(group, out int current);
-                        counts[group] = current + 1;
-                    }
-                    Bump(sourceCounts, candidate.SourceGroup);
-                    Bump(providerCounts, candidate.ProviderGroup);
-                    Bump(hostnameCounts, candidate.HostGroup);
-                    Bump(transportCounts, candidate.TransportGroup);
+                    if (TryAdd(candidate)) added++;
                 }
+                return added;
             }
 
-            var ipv6Candidates = ranked.Where(x => ipv6Links.Contains(x.Link)).ToList();
-            AddCandidates(ipv6Candidates, ipv6Target);
-            int selectedIpv6 = selected.Count(x => ipv6Links.Contains(x.Link));
-            if (selectedIpv6 < ipv6Target)
-                AddCandidates(ipv6Candidates, ipv6Target - selectedIpv6, enforceCaps: false);
-
-            AddCandidates(ranked.Where(x => !ipv6Links.Contains(x.Link)), outputCount - selected.Count);
-            AddCandidates(ranked, outputCount - selected.Count);
-            if (selected.Count < outputCount && selected.Count(x => ipv6Links.Contains(x.Link)) < ipv6Target)
+            var lanes = new[]
             {
-                selectedIpv6 = selected.Count(x => ipv6Links.Contains(x.Link));
-                AddCandidates(ipv6Candidates, ipv6Target - selectedIpv6, enforceCaps: false);
+                ranked.Where(x => GetTopEvidenceLane(x) == 0).ToList(),
+                ranked.Where(x => GetTopEvidenceLane(x) == 1).ToList(),
+                ranked.Where(x => GetTopEvidenceLane(x) == 2).ToList()
+            };
+            int fullTarget = (int)Math.Round(outputCount * 0.55, MidpointRounding.AwayFromZero);
+            int partialTarget = (int)Math.Round(outputCount * 0.30, MidpointRounding.AwayFromZero);
+            int sourceTarget = outputCount - fullTarget - partialTarget;
+            int[] targets = { fullTarget, partialTarget, sourceTarget };
+
+            int remainingIpv6 = ipv6Target;
+            for (int lane = 0; lane < lanes.Length && remainingIpv6 > 0; lane++)
+            {
+                int laneQuota = Math.Min(remainingIpv6, targets[lane]);
+                int added = Add(lanes[lane].Where(x => ipv6Links.Contains(x.Link)), laneQuota);
+                remainingIpv6 -= added;
             }
-            AddCandidates(ranked, outputCount - selected.Count, enforceCaps: false);
+
+            int nativeTarget = Math.Min(sourceTarget, (int)Math.Ceiling(outputCount * 0.10));
+            int nativeAlready = selected.Count(x => GetTopEvidenceLane(x) == 2 && IsTopProbeLimitedProtocol(x));
+            if (nativeAlready < nativeTarget)
+                Add(lanes[2].Where(IsTopProbeLimitedProtocol), nativeTarget - nativeAlready);
+
+            for (int lane = 0; lane < lanes.Length && selected.Count < outputCount; lane++)
+            {
+                int already = selected.Count(x => GetTopEvidenceLane(x) == lane);
+                int remaining = Math.Max(0, targets[lane] - already);
+                if (remaining > 0) Add(lanes[lane], remaining);
+            }
+
+            // Scarce lanes are backfilled in evidence order without bypassing any cap.
+            if (selected.Count < outputCount) Add(ranked, outputCount - selected.Count);
 
             return selected
-                .OrderByDescending(x => x.EvidenceTier)
-                .ThenByDescending(x => x.Score)
+                .OrderBy(GetTopEvidenceLane)
+                .ThenByDescending(CalculateTopSelectionScore)
+                .ThenByDescending(x => x.SourceCount)
+                .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
+                .ToList();
+        }
+
+        // IPv6-only precision selector. The candidate pool is prefiltered by resolved
+        // IPv6 address family; this selector then enforces profile, evidence and diversity
+        // rules without falling back to IPv4-only entries.
+        internal static List<FinalProxy> SelectTopIpv6Profiles(
+            IReadOnlyList<FinalProxy> rankedCandidates,
+            ISet<string> ipv6Links,
+            int maxCount = 1000)
+        {
+            if (maxCount <= 0 || rankedCandidates.Count == 0)
+                return new List<FinalProxy>();
+
+            var ranked = rankedCandidates
+                .Where(x => !string.IsNullOrWhiteSpace(x.Link) && ipv6Links.Contains(x.Link))
+                .GroupBy(GetTopEndpointProfileKey, StringComparer.Ordinal)
+                .Select(group => group
+                    .OrderByDescending(x => x.XrayVerified)
+                    .ThenByDescending(x => x.TlsVerified || x.EdgeVerified)
+                    .ThenByDescending(x => x.IranTested)
+                    .ThenByDescending(x => x.IsStable)
+                    .ThenByDescending(x => x.XrayStreak)
+                    .ThenByDescending(x => x.VerifiedStreak)
+                    .ThenByDescending(CalculateTopSelectionScore)
+                    .ThenByDescending(x => x.SourceCount)
+                    .ThenBy(x => x.Link, StringComparer.Ordinal)
+                    .First())
+                .OrderBy(GetTopEvidenceLane)
+                .ThenByDescending(CalculateTopSelectionScore)
+                .ThenByDescending(x => x.SourceCount)
+                .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Link, StringComparer.Ordinal)
+                .ToList();
+
+            int outputCount = Math.Min(maxCount, ranked.Count);
+            if (outputCount == 0) return new List<FinalProxy>();
+
+            // Hard caps apply to every pass. When the candidate pool cannot provide
+            // 1,000 distinct, diverse profiles, publish fewer instead of duplicating.
+            int sourceCap = DiversityCap(ranked, x => x.SourceGroup, outputCount, 5);
+            int providerCap = DiversityCap(ranked, x => x.ProviderGroup, outputCount, 8);
+            int hostnameCap = DiversityCap(ranked, x => x.HostGroup, outputCount, 2);
+            int transportCap = DiversityCap(ranked, x => x.TransportGroup, outputCount, 30);
+            int protocolCap = DiversityCap(ranked, x => NormalizeProto(x.Proto), outputCount, 60);
+
+            var selected = new List<FinalProxy>(outputCount);
+            var selectedProfiles = new HashSet<string>(StringComparer.Ordinal);
+            var sourceCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var providerCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var hostnameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var transportCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var protocolCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+            static bool WithinCap(Dictionary<string, int> counts, string group, int cap) =>
+                string.IsNullOrWhiteSpace(group) ||
+                !counts.TryGetValue(group, out int count) || count < cap;
+
+            bool TryAdd(FinalProxy candidate)
+            {
+                if (selected.Count >= outputCount) return false;
+                string profile = GetTopEndpointProfileKey(candidate);
+                if (selectedProfiles.Contains(profile)) return false;
+
+                string protocol = NormalizeProto(candidate.Proto);
+                if (!WithinCap(sourceCounts, candidate.SourceGroup, sourceCap) ||
+                    !WithinCap(providerCounts, candidate.ProviderGroup, providerCap) ||
+                    !WithinCap(hostnameCounts, candidate.HostGroup, hostnameCap) ||
+                    !WithinCap(transportCounts, candidate.TransportGroup, transportCap) ||
+                    !WithinCap(protocolCounts, protocol, protocolCap))
+                    return false;
+
+                selectedProfiles.Add(profile);
+                selected.Add(candidate);
+
+                static void Bump(Dictionary<string, int> counts, string group)
+                {
+                    if (string.IsNullOrWhiteSpace(group)) return;
+                    counts.TryGetValue(group, out int current);
+                    counts[group] = current + 1;
+                }
+                Bump(sourceCounts, candidate.SourceGroup);
+                Bump(providerCounts, candidate.ProviderGroup);
+                Bump(hostnameCounts, candidate.HostGroup);
+                Bump(transportCounts, candidate.TransportGroup);
+                Bump(protocolCounts, protocol);
+                return true;
+            }
+
+            int AddCandidates(IEnumerable<FinalProxy> candidates, int limit)
+            {
+                int added = 0;
+                foreach (var candidate in candidates)
+                {
+                    if (selected.Count >= outputCount || added >= limit) break;
+                    if (TryAdd(candidate)) added++;
+                }
+                return added;
+            }
+
+            var lanes = new[]
+            {
+                ranked.Where(x => GetTopEvidenceLane(x) == 0).ToList(),
+                ranked.Where(x => GetTopEvidenceLane(x) == 1).ToList(),
+                ranked.Where(x => GetTopEvidenceLane(x) == 2).ToList()
+            };
+
+            // 55% full round-trip / 30% partial connectivity / 15% source-stability.
+            // Reallocate an underfilled lane only after the other lanes have had a chance.
+            int fullTarget = (int)Math.Round(outputCount * 0.55, MidpointRounding.AwayFromZero);
+            int partialTarget = (int)Math.Round(outputCount * 0.30, MidpointRounding.AwayFromZero);
+            int sourceTarget = outputCount - fullTarget - partialTarget;
+
+            // Reserve up to 10% of the source lane for QUIC and native-tunnel protocols
+            // that the current TCP/TLS/Xray adapters cannot test.
+            int nativeTarget = Math.Min(sourceTarget,
+                (int)Math.Ceiling(outputCount * 0.10));
+            AddCandidates(lanes[2].Where(IsTopProbeLimitedProtocol), nativeTarget);
+
+            int[] laneTargets = { fullTarget, partialTarget, sourceTarget };
+            for (int lane = 0; lane < lanes.Length && selected.Count < outputCount; lane++)
+            {
+                int alreadySelected = selected.Count(x => GetTopEvidenceLane(x) == lane);
+                int remaining = Math.Max(0, laneTargets[lane] - alreadySelected);
+                if (remaining > 0)
+                    AddCandidates(lanes[lane], remaining);
+            }
+
+            // Reallocate any unused lane capacity in evidence order while maintaining
+            // all source/provider/hostname/transport/protocol limits.
+            if (selected.Count < outputCount)
+                AddCandidates(ranked, outputCount - selected.Count);
+
+            return selected
+                .OrderBy(GetTopEvidenceLane)
+                .ThenByDescending(CalculateTopSelectionScore)
                 .ThenByDescending(x => x.SourceCount)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(x => x.Link, StringComparer.Ordinal)
@@ -727,7 +1116,7 @@ namespace ProxyCollector.Collector
         {
             var topLinks = top.Select(x => x.Link).ToHashSet(StringComparer.Ordinal);
             var topIpv6Links = topIpv6.Select(x => x.Link).ToHashSet(StringComparer.Ordinal);
-            const string header = "diagnostic_rank,node_id,host,port,protocol,evidence_tier,evidence_level,verification_status,score,tls_status,xray_status,edge_status,source_tested,source_count,source_group,provider_group,hostname_group,transport_group,presence_streak,tls_success_streak,xray_success_streak,in_top_txt,in_top_ipv6_txt";
+            const string header = "diagnostic_rank,node_id,host,port,protocol,evidence_tier,evidence_level,selection_lane,top_selection_score,probe_limited_protocol,stable,verification_status,score,tls_status,xray_status,edge_status,source_tested,source_count,source_group,provider_group,hostname_group,transport_group,presence_streak,tls_success_streak,xray_success_streak,in_top_txt,in_top_ipv6_txt";
 
             // The report grows with every collected node. Stream it directly through
             // gzip instead of keeping a 70–100+ MiB StringBuilder and plain CSV blob
@@ -745,7 +1134,11 @@ namespace ProxyCollector.Collector
                         (i + 1).ToString(CultureInfo.InvariantCulture),
                         EscapeRankingCsv(p.NodeId), EscapeRankingCsv(p.Host), EscapeRankingCsv(p.Port),
                         EscapeRankingCsv(p.Proto), p.EvidenceTier.ToString(CultureInfo.InvariantCulture),
-                        EscapeRankingCsv(GetEvidenceLevel(p)), EscapeRankingCsv(p.VerificationStatus),
+                        EscapeRankingCsv(GetEvidenceLevel(p)), EscapeRankingCsv(GetTopEvidenceLaneName(p)),
+                        CalculateTopSelectionScore(p).ToString(CultureInfo.InvariantCulture),
+                        IsTopProbeLimitedProtocol(p) ? "true" : "false",
+                        p.IsStable ? "true" : "false",
+                        EscapeRankingCsv(p.VerificationStatus),
                         p.Score.ToString(CultureInfo.InvariantCulture),
                         EscapeRankingCsv(GetTestStatus(p.TlsTested, p.TlsVerified)),
                         EscapeRankingCsv(GetTestStatus(p.XrayTested, p.XrayVerified)),
@@ -892,17 +1285,23 @@ namespace ProxyCollector.Collector
                 LogInfo($"Ranking calibration baseline kept unchanged: only {nextNodes.Count} actual Xray attempts (need 50 to refresh).");
         }
 
-        private async Task<List<FinalProxy>> FilterByFamilyAsync(List<FinalProxy> proxies, AddressFamily family)
+        private async Task<(List<FinalProxy> Ipv4, List<FinalProxy> Ipv6)> FilterByFamiliesAsync(
+            IReadOnlyList<FinalProxy> proxies)
         {
-            var result = new List<FinalProxy>();
-            foreach (var x in proxies)
+            var ipv4 = new List<FinalProxy>();
+            var ipv6 = new List<FinalProxy>();
+            foreach (var proxy in proxies)
             {
-                var addresses = IPAddress.TryParse(x.Host, out var literal)
+                var addresses = IPAddress.TryParse(proxy.Host, out var literal)
                     ? new[] { literal }
-                    : await Resolver.ResolveAllAsync(x.Host); // cached full A/AAAA set from GeoIP stage
-                if (HasAddressFamily(addresses, family)) result.Add(x);
+                    : await Resolver.ResolveAllAsync(proxy.Host); // cached full A/AAAA set from GeoIP stage
+
+                if (HasAddressFamily(addresses, AddressFamily.InterNetwork))
+                    ipv4.Add(proxy);
+                if (HasAddressFamily(addresses, AddressFamily.InterNetworkV6))
+                    ipv6.Add(proxy);
             }
-            return result;
+            return (ipv4, ipv6);
         }
 
         // ====================== WIREGUARD CONF DECODER (v6.16) ======================
@@ -1038,12 +1437,21 @@ namespace ProxyCollector.Collector
         }
 
         internal static List<string> DeduplicateFallbackLinks(IEnumerable<string> links)
-            => links
-                .Where(link => !string.IsNullOrWhiteSpace(link))
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(link => link, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(link => link, StringComparer.Ordinal)
-                .ToList();
+        {
+            var result = new List<string>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (string raw in links)
+            {
+                string link = (raw ?? "").Trim();
+                if (link.Length == 0) continue;
+                var parsed = ParseProxyLine(link);
+                string key = parsed?.SelectionProfileKey ?? "raw:" + link;
+                // Last-good snapshots are stored in evidence order. Preserve the first
+                // viable representative instead of alphabetizing away that ranking.
+                if (seen.Add(key)) result.Add(link);
+            }
+            return result;
+        }
 
         internal static List<IGrouping<string, FinalProxy>> GetRawProtocolGroups(
             IEnumerable<FinalProxy> proxies)

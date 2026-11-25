@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -115,7 +116,8 @@ namespace ProxyCollector.Collector
                         Protocol = "vmess", Host = host, Port = port,
                         Credential = uuid, Network = net, Security = tls,
                         Sni = sni, Path = path, Aid = aid, BaseLink = baseLink,
-                        ConnectionOptionsKey = BuildJsonIdentityKey(r)
+                        ConnectionOptionsKey = BuildJsonIdentityKey(r, excludeNormalizedFields: true),
+                        LegacyConnectionOptionsKey = BuildJsonIdentityKey(r)
                     };
                 }
                 catch { /* fall through to URI-form attempt below */ }
@@ -146,7 +148,10 @@ namespace ProxyCollector.Collector
                         Network = net, Security = sec,
                         Sni = sni, Path = q.GetValueOrDefault("path", "").TrimEnd('/'),
                         Aid = int.TryParse(q.GetValueOrDefault("aid", "0"), out var a) ? a : 0,
-                        BaseLink = baseLink, ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
+                        BaseLink = baseLink,
+                        ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query,
+                            "security", "type", "sni", "path", "aid"),
+                        LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                     };
                 }
                 catch { return null; }
@@ -221,7 +226,10 @@ namespace ProxyCollector.Collector
                     Flow       = flow,
                     ObfsPassword = obfsPwd,
                     BaseLink   = baseLink,
-                    ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
+                    ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query,
+                        "security", "type", "sni", "path", "pbk", "sid", "flow",
+                        "obfs-password", "auth"),
+                    LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                 };
             }
             catch { return null; }
@@ -303,7 +311,9 @@ namespace ProxyCollector.Collector
                     Network = protocol, Security = obfs,
                     Sni = "", Path = extra,
                     BaseLink = baseLink,
-                    ConnectionOptionsKey = BuildQueryIdentityKey(query, "remarks", "remarks_base64")
+                    ConnectionOptionsKey = BuildQueryIdentityKey(query,
+                        "remarks", "remarks_base64", "obfsparam", "protoparam"),
+                    LegacyConnectionOptionsKey = BuildQueryIdentityKey(query, "remarks", "remarks_base64")
                 };
             }
             catch { return null; }
@@ -380,7 +390,9 @@ namespace ProxyCollector.Collector
                         Credential = $"{method}:{password}",
                         Network = "tcp", Security = "",
                         Sni = q.GetValueOrDefault("host", ""), Path = "",
-                        BaseLink = baseLink, ConnectionOptionsKey = BuildQueryIdentityKey(query)
+                        BaseLink = baseLink,
+                        ConnectionOptionsKey = BuildQueryIdentityKey(query, "host"),
+                        LegacyConnectionOptionsKey = BuildQueryIdentityKey(query)
                     };
                 }
 
@@ -411,7 +423,7 @@ namespace ProxyCollector.Collector
                     Protocol = "ss", Host = host2, Port = port2,
                     Credential = $"{method2}:{password2}",
                     Network = "tcp", Security = "", Sni = "", Path = "",
-                    BaseLink = baseLink
+                    BaseLink = baseLink, ConnectionOptionsKey = "", LegacyConnectionOptionsKey = ""
                 };
             }
             catch { return null; }
@@ -447,17 +459,25 @@ namespace ProxyCollector.Collector
             return JsonSerializer.Serialize(canonical);
         }
 
-        private static string BuildJsonIdentityKey(JsonElement root)
+        private static string BuildJsonIdentityKey(JsonElement root, bool excludeNormalizedFields = false)
         {
             if (root.ValueKind != JsonValueKind.Object) return "";
-            // VMess "ps" is its display remark, not a connection setting. Preserve every
-            // other property—including fields this collector does not yet understand.
+            // VMess "ps" is display-only. Fields represented in ParsedProxy separately
+            // are excluded from the option fingerprint; unknown/plugin fields are kept.
+            string[] normalizedFields =
+            {
+                "v", "add", "port", "id", "aid", "net", "tls", "sni", "path"
+            };
             var canonical = root.EnumerateObject()
-                .Where(property => !property.Name.Equals("ps", StringComparison.OrdinalIgnoreCase))
-                .OrderBy(property => property.Name, StringComparer.Ordinal)
+                .Where(property =>
+                    !property.Name.Equals("ps", StringComparison.OrdinalIgnoreCase) &&
+                    (!excludeNormalizedFields ||
+                     !normalizedFields.Contains(property.Name, StringComparer.OrdinalIgnoreCase)))
+                .OrderBy(property => property.Name, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(property => property.Name, StringComparer.Ordinal)
                 .Select(property => new
                 {
-                    Name = property.Name,
+                    Name = property.Name.ToLowerInvariant(),
                     Value = property.Value.Clone()
                 })
                 .ToArray();
@@ -466,12 +486,30 @@ namespace ProxyCollector.Collector
 
         private static string NormalizeUriHost(string host)
         {
+            // Uri.Host can include brackets around IPv6 literals. ParsedProxy stores
+            // the bare address consistently for resolver, GeoIP and family checks.
             return host.Length >= 2 && host[0] == '[' && host[^1] == ']'
                 ? host[1..^1]
                 : host;
         }
 
-        private static string NormalizeProto(string proto)
+        internal static string NormalizeIdentityHost(string? host)
+        {
+            if (string.IsNullOrWhiteSpace(host)) return "";
+            string value = host.Trim().Trim('[', ']');
+            if (IPAddress.TryParse(value, out var address))
+            {
+                if (address.IsIPv4MappedToIPv6) address = address.MapToIPv4();
+                return address.ToString().ToLowerInvariant();
+            }
+
+            value = value.TrimEnd('.');
+            if (value.Length == 0) return "";
+            try { return new IdnMapping().GetAscii(value).ToLowerInvariant(); }
+            catch { return value.ToLowerInvariant(); }
+        }
+
+        internal static string NormalizeProto(string proto)
         {
             if (string.IsNullOrEmpty(proto)) return "unknown";
             proto = proto.ToLowerInvariant();

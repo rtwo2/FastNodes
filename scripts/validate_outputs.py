@@ -17,8 +17,14 @@ SCHEMES = (
 )
 SCHEME_PATTERN = "|".join(sorted((re.escape(s) for s in SCHEMES), key=len, reverse=True))
 URI_RE = re.compile(rf"^(?:{SCHEME_PATTERN})://\S+", re.IGNORECASE)
-REQUIRED = ("top.txt", "verified.txt", "everything.txt")
-EXPECTED_FILES = ("top_ipv6.txt", "ipv4_only.txt", "ipv6_only.txt")
+REQUIRED = ("top.txt", "everything.txt")
+# The committed public snapshot predates the historical-feed split. The
+# collection workflow independently requires verified_last_good.txt after a
+# fresh run, while this validator allows legacy checked-in snapshots to migrate.
+EXPECTED_FILES = (
+    "top_ipv6.txt", "ipv4_only.txt", "ipv6_only.txt",
+    "verified.txt",
+)
 MAX_TOP_LINES = 1000
 MAX_PART_BYTES = 50 * 1024 * 1024
 
@@ -286,9 +292,11 @@ def validate_tree(root: pathlib.Path, allow_legacy_oversized: bool = False) -> l
             ]
             if len(lines) != len(set(lines)):
                 raise ValidationError(f"{name} contains duplicate entries")
-    for name in ("top.txt", "verified.txt", "everything.txt"):
+    for name in ("top.txt", "everything.txt"):
         if counts.get(name, 0) == 0:
             raise ValidationError(f"{name} is empty; refusing to publish")
+    # verified.txt is a current-run result and may legitimately be empty when no
+    # full Xray round-trip succeeds. The historical fallback has its own feed.
 
     # Every _partN file must have a stable base file and a gap-free sequence
     # beginning at part 2. This also protects protocol/country/continent chunks.
@@ -341,10 +349,9 @@ def validate_tree(root: pathlib.Path, allow_legacy_oversized: bool = False) -> l
             f"ipv6_only.txt; sample: {sample!r}"
         )
 
-    # Every current-run URI feed is derived from everything.txt. Checking only the
-    # global shortlist and family feeds missed mismatched protocol, country, continent,
-    # stable, TLS and curated outputs. verified.txt is the one intentional exception
-    # because it may retain a sanitized last-good snapshot.
+    # Every current-run URI feed, including verified.txt, must be a subset of
+    # everything.txt. The historical verified_last_good.txt feed is the only
+    # intentional exception: it represents a previously successful snapshot.
     # everything.txt is the stable first part. Large collections continue in
     # everything_part2.txt, everything_part3.txt, ...; validate the sequence and
     # use every part when checking that the other feeds are subsets of the master list.
@@ -377,7 +384,7 @@ def validate_tree(root: pathlib.Path, allow_legacy_oversized: bool = False) -> l
     counts["everything.txt"] = everything_total_lines
     for path in sorted(root.rglob("*.txt")):
         rel = path.relative_to(root).as_posix()
-        if rel in {"everything.txt", "verified.txt"} or path in everything_paths[1:] or path in all_parts(root / "verified.txt")[1:]:
+        if rel == "verified_last_good.txt" or path in everything_paths[1:] or path in all_parts(root / "verified_last_good.txt")[1:]:
             continue
         lines = [
             line.strip()
@@ -398,7 +405,8 @@ def validate_tree(root: pathlib.Path, allow_legacy_oversized: bool = False) -> l
     wireguard_conf_count = validate_wireguard_confs(root)
     report.insert(0, "Validated subscriptions: " + " ".join(
         f"{name}={counts.get(name, 0)}" for name in REQUIRED
-    ))
+    ) + f" verified_current={counts.get('verified.txt', 0)}"
+      + f" verified_last_good={counts.get('verified_last_good.txt', 0)}")
     report.append(f"Validated {len(counts)} generated .txt file(s).")
     if wireguard_conf_count:
         report.append(f"Validated {wireguard_conf_count} WireGuard .conf file(s).")
@@ -434,6 +442,8 @@ def self_test() -> None:
         (root / "top.txt").write_text(good[0] + "\n", encoding="utf-8")
         (root / "top_ipv6.txt").write_text(good[4] + "\n", encoding="utf-8")
         (root / "verified.txt").write_text(good[0] + "\n", encoding="utf-8")
+        (root / "verified_last_good.txt").write_text(
+            "vless://historical@example.org:443?security=tls\n", encoding="utf-8")
         (root / "everything.txt").write_text("\n".join(good[:3]) + "\n", encoding="utf-8")
         (root / "everything_part2.txt").write_text("\n".join(good[3:]) + "\n", encoding="utf-8")
         (root / "ipv4_only.txt").write_text(good[0] + "\n", encoding="utf-8")
@@ -473,6 +483,17 @@ def self_test() -> None:
         report = validate_tree(root)
         if not any("Validated 1 WireGuard .conf file(s)." in line for line in report):
             raise ValidationError("self-test failed to report validated WireGuard .conf output")
+
+        # Empty current-run verification is valid; the historical snapshot is separate.
+        verified_path = root / "verified.txt"
+        original_verified = verified_path.read_text(encoding="utf-8")
+        verified_path.write_text("", encoding="utf-8")
+        try:
+            validate_tree(root)
+        except ValidationError as exc:
+            raise ValidationError(f"self-test rejected empty current-run verified.txt: {exc}") from exc
+        finally:
+            verified_path.write_text(original_verified, encoding="utf-8")
 
         original_conf = wg_conf_path.read_text(encoding="utf-8")
         wg_conf_path.write_text(original_conf.replace(f"PrivateKey = {valid_key_1}", "PrivateKey = invalid"), encoding="utf-8")
@@ -533,7 +554,7 @@ def self_test() -> None:
 
         rogue_link = "vless://rogue@example.net:443?security=tls"
         for rel in (
-            "stable.txt", "verified_tls.txt", "curated.txt",
+            "stable.txt", "verified.txt", "verified_tls.txt", "curated.txt",
             "protocols/vless.txt", "countries/DE.txt", "continents/Europe.txt"
         ):
             path = root / rel

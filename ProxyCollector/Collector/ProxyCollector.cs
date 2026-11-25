@@ -2690,6 +2690,8 @@ namespace ProxyCollector.Collector
             if (pool.Count == 0) { LogInfo("Edge verification: no candidates."); return; }
 
             int ok = 0, cfBlocked = 0, refused = 0, timeouts = 0, errors = 0, dnsFails = 0, tlsFails = 0;
+            int sniUnconfirmed = 0, sniMissing = 0, sniMismatched = 0;
+            var sniUnconfirmedSamples = new ConcurrentQueue<int>();
             var edgeReasons = new ConcurrentDictionary<string, int>();
             var batches = pool.Select((p, i) => (Node: p, Idx: i))
                 .GroupBy(x => x.Idx / EdgeBatchSize).ToList();
@@ -2747,7 +2749,13 @@ namespace ProxyCollector.Collector
                                     ? sniElement.GetString() : null;
                                 if (!IsValidEdgeSniEcho(expectedSni, reportedSni, pool[id].Host))
                                 {
-                                    LogWarning($"Edge verification result for pool index {id} did not confirm the requested SNI; leaving it not-tested. Update the Worker to consume and echo target.sni when it differs from host.");
+                                    int mismatchCount = Interlocked.Increment(ref sniUnconfirmed);
+                                    if (string.IsNullOrWhiteSpace(reportedSni))
+                                        Interlocked.Increment(ref sniMissing);
+                                    else
+                                        Interlocked.Increment(ref sniMismatched);
+                                    if (mismatchCount <= 12)
+                                        sniUnconfirmedSamples.Enqueue(id);
                                     continue;
                                 }
 
@@ -2802,8 +2810,15 @@ namespace ProxyCollector.Collector
 
             LogInfo($"Edge verification: {ok}/{pool.Count} endpoints TLS-verified from the CF edge → " +
                     $"nodes promoted (+20). [cf-blocked {cfBlocked}, refused {refused}, timeout {timeouts}, dns {dnsFails}, tls-failed {tlsFails}, err {errors}] Failures are not drops.");
-            // v2: raw Worker error messages, top 8 by frequency — this is what tells us
-            // WHY the edge check fails (cert verification? SNI rejection? CF→CF blocks?).
+            if (sniUnconfirmed > 0)
+            {
+                LogWarning($"Edge verification: {sniUnconfirmed} result(s) did not confirm the requested SNI " +
+                    $"({sniMissing} missing, {sniMismatched} mismatched); affected nodes remain not-tested. " +
+                    $"Sample pool indices: {string.Join(", ", sniUnconfirmedSamples)}. " +
+                    "The external Worker must apply target.sni to the TLS handshake and return that applied value as results[].sni.");
+            }
+            // Raw Worker error messages, top 8 by frequency — this is what tells us
+            // WHY ordinary edge probe failures occur (timeouts, TLS rejection, CF→CF blocks).
             foreach (var kv in edgeReasons.OrderByDescending(k => k.Value).Take(8))
                 LogWarning($"  Edge fail reason: {kv.Key} × {kv.Value}");
         }

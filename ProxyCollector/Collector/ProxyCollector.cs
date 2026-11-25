@@ -4168,48 +4168,71 @@ namespace ProxyCollector.Collector
         // normalized fields above (for example VMess scy/fp/alpn and SS plugin options).
         // Omitting these lets different functional links collapse as identical nodes.
         public string ConnectionOptionsKey { get; set; } = "";
+        // Kept only for state/history migration from the previous identity schema.
+        public string LegacyConnectionOptionsKey { get; set; } = "";
 
-        public string DeduplicationKey
+        public string DeduplicationKey =>
+            BuildIdentityKey(Host, includeCredential: true, aliasMode: false);
+
+        // Precision feeds collapse credential variants of the same service profile.
+        // WireGuard is the exception: its private key identifies the local tunnel.
+        public string SelectionProfileKey =>
+            BuildIdentityKey(Host, includeCredential: NP(Protocol) == "wireguard", aliasMode: false);
+
+        public string EndpointKey(string canonicalHost) =>
+            BuildIdentityKey(canonicalHost, includeCredential: true, aliasMode: true);
+
+        private string BuildIdentityKey(string identityHost, bool includeCredential, bool aliasMode)
+        {
+            string protocol = NP(Protocol);
+            string hostKey = ProxyCollector.NormalizeIdentityHost(identityHost);
+            string originalHostKey = ProxyCollector.NormalizeIdentityHost(Host);
+            string portKey = int.TryParse(Port, out int pn)
+                ? pn.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                : Port.Trim();
+
+            bool implicitTlsSni = !string.IsNullOrEmpty(Security) ||
+                protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
+            string sniKey = !string.IsNullOrWhiteSpace(Sni)
+                ? ProxyCollector.NormalizeIdentityHost(Sni)
+                : implicitTlsSni ? originalHostKey : hostKey;
+            bool implicitTransportHost =
+                Network.Equals("ws", StringComparison.OrdinalIgnoreCase) ||
+                Network.Equals("httpupgrade", StringComparison.OrdinalIgnoreCase) ||
+                (Network.Equals("h2", StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(Sni));
+            string endpointHostKey = aliasMode && implicitTransportHost ? originalHostKey : hostKey;
+
+            string credential = includeCredential ? CredKey(Protocol, Credential) : "";
+            string publicKey = ProxyCollector.TryNormalizeRealityPublicKey(Pbk, out var normalizedKey)
+                ? normalizedKey : (Pbk ?? "").Trim();
+
+            // JSON framing prevents delimiters inside credentials, paths and plug-in options
+            // from creating accidental identity collisions.
+            return JsonSerializer.Serialize(new[]
+            {
+                protocol, endpointHostKey, portKey, credential,
+                (Network ?? "tcp").Trim().ToLowerInvariant(),
+                (Security ?? "").Trim().ToLowerInvariant(),
+                sniKey, Path ?? "", publicKey,
+                (Sid ?? "").Trim().ToLowerInvariant(),
+                (Flow ?? "").Trim().ToLowerInvariant(),
+                ObfsPassword ?? "",
+                Aid.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                ConnectionOptionsKey ?? ""
+            });
+        }
+
+        public string LegacyDeduplicationKey
         {
             get
             {
                 string hostKey = Host.Trim().ToLowerInvariant();
                 string portKey = int.TryParse(Port, out int pn) ? pn.ToString() : Port.Trim();
-                string sniKey  = string.IsNullOrEmpty(Sni) ? hostKey : Sni.Trim().ToLowerInvariant();
-                // v6.12: Flow and ObfsPassword appended — see ParseProxyLine. Without them,
-                // "vless://u@h:443?flow=xtls-rprx-vision" and "vless://u@h:443" collapsed
-                // into one key and one variant was silently lost.
-                return $"{NP(Protocol)}:{hostKey}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";
+                string sniKey = string.IsNullOrEmpty(Sni) ? hostKey : Sni.Trim().ToLowerInvariant();
+                return $"{NP(Protocol)}:{hostKey}:{portKey}:{LegacyCredKey(Protocol, Credential)}:" +
+                    $"{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:" +
+                    $"{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{LegacyConnectionOptionsKey}";
             }
-        }
-		
-        // Same identity as DeduplicationKey, but with the host component replaced by a
-        // caller-supplied canonical form (the resolved IP) — used by alias collapse to
-        // merge IP-literal vs hostname spellings of one endpoint.
-        public string EndpointKey(string canonicalHost)
-        {
-            string portKey = int.TryParse(Port, out int pn) ? pn.ToString() : Port.Trim();
-            string protocol = NP(Protocol);
-            bool implicitTlsSni = !string.IsNullOrEmpty(Security) ||
-                protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
-            // When TLS is enabled and SNI is omitted, clients use the original host as
-            // the effective SNI. Do not merge different TLS hostnames just because they
-            // resolve to the same IP; that can silently discard a working TLS virtual host.
-            string sniKey = !string.IsNullOrEmpty(Sni)
-                ? Sni.Trim().ToLowerInvariant()
-                : implicitTlsSni ? Host.Trim().ToLowerInvariant() : canonicalHost;
-            // WebSocket/HTTP-upgrade Host defaults to the endpoint hostname; H2 also
-            // uses it when SNI/host is omitted. Keep those implicit host identities distinct
-            // to avoid merging different virtual hosts. For WS/HTTP-upgrade this is
-            // conservative even when an explicit Host override is present.
-            bool implicitTransportHost =
-                Network.Equals("ws", StringComparison.OrdinalIgnoreCase) ||
-                Network.Equals("httpupgrade", StringComparison.OrdinalIgnoreCase) ||
-                (Network.Equals("h2", StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(Sni));
-            string endpointKeyHost = implicitTransportHost
-                ? Host.Trim().ToLowerInvariant()
-                : canonicalHost.ToLowerInvariant();
-            return $"{protocol}:{endpointKeyHost}:{portKey}:{CredKey(Protocol, Credential)}:{Network.ToLowerInvariant()}:{Security.ToLowerInvariant()}:{sniKey}:{Path}:{Pbk}:{Sid.ToLowerInvariant()}:{Flow.Trim().ToLowerInvariant()}:{ObfsPassword}:{ConnectionOptionsKey}";
         }
 
         // Case handling in the credential part of the dedup key. The old blanket
@@ -4221,6 +4244,21 @@ namespace ProxyCollector.Collector
         private static string CredKey(string proto, string cred)
         {
             proto = NP(proto);
+            // UUIDs are case-insensitive. Xray custom VLESS/VMess IDs are not.
+            if (proto is "vmess" or "vless" &&
+                Guid.TryParseExact(cred.Trim(), "D", out var uuid))
+                return uuid.ToString("D");
+            if ((proto == "ss" || proto == "ssr") && cred.Contains(':'))
+            {
+                int c = cred.IndexOf(':');
+                return cred[..c].ToLowerInvariant() + cred[c..];
+            }
+            return cred;
+        }
+
+        private static string LegacyCredKey(string proto, string cred)
+        {
+            proto = NP(proto);
             if (proto is "vmess" or "vless" or "tuic" or "juicity")
                 return cred.Trim().ToLowerInvariant();
             if ((proto == "ss" || proto == "ssr") && cred.Contains(':'))
@@ -4228,7 +4266,7 @@ namespace ProxyCollector.Collector
                 int c = cred.IndexOf(':');
                 return cred[..c].ToLowerInvariant() + cred[c..];
             }
-            return cred;   // trojan, hysteria2, naive, ... — case-sensitive passwords
+            return cred;
         }
 
         private static string NP(string p)

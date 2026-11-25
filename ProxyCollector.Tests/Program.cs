@@ -217,7 +217,7 @@ internal static class Program
             "unrelated registrable domains under the same country-code category remain independent");
         Checks.Equal("example.com", CollectorType.GetHostnameDiversityGroup("a.b.example.com"),
             "PSL grouping uses the registrable domain rather than a fixed two-label suffix");
-        Checks.Equal("foo.ck", CollectorType.GetHostnameDiversityGroup("a.foo.ck"),
+        Checks.Equal("a.foo.ck", CollectorType.GetHostnameDiversityGroup("a.foo.ck"),
             "PSL wildcard rules are honored for delegated wildcard suffixes");
         Checks.Equal("www.ck", CollectorType.GetHostnameDiversityGroup("www.ck"),
             "PSL exception rules are honored for public-suffix exceptions");

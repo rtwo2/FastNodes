@@ -698,12 +698,14 @@ namespace ProxyCollector.Collector
             if (int.TryParse(port, NumberStyles.Integer, CultureInfo.InvariantCulture, out int portNumber))
                 port = portNumber.ToString(CultureInfo.InvariantCulture);
 
+            string protocol = NormalizeTopProtocol(p.Proto);
             string sni = string.IsNullOrWhiteSpace(p.Sni) ? host : p.Sni.Trim().TrimEnd('.').ToLowerInvariant();
             string network = string.IsNullOrWhiteSpace(p.Network) ? "tcp" : p.Network.Trim().ToLowerInvariant();
             string security = string.IsNullOrWhiteSpace(p.Security) ? "none" : p.Security.Trim().ToLowerInvariant();
             string path = (p.Path ?? "").Trim();
             string flow = (p.Flow ?? "").Trim().ToLowerInvariant();
-            return string.Join("|", host, port, sni, network, security, path, flow);
+            string options = (p.ConnectionOptionsKey ?? "").Trim();
+            return string.Join("|", protocol, host, port, sni, network, security, path, flow, options);
         }
 
         private static string NormalizeTopProtocol(string protocol)

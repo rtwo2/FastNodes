@@ -1630,6 +1630,41 @@ internal static class Program
                 .Distinct(StringComparer.OrdinalIgnoreCase).Count(),
             "top output contains one entry per endpoint connection profile");
 
+        Checks.That(CollectorType.IsTlsCandidate(new ProxyCollector.Collector.ParsedProxy { Protocol = "anytls" }),
+            "AnyTLS is included in TCP/TLS handshake candidate selection");
+        Checks.That(CollectorType.IsTlsCandidate(new ProxyCollector.Collector.ParsedProxy { Protocol = "naive" }),
+            "NaiveProxy is included in TCP/TLS handshake candidate selection");
+        Checks.That(!CollectorType.IsTlsCandidate(new ProxyCollector.Collector.ParsedProxy { Protocol = "hysteria2" }),
+            "Hysteria2 is not incorrectly tested with a TCP/TLS handshake");
+        Checks.That(!CollectorType.IsTlsCandidate(new ProxyCollector.Collector.ParsedProxy { Protocol = "tuic" }),
+            "TUIC is not incorrectly tested with a TCP/TLS handshake");
+
+        var optionsVariantA = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vmess://a@same.example.net:443", Proto = "vmess",
+            Host = "same.example.net", Port = "443", Network = "tcp",
+            Security = "tls", ConnectionOptionsKey = "fp=chrome;alpn=h2"
+        };
+        var optionsVariantB = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vmess://b@same.example.net:443", Proto = "vmess",
+            Host = "same.example.net", Port = "443", Network = "tcp",
+            Security = "tls", ConnectionOptionsKey = "fp=firefox;alpn=http/1.1"
+        };
+        Checks.That(CollectorType.GetTopEndpointProfileKey(optionsVariantA) !=
+                    CollectorType.GetTopEndpointProfileKey(optionsVariantB),
+            "deduplication preserves VMess/SS variants with different connection-affecting options");
+
+        var protocolVariant = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "trojan://a@same.example.net:443", Proto = "trojan",
+            Host = "same.example.net", Port = "443", Network = "tcp",
+            Security = "tls"
+        };
+        Checks.That(CollectorType.GetTopEndpointProfileKey(optionsVariantA) !=
+                    CollectorType.GetTopEndpointProfileKey(protocolVariant),
+            "different proxy protocols at the same host and port remain distinct profiles");
+
         var nearbySingleSource = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@nearby.example.net:443?security=tls")!;
         nearbySingleSource.TlsVerified = true;

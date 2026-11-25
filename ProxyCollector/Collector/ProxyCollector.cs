@@ -1610,7 +1610,7 @@ namespace ProxyCollector.Collector
                     Continent = continent, Remark = remark, Host = p.Host,
                     Port = p.Port, NodeId = HistKey(p.DeduplicationKey),
                     Sni = p.Sni, Network = p.Network, Security = p.Security,
-                    Path = p.Path, Flow = p.Flow,
+                    Path = p.Path, Flow = p.Flow, ConnectionOptionsKey = p.ConnectionOptionsKey,
                     IranTested = p.IranTested, IsStable = p.IsStable,
                     TlsTested = p.TlsTested, TlsVerified = p.TlsVerified,
                     XrayTested = p.XrayTested, XrayVerified = p.XrayVerified,
@@ -2950,10 +2950,11 @@ namespace ProxyCollector.Collector
         private static readonly TimeSpan TlsBudget = TimeSpan.FromMinutes(8);
         private static readonly TimeSpan TlsProbeTimeout = TimeSpan.FromSeconds(4);
 
-        private static bool IsTlsCandidate(ParsedProxy p)
+        internal static bool IsTlsCandidate(ParsedProxy p)
         {
-            if (UdpProtocols.Contains(p.Protocol)) return false;      // QUIC: no TLS-over-TCP to probe
-            if (NormalizeProto(p.Protocol) == "trojan") return true;  // trojan is TLS by definition
+            string protocol = NormalizeProto(p.Protocol);
+            if (UdpProtocols.Contains(protocol)) return false; // QUIC/UDP: no TCP-TLS handshake probe
+            if (protocol is "trojan" or "anytls" or "naive") return true; // TLS by protocol definition
             return p.Security.Equals("tls", StringComparison.OrdinalIgnoreCase)
                 || p.Security.Equals("reality", StringComparison.OrdinalIgnoreCase)
                 || !string.IsNullOrEmpty(p.Pbk);
@@ -4251,6 +4252,7 @@ namespace ProxyCollector.Collector
         public string  Security         { get; set; } = "";
         public string  Path             { get; set; } = "";
         public string  Flow             { get; set; } = "";
+        public string  ConnectionOptionsKey { get; set; } = "";
         public string  CountryCode      { get; set; } = "XX";
         public string  Continent        { get; set; } = "Unknown";
         public string  Remark           { get; set; } = "";

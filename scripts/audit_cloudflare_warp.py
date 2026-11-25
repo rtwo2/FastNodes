@@ -3,7 +3,7 @@
 import base64, html, ipaddress, json, pathlib, re, sys
 from urllib.parse import parse_qs, unquote, urlsplit
 
-URI_RE = re.compile(r"(?i)\b(vless|vmess|trojan|ss|shadowsocks|ssr|hysteria2?|hy2|tuic|naive|anytls|brook|snell|juicity|mieru|socks5?|socks4?|wireguard|wg)://([^\s<>\"']+)")
+URI_RE = re.compile(r"(?i)\b(vless|vmess|trojan|ss|shadowsocks|ssr|hysteria2?|hy2|tuic|naive|anytls|brook|snell|juicity|mierus|socks5?|socks4?|wireguard|wg)://([^\s<>\"']+)")
 WARP_RE = re.compile(r"(?i)(?<![a-z0-9])warp(?:\+)?(?![a-z0-9])")
 TRANSPORT_RE = re.compile(r"(?i)(?:^|[?&;])\s*(host|sni|server_name|servername|authority)\s*=\s*([^&;#\s]+)")
 KV_RE = re.compile(r"(?i)^\s*(server|server-host|server_host|endpoint|address|remote|host|sni|server_name|servername|authority)\s*[:=]\s*(.*?)\s*$")
@@ -187,6 +187,32 @@ def has_forbidden_transport_host(line):
         return transport_host_is_forbidden(key_value.group(2))
     return False
 
+def decode_ss_endpoint(raw):
+    """Return the endpoint from SIP002 or fully-encoded legacy Shadowsocks links."""
+    value = str(raw or "").split("#", 1)[0].rstrip("),;")
+    # SIP002 uses an encoded method:password userinfo followed by a visible authority.
+    if "@" in value:
+        try:
+            host = urlsplit("ss://" + value).hostname
+            if host:
+                return host
+        except ValueError:
+            pass
+
+    # Legacy form base64-encodes method:password@host:port as one payload.
+    token = value.split("?", 1)[0].replace("-", "+").replace("_", "/")
+    token += "=" * ((4 - len(token) % 4) % 4)
+    try:
+        decoded = base64.b64decode(token, validate=True).decode("utf-8")
+        _, separator, endpoint = decoded.rpartition("@")
+        if not separator:
+            return ""
+        authority = endpoint.split("?", 1)[0]
+        return urlsplit("//" + authority).hostname or ""
+    except (ValueError, UnicodeDecodeError):
+        return ""
+
+
 def uri_endpoints(line):
     match = URI_RE.search(line)
     if not match:
@@ -197,6 +223,9 @@ def uri_endpoints(line):
         return [str(obj.get("add", ""))] if obj and obj.get("add") else []
     if scheme == "ssr":
         host, _ = decode_ssr(raw)
+        return [host] if host else []
+    if scheme in {"ss", "shadowsocks"}:
+        host = decode_ss_endpoint(raw)
         return [host] if host else []
     try:
         host = urlsplit(scheme + "://" + raw).hostname
@@ -248,8 +277,11 @@ def self_test():
     assert has_forbidden_transport_host("ss://auth@example.net:443?plugin=v2ray-plugin%3Bmode%3Dwebsocket%3Bhost%3Dedge.pages.dev#US")
     assert has_forbidden_transport_host("vless://uuid@example.net:443?host=www.speedtest.net.ns.cloudflare.com.try.cloudflare.com.attacker.test#US")
     assert not has_forbidden_transport_host("vless://uuid@example.net:443?ech=cloudflare-ech.com#US")
-    for scheme in ("naive", "anytls", "brook", "snell", "juicity", "mieru", "socks", "socks4"):
+    for scheme in ("naive", "anytls", "brook", "snell", "juicity", "mierus", "socks", "socks4"):
         assert uri_endpoints(f"{scheme}://user@example.net:443") == ["example.net"]
+    # The binary protobuf scheme is intentionally unsupported and must not be
+    # mistaken for an ordinary URI endpoint.
+    assert uri_endpoints("mieru://QmFzZTY0UHJvdG9idWY=") == []
     vmess = base64.b64encode(json.dumps({"add": "example.net", "ps": "Cloudflare node"}).encode()).decode()
     assert is_forbidden_label("vmess://" + vmess)
 
@@ -264,6 +296,14 @@ def self_test():
     ssr_ipv6_link = "ssr://" + base64.urlsafe_b64encode(ssr_ipv6_payload.encode()).decode().rstrip("=")
     assert uri_endpoints(ssr_ipv6_link) == ["2001:db8::3"]
     assert endpoint_is_forbidden(uri_endpoints(ssr_ipv6_link)[0], ranges)
+
+    # Legacy Shadowsocks encodes the entire method:password@authority payload.
+    ss_legacy_payload = base64.b64encode(b"aes-256-gcm:secret@api.pages.dev:443").decode()
+    assert uri_endpoints("ss://" + ss_legacy_payload) == ["api.pages.dev"]
+    assert endpoint_is_forbidden(uri_endpoints("ss://" + ss_legacy_payload)[0], ranges)
+    ss_legacy_ipv6 = base64.b64encode(b"aes-256-gcm:secret@[2001:db8::3]:443").decode()
+    assert uri_endpoints("ss://" + ss_legacy_ipv6) == ["2001:db8::3"]
+    assert endpoint_is_forbidden(uri_endpoints("ss://" + ss_legacy_ipv6)[0], ranges)
 
     import tempfile
     with tempfile.TemporaryDirectory() as tmp:

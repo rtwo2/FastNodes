@@ -14,6 +14,7 @@ internal static class Program
     {
         Checks.Equal(3, ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c" }, 0).Length,
             "zero source limit preserves full production source list");
+        TestDnsRecoveryCache();
 
         Checks.Equal("hysteria2", CollectorType.NormalizeProto("hy2"),
             "hy2 alias resolves to canonical Hysteria2 protocol");
@@ -210,6 +211,10 @@ internal static class Program
         Checks.That(CollectorType.GetSourceDiversityGroup(rawRepoSource) !=
                     CollectorType.GetSourceDiversityGroup("https://raw.githubusercontent.com/alpha/another-repo/main/nodes.txt"),
             "different upstream repositories retain separate consensus identities");
+        Checks.Equal("example.co.nz", CollectorType.GetHostnameDiversityGroup("a.example.co.nz"),
+            "hostname diversity groups subdomains by registrable domain under a country-code category");
+        Checks.Equal("other.co.nz", CollectorType.GetHostnameDiversityGroup("b.other.co.nz"),
+            "unrelated registrable domains under the same country-code category remain independent");
         Checks.That(CollectorType.IsIranTestedSource(
             "https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/refs/heads/main/Best-Results/proxies.txt"),
             "explicitly trusted tested-source repository/path receives the delegated evidence signal");
@@ -510,6 +515,13 @@ internal static class Program
             "the unsafe-answer warning threshold allows exactly the configured maximum without warning");
         Checks.That(CollectorType.ResolvedIpFilterExceedsWarningThreshold(81, 100),
             "widespread unsafe DNS answers trigger a warning while unsafe hosts are still removed");
+        Checks.That(!CollectorType.DnsDropWouldTripCircuitBreaker(80, 100),
+            "the DNS emergency breaker permits exactly the configured maximum fraction");
+        Checks.That(CollectorType.DnsDropWouldTripCircuitBreaker(81, 100),
+            "the DNS emergency breaker trips above its threshold instead of publishing known NXDOMAIN nodes");
+        Checks.That(!CollectorType.DnsDropWouldTripCircuitBreaker(0, 100) &&
+                    !CollectorType.DnsDropWouldTripCircuitBreaker(5, 0),
+            "the DNS emergency breaker handles empty counts without false positives");
 
         Checks.That(CollectorType.HasUnsafeResolvedAddress(new[]
             { IPAddress.Parse("2001:4860:4860::8888"), IPAddress.Parse("::ffff:127.0.0.1") }),
@@ -1294,10 +1306,76 @@ internal static class Program
 
         var ssUser = Convert.ToBase64String(Encoding.UTF8.GetBytes("aes-128-gcm:CaseSensitive"));
         var ss = CollectorType.ParseProxyLine($"ss://{ssUser}@[2001:4860:4860::8888]:8388#ss");
+        var emptySsUser = Convert.ToBase64String(Encoding.UTF8.GetBytes("aes-128-gcm:"));
+        Checks.That(CollectorType.ParseProxyLine($"ss://{emptySsUser}@example.net:8388") is null,
+            "SIP002 Shadowsocks links with an empty password are rejected before entering outputs");
+        var legacyEmptySs = Convert.ToBase64String(Encoding.UTF8.GetBytes("aes-128-gcm:@example.net:8388"));
+        Checks.That(CollectorType.ParseProxyLine($"ss://{legacyEmptySs}") is null,
+            "legacy encoded Shadowsocks links with an empty password are rejected");
         Checks.That(ss is not null, "Shadowsocks SIP002 IPv6 link parses");
         Checks.Equal("2001:4860:4860::8888", ss!.Host, "Shadowsocks IPv6 host");
         Checks.Equal("8388", ss.Port, "Shadowsocks port");
         Checks.Equal("aes-128-gcm:CaseSensitive", ss.Credential, "Shadowsocks credentials");
+
+        const string mieruSimpleShare =
+            "mierus://alice:Pass%40Word@mieru.example.net?handshake-mode=HANDSHAKE_NO_WAIT&mtu=1400&multiplexing=MULTIPLEXING_HIGH&port=6666&port=9998-9999&profile=default&protocol=TCP&protocol=UDP&traffic-pattern=GgQIARAK#Mieru%20edge";
+        var mieruLinks = CollectorType.DecodeAndExtractLines(mieruSimpleShare, "https://example.net/mieru-subscription.txt");
+        Checks.Equal(2, mieruLinks.Count, "Mieru simple-share links expand paired port/protocol bindings into individual nodes");
+        string encodedMieruShare = Convert.ToBase64String(Encoding.UTF8.GetBytes(mieruSimpleShare));
+        Checks.Equal(2, CollectorType.DecodeAndExtractLines(
+            encodedMieruShare, "https://example.net/mieru-subscription.txt").Count,
+            "Base64-wrapped Mieru simple-share links expand after the collector decodes the source");
+        var mieruTcp = CollectorType.ParseProxyLine(mieruLinks.Single(link => link.Contains("port=6666", StringComparison.Ordinal)));
+        var mieruUdp = CollectorType.ParseProxyLine(mieruLinks.Single(link => link.Contains("port=9998-9999", StringComparison.Ordinal)));
+        Checks.That(mieruTcp is not null && mieruUdp is not null, "expanded Mieru links pass the common parser");
+        Checks.Equal("mieru", CollectorType.NormalizeProto(mieruTcp!.Protocol), "mierus links normalize to Mieru");
+        Checks.Equal("Pass@Word", mieruTcp.Credential[(mieruTcp.Credential.IndexOf(':') + 1)..], "Mieru parsing preserves escaped password case");
+        Checks.Equal("6666", mieruTcp.Port, "Mieru TCP binding uses its numeric endpoint port");
+        Checks.Equal("9998", mieruUdp!.Port, "Mieru UDP range uses its first port for endpoint metadata");
+        Checks.That(!CollectorType.IsMieruPortRange(mieruTcp) && CollectorType.IsMieruPortRange(mieruUdp),
+            "Mieru numeric bindings and port ranges are distinguished for endpoint probes");
+        Checks.That(!CollectorType.UsesUdpTransport(mieruTcp) && CollectorType.UsesUdpTransport(mieruUdp), "Mieru TCP/UDP bindings classify independently");
+
+        const string mieruTcpRange =
+            "mierus://alice:secret@mieru-range.example.net?profile=default&port=7100-7110&protocol=TCP";
+        var mieruTcpRangeNode = CollectorType.ParseProxyLine(
+            CollectorType.DecodeAndExtractLines(mieruTcpRange, "https://example.net/mieru.txt").Single());
+        Checks.That(mieruTcpRangeNode is not null && CollectorType.IsMieruPortRange(mieruTcpRangeNode),
+            "a TCP port range is not reduced to one definitive endpoint for drop filtering");
+        Checks.That(CollectorType.ParseProxyLine("mieru://CpsBCgdkZWZhdWx0ElgKBWJhb3ppEg1tYW5saWFucGVuZmVu") is null,
+            "Base64 protobuf mieru:// shares are not misclassified as proxy hostnames");
+
+        const string mieruSingboxJson = """
+        {"outbounds":[{"type":"mieru","tag":"singbox-mieru","server":"mieru-singbox.example.net","server_port":7777,
+          "server_ports":["8888-8890"],"transport":"TCP","username":"singbox-user","password":"singbox-secret",
+          "multiplexing":"MULTIPLEXING_MIDDLE","traffic_pattern":"GgQIARAK","mtu":1400,"handshake_mode":"HANDSHAKE_STANDARD"}]}
+        """;
+        var mieruSingboxLinks = CollectorType.DecodeAndExtractLines(mieruSingboxJson, "https://example.net/mieru-singbox.json");
+        Checks.Equal(2, mieruSingboxLinks.Count, "sing-box Mieru outbounds preserve single ports and port ranges");
+        Checks.That(mieruSingboxLinks.All(link => CollectorType.ParseProxyLine(link) is not null), "sing-box Mieru conversions remain parseable");
+
+        const string mieruClashYaml = """
+        proxies:
+          - name: clash-mieru
+            type: mieru
+            server: mieru-clash.example.net
+            port-range: 9000-9010
+            transport: UDP
+            username: clash-user
+            password: clash-secret
+            multiplexing: MULTIPLEXING_LOW
+        """;
+        var mieruClashLinks = CollectorType.DecodeAndExtractLines(mieruClashYaml, "https://example.net/mieru-clash.yaml");
+        Checks.Equal(1, mieruClashLinks.Count, "Clash Mieru port-range entries convert to simple-share links");
+        var mieruClashParsed = CollectorType.ParseProxyLine(mieruClashLinks.Single());
+        Checks.That(mieruClashParsed is not null && CollectorType.UsesUdpTransport(mieruClashParsed), "Clash Mieru UDP transport survives YAML conversion");
+
+        Checks.That(!ProxyCollector.Services.SourceFetcher.ShouldRetryFetchException(
+                new System.IO.InvalidDataException("response exceeded configured byte limit")),
+            "deterministic invalid/oversized source responses are not retried");
+        Checks.That(ProxyCollector.Services.SourceFetcher.ShouldRetryFetchException(
+                new System.Net.Http.HttpRequestException("temporary network failure")),
+            "transient network source-fetch failures remain eligible for bounded retries");
 
         var flowA = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&flow=xtls-rprx-vision");
@@ -1348,6 +1426,46 @@ internal static class Program
         Checks.That(!CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
             { Host = "example.com", Link = "vless://uuid@example.com:443?sni=cloudflare.com", Remark = "🇺🇸 Germany" }),
             "Cloudflare camouflage SNI alone does not exclude a non-Cloudflare endpoint");
+        var cloudflareFragment = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@ordinary.example.net:443#Cloudflare");
+        Checks.That(cloudflareFragment is not null &&
+                    cloudflareFragment.SourceRemark == "Cloudflare" &&
+                    CollectorType.IsCloudflareMetadata(cloudflareFragment),
+            "ordinary URI fragments are preserved and Cloudflare-labelled source nodes are filtered before remark replacement");
+        var warpFragment = CollectorType.ParseProxyLine(
+            "trojan://secret@ordinary.example.net:443#WARP%2B");
+        Checks.That(warpFragment is not null &&
+                    warpFragment.SourceRemark == "WARP+" &&
+                    CollectorType.IsCloudflareMetadata(warpFragment),
+            "encoded WARP+ source labels survive parsing and trigger the metadata exclusion");
+
+        string ssrPasswordToken = Convert.ToBase64String(Encoding.UTF8.GetBytes("secret"))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        string ssrRemarkToken = Convert.ToBase64String(Encoding.UTF8.GetBytes("Cloudflare WARP"))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        string ssrPayload = $"ordinary.example.net:8388:origin:aes-128-gcm:plain:{ssrPasswordToken}/?remarks_base64={ssrRemarkToken}";
+        string ssrToken = Convert.ToBase64String(Encoding.UTF8.GetBytes(ssrPayload))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var ssrLabel = CollectorType.ParseProxyLine("ssr://" + ssrToken);
+        Checks.That(ssrLabel is not null &&
+                    ssrLabel.SourceRemark == "Cloudflare WARP" &&
+                    CollectorType.IsCloudflareMetadata(ssrLabel),
+            "SSR embedded Base64 remarks are preserved and filtered before output naming");
+
+        var vmessLabelJson = JsonSerializer.Serialize(new
+        {
+            add = "ordinary.example.net", port = "443",
+            id = "123e4567-e89b-12d3-a456-426614174000", net = "tcp", tls = "tls",
+            ps = "Cloudflare WARP"
+        });
+        var vmessLabel = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessLabelJson)));
+        Checks.That(vmessLabel is not null &&
+                    vmessLabel.SourceRemark == "Cloudflare WARP" &&
+                    CollectorType.IsCloudflareMetadata(vmessLabel),
+            "VMess base64 display metadata is preserved and filtered consistently");
+
+
 
         Checks.That(!CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
             { Host = "example.com", Link = "vless://uuid@example.com:443?sni=www.cloudflare.com&host=www.cloudflare.com#US", Remark = "US" }),
@@ -2042,6 +2160,29 @@ internal static class Program
         Checks.That(compactProfiles[0].XrayVerified,
             "compact profile selection prefers the credential with the strongest current verification evidence");
 
+        var stableCredentialA = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://verified-account@shared-profile.example.net:443",
+            Proto = "vless", Host = "shared-profile.example.net", Port = "443",
+            SelectionProfileKey = "shared-profile", XrayVerified = true
+        };
+        var stableCredentialB = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://stable-account@shared-profile.example.net:443",
+            Proto = "vless", Host = "shared-profile.example.net", Port = "443",
+            SelectionProfileKey = "shared-profile", IsStable = true
+        };
+        var sharedCatalogue = CollectorType.SelectBestEndpointProfiles(
+            new[] { stableCredentialA, stableCredentialB });
+        var independentlySelectedStable = CollectorType.SelectBestEndpointProfiles(
+            new[] { stableCredentialA, stableCredentialB }.Where(x => x.IsStable));
+        Checks.That(sharedCatalogue[0].Link != independentlySelectedStable[0].Link,
+            "independent category selection can choose a credential that the master catalogue collapsed");
+        var catalogueStable = CollectorType.SelectCatalogueProfilesForCategory(
+            sharedCatalogue, x => x.IsStable);
+        Checks.Equal(0, catalogueStable.Count,
+            "stable output is derived from the canonical master representative and cannot publish an absent credential variant");
+
         var ssProfileA = CollectorType.ParseProxyLine(
             "ss://YWVzLTI1Ni1nY206cGFzc3dvcmQtYQ==@example.net:8388");
         var ssProfileB = CollectorType.ParseProxyLine(
@@ -2420,6 +2561,49 @@ internal static class Program
             "permanent HTTP 404 responses are not pointlessly retried");
         Checks.That(permanentErrors.Any(message => message.Contains("HTTP 404", StringComparison.Ordinal)),
             "permanent source failures are logged with their HTTP status");
+    }
+
+    private static void TestDnsRecoveryCache()
+    {
+        int lookups = 0;
+        using var resolver = new IPToCountryResolver((_, cancellationToken) =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            int attempt = Interlocked.Increment(ref lookups);
+            IPAddress[] addresses = attempt == 1
+                ? Array.Empty<IPAddress>() // simulate an inconclusive first DNS result
+                : new[] { IPAddress.Parse("8.8.8.8") };
+            return Task.FromResult(addresses);
+        }, requireGeoDatabases: false);
+
+        Checks.Equal(0, resolver.ResolveAllAsync("transient.example").GetAwaiter().GetResult().Length,
+            "an inconclusive DNS result does not invent an address");
+        Checks.Equal(DnsVerdict.Resolved,
+            resolver.ResolveVerdictUncachedAsync("transient.example").GetAwaiter().GetResult(),
+            "an uncached retry can recover a hostname after a transient DNS result");
+        Checks.Equal("8.8.8.8",
+            resolver.ResolveAllAsync("transient.example").GetAwaiter().GetResult().Single().ToString(),
+            "a successful DNS retry replaces the cached inconclusive result");
+
+        int privateLookups = 0;
+        using var privateResolver = new IPToCountryResolver((_, cancellationToken) =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            int attempt = Interlocked.Increment(ref privateLookups);
+            IPAddress[] addresses = attempt == 1
+                ? Array.Empty<IPAddress>()
+                : new[] { IPAddress.Parse("10.23.4.5") };
+            return Task.FromResult(addresses);
+        }, requireGeoDatabases: false);
+
+        Checks.Equal(0, privateResolver.ResolveAllAsync("recovered-private.example").GetAwaiter().GetResult().Length,
+            "a transient DNS failure does not prematurely expose an address");
+        Checks.Equal(DnsVerdict.Resolved,
+            privateResolver.ResolveVerdictUncachedAsync("recovered-private.example").GetAwaiter().GetResult(),
+            "a hostname can recover to a private address on the final DNS retry");
+        Checks.That(CollectorType.HasUnsafeResolvedAddress(
+                privateResolver.ResolveAllAsync("recovered-private.example").GetAwaiter().GetResult()),
+            "a recovered private address is still classified as unsafe after DNS cache repair");
     }
 
     private sealed class StubHttpMessageHandler : HttpMessageHandler

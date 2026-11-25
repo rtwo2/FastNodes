@@ -236,6 +236,13 @@ public sealed class SourceFetcher
                                                 {
                                                     throw;
                                                 }
+                                                catch (Exception exception) when (!ShouldRetryFetchException(exception))
+                                                {
+                                                    Interlocked.Increment(ref stat.ProviderFailures);
+                                                    logWarning(
+                                                        $"  provider response rejected without retry for {url} → {fetchUrl}: {exception.Message}");
+                                                    break;
+                                                }
                                                 catch (Exception exception)
                                                 {
                                                     if (providerAttempt == MaxAttempts)
@@ -268,6 +275,11 @@ public sealed class SourceFetcher
                             {
                                 throw;
                             }
+                            catch (Exception exception) when (!ShouldRetryFetchException(exception))
+                            {
+                                logWarning($"Rejected source response for {url} without retry: {exception.Message}");
+                                return;
+                            }
                             catch (Exception exception)
                             {
                                 if (attempt == MaxAttempts)
@@ -293,6 +305,15 @@ public sealed class SourceFetcher
             spool.Dispose();
             throw;
         }
+    }
+
+    // Payload-limit and invalid-data failures are deterministic for the same source;
+    // retrying them downloads the same rejected body repeatedly. Network exceptions
+    // remain retryable under the normal bounded attempt/backoff policy.
+    internal static bool ShouldRetryFetchException(Exception exception)
+    {
+        ArgumentNullException.ThrowIfNull(exception);
+        return exception is not InvalidDataException;
     }
 
     private static bool IsRetryableStatus(HttpStatusCode statusCode)

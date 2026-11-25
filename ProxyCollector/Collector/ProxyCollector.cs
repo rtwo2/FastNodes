@@ -81,7 +81,7 @@ namespace ProxyCollector.Collector
         {
             "vmess", "vless", "trojan", "ss", "shadowsocks", "ssr",
             "hysteria", "hysteria2", "hy2", "tuic",
-            "naive", "anytls", "brook", "snell", "juicity", "mieru",
+            "naive", "anytls", "brook", "snell", "juicity", "mieru", "mierus",
             "wireguard", "wg", "socks5", "socks4", "socks"
         };
 
@@ -147,7 +147,7 @@ namespace ProxyCollector.Collector
         // are deliberately absent: public SOCKS proxies legitimately run credential-less.
         private static readonly HashSet<string> CredentialRequiredProtocols = new(StringComparer.OrdinalIgnoreCase)
         { "vless", "vmess", "trojan", "ss", "ssr", "hysteria", "hysteria2", "tuic",
-          "naive", "anytls", "brook", "snell", "juicity" };
+          "naive", "anytls", "brook", "snell", "juicity", "mieru" };
 
         // Private/reserved IP ranges can never be reachable as a public proxy from outside
         // that network — these only ever show up as leftover example/template values.
@@ -290,7 +290,7 @@ namespace ProxyCollector.Collector
             // the beginning misses placeholder passwords after the separator (for
             // example "aes-128-gcm:password123" or "uuid:123456").
             string proto = NormalizeProto(protocol);
-            if (proto is not ("ss" or "ssr" or "tuic" or "juicity" or "naive" or "socks" or "socks4" or "socks5"))
+            if (proto is not ("ss" or "ssr" or "tuic" or "juicity" or "naive" or "socks" or "socks4" or "socks5" or "mieru"))
                 return false;
 
             int separator = credential.IndexOf(':');
@@ -888,7 +888,7 @@ namespace ProxyCollector.Collector
             return false;
         }
 
-        private static bool IsCloudflareMetadata(ParsedProxy p)
+        internal static bool IsCloudflareMetadata(ParsedProxy p)
         {
             static bool IsCfDomain(string value)
             {
@@ -915,20 +915,25 @@ namespace ProxyCollector.Collector
             if (IPAddress.TryParse(p.Host.Trim('[', ']'), out var literal) && IsCloudflareIp(literal)) return true;
             string link = p.BaseLink ?? "";
             if (HasSuspiciousCloudflareTransportReference(link)) return true;
-            string remark = "";
-            int hash = link.IndexOf('#');
-            if (hash >= 0) remark = link[(hash + 1)..];
-            else if (link.StartsWith("vmess://", StringComparison.OrdinalIgnoreCase))
+            // Prefer the source label captured before ParseProxyLine stripped its
+            // fragment. Keep a defensive fallback for manually constructed ParsedProxy
+            // instances and legacy VMess objects created outside the normal parser.
+            string remark = p.SourceRemark ?? "";
+            if (remark.Length == 0)
             {
-                // VMess stores the display name inside base64 JSON rather than after #.
-                try
+                int hash = link.IndexOf('#');
+                if (hash >= 0) remark = link[(hash + 1)..];
+                else if (link.StartsWith("vmess://", StringComparison.OrdinalIgnoreCase))
                 {
-                    string b64 = link["vmess://".Length..].Replace('-', '+').Replace('_', '/');
-                    int pad = b64.Length % 4; if (pad > 0) b64 += new string('=', 4 - pad);
-                    using var doc = JsonDocument.Parse(Encoding.UTF8.GetString(Convert.FromBase64String(b64)));
-                    if (doc.RootElement.TryGetProperty("ps", out var ps)) remark = ps.GetString() ?? "";
+                    try
+                    {
+                        string b64 = link["vmess://".Length..].Replace('-', '+').Replace('_', '/');
+                        int pad = b64.Length % 4; if (pad > 0) b64 += new string('=', 4 - pad);
+                        using var doc = JsonDocument.Parse(Encoding.UTF8.GetString(Convert.FromBase64String(b64)));
+                        if (doc.RootElement.TryGetProperty("ps", out var ps)) remark = ps.GetString() ?? "";
+                    }
+                    catch { }
                 }
-                catch { }
             }
             if (remark.Contains("cloudflare", StringComparison.OrdinalIgnoreCase)) return true;
             if (IsWarpMetadata(remark)) return true;
@@ -977,6 +982,9 @@ namespace ProxyCollector.Collector
                             // A hostname may have both public and Cloudflare A/AAAA
                             // answers. Exclude it if ANY address is in an official CF range.
                             var addresses = await Resolver.ResolveAllAsync(host);
+                            if (addresses.Length == 0 &&
+                                await Resolver.ResolveVerdictUncachedAsync(host) == DnsVerdict.Resolved)
+                                addresses = await Resolver.ResolveAllAsync(host);
                             resolved[host] = addresses.Any(IsCloudflareIp);
                         }
                         catch { resolved[host] = false; }
@@ -1507,13 +1515,25 @@ namespace ProxyCollector.Collector
                 .ToList();
             LogSuccess($"Total proxies: {alive.Count}");
 
-            GroupStart("🌍 Step 3/5 — GeoIP lookup");
-            // STEP 3: resolve every unique host exactly once (DNS bounded to 3s per
-            // lookup, cached inside the resolver). The warm DNS cache produced here is
-            // what makes the step-4 DNS filter nearly free — it only ever re-attempts
-            // hosts that already failed once during this pass.
+            GroupStart("🌐 Step 3/5 — DNS and endpoint safety");
+            // Refresh inconclusive DNS results before any GeoIP result is cached. This
+            // lets recovered hosts receive their real location and ensures Cloudflare /
+            // private-address checks see the recovered A/AAAA set in the same run.
+            alive = await DropDnsDeadHostsAsync(alive);
+
+            // User policy: publish no Cloudflare/WARP nodes in ANY output. The Cloudflare
+            // pass performs one final uncached retry for hosts still without an address.
+            // Run the unsafe-IP check AFTER that retry too, so a newly recovered private,
+            // reserved or blacklisted address cannot bypass the earlier cached check.
+            alive = await DropCloudflareNodesAsync(alive);
+            alive = await DropBadResolvedIpsAsync(alive);
+            GroupEnd();
+
+            GroupStart("🌍 Step 4/5 — GeoIP, alias & TCP filtering");
+            // GeoIP now sees the refreshed resolver cache. Inconclusive DNS results are
+            // not permanently cached as Unknown by IPToCountryResolver.
             var uniqueHosts = alive.Select(x => x.Host)
-                .Distinct(StringComparer.OrdinalIgnoreCase).ToList();   // v6.13: "Server.com"/"server.com" were two DNS lookups
+                .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             LogInfo($"  Resolving geo info for {uniqueHosts.Count} unique hosts...");
 
             var locationCache = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -1527,18 +1547,9 @@ namespace ProxyCollector.Collector
                 });
             GroupEnd();
 
-            // User policy: publish no Cloudflare/WARP nodes in ANY output. Filter after
-            // DNS has been warmed so hostname aliases resolving into Cloudflare IPv4 or
-            // IPv6 ranges are caught too; every downstream file is built from this pool.
-            alive = await DropCloudflareNodesAsync(alive);
-
-            GroupStart("💀 Step 4/5 — Dead-node & alias filters");
-            // Order is deliberate: DNS filter removes the dead first, then the resolved-IP
-            // filter and alias collapse both run on the warm resolver cache (pure cache
-            // hits, ~free), and the TCP filter runs LAST so it probes the smallest
-            // possible set — alias-merged spelling variants never get probed twice.
-            alive = await DropDnsDeadHostsAsync(alive);
-            alive = await DropBadResolvedIpsAsync(alive);
+            // With unsafe and Cloudflare endpoints already excluded, collapse IP/hostname
+            // aliases before the final TCP check so each physical endpoint is probed once.
+            GroupStart("🧹 Endpoint alias and TCP checks");
             alive = await CollapseHostAliasesAsync(alive, keySources);
             alive = await DropTcpRefusedAsync(alive);
             LogInfo($"After dead-node & alias filters: {alive.Count} remain");
@@ -1662,15 +1673,33 @@ namespace ProxyCollector.Collector
         //
         // A timeout from GitHub means dead / firewalled / datacenter-blocked / geo-fenced
         // to Iran — indistinguishable — so it always KEEPS the node. MaxDropFraction is
-        // a circuit breaker: if a filter would ever drop more than that fraction in one
-        // run, the signal itself is suspect (resolver outage, network flake) and the
-        // filter no-ops instead of mass-dropping. False drops self-heal next run since
-        // output is rebuilt from scratch.
+        // a circuit breaker: if a filter would drop an implausibly large fraction, abort
+        // the run and preserve the last committed publication instead of publishing
+        // either a mass-dropped or a known-stale snapshot.
 
         private const double MaxDropFraction = 0.20;
 
         private static readonly HashSet<string> UdpProtocols = new(StringComparer.OrdinalIgnoreCase)
-        { "hysteria", "hysteria2", "hy2", "tuic", "juicity", "wireguard", "wg", "mieru" };
+        { "hysteria", "hysteria2", "hy2", "tuic", "juicity", "wireguard", "wg" };
+
+        // Mieru permits TCP or UDP per port binding; transport is not fixed by scheme.
+        internal static bool UsesUdpTransport(ParsedProxy proxy)
+        {
+            string protocol = NormalizeProto(proxy.Protocol);
+            return protocol == "mieru"
+                ? (proxy.Network ?? "tcp").Equals("udp", StringComparison.OrdinalIgnoreCase)
+                : UdpProtocols.Contains(protocol);
+        }
+
+        // A Mieru port range is one multi-port binding. The generic TCP filter tests
+        // only one port, so a refusal on the first port cannot prove the whole range dead.
+        internal static bool IsMieruPortRange(ParsedProxy proxy)
+        {
+            if (NormalizeProto(proxy.Protocol) != "mieru" ||
+                !Uri.TryCreate(proxy.BaseLink, UriKind.Absolute, out var uri))
+                return false;
+            return ParseQuery(uri.Query).GetValueOrDefault("port", "").Contains('-');
+        }
 
         // DNS verdicts are asymmetric: only a fresh, explicit NXDOMAIN is evidence
         // that a hostname does not exist. Timeouts, SERVFAIL, throttling and other
@@ -1679,6 +1708,10 @@ namespace ProxyCollector.Collector
         // The high-rate breaker is a last-resort guard, not the normal 50% threshold:
         // expired proxy domains can legitimately exceed half of the observed hostnames.
         private const double MaxDnsDropFraction = 0.80;
+
+        internal static bool DnsDropWouldTripCircuitBreaker(int deadHostCount, int totalHostCount)
+            => deadHostCount > 0 && totalHostCount > 0 &&
+               deadHostCount > totalHostCount * MaxDnsDropFraction;
         private const int DnsCanaryMinimumSuccesses = 3;
         private static readonly string[] DnsHealthCanaries =
         {
@@ -1706,7 +1739,7 @@ namespace ProxyCollector.Collector
 
             if (resolved < DnsCanaryMinimumSuccesses)
             {
-                LogWarning($"DNS filter skipped: resolver health check passed only {resolved}/{DnsHealthCanaries.Length} canaries (need {DnsCanaryMinimumSuccesses}); retaining all hostname nodes.");
+                LogWarning($"DNS health check failed: only {resolved}/{DnsHealthCanaries.Length} canaries resolved (need {DnsCanaryMinimumSuccesses}); this run will not publish a DNS-filtered snapshot.");
                 return false;
             }
 
@@ -1745,10 +1778,15 @@ namespace ProxyCollector.Collector
             if (dead.IsEmpty) return proxies;
 
             var deadSet = dead.ToHashSet(StringComparer.OrdinalIgnoreCase);
-            if (deadSet.Count > hosts.Count * MaxDnsDropFraction)
+            if (DnsDropWouldTripCircuitBreaker(deadSet.Count, hosts.Count))
             {
-                LogWarning($"DNS filter: {deadSet.Count}/{hosts.Count} explicit NXDOMAINs exceed the {MaxDnsDropFraction:P0} emergency breaker despite healthy canaries; retaining all hostname nodes as a final safety measure.");
-                return proxies;
+                // The canaries are healthy, but an extreme per-source NXDOMAIN wave
+                // still may indicate a resolver view affecting only the feed domains.
+                // Never turn that ambiguity into a successful publish containing all
+                // confirmed-dead nodes; fail this run so main keeps its last good tree.
+                LogWarning($"DNS filter: {deadSet.Count}/{hosts.Count} explicit NXDOMAINs exceed the {MaxDnsDropFraction:P0} emergency breaker; aborting publication and preserving the previous snapshot.");
+                throw new InvalidOperationException(
+                    $"DNS filter emergency breaker tripped: {deadSet.Count}/{hosts.Count} hostname lookups returned explicit NXDOMAIN.");
             }
 
             int before = proxies.Count;
@@ -1909,7 +1947,7 @@ namespace ProxyCollector.Collector
             // RST on connect = the server's own TCP stack saying nothing listens on that
             // port. A timeout or other error is inconclusive and always keeps the node.
             var candidates = proxies
-                .Where(p => !UdpProtocols.Contains(p.Protocol) && int.TryParse(p.Port, out _))
+                .Where(p => !UsesUdpTransport(p) && !IsMieruPortRange(p) && int.TryParse(p.Port, out _))
                 .ToList();
             if (candidates.Count == 0) return proxies;
 
@@ -2969,7 +3007,7 @@ namespace ProxyCollector.Collector
         internal static bool IsTlsCandidate(ParsedProxy p)
         {
             string protocol = NormalizeProto(p.Protocol);
-            if (UdpProtocols.Contains(protocol)) return false; // QUIC/UDP: no TCP-TLS handshake probe
+            if (UsesUdpTransport(p)) return false; // QUIC/UDP: no TCP-TLS handshake probe
             if (protocol is "trojan" or "anytls" or "naive") return true; // TLS by protocol definition
             return p.Security.Equals("tls", StringComparison.OrdinalIgnoreCase)
                 || p.Security.Equals("reality", StringComparison.OrdinalIgnoreCase)
@@ -3295,6 +3333,15 @@ namespace ProxyCollector.Collector
         internal static List<string> DecodeAndExtractLines(string text, string url)
         {
             var results = new List<string>();
+            void AddExtractedLink(string rawLink)
+            {
+                string cleaned = CleanExtracted(rawLink.Replace("&amp;", "&", StringComparison.OrdinalIgnoreCase));
+                if (cleaned.StartsWith("mierus://", StringComparison.OrdinalIgnoreCase))
+                    results.AddRange(ExpandMieruSimpleLink(cleaned));
+                else
+                    results.Add(cleaned);
+            }
+
             string sourcePath = url.Split('?', '#')[0];
             bool isYaml = sourcePath.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) ||
                           sourcePath.EndsWith(".yml", StringComparison.OrdinalIgnoreCase);
@@ -3336,7 +3383,7 @@ namespace ProxyCollector.Collector
                 // broken downstream. Unescape after extraction. The char class still
                 // doesn't stop at '&' — real links legitimately contain it.
                 foreach (Match m in SchemeHtmlRegex.Matches(text))
-                    results.Add(CleanExtracted(m.Value.Replace("&amp;", "&")));
+                    AddExtractedLink(m.Value);
                 return results;
             }
 
@@ -3356,8 +3403,8 @@ namespace ProxyCollector.Collector
                 // literal URI embedded as a string value gets caught by the line scan below.
                 // Try structured extraction first; the line scan still runs afterward to catch
                 // any embedded literal links a structured parse would miss.
-                results.AddRange(ExtractFromClashYaml(text));       // block-style (common)
-                results.AddRange(ExtractFromClashFlowYaml(text));   // flow-style (rare)
+                foreach (string link in ExtractFromClashYaml(text)) AddExtractedLink(link);       // block-style (common)
+                foreach (string link in ExtractFromClashFlowYaml(text)) AddExtractedLink(link);   // flow-style (rare)
 
                 foreach (var line in text.Split('\n', '\r'))
                 {
@@ -3366,7 +3413,7 @@ namespace ProxyCollector.Collector
                     // YAML often contains ordinary https:// provider URLs. They are not
                     // proxy nodes and were incorrectly reported as FORMAT GAP entries.
                     var m = SchemeLineRegex.Match(t);
-                    if (m.Success) results.Add(CleanExtracted(m.Value));
+                    if (m.Success) AddExtractedLink(m.Value);
                 }
                 // Both YAML extractors may recognize a flow-style node. Preserve each
                 // unique generated link only once before source-level scoring/deduplication.
@@ -3384,7 +3431,7 @@ namespace ProxyCollector.Collector
                     // The old "else results.Add(t)" fed whitelist-rejected lines into
                     // ParseProxyLine — which applies the SAME whitelist, so they could
                     // never parse. Dead code; removed.
-                    if (m.Success) results.Add(CleanExtracted(m.Value));
+                    if (m.Success) AddExtractedLink(m.Value);
                 }
                 else if (t.Length > 20)
                 {
@@ -3399,7 +3446,7 @@ namespace ProxyCollector.Collector
                             foreach (var dl in decoded.Split('\n', '\r'))
                             {
                                 var dm = SchemeLineRegex.Match(dl.Trim());
-                                if (dm.Success) results.Add(CleanExtracted(dm.Value));
+                                if (dm.Success) AddExtractedLink(dm.Value);
                             }
                     }
                     catch { }
@@ -3429,7 +3476,13 @@ namespace ProxyCollector.Collector
                     string raw = value.GetString()?.Trim() ?? "";
                     Match match = SchemeLineRegex.Match(raw);
                     if (match.Success && match.Index == 0)
-                        results.Add(CleanExtracted(match.Value));
+                    {
+                        string cleaned = CleanExtracted(match.Value);
+                        if (cleaned.StartsWith("mierus://", StringComparison.OrdinalIgnoreCase))
+                            results.AddRange(ExpandMieruSimpleLink(cleaned));
+                        else
+                            results.Add(cleaned);
+                    }
                 }
 
                 if (root.ValueKind == JsonValueKind.Array)
@@ -3485,6 +3538,11 @@ namespace ProxyCollector.Collector
                         if (type == "wireguard")
                         {
                             results.AddRange(ExtractWireguardJsonLinks(ob, modernEndpoint: false));
+                            continue;
+                        }
+                        if (type == "mieru")
+                        {
+                            results.AddRange(ExtractMieruJsonLinks(ob));
                             continue;
                         }
                         if (!ob.TryGetProperty("server", out var serverEl)) continue;
@@ -3620,6 +3678,59 @@ namespace ProxyCollector.Collector
             }
             catch { }
             return results;
+        }
+
+        // sing-box Mieru bindings use one server address with one or more
+        // TCP/UDP ports or ranges. Convert each binding to a separate simple-share URI.
+        private static List<string> ExtractMieruJsonLinks(JsonElement outbound)
+        {
+            var results = new List<string>();
+            try
+            {
+                string server = GetJsonString(outbound, "server");
+                string username = GetJsonString(outbound, "username");
+                string password = GetJsonString(outbound, "password");
+                string transport = GetJsonString(outbound, "transport").Trim().ToUpperInvariant();
+                if (server.Length == 0 || username.Length == 0 || password.Length == 0 ||
+                    transport is not ("TCP" or "UDP"))
+                    return results;
+
+                var bindings = new List<string>();
+                int singlePort = GetJsonInt(outbound, "server_port");
+                if (singlePort is >= 1 and <= 65535)
+                    bindings.Add(singlePort.ToString(CultureInfo.InvariantCulture));
+                if (outbound.TryGetProperty("server_ports", out var ports))
+                {
+                    if (ports.ValueKind == JsonValueKind.Array)
+                        bindings.AddRange(ports.EnumerateArray()
+                            .Where(item => item.ValueKind == JsonValueKind.String)
+                            .Select(item => item.GetString() ?? ""));
+                    else if (ports.ValueKind == JsonValueKind.String)
+                        bindings.Add(ports.GetString() ?? "");
+                }
+
+                string tag = GetJsonString(outbound, "tag");
+                var common = new List<(string Key, string Value)>
+                {
+                    ("profile", GetJsonString(outbound, "profile", "default"))
+                };
+                foreach (var option in new[]
+                {
+                    ("mtu", GetJsonString(outbound, "mtu")),
+                    ("multiplexing", GetJsonString(outbound, "multiplexing")),
+                    ("handshake-mode", GetJsonString(outbound, "handshake_mode")),
+                    ("traffic-pattern", GetJsonString(outbound, "traffic_pattern"))
+                })
+                    if (option.Item2.Length > 0) common.Add(option);
+
+                foreach (string binding in bindings.Distinct(StringComparer.Ordinal))
+                {
+                    if (!IsValidMieruPortBinding(binding, out _)) continue;
+                    results.Add(BuildMieruSimpleLink(server, username, password, binding, transport, common, tag));
+                }
+            }
+            catch { }
+            return results.Distinct(StringComparer.Ordinal).ToList();
         }
 
         // Converts sing-box WireGuard profiles into one share link per peer.
@@ -3986,8 +4097,10 @@ namespace ProxyCollector.Collector
         private static string? ClashFieldsToLinkV2(Dictionary<string, string> f)
         {
             if (!f.TryGetValue("type", out var type)) return null;
-            if (!f.TryGetValue("server", out var server) || !f.TryGetValue("port", out var port)) return null;
+            if (!f.TryGetValue("server", out var server)) return null;
             type = type.ToLowerInvariant();
+            string port = f.GetValueOrDefault("port",
+                type == "mieru" ? f.GetValueOrDefault("port-range", f.GetValueOrDefault("port_range", "")) : "");
             if (string.IsNullOrEmpty(server) || string.IsNullOrEmpty(port)) return null;
             string uriServer = FormatUriHost(server);
 
@@ -4013,6 +4126,31 @@ namespace ProxyCollector.Collector
 
             var q = new List<string>();
             void Q(string k, string v) { if (!string.IsNullOrEmpty(v)) q.Add($"{k}={Uri.EscapeDataString(v)}"); }
+
+            if (type == "mieru")
+            {
+                string username = f.GetValueOrDefault("username", "");
+                string password = f.GetValueOrDefault("password", "");
+                string transport = f.GetValueOrDefault("transport", "TCP").Trim().ToUpperInvariant();
+                if (username.Length == 0 || password.Length == 0 ||
+                    transport is not ("TCP" or "UDP") || !IsValidMieruPortBinding(port, out _))
+                    return null;
+
+                var common = new List<(string Key, string Value)>
+                {
+                    ("profile", f.GetValueOrDefault("profile", "default"))
+                };
+                foreach (var option in new[]
+                {
+                    ("mtu", f.GetValueOrDefault("mtu", "")),
+                    ("multiplexing", f.GetValueOrDefault("multiplexing", "")),
+                    ("handshake-mode", f.GetValueOrDefault("handshake-mode", f.GetValueOrDefault("handshake_mode", ""))),
+                    ("traffic-pattern", f.GetValueOrDefault("traffic-pattern", f.GetValueOrDefault("traffic_pattern", "")))
+                })
+                    if (option.Item2.Length > 0) common.Add(option);
+
+                return BuildMieruSimpleLink(server, username, password, port, transport, common, f.GetValueOrDefault("name", ""));
+            }
 
             switch (type)
             {
@@ -4177,6 +4315,9 @@ namespace ProxyCollector.Collector
         public bool   EdgeTested    { get; set; }  // current-run edge probe returned a per-node result
         public bool   EdgeVerified  { get; set; }  // TLS verified from the CF edge vantage (this run)
         public string BaseLink    { get; set; } = "";
+        // Original display metadata is kept separately because BaseLink is canonicalized
+        // without fragments before connection parsing and identity calculation.
+        public string SourceRemark { get; set; } = "";
 
         // Canonical signature of connection-affecting options not represented by the
         // normalized fields above (for example VMess scy/fp/alpn and SS plugin options).

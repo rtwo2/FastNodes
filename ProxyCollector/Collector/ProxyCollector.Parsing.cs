@@ -39,10 +39,62 @@ namespace ProxyCollector.Collector
             if (protocol == "vmess" && !IsValidVmessCredential(parsed.Credential))
                 return null;
 
+            // Keep the original display metadata separately from the connection URI.
+            // BaseLink intentionally excludes URI fragments for canonical parsing, but the
+            // Cloudflare/WARP policy still needs the source label before output renaming.
+            parsed.SourceRemark = ExtractSourceRemark(line, parsed);
+
             // Store a canonical numeric port for deduplication and probes. The published
             // URI remains the source form, but invalid source ports are never accepted.
             parsed.Port = port.ToString();
             return parsed;
+        }
+
+        private static string ExtractSourceRemark(string sourceLine, ParsedProxy parsed)
+        {
+            int fragment = (sourceLine ?? "").IndexOf('#');
+            if (fragment >= 0 && fragment < sourceLine.Length - 1)
+            {
+                string raw = sourceLine[(fragment + 1)..].Trim();
+                try { return Uri.UnescapeDataString(raw); }
+                catch { return raw; }
+            }
+
+            string protocol = NormalizeProto(parsed.Protocol);
+            if (protocol == "vmess")
+            {
+                var json = TryGetVmessJson(parsed.BaseLink);
+                return GetVmessJsonString(json, "ps");
+            }
+
+            if (protocol == "ssr")
+            {
+                try
+                {
+                    string decoded = Base64UrlDecode(parsed.BaseLink["ssr://".Length..]);
+                    int slash = decoded.IndexOf('/');
+                    if (slash < 0) return "";
+                    int queryStart = decoded.IndexOf('?', slash);
+                    if (queryStart < 0 || queryStart == decoded.Length - 1) return "";
+                    var query = ParseQuery(decoded[(queryStart + 1)..]);
+                    string token = query.GetValueOrDefault("remarks_base64",
+                        query.GetValueOrDefault("remarks", ""));
+                    if (token.Length == 0) return "";
+
+                    try
+                    {
+                        string label = Base64UrlDecode(token);
+                        return label.Length > 0 &&
+                               label.All(ch => !char.IsControl(ch) || ch is '\r' or '\n' or '\t')
+                            ? label
+                            : token;
+                    }
+                    catch { return token; }
+                }
+                catch { return ""; }
+            }
+
+            return "";
         }
 
         // Xray VLESS accepts a UUID or a custom ID shorter than 30 UTF-8 bytes.
@@ -71,6 +123,11 @@ namespace ProxyCollector.Collector
             // is malformed. Encoded spaces (%20) remain valid; remarks after # were
             // already removed above.
             if (baseLink.Any(char.IsWhiteSpace)) return null;
+
+            if (baseLink.StartsWith("mieru://", StringComparison.OrdinalIgnoreCase))
+                return null; // standard mieru:// is a Base64 protobuf profile, not a host URI
+            if (baseLink.StartsWith("mierus://", StringComparison.OrdinalIgnoreCase))
+                return ParseMieruSimpleLink(baseLink);
 
             if (baseLink.StartsWith("vmess://", StringComparison.OrdinalIgnoreCase))
             {
@@ -235,6 +292,125 @@ namespace ProxyCollector.Collector
             catch { return null; }
         }
 
+        private static bool IsValidMieruPortBinding(string? value, out int firstPort)
+        {
+            firstPort = 0;
+            string[] parts = (value ?? "").Trim().Split('-', StringSplitOptions.None);
+            if (parts.Length is < 1 or > 2 ||
+                !int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out firstPort) ||
+                firstPort is < 1 or > 65535)
+                return false;
+            return parts.Length == 1 ||
+                (int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out int lastPort) &&
+                 lastPort >= firstPort && lastPort <= 65535);
+        }
+
+        private static List<(string Key, string Value)> ParseQueryPairs(string query)
+        {
+            var pairs = new List<(string Key, string Value)>();
+            if (string.IsNullOrEmpty(query)) return pairs;
+            foreach (string raw in query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
+            {
+                int separator = raw.IndexOf('=');
+                if (separator < 0) continue;
+                pairs.Add((Uri.UnescapeDataString(raw[..separator]), Uri.UnescapeDataString(raw[(separator + 1)..])));
+            }
+            return pairs;
+        }
+
+        private static string BuildMieruSimpleLink(
+            string server, string username, string password, string portBinding,
+            string transport, IEnumerable<(string Key, string Value)> commonParameters, string remark)
+        {
+            var query = commonParameters
+                .Where(item => !item.Key.Equals("port", StringComparison.OrdinalIgnoreCase) &&
+                               !item.Key.Equals("protocol", StringComparison.OrdinalIgnoreCase))
+                .Select(item => Uri.EscapeDataString(item.Key) + "=" + Uri.EscapeDataString(item.Value))
+                .ToList();
+            query.Add("port=" + Uri.EscapeDataString(portBinding));
+            query.Add("protocol=" + Uri.EscapeDataString(transport.ToUpperInvariant()));
+            string userInfo = Uri.EscapeDataString(username) + ":" + Uri.EscapeDataString(password);
+            string label = string.IsNullOrEmpty(remark) ? "" : "#" + Uri.EscapeDataString(remark);
+            return $"mierus://{userInfo}@{FormatUriHost(server)}?{string.Join("&", query)}{label}";
+        }
+
+        private static List<string> ExpandMieruSimpleLink(string link)
+        {
+            var results = new List<string>();
+            try
+            {
+                var uri = new Uri(link);
+                if (!uri.Scheme.Equals("mierus", StringComparison.OrdinalIgnoreCase)) return results;
+                var pairs = ParseQueryPairs(uri.Query);
+                var ports = pairs.Where(x => x.Key.Equals("port", StringComparison.OrdinalIgnoreCase)).ToArray();
+                var protocols = pairs.Where(x => x.Key.Equals("protocol", StringComparison.OrdinalIgnoreCase)).ToArray();
+                var profiles = pairs.Where(x => x.Key.Equals("profile", StringComparison.OrdinalIgnoreCase)).ToArray();
+                if (profiles.Length != 1 || string.IsNullOrWhiteSpace(profiles[0].Value) ||
+                    ports.Length == 0 || ports.Length != protocols.Length)
+                    return results;
+                foreach (string singleton in new[] { "mtu", "multiplexing", "handshake-mode", "traffic-pattern" })
+                    if (pairs.Count(x => x.Key.Equals(singleton, StringComparison.OrdinalIgnoreCase)) > 1)
+                        return results;
+
+                string userInfo = Uri.UnescapeDataString(uri.GetComponents(UriComponents.UserInfo, UriFormat.UriEscaped));
+                int separator = userInfo.IndexOf(':');
+                if (separator <= 0 || separator == userInfo.Length - 1) return results;
+                string username = userInfo[..separator], password = userInfo[(separator + 1)..];
+                if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password)) return results;
+                string remark = uri.Fragment.Length > 1 ? Uri.UnescapeDataString(uri.Fragment[1..]) : "";
+                var common = pairs.Where(x =>
+                    !x.Key.Equals("port", StringComparison.OrdinalIgnoreCase) &&
+                    !x.Key.Equals("protocol", StringComparison.OrdinalIgnoreCase)).ToList();
+
+                for (int i = 0; i < ports.Length; i++)
+                {
+                    string transport = protocols[i].Value.Trim().ToUpperInvariant();
+                    if (!IsValidMieruPortBinding(ports[i].Value, out _) || transport is not ("TCP" or "UDP"))
+                        return new List<string>();
+                    results.Add(BuildMieruSimpleLink(uri.Host, username, password, ports[i].Value, transport, common, remark));
+                }
+            }
+            catch { return new List<string>(); }
+            return results;
+        }
+
+        private static ParsedProxy? ParseMieruSimpleLink(string baseLink)
+        {
+            try
+            {
+                var uri = new Uri(baseLink);
+                var pairs = ParseQueryPairs(uri.Query);
+                var ports = pairs.Where(x => x.Key.Equals("port", StringComparison.OrdinalIgnoreCase)).ToArray();
+                var protocols = pairs.Where(x => x.Key.Equals("protocol", StringComparison.OrdinalIgnoreCase)).ToArray();
+                var profiles = pairs.Where(x => x.Key.Equals("profile", StringComparison.OrdinalIgnoreCase)).ToArray();
+                if (ports.Length != 1 || protocols.Length != 1 || profiles.Length != 1 ||
+                    string.IsNullOrWhiteSpace(profiles[0].Value) ||
+                    !IsValidMieruPortBinding(ports[0].Value, out int firstPort) ||
+                    !(protocols[0].Value.Equals("TCP", StringComparison.OrdinalIgnoreCase) ||
+                      protocols[0].Value.Equals("UDP", StringComparison.OrdinalIgnoreCase)))
+                    return null;
+
+                string userInfo = Uri.UnescapeDataString(uri.GetComponents(UriComponents.UserInfo, UriFormat.UriEscaped));
+                int separator = userInfo.IndexOf(':');
+                if (separator <= 0 || separator == userInfo.Length - 1) return null;
+                string username = userInfo[..separator], password = userInfo[(separator + 1)..];
+                if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password)) return null;
+
+                return new ParsedProxy
+                {
+                    Protocol = "mieru",
+                    Host = NormalizeUriHost(uri.Host),
+                    Port = firstPort.ToString(CultureInfo.InvariantCulture),
+                    Credential = username + ":" + password,
+                    Network = protocols[0].Value.ToLowerInvariant(),
+                    BaseLink = baseLink,
+                    ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query),
+                    LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
+                };
+            }
+            catch { return null; }
+        }
+
         // SSR's share-link format is nothing like a normal URI — it's a single base64
         // blob of "host:port:protocol:method:obfs:base64(password)/?params" — so it needs
         // its own decoder rather than generic Uri parsing, which would just see one long
@@ -370,7 +546,7 @@ namespace ProxyCollector.Collector
                         }
                     }
 
-                    if (string.IsNullOrEmpty(method)) return null;
+                    if (string.IsNullOrWhiteSpace(method) || string.IsNullOrEmpty(password)) return null;
 
                     int qIdx = hostPart.IndexOf('?');
                     string hostPort = qIdx >= 0 ? hostPart[..qIdx] : hostPart;
@@ -410,6 +586,7 @@ namespace ProxyCollector.Collector
                 if (c2 <= 0) return null;
                 string method2 = userPart2[..c2];
                 string password2 = userPart2[(c2 + 1)..];
+                if (string.IsNullOrWhiteSpace(method2) || string.IsNullOrEmpty(password2)) return null;
 
                 int colonIdx2 = hostPort2.LastIndexOf(':');
                 if (colonIdx2 <= 0) return null;
@@ -516,6 +693,7 @@ namespace ProxyCollector.Collector
             if (proto == "hy2") return "hysteria2"; // alias only — do NOT merge plain "hysteria" (v1), a different incompatible protocol
             if (proto == "shadowsocks") return "ss";
             if (proto == "wg") return "wireguard";
+            if (proto == "mierus") return "mieru";
             return proto;
         }
 

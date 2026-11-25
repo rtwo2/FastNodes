@@ -812,7 +812,7 @@ namespace ProxyCollector.Collector
                 foreach (var candidate in candidates)
                 {
                     if (selected.Count >= outputCount || added >= limit) break;
-                    if (ipv6Only && !ipv6Links.Contains(candidate.Link)) continue;
+                    if (ipv6Only && !IsIpv6Profile(candidate)) continue;
                     if (TryAdd(candidate)) added++;
                 }
                 return added;

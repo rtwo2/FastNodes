@@ -1675,6 +1675,36 @@ internal static class Program
         Checks.That(CollectorType.GetTopEndpointProfileKey(optionsVariantA) !=
                     CollectorType.GetTopEndpointProfileKey(protocolVariant),
             "different proxy protocols at the same host and port remain distinct profiles");
+        var realityVariant = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://c@same.example.net:443", Proto = "vless",
+            Host = "same.example.net", Port = "443", Network = "tcp",
+            Security = "reality", Pbk = "different-public-key", Sid = "abcd"
+        };
+        var realityBase = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://d@same.example.net:443", Proto = "vless",
+            Host = "same.example.net", Port = "443", Network = "tcp",
+            Security = "reality", Pbk = "another-public-key", Sid = "abcd"
+        };
+        Checks.That(CollectorType.GetTopEndpointProfileKey(realityVariant) !=
+                    CollectorType.GetTopEndpointProfileKey(realityBase),
+            "distinct REALITY public keys remain separate endpoint profiles");
+        var obfsVariant = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "hysteria2://a@same.example.net:443", Proto = "hysteria2",
+            Host = "same.example.net", Port = "443", Network = "udp",
+            Security = "tls", ObfsPassword = "different-obfs"
+        };
+        var obfsBase = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "hysteria2://b@same.example.net:443", Proto = "hysteria2",
+            Host = "same.example.net", Port = "443", Network = "udp",
+            Security = "tls", ObfsPassword = "another-obfs"
+        };
+        Checks.That(CollectorType.GetTopEndpointProfileKey(obfsVariant) !=
+                    CollectorType.GetTopEndpointProfileKey(obfsBase),
+            "different Hysteria2 obfuscation secrets remain separate endpoint profiles");
 
         var nearbySingleSource = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@nearby.example.net:443?security=tls")!;

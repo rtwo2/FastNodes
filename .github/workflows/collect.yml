@@ -1493,4 +1493,4 @@ jobs:
           else
             echo "::error::outputs branch changed during collection; refusing to overwrite the newer publication. Rerun the workflow."
             exit 1
-          fi          fi
+          fi

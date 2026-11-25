@@ -842,7 +842,11 @@ namespace ProxyCollector.Collector
                 .Where(x => !string.IsNullOrWhiteSpace(x.Link))
                 .GroupBy(GetTopEndpointProfileKey, StringComparer.Ordinal)
                 .Select(group => group
-                    .OrderByDescending(x => x.XrayVerified)
+                    // When credentials share one service profile, retain the IPv6-capable
+                    // representative if the profile is dual-stack; otherwise the IPv6
+                    // reservation could be lost before selection even begins.
+                    .OrderByDescending(x => ipv6Links.Contains(x.Link))
+                    .ThenByDescending(x => x.XrayVerified)
                     .ThenByDescending(x => x.TlsVerified || x.EdgeVerified)
                     .ThenByDescending(x => x.IranTested)
                     .ThenByDescending(x => x.IsStable)

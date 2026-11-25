@@ -180,12 +180,8 @@ internal static class Program
             "edge verification does not credit a legacy host-only result for a different explicit SNI");
         Checks.That(!CollectorType.IsValidEdgeSniEcho("tls.example.net", "other.example.net", "endpoint.example.net"),
             "edge verification rejects a result for a different TLS SNI");
-        Checks.That(CollectorType.IsEdgeProbeSniSupported("endpoint.example.net", null),
-            "the current edge Worker supports an implicit endpoint-hostname SNI");
-        Checks.That(CollectorType.IsEdgeProbeSniSupported("endpoint.example.net", "ENDPOINT.EXAMPLE.NET"),
-            "the current edge Worker supports an explicit SNI matching the endpoint hostname case-insensitively");
-        Checks.That(!CollectorType.IsEdgeProbeSniSupported("endpoint.example.net", "tls.example.net"),
-            "the current edge Worker skips custom SNI rather than falsely verifying it");
+        Checks.That(CollectorType.IsValidEdgeSniEcho("tls.example.net", "tls.example.net", "endpoint.example.net"),
+            "custom-SNI edge results are accepted only when the Worker echoes the requested SNI");
         Checks.That(ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c", "d" }, 2)
                 .SequenceEqual(new[] { "a", "b" }),
             "positive source limit selects only the first N sources in priority order");
@@ -563,6 +559,7 @@ internal static class Program
             $"PrivateKey = {validWgPrivateKey}\r\n" +
             "Address = 10.0.0.2/32, fd00::2/128 # keep both interface addresses\r\n" +
             "DNS = 1.1.1.1, 2606:4700:4700::1111\r\n" +
+            "MTU = 1380\r\n" +
             "\r\n[Peer]\r\n" +
             $"PublicKey = {validWgPublicKey}\r\n" +
             "Endpoint = [2001:4860:4860::8888]:51820\r\n" +
@@ -579,11 +576,17 @@ internal static class Program
             "full WireGuard conf parsing preserves every comma-separated DNS server");
         Checks.Equal(17, parsedFullWireguardConf.PersistentKeepalive,
             "full WireGuard conf parsing preserves the source PersistentKeepalive value");
+        Checks.Equal<int?>(1380, parsedFullWireguardConf.Mtu,
+            "full WireGuard conf parsing preserves the source MTU");
         string rebuiltWireguardConf = CollectorType.BuildWireguardConf(parsedFullWireguardConf);
         Checks.That(rebuiltWireguardConf.Contains("Address = 10.0.0.2/32, fd00::2/128") &&
                     rebuiltWireguardConf.Contains("DNS = 1.1.1.1, 2606:4700:4700::1111") &&
+                    rebuiltWireguardConf.Contains("MTU = 1380") &&
                     rebuiltWireguardConf.Contains("PersistentKeepalive = 17"),
-            "rebuilt WireGuard conf retains the original multi-value fields and keepalive");
+            "rebuilt WireGuard conf retains multi-value fields, MTU and keepalive");
+        Checks.Equal("001 Netherlands - Amsterdam 103.1.213.21-2802.conf",
+            CollectorType.BuildWireguardConfFileName(1, "Netherlands - Amsterdam | 103.1.213.21:2802"),
+            "WireGuard filenames keep the endpoint and port separated and readable");
 
         string multiplePeerConf = fullWireguardConf +
             $"\r\n[Peer]\r\nPublicKey = {validWgPublicKey}\r\n" +
@@ -1358,6 +1361,46 @@ internal static class Program
             "official protobuf Mieru shares normalize into the existing simple-link parser path");
         Checks.That(decodedOfficialMieru.Any(x => x.Contains("port=6666", StringComparison.Ordinal) && x.Contains("protocol=TCP", StringComparison.Ordinal)),
             "official protobuf Mieru TCP binding is decoded");
+
+        string optionedMieruShare = BuildMieruTestShare(includeDialer: false);
+        var optionedMieruLinks = CollectorType.DecodeAndExtractLines(optionedMieruShare, "https://example.net/mieru-options.txt");
+        Checks.Equal(1, optionedMieruLinks.Count, "binary Mieru profiles with supported optional settings are expanded");
+        string optionedMieruLink = optionedMieruLinks.Single();
+        string encodedTrafficPattern = Uri.EscapeDataString(Convert.ToBase64String(new byte[] { 0x08, 0x2A, 0x10, 0x01 }));
+        Checks.That(optionedMieruLink.Contains("mtu=1400", StringComparison.Ordinal) &&
+                    optionedMieruLink.Contains("multiplexing=MULTIPLEXING_HIGH", StringComparison.Ordinal) &&
+                    optionedMieruLink.Contains("handshake-mode=HANDSHAKE_NO_WAIT", StringComparison.Ordinal) &&
+                    optionedMieruLink.Contains("traffic-pattern=" + encodedTrafficPattern, StringComparison.Ordinal),
+            "binary Mieru expansion preserves MTU, multiplexing, handshake mode and traffic pattern");
+        Checks.That(CollectorType.ParseProxyLine(optionedMieruLink) is not null,
+            "Mieru links with preserved optional settings remain parseable");
+        Checks.Equal(0, CollectorType.DecodeAndExtractLines(
+                BuildMieruTestShare(includeDialer: true), "https://example.net/mieru-dialer.txt").Count,
+            "binary Mieru profiles requiring an unsupported dialer are skipped instead of silently becoming direct connections");
+
+        var rankingMigrationCurrent = new ProxyCollector.Collector.FinalProxy
+        {
+            NodeId = "new-node-id", LegacyNodeId = "old-node-id", XrayTested = true
+        };
+        var rankingMigrationPrevious = new ProxyCollector.Collector.RankingBaselineEntry
+        {
+            NodeId = "old-node-id", Score = 87, EvidenceTier = 3,
+            VerificationStatus = "full-roundtrip-passed", XrayVerified = true
+        };
+        var migratedRankingMatches = CollectorType.MatchRankingBaselineEntries(
+            new[] { rankingMigrationCurrent }, new[] { rankingMigrationPrevious });
+        Checks.Equal(1, migratedRankingMatches.Count,
+            "ranking calibration matches the pre-canonical ID through the current node's legacy identity");
+        Checks.Equal("new-node-id", migratedRankingMatches[0].Current.NodeId,
+            "ranking calibration attributes a migrated baseline to the current canonical node");
+        var ambiguousLegacyNodes = new[]
+        {
+            new ProxyCollector.Collector.FinalProxy { NodeId = "split-a", LegacyNodeId = "old-split", XrayTested = true },
+            new ProxyCollector.Collector.FinalProxy { NodeId = "split-b", LegacyNodeId = "old-split", XrayTested = true }
+        };
+        Checks.Equal(0, CollectorType.MatchRankingBaselineEntries(
+                ambiguousLegacyNodes, new[] { new ProxyCollector.Collector.RankingBaselineEntry { NodeId = "old-split" } }).Count,
+            "ranking calibration refuses ambiguous legacy matches after one old identity splits into multiple profiles");
 
         const string mieruSingboxJson = """
         {"outbounds":[{"type":"mieru","tag":"singbox-mieru","server":"mieru-singbox.example.net","server_port":7777,
@@ -2575,6 +2618,69 @@ internal static class Program
             "permanent HTTP 404 responses are not pointlessly retried");
         Checks.That(permanentErrors.Any(message => message.Contains("HTTP 404", StringComparison.Ordinal)),
             "permanent source failures are logged with their HTTP status");
+    }
+
+    private static string BuildMieruTestShare(bool includeDialer)
+    {
+        byte[] trafficPattern = new byte[] { 0x08, 0x2A, 0x10, 0x01 };
+        byte[] user = JoinProto(
+            ProtoBytesField(1, Encoding.UTF8.GetBytes("test-user")),
+            ProtoBytesField(2, Encoding.UTF8.GetBytes("test-password")));
+        byte[] binding = JoinProto(
+            ProtoVarintField(1, 443),
+            ProtoVarintField(2, 2)); // TCP
+        byte[] server = JoinProto(
+            ProtoBytesField(2, Encoding.UTF8.GetBytes("mieru-options.example.net")),
+            ProtoBytesField(3, binding));
+        var profileFields = new List<byte[]>
+        {
+            ProtoBytesField(1, Encoding.UTF8.GetBytes("default")),
+            ProtoBytesField(2, user),
+            ProtoBytesField(3, server),
+            ProtoVarintField(4, 1400),
+            ProtoBytesField(5, ProtoVarintField(1, 4)), // MULTIPLEXING_HIGH
+            ProtoVarintField(6, 2), // HANDSHAKE_NO_WAIT
+            ProtoBytesField(7, trafficPattern)
+        };
+        if (includeDialer)
+            profileFields.Add(ProtoBytesField(8, ProtoVarintField(1, 1))); // SOCKS5 dialer
+        byte[] profile = JoinProto(profileFields.ToArray());
+        byte[] root = ProtoBytesField(1, profile);
+        return "mieru://" + Convert.ToBase64String(root);
+    }
+
+    private static byte[] JoinProto(params byte[][] fields)
+    {
+        using var stream = new MemoryStream();
+        foreach (byte[] field in fields) stream.Write(field);
+        return stream.ToArray();
+    }
+
+    private static byte[] ProtoVarintField(int field, ulong value)
+    {
+        using var stream = new MemoryStream();
+        WriteProtoVarint(stream, (ulong)(field << 3));
+        WriteProtoVarint(stream, value);
+        return stream.ToArray();
+    }
+
+    private static byte[] ProtoBytesField(int field, byte[] value)
+    {
+        using var stream = new MemoryStream();
+        WriteProtoVarint(stream, (ulong)((field << 3) | 2));
+        WriteProtoVarint(stream, (ulong)value.Length);
+        stream.Write(value);
+        return stream.ToArray();
+    }
+
+    private static void WriteProtoVarint(Stream stream, ulong value)
+    {
+        while (value >= 0x80)
+        {
+            stream.WriteByte((byte)((value & 0x7F) | 0x80));
+            value >>= 7;
+        }
+        stream.WriteByte((byte)value);
     }
 
     private static void TestDnsRecoveryCache()

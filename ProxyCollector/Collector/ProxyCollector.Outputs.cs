@@ -281,12 +281,8 @@ namespace ProxyCollector.Collector
                     ok++;
 
                     // Individual .conf — WireGuard app imports this directly
-                    string safe = Regex.Replace(node.Remark, @"[^\u0020-\u007E]", " ").Trim(); 
-                    safe = Regex.Replace(safe, @"[\\/:\*\?""<>|]", "").Trim();
-                    safe = Regex.Replace(safe, @"\s+", " ").TrimEnd('.').Trim();
-                    if (safe.Length > 80) safe = safe[..80].Trim();
-                    if (string.IsNullOrEmpty(safe)) safe = $"wg{ok:D3}";
-                    await File.WriteAllTextAsync(Path.Combine(wgDir, $"{ok:D3} {safe}.conf"), BuildWireguardConf(wgInfo));
+                    string fileName = BuildWireguardConfFileName(ok, node.Remark);
+                    await File.WriteAllTextAsync(Path.Combine(wgDir, fileName), BuildWireguardConf(wgInfo));
 
                     // Build the Clash node as data. YamlDotNet handles quoting and
                     // line breaks in every source-controlled scalar; string concatenation
@@ -301,7 +297,7 @@ namespace ProxyCollector.Collector
                         ["public-key"] = wgInfo.PublicKey,
                         ["private-key"] = wgInfo.PrivateKey,
                         ["allowed-ips"] = wgInfo.AllowedIPs,
-                        ["mtu"] = 1280
+                        ["mtu"] = wgInfo.Mtu ?? 1280
                     };
                     if (!string.IsNullOrEmpty(wgInfo.Dns)) clashNode["dns"] = wgInfo.Dns;
                     if (!string.IsNullOrEmpty(wgInfo.PresharedKey)) clashNode["preshared-key"] = wgInfo.PresharedKey;
@@ -1218,17 +1214,48 @@ namespace ProxyCollector.Collector
             return new RankingBaselineSnapshot();
         }
 
+        internal static List<(FinalProxy Current, RankingBaselineEntry Previous)> MatchRankingBaselineEntries(
+            IEnumerable<FinalProxy> currentProxies,
+            IEnumerable<RankingBaselineEntry> previousEntries)
+        {
+            var current = currentProxies
+                .Where(x => x.XrayTested && !string.IsNullOrWhiteSpace(x.NodeId))
+                .ToList();
+            var exactCurrent = current
+                .GroupBy(x => x.NodeId, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+            // A legacy identity can map to multiple current profiles after a stricter
+            // canonical split. Such matches are ambiguous and must not be double-counted.
+            var uniqueLegacyCurrent = current
+                .Where(x => !string.IsNullOrWhiteSpace(x.LegacyNodeId))
+                .GroupBy(x => x.LegacyNodeId, StringComparer.Ordinal)
+                .Where(g => g.Count() == 1)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+
+            var matches = new List<(FinalProxy Current, RankingBaselineEntry Previous)>();
+            var matchedCurrentIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var previous in previousEntries
+                .Where(x => !string.IsNullOrWhiteSpace(x.NodeId))
+                .GroupBy(x => x.NodeId, StringComparer.Ordinal)
+                .Select(g => g.First()))
+            {
+                FinalProxy? match = null;
+                if (exactCurrent.TryGetValue(previous.NodeId, out var exact))
+                    match = exact;
+                else if (uniqueLegacyCurrent.TryGetValue(previous.NodeId, out var legacy))
+                    match = legacy;
+
+                if (match is not null && matchedCurrentIds.Add(match.NodeId))
+                    matches.Add((match, previous));
+            }
+            return matches;
+        }
+
         private static async Task WriteRankingCalibrationAsync(
             string samplePath, string summaryPath, IReadOnlyList<FinalProxy> proxies)
         {
             var prior = LoadRankingBaseline();
-            var priorById = prior.Nodes
-                .Where(x => !string.IsNullOrWhiteSpace(x.NodeId))
-                .GroupBy(x => x.NodeId, StringComparer.Ordinal)
-                .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
-            var samples = proxies
-                .Where(x => x.XrayTested && !string.IsNullOrWhiteSpace(x.NodeId) && priorById.ContainsKey(x.NodeId))
-                .Select(x => (Current: x, Previous: priorById[x.NodeId]))
+            var samples = MatchRankingBaselineEntries(proxies, prior.Nodes)
                 .OrderBy(x => x.Previous.Score)
                 .ToList();
 
@@ -1348,6 +1375,7 @@ namespace ProxyCollector.Collector
             public string Host = "";
             public int Port = 51820;
             public int PersistentKeepalive = 25;
+            public int? Mtu = null;
             public string[] Reserved = Array.Empty<string>();
         }
 
@@ -1497,6 +1525,19 @@ namespace ProxyCollector.Collector
         internal static bool IsValidWireguardLink(string link)
             => TryParseWireguardInfo(link) is not null;
 
+        internal static string BuildWireguardConfFileName(int index, string remark)
+        {
+            string safe = Regex.Replace(remark ?? "", @"[^\u0020-\u007E]", " ").Trim();
+            // Keep endpoint delimiters readable: a colon in host:port becomes a
+            // hyphen instead of disappearing and concatenating the two numbers.
+            safe = safe.Replace(':', '-');
+            safe = Regex.Replace(safe, @"[\\/\*\?""<>|]", "").Trim();
+            safe = Regex.Replace(safe, @"\s+", " ").TrimEnd('.').Trim();
+            if (safe.Length > 80) safe = safe[..80].Trim();
+            if (string.IsNullOrEmpty(safe)) safe = $"wg{index:D3}";
+            return $"{index:D3} {safe}.conf";
+        }
+
         internal static WgInfo? TryParseWireguardInfo(string link)
         {
             try
@@ -1530,6 +1571,13 @@ namespace ProxyCollector.Collector
                         if (!string.IsNullOrEmpty(address)) info.Address = address;
                         string dns = GetWireguardDirective(decoded, "Interface", "DNS");
                         if (!string.IsNullOrEmpty(dns)) info.Dns = dns;
+                        string mtu = GetWireguardDirective(decoded, "Interface", "MTU");
+                        if (!string.IsNullOrEmpty(mtu))
+                        {
+                            if (!int.TryParse(mtu, out int parsedMtu) || parsedMtu is < 576 or > 9000)
+                                return null;
+                            info.Mtu = parsedMtu;
+                        }
                         string allowed = GetWireguardDirective(decoded, "Peer", "AllowedIPs");
                         if (!string.IsNullOrEmpty(allowed)) info.AllowedIPs = allowed;
                         string psk = GetWireguardDirective(decoded, "Peer", "PresharedKey");
@@ -1581,6 +1629,13 @@ namespace ProxyCollector.Collector
                     info.Address = q.GetValueOrDefault("ip", q.GetValueOrDefault("address", q.GetValueOrDefault("allowed_ip", "10.0.0.2/32")));
                     info.Dns = q.GetValueOrDefault("dns", "1.1.1.1");
                     info.AllowedIPs = q.GetValueOrDefault("allowedips", q.GetValueOrDefault("allowed_ips", "0.0.0.0/0, ::/0"));
+                    string mtu = q.GetValueOrDefault("mtu", "");
+                    if (!string.IsNullOrEmpty(mtu))
+                    {
+                        if (!int.TryParse(mtu, out int parsedMtu) || parsedMtu is < 576 or > 9000)
+                            return null;
+                        info.Mtu = parsedMtu;
+                    }
                     info.PresharedKey = q.GetValueOrDefault("psk", q.GetValueOrDefault("presharedkey", ""));
                     string keepalive = q.GetValueOrDefault("persistentkeepalive", q.GetValueOrDefault("keepalive", ""));
                     if (!string.IsNullOrEmpty(keepalive) &&
@@ -1698,6 +1753,7 @@ namespace ProxyCollector.Collector
             sb.AppendLine("[Interface]");
             sb.AppendLine($"PrivateKey = {info.PrivateKey}");
             sb.AppendLine($"Address = {info.Address}");
+            if (info.Mtu.HasValue) sb.AppendLine($"MTU = {info.Mtu.Value}");
             if (!string.IsNullOrEmpty(info.Dns)) sb.AppendLine($"DNS = {info.Dns}");
             sb.AppendLine();
             sb.AppendLine("[Peer]");

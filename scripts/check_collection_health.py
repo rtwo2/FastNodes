@@ -8,7 +8,8 @@ MIB = 1024 * 1024
 MAX_FILE_BYTES = 90 * MIB  # Below GitHub's 100 MiB per-file hard limit.
 MIN_EVERYTHING_LINES = 10_000
 MIN_TOP_LINES = 100
-MIN_RETAINED = 0.30
+MIN_RETAINED = 0.65
+CATEGORY_WARNING_RETAINED = 0.75
 KEY_OUTPUTS = ("everything.txt", "top.txt", "verified.txt", "stable.txt",
                "ipv4_only.txt", "ipv6_only.txt", "top_ipv6.txt",
                "verified_tls.txt", "verified_last_good.txt", "curated.txt")
@@ -48,6 +49,16 @@ def capture_baseline(root: pathlib.Path, output: pathlib.Path) -> dict:
     print(f"Captured previous output baseline: {tree['total_files']} files, {tree['total_bytes'] / MIB:.1f} MiB")
     return value
 
+def feed_line_count(files: dict, name: str) -> int:
+    stem = pathlib.PurePosixPath(name).stem
+    pattern = re.compile(rf"{re.escape(stem)}_part[0-9]+\.txt")
+    return sum(
+        int(row.get("lines", 0) or 0)
+        for path, row in files.items()
+        if path == name or pattern.fullmatch(path)
+    )
+
+
 def over_limit_files(files: dict, maximum: int = MAX_FILE_BYTES) -> list[tuple[str, int]]:
     return sorted(((name, int(row["bytes"])) for name, row in files.items()
                    if int(row.get("bytes", 0)) > maximum), key=lambda pair: pair[1], reverse=True)
@@ -77,11 +88,7 @@ def evaluate(root: pathlib.Path, baseline: dict | None = None,
     elif int(top.get("lines", 0)) < MIN_TOP_LINES:
         errors.append(f"top.txt has {top.get('lines', 0):,} lines; minimum is {MIN_TOP_LINES}")
 
-    old_count = sum(
-        int(row.get("lines", 0) or 0)
-        for name, row in previous.items()
-        if name == "everything.txt" or re.fullmatch(r"everything_part[0-9]+\.txt", name)
-    )
+    old_count = feed_line_count(previous, "everything.txt")
     required = max(MIN_EVERYTHING_LINES, math.ceil(old_count * MIN_RETAINED))
     if old_count >= MIN_EVERYTHING_LINES and everything_count < required:
         errors.append(f"catastrophic everything collection regression: {old_count:,} -> {everything_count:,} lines "
@@ -132,11 +139,24 @@ def evaluate(root: pathlib.Path, baseline: dict | None = None,
                       {"present": True, "lines": now.get("lines"), "bytes": now["bytes"],
                        "previous_lines": old.get("lines") if old else None,
                        "previous_bytes": old.get("bytes") if old else None})
+    # The master catalogue has a hard regression floor. Secondary feeds use
+    # warnings because verification/stability populations can legitimately vary,
+    # but large unexplained drops should be visible in every collection log.
+    for name in ("top.txt", "top_ipv6.txt", "stable.txt", "curated.txt", "ipv4_only.txt", "ipv6_only.txt"):
+        old_feed = feed_line_count(previous, name)
+        new_feed = feed_line_count(files, name)
+        if old_feed >= 100 and new_feed < math.ceil(old_feed * CATEGORY_WARNING_RETAINED):
+            warnings.append(
+                f"{name} dropped sharply: {old_feed:,} -> {new_feed:,} lines "
+                f"({new_feed / old_feed:.1%} retained; review profile selection and source-family coverage)"
+            )
+
     report = {
         "schema_version": 1, "generated_at": datetime.now(timezone.utc).isoformat(),
         "baseline_captured_at": (baseline or {}).get("captured_at"),
         "limits": {"max_file_bytes": maximum, "min_everything_lines": MIN_EVERYTHING_LINES,
-                   "min_top_lines": MIN_TOP_LINES, "minimum_everything_retained_fraction": MIN_RETAINED},
+                   "min_top_lines": MIN_TOP_LINES, "minimum_everything_retained_fraction": MIN_RETAINED,
+                   "category_regression_warning_retained_fraction": CATEGORY_WARNING_RETAINED},
         "current": {"total_files": current["total_files"], "total_bytes": current["total_bytes"],
                     "total_mib": round(current["total_bytes"] / MIB, 2), "largest_files": largest},
         "outputs": keys, "largest_growth_by_bytes": growth, "largest_shrink_by_bytes": shrink,
@@ -153,13 +173,18 @@ def self_test() -> None:
         (root / "everything_part2.txt").write_text("n\n" * 8_000, encoding="utf-8")
         (root / "top.txt").write_text("n\n" * 100, encoding="utf-8")
         (root / "verified.txt").write_text("n\n" * 100, encoding="utf-8")
+        (root / "ipv6_only.txt").write_text("v6\n" * 1_000, encoding="utf-8")
         snap = inspect_tree(root)
         baseline = {"captured_at": "test", "total_bytes": snap["total_bytes"], "files": dict(snap["files"])}
-        baseline["files"]["everything.txt"] = {"bytes": snap["files"]["everything.txt"]["bytes"] * 2, "lines": 30_000}
-        baseline["files"]["everything_part2.txt"] = {"bytes": snap["files"]["everything_part2.txt"]["bytes"] * 2, "lines": 20_000}
+        baseline["files"]["everything.txt"] = {"bytes": snap["files"]["everything.txt"]["bytes"] * 2, "lines": 15_000}
+        baseline["files"]["everything_part2.txt"] = {"bytes": snap["files"]["everything_part2.txt"]["bytes"] * 2, "lines": 10_000}
         report, errors = evaluate(root, baseline)
         assert not errors, errors
         assert report["outputs"]["everything.txt"]["lines"] == 20_000
+        (root / "ipv6_only.txt").write_text("v6\n" * 600, encoding="utf-8")
+        category_report, category_errors = evaluate(root, baseline)
+        assert not category_errors, category_errors
+        assert any("ipv6_only.txt dropped sharply" in warning for warning in category_report["warnings"])
         (root / "everything.txt").write_text("n\n" * 8_000, encoding="utf-8")
         (root / "everything_part2.txt").write_text("n\n" * 4_000, encoding="utf-8")
         _, errors = evaluate(root, baseline)

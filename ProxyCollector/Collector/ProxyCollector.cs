@@ -1578,8 +1578,8 @@ namespace ProxyCollector.Collector
             catch (Exception ex) { LogWarning($"Edge verification failed (non-fatal): {ex.Message}"); }
             GroupEnd();
 
-            // v6.13: cross-run stability. state/history.json is committed by this run's
-            // orphan commit; the next run's checkout of main IS the restore.
+            // v6.13: cross-run stability. state/history.json is published on the
+            // outputs branch and restored before the next collection run.
             GroupStart("📚 Stability tracking (state/history.json)");
             try
             {
@@ -1620,6 +1620,7 @@ namespace ProxyCollector.Collector
                     Link = cleanLink, Proto = proto, CountryCode = cc,
                     Continent = continent, Remark = remark, Host = p.Host,
                     Port = p.Port, NodeId = HistKey(p.DeduplicationKey),
+                    LegacyNodeId = HistKey(p.LegacyDeduplicationKey),
                     ConnectionIdentityKey = p.DeduplicationKey,
                     SelectionProfileKey = p.SelectionProfileKey,
                     Credential = p.Credential,
@@ -2607,19 +2608,8 @@ namespace ProxyCollector.Collector
         internal static bool IsValidEdgeResultId(int id, IReadOnlySet<int> expectedBatchIds, int poolCount)
             => id >= 0 && id < poolCount && expectedBatchIds.Contains(id);
 
-        // The deployed Worker uses Cloudflare's native TLS socket path, which can
-        // verify the endpoint hostname but cannot reliably set a different custom SNI.
-        // Do not send unsupported custom-SNI targets to that Worker or credit them.
-        internal static bool IsEdgeProbeSniSupported(string endpointHost, string? requestedSni)
-        {
-            if (string.IsNullOrWhiteSpace(endpointHost)) return false;
-            if (string.IsNullOrWhiteSpace(requestedSni)) return true;
-            return string.Equals(
-                endpointHost.Trim(),
-                requestedSni.Trim(),
-                StringComparison.OrdinalIgnoreCase);
-        }
-
+        // A custom SNI is credited only when the Worker echoes the exact requested
+        // name. A legacy host-only response remains valid only when host == SNI.
         internal static bool IsValidEdgeSniEcho(
             string expectedSni, string? reportedSni, string endpointHost)
         {
@@ -2648,18 +2638,11 @@ namespace ProxyCollector.Collector
             // components are already lowercased below before being added.
             var seen = new HashSet<(string, int, string)>();
             int cfSkipped = 0;
-            int sniSkipped = 0;
             async Task AddToPoolAsync(ParsedProxy p)
             {
-                // The current Worker can only establish TLS using the endpoint hostname.
-                // A different explicit SNI cannot be verified by this socket API; leave
-                // those nodes not-tested instead of sending them for a misleading result.
-                if (!IsEdgeProbeSniSupported(p.Host, p.Sni))
-                {
-                    sniSkipped++;
-                    return;
-                }
-
+                // Send the effective SNI for every target. A Worker that has not yet
+                // implemented custom-SNI support will return a host-only/mismatched echo,
+                // which IsValidEdgeSniEcho rejects without granting verification credit.
                 // CF-fronted hosts are unprovable from a Worker (CF blocks Worker→CF
                 // connects) — skip them and spend the budget on hosts this vantage
                 // can actually judge. Resolver cache is warm (GeoIP resolved every
@@ -2704,8 +2687,6 @@ namespace ProxyCollector.Collector
             }
             if (cfSkipped > 0)
                 LogInfo($"Edge pool: skipped {cfSkipped} CF-fronted hosts (unprovable from a Worker vantage).");
-            if (sniSkipped > 0)
-                LogInfo($"Edge pool: skipped {sniSkipped} targets with explicit SNI different from endpoint hostname; the current Worker cannot verify custom SNI.");
             if (pool.Count == 0) { LogInfo("Edge verification: no candidates."); return; }
 
             int ok = 0, cfBlocked = 0, refused = 0, timeouts = 0, errors = 0, dnsFails = 0, tlsFails = 0;
@@ -4443,6 +4424,8 @@ namespace ProxyCollector.Collector
     {
         public string  Link             { get; set; } = "";
         public string  NodeId           { get; set; } = "";
+        // Hash of the pre-canonical identity, used only to bridge historical ranking baselines.
+        public string  LegacyNodeId      { get; set; } = "";
         public string  ConnectionIdentityKey { get; set; } = "";
         public string  SelectionProfileKey { get; set; } = "";
         public string  Credential       { get; set; } = "";

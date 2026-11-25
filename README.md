@@ -32,38 +32,40 @@ No account, token, or setup wizard needed.
 
 Works with compatible V2Ray / Xray clients. Individual protocol support depends on your app.
 
+Generated subscriptions are published on the [`outputs` branch](https://github.com/rtwo2/FastNodes/tree/outputs); source code, tests and CI stay on `main`.
+
 ## ✨ The good stuff
 
 A few useful feeds, without making you dig through the whole collection.
 
 | Feed | A good choice when you want… | Open |
 |:--|:--|:--:|
-| ⚡ **Top ranked** | A balanced shortlist ranked using current test evidence, source quality, and diversity | [top.txt](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top.txt) |
-| 🛡️ **Xray verified** | Nodes that completed a full Xray proxy round-trip in the latest collection | [verified.txt](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/verified.txt) |
-| 🌐 **Top IPv6** | A ranked shortlist of IPv6-capable candidates | [top_ipv6.txt](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top_ipv6.txt) |
-| 📦 **Everything** | The broad collection after parsing and safety filters | [everything.txt](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/everything.txt) |
+| ⚡ **Top ranked** | A balanced shortlist ranked using current test evidence, source quality, and diversity | [top.txt](https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/top.txt) |
+| 🛡️ **Xray verified** | Nodes that completed a full Xray proxy round-trip in the latest collection | [verified.txt](https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/verified.txt) |
+| 🌐 **Top IPv6** | A ranked shortlist of IPv6-capable candidates | [top_ipv6.txt](https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/top_ipv6.txt) |
+| 📦 **Everything** | The broad collection after parsing and safety filters | [everything.txt](https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/everything.txt) |
 
 <details>
 <summary><strong>♡ Show copy-and-paste subscription URLs</strong></summary>
 
 **Top ranked**
 ```text
-https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top.txt
+https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/top.txt
 ```
 
 **Xray verified**
 ```text
-https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/verified.txt
+https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/verified.txt
 ```
 
 **Top IPv6**
 ```text
-https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top_ipv6.txt
+https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/top_ipv6.txt
 ```
 
 **Everything**
 ```text
-https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/everything.txt
+https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/everything.txt
 ```
 </details>
 
@@ -79,7 +81,7 @@ We keep different kinds of evidence separate. A TLS handshake is useful, but it 
 | `verified_tls.txt` | TLS handshake succeeded during the current run. This is partial connectivity evidence, not a full proxy test. |
 | `top.txt` | Global shortlist using 55% full-roundtrip, 30% partial-connectivity, and 15% source/stability evidence lanes, with an IPv6 reservation and diversity caps. |
 | `top_ipv6.txt` | IPv6-capable shortlist using the same 55/30/15 evidence mix and source/provider/hostname/transport/protocol diversity controls. |
-| `stable.txt` | Best representative per connection profile seen in at least three consecutive collection runs. Persistence is not a promise of reachability. |
+| `stable.txt` | The selected credential variant has appeared in at least three consecutive collection runs. Stability history is tracked per exact configuration; other credentials collapsed into the same service profile do not inherit that status. Persistence is not a promise of reachability. |
 | `curated.txt` | Trusted-source candidates, or candidates that are both stable and TLS-verified. |
 | `everything.txt` | One best representative per distinct service profile that survives parsing and safety filters. Many entries are not individually verified. |
 
@@ -97,20 +99,22 @@ The global feed also reserves its configured IPv6 share. When one evidence lane 
 
 **A test result is a snapshot, not a promise.** Reachability can change after collection, and results depend on the runner's network location. A node that fails from the runner may still work from your ISP or country.
 
-The optional Cloudflare edge check currently supports targets whose effective TLS SNI matches the endpoint hostname. Targets that explicitly require a different SNI are skipped by that check, but remain eligible for other feeds and verification stages.
+The Cloudflare edge check sends each target's effective TLS SNI separately from its endpoint hostname. A custom-SNI result is credited only when the Worker applies and echoes the exact requested SNI; legacy host-only responses remain valid only when endpoint hostname and SNI are identical. See [the Worker contract](docs/EDGE-WORKER-CONTRACT.md) before updating the external Worker.
 
 ### Protocol note: Mieru
 
-FastNodes supports Mieru's human-readable `mierus://` simple-share format, including repeated port/protocol bindings expanded into separate TCP or UDP nodes. Supported sing-box and Clash Mieru definitions are also converted.
+FastNodes supports Mieru's human-readable `mierus://` simple-share format, including repeated port/protocol bindings expanded into separate TCP or UDP nodes. Supported sing-box and Clash Mieru definitions are also converted. Binary protobuf shares preserve MTU, multiplexing, handshake mode and traffic-pattern settings when converting to the official simple-share format. Profiles that require the optional proxy dialer are skipped rather than silently converted into direct connections.
 
 The official binary protobuf `mieru://` share format is decoded into normalized per-server, per-port `mierus://` entries.
 
 ## 🗂️ The full collection
 
+WireGuard `.conf` exports preserve source MTU when supplied. AmneziaWG `reserved` bytes are retained in the Clash YAML feed; the standard WireGuard `.conf` format has no equivalent directive.
+
 All generated subscriptions live in:
 
 ```text
-https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/
+https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/
 ```
 
 ### Quality & history
@@ -130,32 +134,32 @@ https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/
 
 | File | What's inside |
 |:--|:--|
-| [`ipv4_only.txt`](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/ipv4_only.txt) | Profiles with at least one resolved IPv4 address |
-| [`ipv6_only.txt`](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/ipv6_only.txt) | Profiles with at least one resolved IPv6 address; broader than the 1,000-entry Top IPv6 shortlist |
+| [`ipv4_only.txt`](https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/ipv4_only.txt) | Profiles with at least one resolved IPv4 address |
+| [`ipv6_only.txt`](https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/ipv6_only.txt) | Profiles with at least one resolved IPv6 address; broader than the 1,000-entry Top IPv6 shortlist |
 
 Dual-stack hostnames can appear in both. These lists describe DNS address-family support, not guaranteed proxy connectivity over that family.
 
 ### By protocol
 
-Browse the [protocol directory](https://github.com/rtwo2/FastNodes/tree/main/sub/protocols).
+Browse the [protocol directory](https://github.com/rtwo2/FastNodes/tree/outputs/sub/protocols).
 
 **VLESS · VMess · Trojan · Shadowsocks · ShadowsocksR · Hysteria · Hysteria2 · TUIC · Naive · AnyTLS · Brook · Snell · Juicity · Mieru · SOCKS · WireGuard**
 
 Example:
 
 ```text
-https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/protocols/vless.txt
+https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/protocols/vless.txt
 ```
 
 WireGuard also has two additional exports:
 
-- [Clash-compatible YAML](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/protocols/wireguard.txt)
-- [Individual WireGuard configuration files](https://github.com/rtwo2/FastNodes/tree/main/sub/wireguard), for compatible WireGuard clients
+- [Clash-compatible YAML](https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/protocols/wireguard.txt)
+- [Individual WireGuard configuration files](https://github.com/rtwo2/FastNodes/tree/outputs/sub/wireguard), for compatible WireGuard clients
 
 ### By country & continent
 
-- [Country feeds](https://github.com/rtwo2/FastNodes/tree/main/sub/countries) use two-letter country codes, such as `countries/DE.txt`.
-- [Continent feeds](https://github.com/rtwo2/FastNodes/tree/main/sub/continents) group candidates by GeoIP-estimated continent.
+- [Country feeds](https://github.com/rtwo2/FastNodes/tree/outputs/sub/countries) use two-letter country codes, such as `countries/DE.txt`.
+- [Continent feeds](https://github.com/rtwo2/FastNodes/tree/outputs/sub/continents) group candidates by GeoIP-estimated continent.
 
 GeoIP labels are best-effort estimates, not proof of a server's physical location.
 
@@ -167,7 +171,7 @@ GitHub has file-size limits, so large subscriptions are split automatically:
 - Large history feeds, such as `stable.txt`, may also have numbered parts.
 - Protocol, country, and continent feeds are split when they exceed **1,000 entries**.
 
-The base file contains only its first part. To import the **complete** feed, add every matching part separately in your client. The [subscription directory](https://github.com/rtwo2/FastNodes/tree/main/sub) shows which parts currently exist.
+The base file contains only its first part. To import the **complete** feed, add every matching part separately in your client. The [subscription directory](https://github.com/rtwo2/FastNodes/tree/outputs/sub) shows which parts currently exist.
 
 ## 📱 Compatible clients
 
@@ -211,14 +215,14 @@ The pipeline uses bounded source fetching, vetted destination addresses, dual-st
 
 ## 📊 Transparency & diagnostics
 
-You can follow each collection in the [Actions workflow](https://github.com/rtwo2/FastNodes/actions/workflows/collect.yml). Machine-readable reports are published in [`sub/diagnostics/`](https://github.com/rtwo2/FastNodes/tree/main/sub/diagnostics).
+You can follow each collection in the [Actions workflow](https://github.com/rtwo2/FastNodes/actions/workflows/collect.yml). Machine-readable reports are published in [`sub/diagnostics/`](https://github.com/rtwo2/FastNodes/tree/outputs/sub/diagnostics).
 
 | Report | What it tells you |
 |:--|:--|
-| [`source-health.csv`](https://github.com/rtwo2/FastNodes/blob/main/sub/diagnostics/source-health.csv) | Fetching, parsing, contribution, and provider outcomes per source |
-| [`source-health-trends.csv`](https://github.com/rtwo2/FastNodes/blob/main/sub/diagnostics/source-health-trends.csv) | Source health across recent collection runs |
-| [`ranking-calibration-summary.csv`](https://github.com/rtwo2/FastNodes/blob/main/sub/diagnostics/ranking-calibration-summary.csv) | How previous score bands performed in later Xray checks |
-| [`verification-status.csv.gz`](https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/diagnostics/verification-status.csv.gz) | Candidate-level evidence, test status, and ranking details |
+| [`source-health.csv`](https://github.com/rtwo2/FastNodes/blob/outputs/sub/diagnostics/source-health.csv) | Fetching, parsing, contribution, and provider outcomes per source |
+| [`source-health-trends.csv`](https://github.com/rtwo2/FastNodes/blob/outputs/sub/diagnostics/source-health-trends.csv) | Source health across recent collection runs |
+| [`ranking-calibration-summary.csv`](https://github.com/rtwo2/FastNodes/blob/outputs/sub/diagnostics/ranking-calibration-summary.csv) | How previous score bands performed in later Xray checks |
+| [`verification-status.csv.gz`](https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/diagnostics/verification-status.csv.gz) | Candidate-level evidence, test status, and ranking details |
 
 Diagnostics help with manual review. A flagged source is not automatically removed, and ranking weights are not automatically changed just because a report finds an anomaly.
 
@@ -253,7 +257,7 @@ Generated subscription lists and files under `sub/` are subject to [`DATA-TERMS.
 
 ### Thanks for stopping by ✦
 
-**FastNodes** · [Repository](https://github.com/rtwo2/FastNodes) · [Subscriptions](https://github.com/rtwo2/FastNodes/tree/main/sub) · [Latest collection](https://github.com/rtwo2/FastNodes/actions/workflows/collect.yml)
+**FastNodes** · [Repository](https://github.com/rtwo2/FastNodes) · [Subscriptions](https://github.com/rtwo2/FastNodes/tree/outputs/sub) · [Latest collection](https://github.com/rtwo2/FastNodes/actions/workflows/collect.yml)
 
 *Collected globally. Verified honestly. Shared openly.* ♡
 

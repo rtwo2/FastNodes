@@ -48,3 +48,7 @@ Properties/launchSettings.json
 *.publishsettings
 *.snk
 node_modules/
+
+# Generated subscription data and persistent collection state live on outputs.
+/sub/
+/state/

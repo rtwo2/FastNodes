@@ -1425,6 +1425,19 @@ internal static class Program
                     CollectorType.IsCloudflareMetadata(warpFragment),
             "encoded WARP+ source labels survive parsing and trigger the metadata exclusion");
 
+        string ssrPasswordToken = Convert.ToBase64String(Encoding.UTF8.GetBytes("secret"))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        string ssrRemarkToken = Convert.ToBase64String(Encoding.UTF8.GetBytes("Cloudflare WARP"))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        string ssrPayload = $"ordinary.example.net:8388:origin:aes-128-gcm:plain:{ssrPasswordToken}/?remarks_base64={ssrRemarkToken}";
+        string ssrToken = Convert.ToBase64String(Encoding.UTF8.GetBytes(ssrPayload))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var ssrLabel = CollectorType.ParseProxyLine("ssr://" + ssrToken);
+        Checks.That(ssrLabel is not null &&
+                    ssrLabel.SourceRemark == "Cloudflare WARP" &&
+                    CollectorType.IsCloudflareMetadata(ssrLabel),
+            "SSR embedded Base64 remarks are preserved and filtered before output naming");
+
         var vmessLabelJson = JsonSerializer.Serialize(new
         {
             add = "ordinary.example.net", port = "443",

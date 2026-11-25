@@ -373,6 +373,14 @@ internal static class Program
         });
         Checks.Equal(2, caseSensitiveFallbackLinks.Count,
             "last-good fallback deduplication preserves case-sensitive credentials and paths");
+        var semanticFallbackLinks = CollectorType.DeduplicateFallbackLinks(new[]
+        {
+            "vless://credential-a@same.example.net:443?security=tls&type=ws&path=%2Fws#old-name",
+            "vless://credential-b@SAME.example.net:443?path=/ws&type=WS&security=TLS#new-name",
+            "vless://credential-c@same.example.net:443?security=tls&type=ws&sni=other.example.net&path=/ws"
+        });
+        Checks.Equal(2, semanticFallbackLinks.Count,
+            "fallback feed collapses credential and query-order duplicates but preserves a distinct SNI profile");
 
         string verificationReportPath = Path.Combine(
             Path.GetTempPath(), "fastnodes-verification-report-" + Guid.NewGuid().ToString("N") + ".csv.gz");
@@ -1334,6 +1342,55 @@ internal static class Program
         Checks.That(passwordA!.DeduplicationKey != passwordB!.DeduplicationKey,
             "Deduplication preserves case-sensitive Trojan passwords");
 
+        var canonicalOrderA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@NODE.EXAMPLE.NET.:443?security=TLS&type=WS&sni=CDN.EXAMPLE.NET.&path=%2Fws&fp=chrome&alpn=h2");
+        var canonicalOrderB = CollectorType.ParseProxyLine(
+            "vless://123E4567-E89B-12D3-A456-426614174000@node.example.net:443?alpn=h2&fp=chrome&path=/ws&sni=cdn.example.net&type=ws&security=tls");
+        Checks.That(canonicalOrderA is not null && canonicalOrderB is not null,
+            "equivalent query spellings parse for canonical identity");
+        Checks.Equal(canonicalOrderA!.DeduplicationKey, canonicalOrderB!.DeduplicationKey,
+            "identity normalizes DNS case/trailing dots, UUID case, known option case and query ordering");
+        Checks.Equal(
+            CollectorType.NormalizeIdentityHost("BÜCHER.Example."),
+            CollectorType.NormalizeIdentityHost("xn--bcher-kva.example"),
+            "DNS identity normalization maps Unicode and punycode hostnames to one IDN form");
+
+        var uuidCaseA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@uuid.example.net:443?security=tls");
+        var uuidCaseB = CollectorType.ParseProxyLine(
+            "vless://123E4567-E89B-12D3-A456-426614174000@uuid.example.net:443?security=tls");
+        Checks.Equal(uuidCaseA!.DeduplicationKey, uuidCaseB!.DeduplicationKey,
+            "UUID credentials are normalized case-insensitively");
+        var customCaseA = CollectorType.ParseProxyLine(
+            "vless://CustomId@custom.example.net:443?security=tls");
+        var customCaseB = CollectorType.ParseProxyLine(
+            "vless://customid@custom.example.net:443?security=tls");
+        Checks.That(customCaseA is not null && customCaseB is not null &&
+                    customCaseA.DeduplicationKey != customCaseB.DeduplicationKey,
+            "case-sensitive custom VLESS IDs remain distinct full configurations");
+        Checks.Equal(customCaseA!.LegacyDeduplicationKey, customCaseB!.LegacyDeduplicationKey,
+            "legacy history identity remains available for migrating case-folded custom IDs");
+        Checks.Equal(customCaseA.SelectionProfileKey, customCaseB.SelectionProfileKey,
+            "credential variants share a service profile in compact feeds");
+        var differentPluginOption = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@node.example.net:443?security=tls&fp=chrome&alpn=h2&plugin-mode=other");
+        Checks.That(differentPluginOption is not null &&
+                    canonicalOrderA.DeduplicationKey != differentPluginOption.DeduplicationKey,
+            "unknown plug-in and transport options remain part of canonical identity");
+        var defaultTransportA = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@defaults.example.net:443?security=none");
+        var defaultTransportB = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@defaults.example.net:443?type=&security=NONE");
+        Checks.Equal(defaultTransportA!.DeduplicationKey, defaultTransportB!.DeduplicationKey,
+            "absent and explicit default transport/security options normalize to one identity");
+        var tuicPasswordA = CollectorType.ParseProxyLine(
+            "tuic://User:Password@tuic.example.net:443");
+        var tuicPasswordB = CollectorType.ParseProxyLine(
+            "tuic://user:password@tuic.example.net:443");
+        Checks.That(tuicPasswordA is not null && tuicPasswordB is not null &&
+                    tuicPasswordA.DeduplicationKey != tuicPasswordB.DeduplicationKey,
+            "case-sensitive TUIC credentials are not folded together");
+
         Checks.That(CollectorType.ParseProxyLine("not a proxy URI") is null,
             "Malformed non-proxy input is rejected");
         Checks.That(CollectorType.ParseProxyLine(
@@ -1742,6 +1799,67 @@ internal static class Program
         Checks.That(CollectorType.GetTopEndpointProfileKey(obfsVariant) !=
                     CollectorType.GetTopEndpointProfileKey(obfsBase),
             "different Hysteria2 obfuscation secrets remain separate endpoint profiles");
+
+        var profileCredentialA = CollectorType.ParseProxyLine(
+            "vless://credential-a@profile.example.net:443?security=tls");
+        var profileCredentialB = CollectorType.ParseProxyLine(
+            "vless://credential-b@profile.example.net:443?security=tls");
+        Checks.That(profileCredentialA is not null && profileCredentialB is not null &&
+                    profileCredentialA.DeduplicationKey != profileCredentialB.DeduplicationKey &&
+                    profileCredentialA.SelectionProfileKey == profileCredentialB.SelectionProfileKey,
+            "the broad identity keeps separate accounts while the shortlist identity groups one service profile");
+
+        var wireguardProfileA = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "wireguard", Host = "wg.example.net", Port = "51820",
+            Credential = "private-key-a"
+        };
+        var wireguardProfileB = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "wireguard", Host = "wg.example.net", Port = "51820",
+            Credential = "private-key-b"
+        };
+        Checks.That(wireguardProfileA.SelectionProfileKey != wireguardProfileB.SelectionProfileKey,
+            "WireGuard private keys remain part of tunnel-profile identity");
+
+        var finalExactA = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://credential-a@profile.example.net:443#first",
+            ConnectionIdentityKey = profileCredentialA!.DeduplicationKey,
+            SelectionProfileKey = profileCredentialA.SelectionProfileKey,
+            Credential = profileCredentialA.Credential,
+            Proto = "vless", Host = "profile.example.net", Port = "443",
+            Score = 10, SourceCount = 1
+        };
+        var finalExactDuplicate = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://credential-a@PROFILE.EXAMPLE.NET:443#second",
+            ConnectionIdentityKey = profileCredentialA.DeduplicationKey,
+            SelectionProfileKey = profileCredentialA.SelectionProfileKey,
+            Credential = profileCredentialA.Credential,
+            Proto = "vless", Host = "profile.example.net", Port = "443",
+            XrayTested = true, XrayVerified = true, Score = 50, SourceCount = 3
+        };
+        var finalDifferentAccount = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://credential-b@profile.example.net:443",
+            ConnectionIdentityKey = profileCredentialB!.DeduplicationKey,
+            SelectionProfileKey = profileCredentialB.SelectionProfileKey,
+            Credential = profileCredentialB.Credential,
+            Proto = "vless", Host = "profile.example.net", Port = "443",
+            Score = 20, SourceCount = 2
+        };
+        var finalExactDedup = CollectorType.DeduplicateFinalProxies(
+            new[] { finalExactA, finalExactDuplicate, finalDifferentAccount });
+        Checks.Equal(2, finalExactDedup.Count,
+            "the master output deduplicator collapses semantically identical configurations only");
+        Checks.That(finalExactDedup.Any(x => x.XrayVerified && x.SourceCount == 3),
+            "exact-duplicate metadata is merged from the strongest current evidence representative");
+        var compactProfiles = CollectorType.SelectBestEndpointProfiles(finalExactDedup);
+        Checks.Equal(1, compactProfiles.Count,
+            "compact category feeds collapse multiple credentials into one service profile");
+        Checks.That(compactProfiles[0].XrayVerified,
+            "compact profile selection prefers the credential with the strongest current verification evidence");
 
         var nearbySingleSource = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@nearby.example.net:443?security=tls")!;

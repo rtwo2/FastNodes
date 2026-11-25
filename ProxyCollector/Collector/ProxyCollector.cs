@@ -1620,6 +1620,7 @@ namespace ProxyCollector.Collector
                     Link = cleanLink, Proto = proto, CountryCode = cc,
                     Continent = continent, Remark = remark, Host = p.Host,
                     Port = p.Port, NodeId = HistKey(p.DeduplicationKey),
+                    LegacyNodeId = HistKey(p.LegacyDeduplicationKey),
                     ConnectionIdentityKey = p.DeduplicationKey,
                     SelectionProfileKey = p.SelectionProfileKey,
                     Credential = p.Credential,
@@ -4443,6 +4444,8 @@ namespace ProxyCollector.Collector
     {
         public string  Link             { get; set; } = "";
         public string  NodeId           { get; set; } = "";
+        // Hash of the pre-canonical identity, used only to bridge historical ranking baselines.
+        public string  LegacyNodeId      { get; set; } = "";
         public string  ConnectionIdentityKey { get; set; } = "";
         public string  SelectionProfileKey { get; set; } = "";
         public string  Credential       { get; set; } = "";

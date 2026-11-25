@@ -64,6 +64,11 @@ namespace ProxyCollector.Collector
 
         private async Task SaveAllCategories(List<FinalProxy> proxies, string sourceReportCsv)
         {
+            int receivedCount = proxies.Count;
+            proxies = DeduplicateFinalProxies(proxies);
+            if (proxies.Count != receivedCount)
+                LogSuccess($"Output identity audit: collapsed {receivedCount - proxies.Count} repeated exact configuration(s); compact feeds will additionally collapse credential variants by connection profile.");
+
             var root = Directory.GetCurrentDirectory();
             var finalSub = Path.Combine(root, "sub");
             var stagingSub = Path.Combine(root, "sub.staging");
@@ -85,10 +90,13 @@ namespace ProxyCollector.Collector
             foreach (var d in new[] { "protocols", "countries", "continents" })
                 Directory.CreateDirectory(Path.Combine(sub, d));
 
-            // Resolve family once per staged snapshot, then reuse the result for /top,
-            // /verified ordering, and the dedicated IPv4/IPv6 feeds.
-            var ipv4Proxies = await FilterByFamilyAsync(proxies, AddressFamily.InterNetwork);
-            var ipv6Proxies = await FilterByFamilyAsync(proxies, AddressFamily.InterNetworkV6);
+            // Resolve family once per staged snapshot. Compact category feeds use one
+            // representative per connection profile, but the master list retains every
+            // genuinely distinct credential/configuration.
+            var ipv4Proxies = SelectBestEndpointProfiles(
+                await FilterByFamilyAsync(proxies, AddressFamily.InterNetwork));
+            var ipv6Proxies = SelectBestEndpointProfiles(
+                await FilterByFamilyAsync(proxies, AddressFamily.InterNetworkV6));
             var ipv6Links = new HashSet<string>(ipv6Proxies.Select(x => x.Link), StringComparer.Ordinal);
 
             int everythingPartCount = await WriteSubscriptionPartsAsync(
@@ -96,84 +104,73 @@ namespace ProxyCollector.Collector
             LogSuccess($"Saved everything.txt ({proxies.Count})" +
                        (everythingPartCount > 1 ? $" across {everythingPartCount} parts (≤50 MiB each)" : ""));
 
-            // Quality/history feeds use the same byte cap as the full collection.
-            var stable = proxies.Where(x => x.IsStable).ToList();
+            // Compact history/evidence feeds use one best representative per service
+            // profile. The master everything.txt remains credential-complete.
+            var stable = SelectBestEndpointProfiles(proxies.Where(x => x.IsStable));
             int stablePartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "stable"), stable.Select(x => x.Link));
             LogSuccess($"Saved stable.txt ({stable.Count}) — present ≥{StableMinRuns} consecutive runs" +
                        (stablePartCount > 1 ? $"; split into {stablePartCount} parts" : ""));
 
-            var tlsVerified = proxies.Where(x => x.TlsVerified).ToList();
+            var tlsVerified = SelectBestEndpointProfiles(proxies.Where(x => x.TlsVerified));
             int tlsPartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "verified_tls"), tlsVerified.Select(x => x.Link));
-            LogSuccess($"Saved verified_tls.txt ({tlsVerified.Count}) — TLS handshake completed (clean-vantage, promotion only)" +
+            LogSuccess($"Saved verified_tls.txt ({tlsVerified.Count}) — distinct endpoint profiles with a current TLS handshake" +
                        (tlsPartCount > 1 ? $"; split into {tlsPartCount} parts" : ""));
 
-            // v6.15: the strongest file in the repo — nodes that proxied a real HTTP
-            // request end-to-end this run, through the actual protocol, via xray-core.
-            // The runner can only establish success from its own vantage, but the
-            // resulting evidence is still valid globally. Do not silently exclude
-            // working nodes merely because their server is outside a preferred region.
-            // Keep this file strictly roundtrip-verified; among those verified nodes,
-            // put native-IPv6-capable endpoints first without promoting unverified nodes.
-            var xrayVerified = proxies.Where(x => x.XrayVerified)
+            // verified.txt is a strict current-run claim: every entry must have passed
+            // the full Xray proxy round-trip (including the expected HTTP 204) in THIS
+            // collection run. Never mix old successes into this feed.
+            var xrayVerified = SelectBestEndpointProfiles(proxies.Where(x => x.XrayVerified))
                 .OrderByDescending(x => ipv6Links.Contains(x.Link))
+                .ThenByDescending(x => x.XrayStreak)
                 .ThenByDescending(x => x.Score)
                 .ThenBy(x => x.Remark, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .ToList();
+
             string lastVerifiedPath = Path.Combine("state", "verified_last.txt");
             int previousVerifiedCount = File.Exists(lastVerifiedPath)
                 ? (await File.ReadAllLinesAsync(lastVerifiedPath)).Count(line => !string.IsNullOrWhiteSpace(line))
                 : 0;
-            // Don't replace a useful last-good set with a suspiciously tiny partial run.
-            // On first-ever success, any non-empty result is useful; after that, require
-            // at least 25 nodes and 20% of the previous set before rotating the fallback.
             int replacementFloor = previousVerifiedCount == 0
                 ? 1 : Math.Max(25, (int)Math.Ceiling(previousVerifiedCount * 0.20));
+
+            List<string> safeLastGood;
             if (xrayVerified.Count >= replacementFloor)
             {
-                await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), xrayVerified.Select(x => x.Link));
                 Directory.CreateDirectory("state");
-                await File.WriteAllLinesAsync(lastVerifiedPath, xrayVerified.Select(x => x.Link));
-                LogSuccess($"Saved verified.txt ({xrayVerified.Count}) — current-run full proxy roundtrip");
+                var currentLinks = xrayVerified.Select(x => x.Link).ToList();
+                await File.WriteAllLinesAsync(lastVerifiedPath, currentLinks);
+                safeLastGood = currentLinks;
+                LogSuccess($"Rotated last-good Xray snapshot with {safeLastGood.Count} current-run verified endpoint profile(s).");
             }
             else if (File.Exists(lastVerifiedPath))
             {
                 var lastGoodLines = await File.ReadAllLinesAsync(lastVerifiedPath);
-                var safeLastGood = await FilterSafeLastGoodLinksAsync(lastGoodLines);
-                if (safeLastGood.Count > 0)
-                {
-                    await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), safeLastGood);
-                    LogWarning($"verified.txt: only {xrayVerified.Count} current-run successes (replacement floor {replacementFloor}); preserving {safeLastGood.Count}/{lastGoodLines.Length} safe last-good entries.");
-                }
-                else if (xrayVerified.Count > 0)
-                {
-                    // Prefer a small, current-run verified set over an unsafe or wholly
-                    // stale fallback. Do not rotate the last-good snapshot below its floor.
-                    await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), xrayVerified.Select(x => x.Link));
-                    LogWarning($"verified.txt: no safe last-good entries; publishing {xrayVerified.Count} current-run roundtrip successes without rotating the snapshot.");
-                }
-                else
-                {
-                    // Fail before swapping the staged output tree. Publishing an unsafe
-                    // fallback is worse than keeping the previous complete publication.
-                    throw new InvalidOperationException(
-                        "No current Xray-verified nodes and no safe last-good fallback; refusing to publish verified.txt.");
-                }
+                safeLastGood = await FilterSafeLastGoodLinksAsync(lastGoodLines);
+                if (safeLastGood.Count == 0 && xrayVerified.Count > 0)
+                    safeLastGood = xrayVerified.Select(x => x.Link).ToList();
+                LogWarning($"Current Xray successes: {xrayVerified.Count} (snapshot replacement floor {replacementFloor}); sanitized last-good snapshot contains {safeLastGood.Count} profile(s).");
             }
             else
             {
-                // No previous snapshot exists. Preserve any current successes; workflow
-                // validation will still prevent an empty first publication.
-                await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), xrayVerified.Select(x => x.Link));
-                LogWarning($"verified.txt: first run has only {xrayVerified.Count} verified nodes.");
+                safeLastGood = xrayVerified.Select(x => x.Link).ToList();
+                LogWarning($"No prior last-good Xray snapshot exists; retaining {safeLastGood.Count} current verified profile(s) as the initial fallback.");
             }
 
-            // Curated evidence tier: source-tested nodes plus the stable+TLS-verified core.
+            // Keep the names semantically honest and consumers stable: verified.txt is
+            // current-run only; verified_last_good.txt is explicitly historical fallback.
+            await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified"), xrayVerified.Select(x => x.Link));
+            await WriteSubscriptionPartsAsync(Path.Combine(sub, "verified_last_good"), safeLastGood);
+            LogSuccess($"Saved verified.txt ({xrayVerified.Count}) — current-run full Xray round-trip only.");
+            LogSuccess($"Saved verified_last_good.txt ({safeLastGood.Count}) — sanitized historical snapshot, not a current verification claim.");
+
+            // Curated evidence tier: source-tested nodes plus the stable+TLS-verified core.            // Curated evidence tier: source-tested nodes plus the stable+TLS-verified core.
             // Source testing can include Iran-specific checks, but the output stays useful
             // internationally and does not assume the GitHub runner matches the user.
-            var curated = proxies.Where(x => x.IranTested || (x.IsStable && x.TlsVerified)).ToList();
+            var curated = SelectBestEndpointProfiles(
+                proxies.Where(x => x.IranTested || (x.IsStable && x.TlsVerified)));
             int curatedPartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "curated"), curated.Select(x => x.Link));
             LogSuccess($"Saved curated.txt ({curated.Count}) — Iran-tested source or stable+TLS-verified" +
@@ -239,7 +236,7 @@ namespace ProxyCollector.Collector
             {
                 string key = g.Key.Trim().ToLowerInvariant();
 
-                await WriteTxt(Path.Combine(sub, "protocols", key), g.ToList());
+                await WriteTxt(Path.Combine(sub, "protocols", key), SelectBestEndpointProfiles(g));
                 LogSuccess($"  → protocols/{key} ({g.Count()})");
             }
 
@@ -248,14 +245,14 @@ namespace ProxyCollector.Collector
                 if (string.IsNullOrEmpty(g.Key) || g.Key == "XX" || g.Count() < 3) continue;
                 string safe = Regex.Replace(g.Key, @"[^A-Z0-9]", "");
                 if (string.IsNullOrEmpty(safe)) continue;
-                await WriteTxt(Path.Combine(sub, "countries", safe), g.ToList());
+                await WriteTxt(Path.Combine(sub, "countries", safe), SelectBestEndpointProfiles(g));
                 LogSuccess($"  → countries/{safe} ({g.Count()})");
             }
 
             foreach (var g in proxies.GroupBy(x => x.Continent))
             {
                 if (g.Key == "Unknown" || g.Count() < 3) continue;
-                await WriteTxt(Path.Combine(sub, "continents", g.Key), g.ToList());
+                await WriteTxt(Path.Combine(sub, "continents", g.Key), SelectBestEndpointProfiles(g));
                 LogSuccess($"  → continents/{g.Key} ({g.Count()})");
             }
 
@@ -263,7 +260,7 @@ namespace ProxyCollector.Collector
             // NekoBox's JSON parser has a bug with WireGuard outbounds, so we output
             // Clash YAML which NekoBox parses perfectly. The official WireGuard app
             // imports .conf files. We output BOTH so either client can use the data.
-            var wgNodes = proxies.Where(x => x.Proto == "wireguard").ToList();
+            var wgNodes = SelectBestEndpointProfiles(proxies.Where(x => x.Proto == "wireguard"));
             if (wgNodes.Count > 0)
             {
                 var wgDir = Path.Combine(sub, "wireguard");

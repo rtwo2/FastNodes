@@ -39,10 +39,62 @@ namespace ProxyCollector.Collector
             if (protocol == "vmess" && !IsValidVmessCredential(parsed.Credential))
                 return null;
 
+            // Keep the original display metadata separately from the connection URI.
+            // BaseLink intentionally excludes URI fragments for canonical parsing, but the
+            // Cloudflare/WARP policy still needs the source label before output renaming.
+            parsed.SourceRemark = ExtractSourceRemark(line, parsed);
+
             // Store a canonical numeric port for deduplication and probes. The published
             // URI remains the source form, but invalid source ports are never accepted.
             parsed.Port = port.ToString();
             return parsed;
+        }
+
+        private static string ExtractSourceRemark(string sourceLine, ParsedProxy parsed)
+        {
+            int fragment = (sourceLine ?? "").IndexOf('#');
+            if (fragment >= 0 && fragment < sourceLine.Length - 1)
+            {
+                string raw = sourceLine[(fragment + 1)..].Trim();
+                try { return Uri.UnescapeDataString(raw); }
+                catch { return raw; }
+            }
+
+            string protocol = NormalizeProto(parsed.Protocol);
+            if (protocol == "vmess")
+            {
+                var json = TryGetVmessJson(parsed.BaseLink);
+                return GetVmessJsonString(json, "ps");
+            }
+
+            if (protocol == "ssr")
+            {
+                try
+                {
+                    string decoded = Base64UrlDecode(parsed.BaseLink["ssr://".Length..]);
+                    int slash = decoded.IndexOf('/');
+                    if (slash < 0) return "";
+                    int queryStart = decoded.IndexOf('?', slash);
+                    if (queryStart < 0 || queryStart == decoded.Length - 1) return "";
+                    var query = ParseQuery(decoded[(queryStart + 1)..]);
+                    string token = query.GetValueOrDefault("remarks_base64",
+                        query.GetValueOrDefault("remarks", ""));
+                    if (token.Length == 0) return "";
+
+                    try
+                    {
+                        string label = Base64UrlDecode(token);
+                        return label.Length > 0 &&
+                               label.All(ch => !char.IsControl(ch) || ch is '\r' or '\n' or '\t')
+                            ? label
+                            : token;
+                    }
+                    catch { return token; }
+                }
+                catch { return ""; }
+            }
+
+            return "";
         }
 
         // Xray VLESS accepts a UUID or a custom ID shorter than 30 UTF-8 bytes.

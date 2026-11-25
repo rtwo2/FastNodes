@@ -172,6 +172,14 @@ internal static class Program
             "a negative Worker result ID is rejected");
         Checks.That(!CollectorType.IsValidEdgeResultId(25, expectedEdgeBatchIds, 25),
             "an out-of-range Worker result ID is rejected");
+        Checks.That(CollectorType.IsEdgeTcpConnected("ok"),
+            "edge SNI/TLS results are only evaluated after a confirmed TCP connection");
+        Checks.That(CollectorType.IsEdgeTcpConnected("OK"),
+            "the edge TCP-connected status comparison is case-insensitive");
+        Checks.That(!CollectorType.IsEdgeTcpConnected("timeout"),
+            "a pre-connect timeout is not treated as an attempted TLS/SNI test");
+        Checks.That(!CollectorType.IsEdgeTcpConnected("error"),
+            "a pre-connect error is not treated as an attempted TLS/SNI test");
         Checks.That(CollectorType.IsValidEdgeSniEcho("tls.example.net", "TLS.EXAMPLE.NET", "endpoint.example.net"),
             "edge verification accepts a case-insensitive echo of the requested TLS SNI");
         Checks.That(CollectorType.IsValidEdgeSniEcho("endpoint.example.net", null, "endpoint.example.net"),

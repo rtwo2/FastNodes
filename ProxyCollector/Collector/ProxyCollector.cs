@@ -2608,6 +2608,12 @@ namespace ProxyCollector.Collector
         internal static bool IsValidEdgeResultId(int id, IReadOnlySet<int> expectedBatchIds, int poolCount)
             => id >= 0 && id < poolCount && expectedBatchIds.Contains(id);
 
+        // The Worker reports tcp="ok" only after the endpoint TCP connection is
+        // established. Without that signal, no TLS handshake/SNI confirmation can
+        // be evaluated and the result must not count as an edge test failure.
+        internal static bool IsEdgeTcpConnected(string? tcpStatus)
+            => string.Equals(tcpStatus, "ok", StringComparison.OrdinalIgnoreCase);
+
         // A custom SNI is credited only when the Worker echoes the exact requested
         // name. A legacy host-only response remains valid only when host == SNI.
         internal static bool IsValidEdgeSniEcho(
@@ -2689,8 +2695,11 @@ namespace ProxyCollector.Collector
                 LogInfo($"Edge pool: skipped {cfSkipped} CF-fronted hosts (unprovable from a Worker vantage).");
             if (pool.Count == 0) { LogInfo("Edge verification: no candidates."); return; }
 
-            int ok = 0, cfBlocked = 0, refused = 0, timeouts = 0, errors = 0, dnsFails = 0, tlsFails = 0;
+            int ok = 0;
+            int noTcpConnection = 0, preTcpCfBlocked = 0, preTcpRefused = 0,
+                preTcpTimeouts = 0, preTcpDnsFails = 0, preTcpTlsFails = 0, preTcpErrors = 0;
             int sniUnconfirmed = 0, sniMissing = 0, sniMismatched = 0;
+            int tlsHandshakeFailures = 0;
             var sniUnconfirmedSamples = new ConcurrentQueue<int>();
             var edgeReasons = new ConcurrentDictionary<string, int>();
             var batches = pool.Select((p, i) => (Node: p, Idx: i))
@@ -2742,23 +2751,11 @@ namespace ProxyCollector.Collector
                                     continue;
                                 }
 
-                                string expectedSni = string.IsNullOrEmpty(pool[id].Sni)
-                                    ? pool[id].Host : pool[id].Sni;
-                                string? reportedSni = r.TryGetProperty("sni", out var sniElement) &&
-                                    sniElement.ValueKind == JsonValueKind.String
-                                    ? sniElement.GetString() : null;
-                                if (!IsValidEdgeSniEcho(expectedSni, reportedSni, pool[id].Host))
-                                {
-                                    int mismatchCount = Interlocked.Increment(ref sniUnconfirmed);
-                                    if (string.IsNullOrWhiteSpace(reportedSni))
-                                        Interlocked.Increment(ref sniMissing);
-                                    else
-                                        Interlocked.Increment(ref sniMismatched);
-                                    if (mismatchCount <= 12)
-                                        sniUnconfirmedSamples.Enqueue(id);
-                                    continue;
-                                }
-
+                                // SNI is only meaningful after the Worker confirms that
+                                // the endpoint TCP connection was established. A timeout,
+                                // refusal, DNS error or other pre-connect failure is a
+                                // vantage/connectivity result, not an SNI mismatch and not
+                                // an attempted edge TLS test. Keep the node not-tested.
                                 if (!r.TryGetProperty("tcp", out var tcpElement) ||
                                     tcpElement.ValueKind != JsonValueKind.String ||
                                     string.IsNullOrWhiteSpace(tcpElement.GetString()))
@@ -2768,29 +2765,67 @@ namespace ProxyCollector.Collector
                                 }
 
                                 string tcp = tcpElement.GetString()!;
+                                if (!IsEdgeTcpConnected(tcp))
+                                {
+                                    Interlocked.Increment(ref noTcpConnection);
+                                    switch (tcp.Trim().ToLowerInvariant())
+                                    {
+                                        case "cf-blocked": Interlocked.Increment(ref preTcpCfBlocked); break;
+                                        case "refused": Interlocked.Increment(ref preTcpRefused); break;
+                                        case "timeout": Interlocked.Increment(ref preTcpTimeouts); break;
+                                        case "dns": Interlocked.Increment(ref preTcpDnsFails); break;
+                                        case "tls-failed": Interlocked.Increment(ref preTcpTlsFails); break;
+                                        default: Interlocked.Increment(ref preTcpErrors); break;
+                                    }
+                                    RecordEdgeFailureReason(r, edgeReasons);
+                                    continue;
+                                }
+
+                                string expectedSni = string.IsNullOrEmpty(pool[id].Sni)
+                                    ? pool[id].Host : pool[id].Sni;
+                                string? reportedSni = r.TryGetProperty("sni", out var sniElement) &&
+                                    sniElement.ValueKind == JsonValueKind.String
+                                    ? sniElement.GetString() : null;
+                                if (!IsValidEdgeSniEcho(expectedSni, reportedSni, pool[id].Host))
+                                {
+                                    int unconfirmedCount = Interlocked.Increment(ref sniUnconfirmed);
+                                    if (string.IsNullOrWhiteSpace(reportedSni))
+                                        Interlocked.Increment(ref sniMissing);
+                                    else
+                                        Interlocked.Increment(ref sniMismatched);
+                                    if (unconfirmedCount <= 12)
+                                        sniUnconfirmedSamples.Enqueue(id);
+                                    continue;
+                                }
+
+                                if (!r.TryGetProperty("tls", out var tlsElement) ||
+                                    tlsElement.ValueKind != JsonValueKind.String ||
+                                    string.IsNullOrWhiteSpace(tlsElement.GetString()))
+                                {
+                                    LogWarning($"Edge verification result for pool index {id} has no valid TLS status; leaving it not-tested.");
+                                    continue;
+                                }
+
+                                string tlsR = tlsElement.GetString()!;
+                                if (!string.Equals(tlsR, "ok", StringComparison.OrdinalIgnoreCase) &&
+                                    !string.Equals(tlsR, "failed", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    LogWarning($"Edge verification result for pool index {id} has an unknown TLS status '{tlsR}'; leaving it not-tested.");
+                                    continue;
+                                }
+
+                                // Only a TCP-connected result with confirmed SNI and a
+                                // recognized TLS outcome counts as an actual edge test.
                                 pool[id].EdgeTested = true;
-                                string? tlsR = r.TryGetProperty("tls", out var t) && t.ValueKind == JsonValueKind.String
-                                    ? t.GetString() : null;
-                                if (tcp == "ok" && tlsR == "ok")
+                                if (string.Equals(tlsR, "ok", StringComparison.OrdinalIgnoreCase))
                                 {
                                     pool[id].EdgeVerified = true;
                                     Interlocked.Increment(ref ok);
                                 }
                                 else
                                 {
-                                    // raw reason evidence for every failure — top ones logged below
-                                    if (r.TryGetProperty("reason", out var re) && re.ValueKind == JsonValueKind.String)
-                                    {
-                                        string raw = re.GetString() ?? "";
-                                        if (raw.Length > 0)
-                                            edgeReasons.AddOrUpdate(raw, 1, (_, c) => c + 1);
-                                    }
-                                    if (tcp == "cf-blocked") Interlocked.Increment(ref cfBlocked);
-                                    else if (tcp == "refused") Interlocked.Increment(ref refused);
-                                    else if (tcp == "timeout") Interlocked.Increment(ref timeouts);
-                                    else if (tcp == "dns") Interlocked.Increment(ref dnsFails);
-                                    else if (tcp == "tls-failed") Interlocked.Increment(ref tlsFails);
-                                    else Interlocked.Increment(ref errors);
+                                    Interlocked.Increment(ref tlsHandshakeFailures);
+                                    RecordEdgeFailureReason(r, edgeReasons);
                                 }
                             }
                         }
@@ -2809,18 +2844,37 @@ namespace ProxyCollector.Collector
             }
 
             LogInfo($"Edge verification: {ok}/{pool.Count} endpoints TLS-verified from the CF edge → " +
-                    $"nodes promoted (+20). [cf-blocked {cfBlocked}, refused {refused}, timeout {timeouts}, dns {dnsFails}, tls-failed {tlsFails}, err {errors}] Failures are not drops.");
+                    $"nodes promoted (+20). [no confirmed TCP connection {noTcpConnection} " +
+                    $"(cf-blocked {preTcpCfBlocked}, refused {preTcpRefused}, timeout {preTcpTimeouts}, " +
+                    $"dns {preTcpDnsFails}, tls-error {preTcpTlsFails}, err {preTcpErrors}); " +
+                    $"TLS handshake failures after confirmed TCP+SNI {tlsHandshakeFailures}; " +
+                    $"SNI-unconfirmed after TCP {sniUnconfirmed}]. Failures are not drops.");
+
             if (sniUnconfirmed > 0)
             {
-                LogWarning($"Edge verification: {sniUnconfirmed} result(s) did not confirm the requested SNI " +
+                LogWarning($"Edge verification: {sniUnconfirmed} TCP-connected result(s) did not confirm the requested SNI " +
                     $"({sniMissing} missing, {sniMismatched} mismatched); affected nodes remain not-tested. " +
                     $"Sample pool indices: {string.Join(", ", sniUnconfirmedSamples)}. " +
                     "The external Worker must apply target.sni to the TLS handshake and return that applied value as results[].sni.");
             }
-            // Raw Worker error messages, top 8 by frequency — this is what tells us
-            // WHY ordinary edge probe failures occur (timeouts, TLS rejection, CF→CF blocks).
+
+            if (tlsHandshakeFailures > 0)
+                LogWarning($"Edge TLS: {tlsHandshakeFailures} handshake(s) failed after TCP connection and SNI confirmation; those are tested failures.");
+
             foreach (var kv in edgeReasons.OrderByDescending(k => k.Value).Take(8))
                 LogWarning($"  Edge fail reason: {kv.Key} × {kv.Value}");
+        }
+
+        private static void RecordEdgeFailureReason(
+            JsonElement result, ConcurrentDictionary<string, int> edgeReasons)
+        {
+            if (result.TryGetProperty("reason", out var reasonElement) &&
+                reasonElement.ValueKind == JsonValueKind.String)
+            {
+                string reason = reasonElement.GetString() ?? "";
+                if (!string.IsNullOrWhiteSpace(reason))
+                    edgeReasons.AddOrUpdate(reason, 1, (_, count) => count + 1);
+            }
         }
 
         // ====================== TRUSTED SOURCE EVIDENCE ======================

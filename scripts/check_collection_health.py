@@ -51,7 +51,7 @@ def capture_baseline(root: pathlib.Path, output: pathlib.Path) -> dict:
 
 def feed_line_count(files: dict, name: str) -> int:
     stem = pathlib.PurePosixPath(name).stem
-    pattern = re.compile(rf"{re.escape(stem)}_part[0-9]+\\.txt")
+    pattern = re.compile(rf"{re.escape(stem)}_part[0-9]+\.txt")
     return sum(
         int(row.get("lines", 0) or 0)
         for path, row in files.items()
@@ -173,7 +173,7 @@ def self_test() -> None:
         (root / "everything_part2.txt").write_text("n\n" * 8_000, encoding="utf-8")
         (root / "top.txt").write_text("n\n" * 100, encoding="utf-8")
         (root / "verified.txt").write_text("n\n" * 100, encoding="utf-8")
-        (root / "ipv6_only.txt").write_text("v6\\n" * 1_000, encoding="utf-8")
+        (root / "ipv6_only.txt").write_text("v6\n" * 1_000, encoding="utf-8")
         snap = inspect_tree(root)
         baseline = {"captured_at": "test", "total_bytes": snap["total_bytes"], "files": dict(snap["files"])}
         baseline["files"]["everything.txt"] = {"bytes": snap["files"]["everything.txt"]["bytes"] * 2, "lines": 30_000}
@@ -181,7 +181,7 @@ def self_test() -> None:
         report, errors = evaluate(root, baseline)
         assert not errors, errors
         assert report["outputs"]["everything.txt"]["lines"] == 20_000
-        (root / "ipv6_only.txt").write_text("v6\\n" * 600, encoding="utf-8")
+        (root / "ipv6_only.txt").write_text("v6\n" * 600, encoding="utf-8")
         category_report, category_errors = evaluate(root, baseline)
         assert not category_errors, category_errors
         assert any("ipv6_only.txt dropped sharply" in warning for warning in category_report["warnings"])

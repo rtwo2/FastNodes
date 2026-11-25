@@ -864,9 +864,7 @@ namespace ProxyCollector.Collector
             int ipv6Target = (int)Math.Ceiling(outputCount * ipv6SharePercent / 100.0);
             int sourceCap = DiversityCap(ranked, x => x.SourceGroup, outputCount, 5);
             int providerCap = DiversityCap(ranked, x => x.ProviderGroup, outputCount, 8);
-            int hostnameCap = DiversityCap(ranked,
-                x => string.IsNullOrWhiteSpace(x.HostGroup) ? GetHostnameDiversityGroup(x.Host) : x.HostGroup,
-                outputCount, 2);
+            int hostnameCap = DiversityCap(ranked, x => x.HostGroup, outputCount, 2);
             int transportCap = DiversityCap(ranked, x => x.TransportGroup, outputCount, 30);
             int protocolCap = DiversityCap(ranked, x => NormalizeProto(x.Proto), outputCount, 60);
 
@@ -886,8 +884,7 @@ namespace ProxyCollector.Collector
             {
                 string profile = GetTopEndpointProfileKey(candidate);
                 if (selected.Count >= outputCount || profiles.Contains(profile)) return false;
-                string hostname = string.IsNullOrWhiteSpace(candidate.HostGroup)
-                    ? GetHostnameDiversityGroup(candidate.Host) : candidate.HostGroup;
+                string hostname = candidate.HostGroup;
                 string protocol = NormalizeProto(candidate.Proto);
                 if (!WithinCap(sourceCounts, candidate.SourceGroup, sourceCap) ||
                     !WithinCap(providerCounts, candidate.ProviderGroup, providerCap) ||

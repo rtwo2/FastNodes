@@ -1412,6 +1412,33 @@ internal static class Program
         Checks.That(!CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
             { Host = "example.com", Link = "vless://uuid@example.com:443?sni=cloudflare.com", Remark = "🇺🇸 Germany" }),
             "Cloudflare camouflage SNI alone does not exclude a non-Cloudflare endpoint");
+        var cloudflareFragment = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@ordinary.example.net:443#Cloudflare");
+        Checks.That(cloudflareFragment is not null &&
+                    cloudflareFragment.SourceRemark == "Cloudflare" &&
+                    CollectorType.IsCloudflareMetadata(cloudflareFragment),
+            "ordinary URI fragments are preserved and Cloudflare-labelled source nodes are filtered before remark replacement");
+        var warpFragment = CollectorType.ParseProxyLine(
+            "trojan://secret@ordinary.example.net:443#WARP%2B");
+        Checks.That(warpFragment is not null &&
+                    warpFragment.SourceRemark == "WARP+" &&
+                    CollectorType.IsCloudflareMetadata(warpFragment),
+            "encoded WARP+ source labels survive parsing and trigger the metadata exclusion");
+
+        var vmessLabelJson = JsonSerializer.Serialize(new
+        {
+            add = "ordinary.example.net", port = "443",
+            id = "123e4567-e89b-12d3-a456-426614174000", net = "tcp", tls = "tls",
+            ps = "Cloudflare WARP"
+        });
+        var vmessLabel = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessLabelJson)));
+        Checks.That(vmessLabel is not null &&
+                    vmessLabel.SourceRemark == "Cloudflare WARP" &&
+                    CollectorType.IsCloudflareMetadata(vmessLabel),
+            "VMess base64 display metadata is preserved and filtered consistently");
+
+
 
         Checks.That(!CollectorType.IsCloudflareFinal(new ProxyCollector.Collector.FinalProxy
             { Host = "example.com", Link = "vless://uuid@example.com:443?sni=www.cloudflare.com&host=www.cloudflare.com#US", Remark = "US" }),

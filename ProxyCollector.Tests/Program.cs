@@ -14,6 +14,7 @@ internal static class Program
     {
         Checks.Equal(3, ProxyCollector.Configuration.CollectorConfig.ApplySourceLimit(new[] { "a", "b", "c" }, 0).Length,
             "zero source limit preserves full production source list");
+        TestDnsRecoveryCache();
 
         Checks.Equal("hysteria2", CollectorType.NormalizeProto("hy2"),
             "hy2 alias resolves to canonical Hysteria2 protocol");
@@ -210,6 +211,10 @@ internal static class Program
         Checks.That(CollectorType.GetSourceDiversityGroup(rawRepoSource) !=
                     CollectorType.GetSourceDiversityGroup("https://raw.githubusercontent.com/alpha/another-repo/main/nodes.txt"),
             "different upstream repositories retain separate consensus identities");
+        Checks.Equal("example.co.nz", CollectorType.GetHostnameDiversityGroup("a.example.co.nz"),
+            "hostname diversity groups subdomains by registrable domain under a country-code category");
+        Checks.Equal("other.co.nz", CollectorType.GetHostnameDiversityGroup("b.other.co.nz"),
+            "unrelated registrable domains under the same country-code category remain independent");
         Checks.That(CollectorType.IsIranTestedSource(
             "https://raw.githubusercontent.com/F0rc3Run/F0rc3Run/refs/heads/main/Best-Results/proxies.txt"),
             "explicitly trusted tested-source repository/path receives the delegated evidence signal");
@@ -1294,6 +1299,12 @@ internal static class Program
 
         var ssUser = Convert.ToBase64String(Encoding.UTF8.GetBytes("aes-128-gcm:CaseSensitive"));
         var ss = CollectorType.ParseProxyLine($"ss://{ssUser}@[2001:4860:4860::8888]:8388#ss");
+        var emptySsUser = Convert.ToBase64String(Encoding.UTF8.GetBytes("aes-128-gcm:"));
+        Checks.That(CollectorType.ParseProxyLine($"ss://{emptySsUser}@example.net:8388") is null,
+            "SIP002 Shadowsocks links with an empty password are rejected before entering outputs");
+        var legacyEmptySs = Convert.ToBase64String(Encoding.UTF8.GetBytes("aes-128-gcm:@example.net:8388"));
+        Checks.That(CollectorType.ParseProxyLine($"ss://{legacyEmptySs}") is null,
+            "legacy encoded Shadowsocks links with an empty password are rejected");
         Checks.That(ss is not null, "Shadowsocks SIP002 IPv6 link parses");
         Checks.Equal("2001:4860:4860::8888", ss!.Host, "Shadowsocks IPv6 host");
         Checks.Equal("8388", ss.Port, "Shadowsocks port");
@@ -2420,6 +2431,29 @@ internal static class Program
             "permanent HTTP 404 responses are not pointlessly retried");
         Checks.That(permanentErrors.Any(message => message.Contains("HTTP 404", StringComparison.Ordinal)),
             "permanent source failures are logged with their HTTP status");
+    }
+
+    private static void TestDnsRecoveryCache()
+    {
+        int lookups = 0;
+        using var resolver = new IPToCountryResolver((_, cancellationToken) =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            int attempt = Interlocked.Increment(ref lookups);
+            IPAddress[] addresses = attempt == 1
+                ? Array.Empty<IPAddress>() // simulate an inconclusive first DNS result
+                : new[] { IPAddress.Parse("8.8.8.8") };
+            return Task.FromResult(addresses);
+        }, requireGeoDatabases: false);
+
+        Checks.Equal(0, resolver.ResolveAllAsync("transient.example").GetAwaiter().GetResult().Length,
+            "an inconclusive DNS result does not invent an address");
+        Checks.Equal(DnsVerdict.Resolved,
+            resolver.ResolveVerdictUncachedAsync("transient.example").GetAwaiter().GetResult(),
+            "an uncached retry can recover a hostname after a transient DNS result");
+        Checks.Equal("8.8.8.8",
+            resolver.ResolveAllAsync("transient.example").GetAwaiter().GetResult().Single().ToString(),
+            "a successful DNS retry replaces the cached inconclusive result");
     }
 
     private sealed class StubHttpMessageHandler : HttpMessageHandler

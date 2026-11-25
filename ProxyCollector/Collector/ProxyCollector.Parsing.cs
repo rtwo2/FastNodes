@@ -370,7 +370,7 @@ namespace ProxyCollector.Collector
                         }
                     }
 
-                    if (string.IsNullOrEmpty(method)) return null;
+                    if (string.IsNullOrWhiteSpace(method) || string.IsNullOrEmpty(password)) return null;
 
                     int qIdx = hostPart.IndexOf('?');
                     string hostPort = qIdx >= 0 ? hostPart[..qIdx] : hostPart;
@@ -410,6 +410,7 @@ namespace ProxyCollector.Collector
                 if (c2 <= 0) return null;
                 string method2 = userPart2[..c2];
                 string password2 = userPart2[(c2 + 1)..];
+                if (string.IsNullOrWhiteSpace(method2) || string.IsNullOrEmpty(password2)) return null;
 
                 int colonIdx2 = hostPort2.LastIndexOf(':');
                 if (colonIdx2 <= 0) return null;

@@ -187,6 +187,32 @@ def has_forbidden_transport_host(line):
         return transport_host_is_forbidden(key_value.group(2))
     return False
 
+def decode_ss_endpoint(raw):
+    """Return the endpoint from SIP002 or fully-encoded legacy Shadowsocks links."""
+    value = str(raw or "").split("#", 1)[0].rstrip("),;")
+    # SIP002 uses an encoded method:password userinfo followed by a visible authority.
+    if "@" in value:
+        try:
+            host = urlsplit("ss://" + value).hostname
+            if host:
+                return host
+        except ValueError:
+            pass
+
+    # Legacy form base64-encodes method:password@host:port as one payload.
+    token = value.split("?", 1)[0].replace("-", "+").replace("_", "/")
+    token += "=" * ((4 - len(token) % 4) % 4)
+    try:
+        decoded = base64.b64decode(token, validate=True).decode("utf-8")
+        _, separator, endpoint = decoded.rpartition("@")
+        if not separator:
+            return ""
+        authority = endpoint.split("?", 1)[0]
+        return urlsplit("//" + authority).hostname or ""
+    except (ValueError, UnicodeDecodeError):
+        return ""
+
+
 def uri_endpoints(line):
     match = URI_RE.search(line)
     if not match:
@@ -197,6 +223,9 @@ def uri_endpoints(line):
         return [str(obj.get("add", ""))] if obj and obj.get("add") else []
     if scheme == "ssr":
         host, _ = decode_ssr(raw)
+        return [host] if host else []
+    if scheme in {"ss", "shadowsocks"}:
+        host = decode_ss_endpoint(raw)
         return [host] if host else []
     try:
         host = urlsplit(scheme + "://" + raw).hostname
@@ -264,6 +293,14 @@ def self_test():
     ssr_ipv6_link = "ssr://" + base64.urlsafe_b64encode(ssr_ipv6_payload.encode()).decode().rstrip("=")
     assert uri_endpoints(ssr_ipv6_link) == ["2001:db8::3"]
     assert endpoint_is_forbidden(uri_endpoints(ssr_ipv6_link)[0], ranges)
+
+    # Legacy Shadowsocks encodes the entire method:password@authority payload.
+    ss_legacy_payload = base64.b64encode(b"aes-256-gcm:secret@api.pages.dev:443").decode()
+    assert uri_endpoints("ss://" + ss_legacy_payload) == ["api.pages.dev"]
+    assert endpoint_is_forbidden(uri_endpoints("ss://" + ss_legacy_payload)[0], ranges)
+    ss_legacy_ipv6 = base64.b64encode(b"aes-256-gcm:secret@[2001:db8::3]:443").decode()
+    assert uri_endpoints("ss://" + ss_legacy_ipv6) == ["2001:db8::3"]
+    assert endpoint_is_forbidden(uri_endpoints("ss://" + ss_legacy_ipv6)[0], ranges)
 
     import tempfile
     with tempfile.TemporaryDirectory() as tmp:

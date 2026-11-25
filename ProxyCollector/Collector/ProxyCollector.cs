@@ -977,6 +977,9 @@ namespace ProxyCollector.Collector
                             // A hostname may have both public and Cloudflare A/AAAA
                             // answers. Exclude it if ANY address is in an official CF range.
                             var addresses = await Resolver.ResolveAllAsync(host);
+                            if (addresses.Length == 0 &&
+                                await Resolver.ResolveVerdictUncachedAsync(host) == DnsVerdict.Resolved)
+                                addresses = await Resolver.ResolveAllAsync(host);
                             resolved[host] = addresses.Any(IsCloudflareIp);
                         }
                         catch { resolved[host] = false; }
@@ -1507,13 +1510,24 @@ namespace ProxyCollector.Collector
                 .ToList();
             LogSuccess($"Total proxies: {alive.Count}");
 
-            GroupStart("🌍 Step 3/5 — GeoIP lookup");
-            // STEP 3: resolve every unique host exactly once (DNS bounded to 3s per
-            // lookup, cached inside the resolver). The warm DNS cache produced here is
-            // what makes the step-4 DNS filter nearly free — it only ever re-attempts
-            // hosts that already failed once during this pass.
+            GroupStart("🌐 Step 3/5 — DNS and endpoint safety");
+            // Refresh inconclusive DNS results before any GeoIP result is cached. This
+            // lets recovered hosts receive their real location and ensures Cloudflare /
+            // private-address checks see the recovered A/AAAA set in the same run.
+            alive = await DropDnsDeadHostsAsync(alive);
+            alive = await DropBadResolvedIpsAsync(alive);
+
+            // User policy: publish no Cloudflare/WARP nodes in ANY output. Run this only
+            // after the DNS retry and unsafe-address checks so recovered hostname aliases
+            // resolving into official Cloudflare IPv4/IPv6 ranges are also excluded.
+            alive = await DropCloudflareNodesAsync(alive);
+            GroupEnd();
+
+            GroupStart("🌍 Step 4/5 — GeoIP, alias & TCP filtering");
+            // GeoIP now sees the refreshed resolver cache. Inconclusive DNS results are
+            // not permanently cached as Unknown by IPToCountryResolver.
             var uniqueHosts = alive.Select(x => x.Host)
-                .Distinct(StringComparer.OrdinalIgnoreCase).ToList();   // v6.13: "Server.com"/"server.com" were two DNS lookups
+                .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             LogInfo($"  Resolving geo info for {uniqueHosts.Count} unique hosts...");
 
             var locationCache = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -1527,18 +1541,9 @@ namespace ProxyCollector.Collector
                 });
             GroupEnd();
 
-            // User policy: publish no Cloudflare/WARP nodes in ANY output. Filter after
-            // DNS has been warmed so hostname aliases resolving into Cloudflare IPv4 or
-            // IPv6 ranges are caught too; every downstream file is built from this pool.
-            alive = await DropCloudflareNodesAsync(alive);
-
-            GroupStart("💀 Step 4/5 — Dead-node & alias filters");
-            // Order is deliberate: DNS filter removes the dead first, then the resolved-IP
-            // filter and alias collapse both run on the warm resolver cache (pure cache
-            // hits, ~free), and the TCP filter runs LAST so it probes the smallest
-            // possible set — alias-merged spelling variants never get probed twice.
-            alive = await DropDnsDeadHostsAsync(alive);
-            alive = await DropBadResolvedIpsAsync(alive);
+            // With unsafe and Cloudflare endpoints already excluded, collapse IP/hostname
+            // aliases before the final TCP check so each physical endpoint is probed once.
+            GroupStart("🧹 Endpoint alias and TCP checks");
             alive = await CollapseHostAliasesAsync(alive, keySources);
             alive = await DropTcpRefusedAsync(alive);
             LogInfo($"After dead-node & alias filters: {alive.Count} remain");
@@ -1706,7 +1711,7 @@ namespace ProxyCollector.Collector
 
             if (resolved < DnsCanaryMinimumSuccesses)
             {
-                LogWarning($"DNS filter skipped: resolver health check passed only {resolved}/{DnsHealthCanaries.Length} canaries (need {DnsCanaryMinimumSuccesses}); retaining all hostname nodes.");
+                LogWarning($"DNS health check failed: only {resolved}/{DnsHealthCanaries.Length} canaries resolved (need {DnsCanaryMinimumSuccesses}); this run will not publish a DNS-filtered snapshot.");
                 return false;
             }
 

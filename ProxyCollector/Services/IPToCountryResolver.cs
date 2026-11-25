@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using MaxMind.GeoIP2;
 using ProxyCollector.Models;
@@ -34,10 +35,24 @@ public sealed class IPToCountryResolver : IDisposable
     private readonly ConcurrentDictionary<string, CityInfo> _cityCache = new();
     private readonly ConcurrentDictionary<string, string> _orgCache = new();
     private readonly ConcurrentDictionary<string, Task<DnsResult>> _ipCache = new();
+    private readonly Func<string, CancellationToken, Task<IPAddress[]>> _dnsLookup;
     private bool _disposed;
 
     public IPToCountryResolver()
+        : this((address, cancellationToken) => Dns.GetHostAddressesAsync(address, cancellationToken),
+            requireGeoDatabases: true)
     {
+    }
+
+    /// <summary>
+    /// Creates a resolver with an explicit DNS provider. The optional database check is
+    /// disabled only for isolated DNS-cache tests; production uses the parameterless constructor.
+    /// </summary>
+    public IPToCountryResolver(
+        Func<string, CancellationToken, Task<IPAddress[]>> dnsLookup,
+        bool requireGeoDatabases = true)
+    {
+        _dnsLookup = dnsLookup ?? throw new ArgumentNullException(nameof(dnsLookup));
         var cityPath = Path.Combine(Directory.GetCurrentDirectory(), "ProxyCollector", "GeoLite2-City.mmdb");
         if (File.Exists(cityPath))
         {
@@ -63,7 +78,7 @@ public sealed class IPToCountryResolver : IDisposable
         // silently drops every country/continent file — strictly worse than a red run.
         // The downloader already fails loud on missing files; this closes the remaining
         // gap (present-but-corrupt file) so a degraded run can never look successful.
-        if (_countryReader is null || _cityReader is null)
+        if (requireGeoDatabases && (_countryReader is null || _cityReader is null))
             throw new InvalidOperationException(
                 "Required GeoIP database(s) failed to load — refusing to publish an all-Unknown run.");
     }
@@ -109,11 +124,15 @@ public sealed class IPToCountryResolver : IDisposable
 
         try
         {
-            var ip = (await ResolveIpAsync(address)).Ip;
+            var dnsResult = await ResolveIpAsync(address);
+            var ip = dnsResult.Ip;
             if (ip == null)
             {
                 var fb = await GetCountryFallbackAsync(address);
-                _cityCache[address] = fb;
+                // A transient DNS failure is not a durable GeoIP result. Do not pin
+                // Unknown in the per-host cache if a later DNS retry may recover.
+                if (dnsResult.Verdict != DnsVerdict.Inconclusive)
+                    _cityCache[address] = fb;
                 return fb;
             }
 
@@ -148,11 +167,13 @@ public sealed class IPToCountryResolver : IDisposable
 
         try
         {
-            var ip = (await ResolveIpAsync(address)).Ip;
+            var dnsResult = await ResolveIpAsync(address);
+            var ip = dnsResult.Ip;
             if (ip == null)
             {
                 var xx = new CountryInfo { CountryCode = "XX", CountryName = "Unknown" };
-                _countryCache[address] = xx;
+                if (dnsResult.Verdict != DnsVerdict.Inconclusive)
+                    _countryCache[address] = xx;
                 return xx;
             }
 
@@ -185,8 +206,14 @@ public sealed class IPToCountryResolver : IDisposable
 
         try
         {
-            var ip = (await ResolveIpAsync(address)).Ip;
-            if (ip == null) { _orgCache[address] = ""; return null; }
+            var dnsResult = await ResolveIpAsync(address);
+            var ip = dnsResult.Ip;
+            if (ip == null)
+            {
+                if (dnsResult.Verdict != DnsVerdict.Inconclusive)
+                    _orgCache[address] = "";
+                return null;
+            }
 
             var response = _asnReader.Asn(ip);
             string org = response.AutonomousSystemOrganization ?? "";
@@ -224,7 +251,7 @@ public sealed class IPToCountryResolver : IDisposable
         return _ipCache.GetOrAdd(address, _ => ResolveUncachedInternalAsync(address));
     }
 
-        private static async Task<DnsResult> ResolveUncachedInternalAsync(string address)
+        private async Task<DnsResult> ResolveUncachedInternalAsync(string address)
         {
             try
             {
@@ -234,7 +261,7 @@ public sealed class IPToCountryResolver : IDisposable
                 // of Inconclusive verdicts under 100-way parallelism that was a real
                 // pile-up of wasted in-flight resolver calls.
                 using var cts = new CancellationTokenSource(DnsTimeout);
-                var addresses = await Dns.GetHostAddressesAsync(address, cts.Token);
+                var addresses = await _dnsLookup(address, cts.Token);
                 if (addresses.Length == 0) return new DnsResult(null, DnsVerdict.Inconclusive, Array.Empty<IPAddress>());
 
                 var ip = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork)

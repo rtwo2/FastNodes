@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Summarize per-source fetch, parse, and unique contribution diagnostics."""
+"""Summarize per-source fetch, parse, and unique exact-configuration diagnostics."""
 from __future__ import annotations
 import argparse, csv, pathlib, sys
 from collections import Counter, defaultdict
@@ -64,17 +64,17 @@ def render(csv_path: pathlib.Path) -> str:
         f"- Downloaded bytes: **{total_bytes / (1024 * 1024):,.1f} MiB**",
         f"- Extracted proxy-like lines: **{extracted:,}**",
         f"- Parsed configurations before global deduplication/filtering: **{parsed:,}**",
-        f"- First-contributor unique count: **{unique:,}**",
+        f"- First-contributor unique exact configurations (before DNS/IP alias collapse): **{unique:,}**",
         f"- Nested provider fetches: **{provider_ok:,} succeeded / {provider_bad:,} failed after retry**",
         f"- Fetched but unparsed sources: **{len(fetched_unparsed):,}**",
         f"- Parsed sources adding no first-contributor nodes this run: **{len(parsed_zero_unique):,}**",
-        "", "First-contributor counts follow deterministic source priority, but change as feeds change. A zero-unique source is not automatically redundant or safe to remove; compare multiple runs first.",
+        "", "The unique metric counts exact canonical configurations first accepted from each feed during parsing. It is measured before DNS/IP alias collapse and later safety filters, so it is not a count of final published service profiles. First-contributor counts follow deterministic source priority, but change as feeds change. A zero-unique source is not automatically redundant or safe to remove; compare multiple runs first.",
         "", "## Status counts", "", "| Status | Sources |", "|---|---:|"
     ]
     for name, count in sorted(statuses.items(), key=lambda x: (-x[1], x[0])):
         lines.append(f"| {cell(name)} | {count:,} |")
     rank = sorted(rows, key=lambda r: (-number(r, "unique"), -number(r, "parsed"), r.get("url", "")))
-    lines += ["", "## Highest unique contribution", "", "| Unique | Parsed | Extracted | Status | Source |", "|---:|---:|---:|---|---|"]
+    lines += ["", "## Highest unique exact-configuration contribution", "", "| Unique exact configs | Parsed | Extracted | Status | Source |", "|---:|---:|---:|---|---|"]
     positive = [r for r in rank if number(r, "unique") > 0][:15]
     if not positive: lines.append("| — | — | — | — | No positive unique contributions |")
     for r in positive:
@@ -122,7 +122,7 @@ def self_test() -> None:
         report = render(path)
         assert "Sources listed: **3**" in report
         assert "github.com/alpha/repo" in report
-        assert "Highest unique contribution" in report
+        assert "Highest unique exact-configuration contribution" in report
         assert "fetch-failed" in report and "20" in report
         assert "Parsed sources adding no first-contributor nodes this run: **1**" in report
         assert "Slowest source fetch/provider processing" in report

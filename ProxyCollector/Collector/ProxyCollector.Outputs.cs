@@ -104,8 +104,9 @@ namespace ProxyCollector.Collector
                        $"{collapsedCatalogueVariants} credential/URI variants collapsed)" +
                        (everythingPartCount > 1 ? $" across {everythingPartCount} parts (≤50 MiB each)" : ""));
 
-            // Compact history/evidence feeds use one best representative per service
-            // profile. The master everything.txt remains credential-complete.
+            // The master catalogue and compact evidence feeds both use one best
+            // representative per service profile. Credential-only alternatives are
+            // collapsed; connection-affecting differences remain distinct.
             var stable = SelectBestEndpointProfiles(proxies.Where(x => x.IsStable));
             int stablePartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "stable"), stable.Select(x => x.Link));
@@ -662,6 +663,12 @@ namespace ProxyCollector.Collector
             return Regex.Replace(location[(separator + 3)..].Trim().ToLowerInvariant(), @"\s+", " ");
         }
 
+        private static readonly HashSet<string> CommonCountrySecondLevelLabels = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "ac", "co", "com", "edu", "firm", "gen", "gov", "gob", "govt",
+            "id", "mil", "ne", "net", "nom", "or", "org", "web"
+        };
+
         internal static string GetHostnameDiversityGroup(string host)
         {
             string normalized = (host ?? "").Trim().Trim('[', ']').TrimEnd('.').ToLowerInvariant();
@@ -671,13 +678,11 @@ namespace ProxyCollector.Collector
             string[] labels = normalized.Split('.', StringSplitOptions.RemoveEmptyEntries);
             if (labels.Length <= 2) return string.Join(".", labels);
             string suffix2 = labels[^2] + "." + labels[^1];
-            var compoundSuffixes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "co.uk", "org.uk", "gov.uk", "com.au", "net.au", "org.au",
-                "co.jp", "co.in", "com.br", "com.cn", "com.tr", "com.sg", "com.hk",
-                "com.tw", "com.mx", "co.za", "com.ar", "com.my", "com.vn"
-            };
-            return compoundSuffixes.Contains(suffix2)
+
+            // Many country-code registries use common second-level categories rather
+            // than one universal public suffix. Recognize those categories generically
+            // so new ccTLDs such as .nz/.pl/.ua don't collapse unrelated registrable domains.
+            return labels[^1].Length == 2 && CommonCountrySecondLevelLabels.Contains(labels[^2])
                 ? string.Join(".", labels[^3..])
                 : suffix2;
         }

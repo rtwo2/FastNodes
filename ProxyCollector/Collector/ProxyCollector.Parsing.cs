@@ -641,6 +641,7 @@ namespace ProxyCollector.Collector
             if (proto == "hy2") return "hysteria2"; // alias only — do NOT merge plain "hysteria" (v1), a different incompatible protocol
             if (proto == "shadowsocks") return "ss";
             if (proto == "wg") return "wireguard";
+            if (proto == "mierus") return "mieru";
             return proto;
         }
 

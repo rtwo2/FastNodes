@@ -1515,12 +1515,13 @@ namespace ProxyCollector.Collector
             // lets recovered hosts receive their real location and ensures Cloudflare /
             // private-address checks see the recovered A/AAAA set in the same run.
             alive = await DropDnsDeadHostsAsync(alive);
-            alive = await DropBadResolvedIpsAsync(alive);
 
-            // User policy: publish no Cloudflare/WARP nodes in ANY output. Run this only
-            // after the DNS retry and unsafe-address checks so recovered hostname aliases
-            // resolving into official Cloudflare IPv4/IPv6 ranges are also excluded.
+            // User policy: publish no Cloudflare/WARP nodes in ANY output. The Cloudflare
+            // pass performs one final uncached retry for hosts still without an address.
+            // Run the unsafe-IP check AFTER that retry too, so a newly recovered private,
+            // reserved or blacklisted address cannot bypass the earlier cached check.
             alive = await DropCloudflareNodesAsync(alive);
+            alive = await DropBadResolvedIpsAsync(alive);
             GroupEnd();
 
             GroupStart("🌍 Step 4/5 — GeoIP, alias & TCP filtering");

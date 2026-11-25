@@ -465,7 +465,49 @@ namespace ProxyCollector.Collector
                         var server = ReadMieruProtoFields(serverField.Bytes);
                         string? host = MieruProtoString(server, 2) ?? MieruProtoString(server, 1);
                         if (string.IsNullOrWhiteSpace(host)) continue;
+                        // The official simple-share format supports the profile's
+                        // MTU, multiplexing, handshake mode and traffic pattern. Preserve
+                        // every supported option when expanding the binary protobuf link.
                         var common = new List<(string Key, string Value)> { ("profile", profileName) };
+                        var mtu = profile.LastOrDefault(x => x.Field == 4 && x.Wire == 0);
+                        if (mtu.Number is >= 1280 and <= 1400)
+                            common.Add(("mtu", mtu.Number.ToString(CultureInfo.InvariantCulture)));
+
+                        var multiplexingField = profile.LastOrDefault(x => x.Field == 5 && x.Wire == 2);
+                        if (multiplexingField.Bytes is { Length: > 0 })
+                        {
+                            var multiplexing = ReadMieruProtoFields(multiplexingField.Bytes);
+                            var level = multiplexing.LastOrDefault(x => x.Field == 1 && x.Wire == 0);
+                            string? levelName = level.Number switch
+                            {
+                                1 => "MULTIPLEXING_OFF",
+                                2 => "MULTIPLEXING_LOW",
+                                3 => "MULTIPLEXING_MIDDLE",
+                                4 => "MULTIPLEXING_HIGH",
+                                _ => null
+                            };
+                            if (levelName is not null) common.Add(("multiplexing", levelName));
+                        }
+
+                        var handshake = profile.LastOrDefault(x => x.Field == 6 && x.Wire == 0);
+                        string? handshakeName = handshake.Number switch
+                        {
+                            1 => "HANDSHAKE_STANDARD",
+                            2 => "HANDSHAKE_NO_WAIT",
+                            _ => null
+                        };
+                        if (handshakeName is not null) common.Add(("handshake-mode", handshakeName));
+
+                        var trafficPattern = profile.LastOrDefault(x => x.Field == 7 && x.Wire == 2);
+                        if (trafficPattern.Bytes is { Length: > 0 })
+                            common.Add(("traffic-pattern", Convert.ToBase64String(trafficPattern.Bytes)));
+
+                        // Simple sharing links have no dialer field. A profile that
+                        // requires a proxy dialer must not be silently converted into a
+                        // direct connection with different routing semantics.
+                        if (profile.Any(x => x.Field == 8 && x.Wire == 2))
+                            continue;
+
                         foreach (var bindingField in server.Where(x => x.Field == 3 && x.Wire == 2))
                         {
                             var binding = ReadMieruProtoFields(bindingField.Bytes);

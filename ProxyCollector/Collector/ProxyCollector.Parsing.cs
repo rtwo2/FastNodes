@@ -460,6 +460,12 @@ namespace ProxyCollector.Collector
                     string? password = MieruProtoString(user, 2);
                     if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password)) continue;
 
+                    // Simple sharing links have no dialer field. A profile that
+                    // requires a proxy dialer must not be silently converted into a
+                    // direct connection with different routing semantics.
+                    if (profile.Any(x => x.Field == 8 && x.Wire == 2))
+                        continue;
+
                     foreach (var serverField in profile.Where(x => x.Field == 3 && x.Wire == 2))
                     {
                         var server = ReadMieruProtoFields(serverField.Bytes);
@@ -501,12 +507,6 @@ namespace ProxyCollector.Collector
                         var trafficPattern = profile.LastOrDefault(x => x.Field == 7 && x.Wire == 2);
                         if (trafficPattern.Bytes is { Length: > 0 })
                             common.Add(("traffic-pattern", Convert.ToBase64String(trafficPattern.Bytes)));
-
-                        // Simple sharing links have no dialer field. A profile that
-                        // requires a proxy dialer must not be silently converted into a
-                        // direct connection with different routing semantics.
-                        if (profile.Any(x => x.Field == 8 && x.Wire == 2))
-                            continue;
 
                         foreach (var bindingField in server.Where(x => x.Field == 3 && x.Wire == 2))
                         {

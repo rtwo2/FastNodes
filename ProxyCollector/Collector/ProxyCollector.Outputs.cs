@@ -178,10 +178,11 @@ namespace ProxyCollector.Collector
             LogSuccess($"Saved curated.txt ({curated.Count}) — Iran-tested source or stable+TLS-verified" +
                        (curatedPartCount > 1 ? $"; split into {curatedPartCount} parts" : ""));
 
-            // /top is a globally ranked precision file. Require at least one affirmative
-            // signal, then rank by converging evidence; geography contributes only a
-            // modest prior. Keep the single unchunked 1000-node contract.
-            var topCandidates = RankTopCandidates(SelectBestEndpointProfiles(proxies));
+            // /top is a globally ranked precision file. Keep the raw candidate
+            // representatives until the selector can prefer an IPv6-capable member
+            // of each shared service profile; pre-collapsing here can discard the
+            // representative needed to satisfy the global IPv6 reservation.
+            var topCandidates = RankTopCandidates(proxies);
             var top = SelectTopWithIpv6Diversity(topCandidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 20);
             await WriteSubscriptionPartsAsync(Path.Combine(sub, "top"), top.Select(x => x.Link));
             int topIpv6Count = top.Count(x => ipv6Links.Contains(x.Link));

@@ -84,6 +84,8 @@ Both **top shortlists** (`top.txt` and `top_ipv6.txt`) use a **55% full-roundtri
 
 The optional Cloudflare edge check currently supports targets whose effective TLS SNI matches the endpoint hostname. Targets that explicitly require a different SNI are skipped by that check, but remain eligible for the other feeds and verification stages.
 
+The collector supports Mieru's human-readable `mierus://` simple-share format, including repeated port/protocol bindings expanded into separate TCP or UDP nodes, and converts supported sing-box/Clash Mieru definitions. The official binary `mieru://` protobuf share format is currently skipped rather than misinterpreted as a hostname; it is not yet decoded.
+
 ## The full catalog
 
 All subscriptions are published under:

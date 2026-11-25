@@ -515,6 +515,13 @@ internal static class Program
             "the unsafe-answer warning threshold allows exactly the configured maximum without warning");
         Checks.That(CollectorType.ResolvedIpFilterExceedsWarningThreshold(81, 100),
             "widespread unsafe DNS answers trigger a warning while unsafe hosts are still removed");
+        Checks.That(!CollectorType.DnsDropWouldTripCircuitBreaker(80, 100),
+            "the DNS emergency breaker permits exactly the configured maximum fraction");
+        Checks.That(CollectorType.DnsDropWouldTripCircuitBreaker(81, 100),
+            "the DNS emergency breaker trips above its threshold instead of publishing known NXDOMAIN nodes");
+        Checks.That(!CollectorType.DnsDropWouldTripCircuitBreaker(0, 100) &&
+                    !CollectorType.DnsDropWouldTripCircuitBreaker(5, 0),
+            "the DNS emergency breaker handles empty counts without false positives");
 
         Checks.That(CollectorType.HasUnsafeResolvedAddress(new[]
             { IPAddress.Parse("2001:4860:4860::8888"), IPAddress.Parse("::ffff:127.0.0.1") }),

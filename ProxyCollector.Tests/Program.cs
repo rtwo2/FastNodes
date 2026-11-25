@@ -1607,7 +1607,7 @@ internal static class Program
                 XrayVerified = true, Score = 80
             }
         };
-        var ipv6ProfileWinner = CollectorType.SelectTopIpv6Profiles(
+        var ipv6ProfileWinner = CollectorType.SelectTopWithIpv6Diversity(
             ipv6ProfileCandidates,
             new HashSet<string>(StringComparer.Ordinal) { "vless://ipv6@dual.example.net:443" },
             maxCount: 1, ipv6SharePercent: 100);
@@ -1752,7 +1752,7 @@ internal static class Program
                 XrayVerified = true, Score = 100, SourceGroup = "repo-c", HostGroup = "shared.example.net"
             }
         };
-        var deduplicatedProfiles = CollectorType.SelectTopIpv6Profiles(
+        var deduplicatedProfiles = CollectorType.SelectTopWithIpv6Diversity(
             duplicateProfiles, new HashSet<string>(StringComparer.Ordinal), maxCount: 10, ipv6SharePercent: 0);
         Checks.Equal(2, deduplicatedProfiles.Count,
             "top selection collapses credential-only duplicates at the same connection profile");

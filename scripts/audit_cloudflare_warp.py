@@ -277,8 +277,11 @@ def self_test():
     assert has_forbidden_transport_host("ss://auth@example.net:443?plugin=v2ray-plugin%3Bmode%3Dwebsocket%3Bhost%3Dedge.pages.dev#US")
     assert has_forbidden_transport_host("vless://uuid@example.net:443?host=www.speedtest.net.ns.cloudflare.com.try.cloudflare.com.attacker.test#US")
     assert not has_forbidden_transport_host("vless://uuid@example.net:443?ech=cloudflare-ech.com#US")
-    for scheme in ("naive", "anytls", "brook", "snell", "juicity", "mieru", "socks", "socks4"):
+    for scheme in ("naive", "anytls", "brook", "snell", "juicity", "mierus", "socks", "socks4"):
         assert uri_endpoints(f"{scheme}://user@example.net:443") == ["example.net"]
+    # The binary protobuf scheme is intentionally unsupported and must not be
+    # mistaken for an ordinary URI endpoint.
+    assert uri_endpoints("mieru://QmFzZTY0UHJvdG9idWY=") == []
     vmess = base64.b64encode(json.dumps({"add": "example.net", "ps": "Cloudflare node"}).encode()).decode()
     assert is_forbidden_label("vmess://" + vmess)
 

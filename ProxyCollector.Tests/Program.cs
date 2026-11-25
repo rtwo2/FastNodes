@@ -1325,7 +1325,16 @@ internal static class Program
         Checks.Equal("Pass@Word", mieruTcp.Credential[(mieruTcp.Credential.IndexOf(':') + 1)..], "Mieru parsing preserves escaped password case");
         Checks.Equal("6666", mieruTcp.Port, "Mieru TCP binding uses its numeric endpoint port");
         Checks.Equal("9998", mieruUdp!.Port, "Mieru UDP range uses its first port for endpoint metadata");
+        Checks.That(!CollectorType.IsMieruPortRange(mieruTcp) && CollectorType.IsMieruPortRange(mieruUdp),
+            "Mieru numeric bindings and port ranges are distinguished for endpoint probes");
         Checks.That(!CollectorType.UsesUdpTransport(mieruTcp) && CollectorType.UsesUdpTransport(mieruUdp), "Mieru TCP/UDP bindings classify independently");
+
+        const string mieruTcpRange =
+            "mierus://alice:secret@mieru-range.example.net?profile=default&port=7100-7110&protocol=TCP";
+        var mieruTcpRangeNode = CollectorType.ParseProxyLine(
+            CollectorType.DecodeAndExtractLines(mieruTcpRange, "https://example.net/mieru.txt").Single());
+        Checks.That(mieruTcpRangeNode is not null && CollectorType.IsMieruPortRange(mieruTcpRangeNode),
+            "a TCP port range is not reduced to one definitive endpoint for drop filtering");
         Checks.That(CollectorType.ParseProxyLine("mieru://CpsBCgdkZWZhdWx0ElgKBWJhb3ppEg1tYW5saWFucGVuZmVu") is null,
             "Base64 protobuf mieru:// shares are not misclassified as proxy hostnames");
 

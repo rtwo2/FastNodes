@@ -1314,6 +1314,10 @@ internal static class Program
             "mierus://alice:Pass%40Word@mieru.example.net?handshake-mode=HANDSHAKE_NO_WAIT&mtu=1400&multiplexing=MULTIPLEXING_HIGH&port=6666&port=9998-9999&profile=default&protocol=TCP&protocol=UDP&traffic-pattern=GgQIARAK#Mieru%20edge";
         var mieruLinks = CollectorType.DecodeAndExtractLines(mieruSimpleShare, "https://example.net/mieru-subscription.txt");
         Checks.Equal(2, mieruLinks.Count, "Mieru simple-share links expand paired port/protocol bindings into individual nodes");
+        string encodedMieruShare = Convert.ToBase64String(Encoding.UTF8.GetBytes(mieruSimpleShare));
+        Checks.Equal(2, CollectorType.DecodeAndExtractLines(
+            encodedMieruShare, "https://example.net/mieru-subscription.txt").Count,
+            "Base64-wrapped Mieru simple-share links expand after the collector decodes the source");
         var mieruTcp = CollectorType.ParseProxyLine(mieruLinks.Single(link => link.Contains("port=6666", StringComparison.Ordinal)));
         var mieruUdp = CollectorType.ParseProxyLine(mieruLinks.Single(link => link.Contains("port=9998-9999", StringComparison.Ordinal)));
         Checks.That(mieruTcp is not null && mieruUdp is not null, "expanded Mieru links pass the common parser");

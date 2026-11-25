@@ -1562,20 +1562,20 @@ internal static class Program
         {
             globalStratifiedCandidates.Add(new ProxyCollector.Collector.FinalProxy
             {
-                Link = $"vless://full{i}@full{i}.example.net:443",
-                Host = $"full{i}.example.net", Port = "443", Proto = "vless",
+                Link = $"{new[] { "vless", "vmess", "trojan" }[i % 3]}://full{i}@full{i}.net:443",
+                Host = $"full{i}.net", Port = "443", Proto = new[] { "vless", "vmess", "trojan" }[i % 3],
                 XrayVerified = true, Score = 1000 - i
             });
             globalStratifiedCandidates.Add(new ProxyCollector.Collector.FinalProxy
             {
-                Link = $"vless://partial{i}@partial{i}.example.net:443",
-                Host = $"partial{i}.example.net", Port = "443", Proto = "vless",
+                Link = $"{new[] { "vless", "vmess", "trojan" }[i % 3]}://partial{i}@partial{i}.net:443",
+                Host = $"partial{i}.net", Port = "443", Proto = new[] { "vless", "vmess", "trojan" }[i % 3],
                 TlsVerified = true, Score = 900 - i
             });
             globalStratifiedCandidates.Add(new ProxyCollector.Collector.FinalProxy
             {
-                Link = $"vless://source{i}@source{i}.example.net:443",
-                Host = $"source{i}.example.net", Port = "443", Proto = "vless",
+                Link = $"{new[] { "vless", "vmess", "trojan" }[i % 3]}://source{i}@source{i}.net:443",
+                Host = $"source{i}.net", Port = "443", Proto = new[] { "vless", "vmess", "trojan" }[i % 3],
                 IranTested = true, SourceCount = 2, Score = 800 - i
             });
         }

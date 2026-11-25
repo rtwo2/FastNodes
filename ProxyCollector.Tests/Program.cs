@@ -1557,6 +1557,41 @@ internal static class Program
         Checks.Equal(0, CollectorType.SelectTopWithIpv6Diversity(ranked, ipv6Links, maxCount: 0).Count,
             "IPv6-aware shortlist handles a zero-size request");
 
+        var globalStratifiedCandidates = new List<ProxyCollector.Collector.FinalProxy>();
+        for (int i = 0; i < 100; i++)
+        {
+            globalStratifiedCandidates.Add(new ProxyCollector.Collector.FinalProxy
+            {
+                Link = $"vless://full{i}@full{i}.example.net:443",
+                Host = $"full{i}.example.net", Port = "443", Proto = "vless",
+                XrayVerified = true, Score = 1000 - i
+            });
+            globalStratifiedCandidates.Add(new ProxyCollector.Collector.FinalProxy
+            {
+                Link = $"vless://partial{i}@partial{i}.example.net:443",
+                Host = $"partial{i}.example.net", Port = "443", Proto = "vless",
+                TlsVerified = true, Score = 900 - i
+            });
+            globalStratifiedCandidates.Add(new ProxyCollector.Collector.FinalProxy
+            {
+                Link = $"vless://source{i}@source{i}.example.net:443",
+                Host = $"source{i}.example.net", Port = "443", Proto = "vless",
+                IranTested = true, SourceCount = 2, Score = 800 - i
+            });
+        }
+        var globalStratifiedTop = CollectorType.SelectTopWithIpv6Diversity(
+            CollectorType.RankTopCandidates(globalStratifiedCandidates),
+            new HashSet<string>(StringComparer.Ordinal), maxCount: 100, ipv6SharePercent: 0);
+        Checks.Equal(55, globalStratifiedTop.Count(x => x.XrayVerified),
+            "global top preserves the 55% full-roundtrip evidence lane");
+        Checks.Equal(30, globalStratifiedTop.Count(x => x.TlsVerified),
+            "global top preserves the 30% partial-connectivity evidence lane");
+        Checks.Equal(15, globalStratifiedTop.Count(x => x.IranTested && !x.XrayVerified && !x.TlsVerified),
+            "global top preserves the 15% source/stability evidence lane");
+        Checks.Equal(globalStratifiedTop.Count,
+            globalStratifiedTop.Select(CollectorType.GetTopEndpointProfileKey).Distinct(StringComparer.Ordinal).Count(),
+            "global top never emits duplicate service profiles");
+
         var ipv6ProfileCandidates = new[]
         {
             new ProxyCollector.Collector.FinalProxy

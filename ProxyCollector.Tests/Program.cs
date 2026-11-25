@@ -1527,6 +1527,11 @@ internal static class Program
             "stable multi-source candidates remain in the source/stability lane after remote-vantage probe failures");
         Checks.Equal("tested-failed", CollectorType.GetVerificationStatus(remoteVantageFailure),
             "source/stability retention never mislabels remote-vantage failures as passing");
+        Checks.Equal("stable-and-multi-source", CollectorType.GetEvidenceLevel(remoteVantageFailure),
+            "diagnostics describe stable, corroborated candidates even when the current probe failed");
+        Checks.Equal("multi-source-corroborated", CollectorType.GetEvidenceLevel(
+            new ProxyCollector.Collector.FinalProxy { SourceCount = 3 }),
+            "diagnostics expose multi-source corroboration as positive selection evidence");
         Checks.That(sourceBackedAfterFailure.All(x => x.Link != singleSourceFailure.Link),
             "unverified single-source candidates without stability do not enter the top shortlist");
 

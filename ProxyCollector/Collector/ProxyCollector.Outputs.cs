@@ -564,8 +564,10 @@ namespace ProxyCollector.Collector
             3 => "full-proxy-roundtrip",
             2 => "partial-connectivity",
             1 => "source-tested-only",
+            _ when p.IsStable && p.SourceCount >= 2 => "stable-and-multi-source",
             _ when p.IsStable => "stable-across-runs",
             _ when p.SourceCount >= 2 && p.Streak >= 2 => "multi-source-and-persistent",
+            _ when p.SourceCount >= 2 => "multi-source-corroborated",
             _ => "no-positive-evidence"
         };
 

@@ -32,6 +32,8 @@ No account, token, or setup wizard needed.
 
 Works with compatible V2Ray / Xray clients. Individual protocol support depends on your app.
 
+Generated subscriptions are published on the [`outputs` branch](https://github.com/rtwo2/FastNodes/tree/outputs); source code, tests and CI stay on `main`.
+
 ## ✨ The good stuff
 
 A few useful feeds, without making you dig through the whole collection.

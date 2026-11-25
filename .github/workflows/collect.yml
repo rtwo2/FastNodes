@@ -38,6 +38,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
+      - name: Restore generated outputs and collection state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin refs/heads/outputs:refs/remotes/origin/outputs
+          OUTPUT_BASE_SHA=$(git rev-parse refs/remotes/origin/outputs)
+          printf '%s\\n' "$OUTPUT_BASE_SHA" > /tmp/fastnodes-output-base-sha
+          git checkout refs/remotes/origin/outputs -- sub state
+
       - name: Setup .NET
         uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6
         with:
@@ -1448,33 +1457,40 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-      - name: Commit & push (single-commit history)
+      - name: Publish generated data to outputs branch
         if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
+        shell: bash
         run: |
+          set -euo pipefail
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "No changes — skipping push"
+          # Compare the generated tree and published documentation with the exact
+          # output snapshot restored at the start of this run.
+          git add -f -A -- sub state
+          git add README.md DATA-TERMS.md LICENSE docs/EDGE-WORKER-CONTRACT.md docs/REPOSITORY-OPERATIONS.md
+          if git diff --cached --quiet refs/remotes/origin/outputs -- sub state README.md DATA-TERMS.md LICENSE docs/EDGE-WORKER-CONTRACT.md docs/REPOSITORY-OPERATIONS.md; then
+            echo "No output changes — skipping publication"
             exit 0
           fi
 
           shopt -s nullglob
           EVERYTHING_FILES=(sub/everything*.txt)
           PROXY_COUNT=$(awk 'END { print NR }' "${EVERYTHING_FILES[@]}")
-          # Remember the exact main revision checked out at the start of this run.
-          BASE_SHA=$(git rev-parse HEAD)
+          OUTPUT_BASE_SHA=$(cat /tmp/fastnodes-output-base-sha)
 
-          git checkout --orphan fastnodes-tip
-          git rm -rf --cached -q -- 'ProxyCollector/*.mmdb' 2>/dev/null || true
-          git add -A -- . ':(exclude)ProxyCollector/*.mmdb'
-          git commit -m "FastNodes auto-update $(date +'%Y-%m-%d %H:%M UTC') — ${PROXY_COUNT} proxies"
+          # Publish only the generated snapshot, persistent collector state and
+          # the user-facing terms/docs. Source history remains intact on main.
+          git checkout --orphan fastnodes-output
+          git rm -rf --cached -q .
+          git add -f -A -- sub state
+          git add README.md DATA-TERMS.md LICENSE docs/EDGE-WORKER-CONTRACT.md docs/REPOSITORY-OPERATIONS.md
+          git commit -m "FastNodes output update $(date +'%Y-%m-%d %H:%M UTC') — ${PROXY_COUNT} profiles"
 
-          # Never overwrite a main revision created after this run checked out.
-          git fetch origin main
-          if git push --force-with-lease="refs/heads/main:${BASE_SHA}" origin fastnodes-tip:main; then
-            echo "Push succeeded"
+          git fetch origin outputs
+          if git push --force-with-lease="refs/heads/outputs:${OUTPUT_BASE_SHA}" origin fastnodes-output:outputs; then
+            echo "Output publication succeeded"
           else
-            echo "::error::main changed during collection; refusing to overwrite newer commits. Rerun the workflow."
+            echo "::error::outputs branch changed during collection; refusing to overwrite the newer publication. Rerun the workflow."
             exit 1
-          fi
+          fi          fi

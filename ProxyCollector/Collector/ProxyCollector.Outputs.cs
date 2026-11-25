@@ -166,7 +166,7 @@ namespace ProxyCollector.Collector
             LogSuccess($"Saved verified.txt ({xrayVerified.Count}) — current-run full Xray round-trip only.");
             LogSuccess($"Saved verified_last_good.txt ({safeLastGood.Count}) — sanitized historical snapshot, not a current verification claim.");
 
-            // Curated evidence tier: source-tested nodes plus the stable+TLS-verified core.            // Curated evidence tier: source-tested nodes plus the stable+TLS-verified core.
+            // Curated evidence tier: source-tested nodes plus the stable+TLS-verified core.
             // Source testing can include Iran-specific checks, but the output stays useful
             // internationally and does not assume the GitHub runner matches the user.
             var curated = SelectBestEndpointProfiles(
@@ -824,7 +824,10 @@ namespace ProxyCollector.Collector
                 .Where(x => !string.IsNullOrWhiteSpace(x.Link))
                 .GroupBy(GetTopEndpointProfileKey, StringComparer.OrdinalIgnoreCase)
                 .Select(g => g
-                    .OrderBy(GetTopEvidenceLane)
+                    // When a service has both IPv4-only and IPv6-capable host spellings,
+                    // choose its IPv6 candidate for the global IPv6 reservation too.
+                    .OrderByDescending(x => ipv6Links.Contains(x.Link))
+                    .ThenBy(GetTopEvidenceLane)
                     .ThenByDescending(CalculateTopSelectionScore)
                     .ThenBy(x => x.Link, StringComparer.Ordinal)
                     .First())

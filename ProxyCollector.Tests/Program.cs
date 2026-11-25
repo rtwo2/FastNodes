@@ -2053,6 +2053,29 @@ internal static class Program
         Checks.That(compactProfiles[0].XrayVerified,
             "compact profile selection prefers the credential with the strongest current verification evidence");
 
+        var stableCredentialA = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://verified-account@shared-profile.example.net:443",
+            Proto = "vless", Host = "shared-profile.example.net", Port = "443",
+            SelectionProfileKey = "shared-profile", XrayVerified = true
+        };
+        var stableCredentialB = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://stable-account@shared-profile.example.net:443",
+            Proto = "vless", Host = "shared-profile.example.net", Port = "443",
+            SelectionProfileKey = "shared-profile", IsStable = true
+        };
+        var sharedCatalogue = CollectorType.SelectBestEndpointProfiles(
+            new[] { stableCredentialA, stableCredentialB });
+        var independentlySelectedStable = CollectorType.SelectBestEndpointProfiles(
+            new[] { stableCredentialA, stableCredentialB }.Where(x => x.IsStable));
+        Checks.That(sharedCatalogue[0].Link != independentlySelectedStable[0].Link,
+            "independent category selection can choose a credential that the master catalogue collapsed");
+        var catalogueStable = CollectorType.SelectCatalogueProfilesForCategory(
+            sharedCatalogue, x => x.IsStable);
+        Checks.Equal(0, catalogueStable.Count,
+            "stable output is derived from the canonical master representative and cannot publish an absent credential variant");
+
         var ssProfileA = CollectorType.ParseProxyLine(
             "ss://YWVzLTI1Ni1nY206cGFzc3dvcmQtYQ==@example.net:8388");
         var ssProfileB = CollectorType.ParseProxyLine(

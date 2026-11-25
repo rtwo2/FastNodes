@@ -88,15 +88,17 @@ namespace ProxyCollector.Collector
             foreach (var d in new[] { "protocols", "countries", "continents" })
                 Directory.CreateDirectory(Path.Combine(sub, d));
 
-            // Classify each candidate into both address families in one pass. DNS
-            // answers are cached, but the combined pass also avoids a second traversal
-            // and repeated resolver lookups across the 300k+ node master list.
-            var (ipv4Candidates, ipv6Candidates) = await FilterByFamiliesAsync(proxies);
-            var ipv4Proxies = SelectBestEndpointProfiles(ipv4Candidates);
-            var ipv6Proxies = SelectBestEndpointProfiles(ipv6Candidates);
-            var ipv6Links = new HashSet<string>(ipv6Proxies.Select(x => x.Link), StringComparer.Ordinal);
-
+            // Pick one canonical representative per service profile first. Every
+            // compact URI category below is derived from this same set, guaranteeing
+            // exact-link membership in everything.txt even when credential variants
+            // carry different per-credential history/evidence.
             var catalogueProfiles = SelectBestEndpointProfiles(proxies);
+
+            // Classify the canonical catalogue representatives into both address
+            // families in one pass. Dual-stack hostnames can appear in both feeds, but
+            // credential alternatives cannot silently replace the master-list link.
+            var (ipv4Proxies, ipv6Proxies) = await FilterByFamiliesAsync(catalogueProfiles);
+            var ipv6Links = new HashSet<string>(ipv6Proxies.Select(x => x.Link), StringComparer.Ordinal);
             int collapsedCatalogueVariants = proxies.Count - catalogueProfiles.Count;
             int everythingPartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "everything"), catalogueProfiles.Select(x => x.Link));
@@ -107,13 +109,13 @@ namespace ProxyCollector.Collector
             // The master catalogue and compact evidence feeds both use one best
             // representative per service profile. Credential-only alternatives are
             // collapsed; connection-affecting differences remain distinct.
-            var stable = SelectBestEndpointProfiles(proxies.Where(x => x.IsStable));
+            var stable = SelectCatalogueProfilesForCategory(catalogueProfiles, x => x.IsStable);
             int stablePartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "stable"), stable.Select(x => x.Link));
             LogSuccess($"Saved stable.txt ({stable.Count}) — present ≥{StableMinRuns} consecutive runs" +
                        (stablePartCount > 1 ? $"; split into {stablePartCount} parts" : ""));
 
-            var tlsVerified = SelectBestEndpointProfiles(proxies.Where(x => x.TlsVerified));
+            var tlsVerified = SelectCatalogueProfilesForCategory(catalogueProfiles, x => x.TlsVerified);
             int tlsPartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "verified_tls"), tlsVerified.Select(x => x.Link));
             LogSuccess($"Saved verified_tls.txt ({tlsVerified.Count}) — distinct endpoint profiles with a current TLS handshake" +
@@ -122,7 +124,7 @@ namespace ProxyCollector.Collector
             // verified.txt is a strict current-run claim: every entry must have passed
             // the full Xray proxy round-trip (including the expected HTTP 204) in THIS
             // collection run. Never mix old successes into this feed.
-            var xrayVerified = SelectCurrentVerifiedProfiles(proxies)
+            var xrayVerified = SelectCatalogueProfilesForCategory(catalogueProfiles, x => x.XrayVerified)
                 .OrderByDescending(x => ipv6Links.Contains(x.Link))
                 .ThenByDescending(x => x.XrayStreak)
                 .ThenByDescending(x => x.Score)
@@ -172,18 +174,17 @@ namespace ProxyCollector.Collector
             // Curated evidence tier: source-tested nodes plus the stable+TLS-verified core.
             // Source testing can include Iran-specific checks, but the output stays useful
             // internationally and does not assume the GitHub runner matches the user.
-            var curated = SelectBestEndpointProfiles(
-                proxies.Where(x => x.IranTested || (x.IsStable && x.TlsVerified)));
+            var curated = SelectCatalogueProfilesForCategory(
+                catalogueProfiles, x => x.IranTested || (x.IsStable && x.TlsVerified));
             int curatedPartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "curated"), curated.Select(x => x.Link));
             LogSuccess($"Saved curated.txt ({curated.Count}) — Iran-tested source or stable+TLS-verified" +
                        (curatedPartCount > 1 ? $"; split into {curatedPartCount} parts" : ""));
 
-            // /top is a globally ranked precision file. Keep the raw candidate
-            // representatives until the selector can prefer an IPv6-capable member
-            // of each shared service profile; pre-collapsing here can discard the
-            // representative needed to satisfy the global IPv6 reservation.
-            var topCandidates = RankTopCandidates(proxies);
+            // Rank the same canonical representatives used by everything.txt.
+            // The IPv6 reservation can promote eligible dual-stack profiles, but it
+            // must not substitute a different credential from the master catalogue.
+            var topCandidates = RankTopCandidates(catalogueProfiles);
             var top = SelectTopWithIpv6Diversity(topCandidates, ipv6Links, maxCount: 1000, ipv6SharePercent: 20);
             await WriteSubscriptionPartsAsync(Path.Combine(sub, "top"), top.Select(x => x.Link));
             int topIpv6Count = top.Count(x => ipv6Links.Contains(x.Link));
@@ -235,27 +236,27 @@ namespace ProxyCollector.Collector
             if (topIpv6.Any(x => !ipv6OnlyLinks.Contains(x.Link, StringComparer.Ordinal)))
                 throw new InvalidOperationException("top_ipv6.txt contains a node missing from ipv6_only.txt");
 
-            foreach (var g in GetRawProtocolGroups(proxies))
+            foreach (var g in GetRawProtocolGroups(catalogueProfiles))
             {
                 string key = g.Key.Trim().ToLowerInvariant();
 
-                await WriteTxt(Path.Combine(sub, "protocols", key), SelectBestEndpointProfiles(g));
+                await WriteTxt(Path.Combine(sub, "protocols", key), g.ToList());
                 LogSuccess($"  → protocols/{key} ({g.Count()})");
             }
 
-            foreach (var g in proxies.GroupBy(x => x.CountryCode))
+            foreach (var g in catalogueProfiles.GroupBy(x => x.CountryCode))
             {
                 if (string.IsNullOrEmpty(g.Key) || g.Key == "XX" || g.Count() < 3) continue;
                 string safe = Regex.Replace(g.Key, @"[^A-Z0-9]", "");
                 if (string.IsNullOrEmpty(safe)) continue;
-                await WriteTxt(Path.Combine(sub, "countries", safe), SelectBestEndpointProfiles(g));
+                await WriteTxt(Path.Combine(sub, "countries", safe), g.ToList());
                 LogSuccess($"  → countries/{safe} ({g.Count()})");
             }
 
-            foreach (var g in proxies.GroupBy(x => x.Continent))
+            foreach (var g in catalogueProfiles.GroupBy(x => x.Continent))
             {
                 if (g.Key == "Unknown" || g.Count() < 3) continue;
-                await WriteTxt(Path.Combine(sub, "continents", g.Key), SelectBestEndpointProfiles(g));
+                await WriteTxt(Path.Combine(sub, "continents", g.Key), g.ToList());
                 LogSuccess($"  → continents/{g.Key} ({g.Count()})");
             }
 
@@ -263,7 +264,7 @@ namespace ProxyCollector.Collector
             // NekoBox's JSON parser has a bug with WireGuard outbounds, so we output
             // Clash YAML which NekoBox parses perfectly. The official WireGuard app
             // imports .conf files. We output BOTH so either client can use the data.
-            var wgNodes = SelectBestEndpointProfiles(proxies.Where(x => x.Proto == "wireguard"));
+            var wgNodes = SelectCatalogueProfilesForCategory(catalogueProfiles, x => x.Proto == "wireguard");
             if (wgNodes.Count > 0)
             {
                 var wgDir = Path.Combine(sub, "wireguard");
@@ -792,6 +793,15 @@ namespace ProxyCollector.Collector
                 .ThenBy(x => x.Port, StringComparer.Ordinal)
                 .ThenBy(x => x.Link, StringComparer.Ordinal)
                 .ToList();
+
+        // Secondary URI categories are projections of the master catalogue, not
+        // independent re-selections from the credential-complete candidate pool.
+        // This preserves exact link membership while keeping category semantics
+        // attached to the selected catalogue representative.
+        internal static List<FinalProxy> SelectCatalogueProfilesForCategory(
+            IEnumerable<FinalProxy> catalogueProfiles,
+            Func<FinalProxy, bool> predicate)
+            => catalogueProfiles.Where(predicate).ToList();
 
         internal static string GetTopEndpointProfileKey(FinalProxy p)
         {

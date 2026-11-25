@@ -1370,6 +1370,13 @@ internal static class Program
         var mieruClashParsed = CollectorType.ParseProxyLine(mieruClashLinks.Single());
         Checks.That(mieruClashParsed is not null && CollectorType.UsesUdpTransport(mieruClashParsed), "Clash Mieru UDP transport survives YAML conversion");
 
+        Checks.That(!ProxyCollector.Services.SourceFetcher.ShouldRetryFetchException(
+                new System.IO.InvalidDataException("response exceeded configured byte limit")),
+            "deterministic invalid/oversized source responses are not retried");
+        Checks.That(ProxyCollector.Services.SourceFetcher.ShouldRetryFetchException(
+                new System.Net.Http.HttpRequestException("temporary network failure")),
+            "transient network source-fetch failures remain eligible for bounded retries");
+
         var flowA = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&flow=xtls-rprx-vision");
         var flowB = CollectorType.ParseProxyLine(

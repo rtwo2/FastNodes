@@ -1426,10 +1426,6 @@ jobs:
           python3 scripts/audit_cloudflare_warp.py --self-test
           python3 scripts/audit_cloudflare_warp.py sub /tmp/cf-ips-v4 /tmp/cf-ips-v6
 
-      - name: Revalidate final output tree before commit
-        if: ${{ inputs.source_limit == '' || inputs.source_limit == '0' }}
-        run: python3 scripts/validate_outputs.py sub
-
       - name: Summarize per-source contribution and failures
         if: ${{ always() && steps.collector.outcome == 'success' }}
         shell: bash

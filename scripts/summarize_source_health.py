@@ -65,7 +65,7 @@ def render(csv_path: pathlib.Path) -> str:
         f"- Extracted proxy-like lines: **{extracted:,}**",
         f"- Parsed configurations before global deduplication/filtering: **{parsed:,}**",
         f"- First-contributor unique exact configurations (before DNS/IP alias collapse): **{unique:,}**",
-        f"- Nested provider fetches: **{provider_ok:,} succeeded / {provider_bad:,} failed after retry**",
+        f"- Nested provider fetches: **{provider_ok:,} succeeded / {provider_bad:,} failed**",
         f"- Fetched but unparsed sources: **{len(fetched_unparsed):,}**",
         f"- Parsed sources adding no first-contributor nodes this run: **{len(parsed_zero_unique):,}**",
         "", "The unique metric counts exact canonical configurations first accepted from each feed during parsing. It is measured before DNS/IP alias collapse and later safety filters, so it is not a count of final published service profiles. First-contributor counts follow deterministic source priority, but change as feeds change. A zero-unique source is not automatically redundant or safe to remove; compare multiple runs first.",

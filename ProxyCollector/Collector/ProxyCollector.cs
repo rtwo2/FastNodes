@@ -1470,7 +1470,7 @@ namespace ProxyCollector.Collector
             }
             int providerFailures = sourceStats.Values.Sum(st => Volatile.Read(ref st.ProviderFailures));
             int providerSuccesses = sourceStats.Values.Sum(st => Volatile.Read(ref st.ProviderSuccesses));
-            LogInfo($"Source health: {sourceStats.Count} sources — {healthyCount} yielded parsed proxies, {fetchFailed} fetch-failed, {emptyBody} empty-body, {unparsedContent} fetched-but-unparsed, {parseGap} extracted-but-rejected; nested provider fetches succeeded={providerSuccesses}, failed-after-retry={providerFailures}.");
+            LogInfo($"Source health: {sourceStats.Count} sources — {healthyCount} yielded parsed proxies, {fetchFailed} fetch-failed, {emptyBody} empty-body, {unparsedContent} fetched-but-unparsed, {parseGap} extracted-but-rejected; nested provider fetches succeeded={providerSuccesses}, failed={providerFailures}.");
 
             // Publish a machine-readable source audit alongside generated subscriptions.
             // This separates network reachability from parser yield and unique contribution.
@@ -3856,6 +3856,8 @@ namespace ProxyCollector.Collector
                     string reserved = GetJsonNumberArray(peer, "reserved");
                     if (reserved.Length == 0 && hasPeers)
                         reserved = GetJsonNumberArray(profile, "reserved");
+                    bool hasKeepalive = peer.TryGetProperty("persistent_keepalive_interval", out _) ||
+                        (!hasPeers && profile.TryGetProperty("persistent_keepalive_interval", out _));
                     int keepalive = GetJsonInt(
                         peer, "persistent_keepalive_interval",
                         hasPeers ? 0 : GetJsonInt(profile, "persistent_keepalive_interval"));
@@ -3874,7 +3876,8 @@ namespace ProxyCollector.Collector
                     if (dns.Length > 0) query.Add("dns=" + Uri.EscapeDataString(dns));
                     if (psk.Length > 0) query.Add("psk=" + Uri.EscapeDataString(psk));
                     if (reserved.Length > 0) query.Add("reserved=" + Uri.EscapeDataString(reserved));
-                    if (keepalive > 0) query.Add("keepalive=" + keepalive.ToString(CultureInfo.InvariantCulture));
+                    if (hasKeepalive)
+                        query.Add("keepalive=" + keepalive.ToString(CultureInfo.InvariantCulture));
 
                     string peerTag = peers.Length == 1 ? tag : $"{tag}-{i + 1}";
                     string link = $"wireguard://{Uri.EscapeDataString(privateKey)}@{FormatUriHost(host)}:{port}?{string.Join("&", query)}#{Uri.EscapeDataString(peerTag)}";
@@ -4246,6 +4249,8 @@ namespace ProxyCollector.Collector
                     Q("psk", f.GetValueOrDefault("pre-shared-key",
                         f.GetValueOrDefault("preshared-key", f.GetValueOrDefault("psk", ""))));
                     Q("reserved", f.GetValueOrDefault("reserved", ""));
+                    Q("keepalive", f.GetValueOrDefault("persistent-keepalive",
+                        f.GetValueOrDefault("persistent_keepalive", f.GetValueOrDefault("keepalive", ""))));
                     return $"wireguard://{Uri.EscapeDataString(f["private-key"])}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
                 }
                 case "vmess" when f.ContainsKey("uuid"):

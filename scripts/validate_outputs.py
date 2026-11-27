@@ -80,6 +80,17 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
                 raise ValidationError(f"{path}: YAML proxy entry {index} has no server endpoint")
             if not port or not (1 <= int(port.group(1)) <= 65535):
                 raise ValidationError(f"{path}: YAML proxy entry {index} has invalid port")
+            has_keepalive = re.search(
+                r"(?m)^[ \t]*persistent-keepalive[ \t]*:", block, re.IGNORECASE
+            )
+            keepalive = re.search(
+                r"""(?m)^[ \t]*persistent-keepalive[ \t]*:[ \t]*['"]?(\d+)['"]?[ \t]*(?:#.*)?$""",
+                block, re.IGNORECASE
+            )
+            if has_keepalive and (not keepalive or int(keepalive.group(1)) > 65535):
+                raise ValidationError(
+                    f"{path}: YAML proxy entry {index} has invalid persistent-keepalive"
+                )
         return len(blocks), 0
 
     malformed = [
@@ -459,7 +470,7 @@ def self_test() -> None:
         (root / "continents").mkdir()
         (root / "continents" / "Europe.txt").write_text(good[1] + "\n", encoding="utf-8")
         yaml = ('proxies:\n'
-                '  - name: "WG test 1"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n    reserved:\n      - 0\n      - 0\n      - 0\n'
+                '  - name: "WG test 1"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n    persistent-keepalive: 0\n    reserved:\n      - 0\n      - 0\n      - 0\n'
                 '  - name: "WG test 2"\n    type: wireguard\n    server: "198.51.100.2"\n    port: 123\n')
         (root / "protocols" / "wireguard.txt").write_text(yaml, encoding="utf-8")
         wg_dir = root / "wireguard"
@@ -483,6 +494,17 @@ def self_test() -> None:
         report = validate_tree(root)
         if not any("Validated 1 WireGuard .conf file(s)." in line for line in report):
             raise ValidationError("self-test failed to report validated WireGuard .conf output")
+        invalid_keepalive_yaml = yaml.replace("persistent-keepalive: 0", "persistent-keepalive: 65536")
+        (root / "protocols" / "wireguard.txt").write_text(invalid_keepalive_yaml, encoding="utf-8")
+        try:
+            validate_lines(root / "protocols" / "wireguard.txt")
+        except ValidationError as exc:
+            if "persistent-keepalive" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to reject out-of-range WireGuard YAML keepalive")
+        finally:
+            (root / "protocols" / "wireguard.txt").write_text(yaml, encoding="utf-8")
 
         # Empty current-run verification is valid; the historical snapshot is separate.
         verified_path = root / "verified.txt"

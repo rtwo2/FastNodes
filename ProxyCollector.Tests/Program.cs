@@ -599,9 +599,10 @@ internal static class Program
         Checks.That(keepaliveYaml.Contains("persistent-keepalive: 17", StringComparison.Ordinal),
             "Mihomo WireGuard YAML preserves an explicit source keepalive value");
 
-        var noKeepaliveInfo = CollectorType.TryParseWireguardInfo(validWgLink);
-        Checks.That(noKeepaliveInfo is not null, "WireGuard link without keepalive remains valid");
-        Checks.Equal<int?>(null, noKeepaliveInfo!.PersistentKeepalive,
+        var noKeepaliveParsed = CollectorType.TryParseWireguardInfo(validWgLink);
+        Checks.That(noKeepaliveParsed is not null, "WireGuard link without keepalive remains valid");
+        var noKeepaliveInfo = noKeepaliveParsed!;
+        Checks.Equal<int?>(null, noKeepaliveInfo.PersistentKeepalive,
             "missing source keepalive remains absent instead of inventing a default");
         string noKeepaliveConf = CollectorType.BuildWireguardConf(noKeepaliveInfo);
         string noKeepaliveYaml = CollectorType.SerializeWireguardClashYaml(new[]
@@ -612,9 +613,10 @@ internal static class Program
                     !noKeepaliveYaml.Contains("persistent-keepalive", StringComparison.Ordinal),
             "both WireGuard exports omit keepalive when the source omits it");
 
-        var zeroKeepaliveInfo = CollectorType.TryParseWireguardInfo(validWgLink + "&keepalive=0");
-        Checks.That(zeroKeepaliveInfo is not null, "WireGuard link with explicit zero keepalive remains valid");
-        Checks.Equal<int?>(0, zeroKeepaliveInfo!.PersistentKeepalive,
+        var zeroKeepaliveParsed = CollectorType.TryParseWireguardInfo(validWgLink + "&keepalive=0");
+        Checks.That(zeroKeepaliveParsed is not null, "WireGuard link with explicit zero keepalive remains valid");
+        var zeroKeepaliveInfo = zeroKeepaliveParsed!;
+        Checks.Equal<int?>(0, zeroKeepaliveInfo.PersistentKeepalive,
             "explicit zero keepalive is distinct from an absent value");
         Checks.That(CollectorType.BuildWireguardConf(zeroKeepaliveInfo)
                         .Contains("PersistentKeepalive = 0", StringComparison.Ordinal) &&
@@ -1203,6 +1205,13 @@ internal static class Program
             "base64 sing-box reserved bytes are converted to three numeric reserved bytes");
         Checks.That(modernEndpointWireguard.Single().Contains("keepalive=25", StringComparison.Ordinal),
             "modern sing-box WireGuard peer keepalive is preserved");
+        string singboxZeroKeepalive = singboxEndpointWireguard.Replace(
+            "\"persistent_keepalive_interval\": 25", "\"persistent_keepalive_interval\": 0",
+            StringComparison.Ordinal);
+        var zeroSingboxKeepaliveLinks = CollectorType.DecodeAndExtractLines(
+            singboxZeroKeepalive, "https://example.net/singbox-zero-keepalive.json");
+        Checks.That(zeroSingboxKeepaliveLinks.Single().Contains("keepalive=0", StringComparison.Ordinal),
+            "sing-box conversion preserves an explicitly configured zero keepalive");
         const string singboxScalarEndpointWireguard = """
         {
           "endpoints": [

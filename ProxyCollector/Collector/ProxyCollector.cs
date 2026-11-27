@@ -3856,6 +3856,8 @@ namespace ProxyCollector.Collector
                     string reserved = GetJsonNumberArray(peer, "reserved");
                     if (reserved.Length == 0 && hasPeers)
                         reserved = GetJsonNumberArray(profile, "reserved");
+                    bool hasKeepalive = peer.TryGetProperty("persistent_keepalive_interval", out _) ||
+                        (!hasPeers && profile.TryGetProperty("persistent_keepalive_interval", out _));
                     int keepalive = GetJsonInt(
                         peer, "persistent_keepalive_interval",
                         hasPeers ? 0 : GetJsonInt(profile, "persistent_keepalive_interval"));
@@ -3874,7 +3876,8 @@ namespace ProxyCollector.Collector
                     if (dns.Length > 0) query.Add("dns=" + Uri.EscapeDataString(dns));
                     if (psk.Length > 0) query.Add("psk=" + Uri.EscapeDataString(psk));
                     if (reserved.Length > 0) query.Add("reserved=" + Uri.EscapeDataString(reserved));
-                    if (keepalive > 0) query.Add("keepalive=" + keepalive.ToString(CultureInfo.InvariantCulture));
+                    if (hasKeepalive)
+                        query.Add("keepalive=" + keepalive.ToString(CultureInfo.InvariantCulture));
 
                     string peerTag = peers.Length == 1 ? tag : $"{tag}-{i + 1}";
                     string link = $"wireguard://{Uri.EscapeDataString(privateKey)}@{FormatUriHost(host)}:{port}?{string.Join("&", query)}#{Uri.EscapeDataString(peerTag)}";
@@ -4247,7 +4250,7 @@ namespace ProxyCollector.Collector
                         f.GetValueOrDefault("preshared-key", f.GetValueOrDefault("psk", ""))));
                     Q("reserved", f.GetValueOrDefault("reserved", ""));
                     Q("keepalive", f.GetValueOrDefault("persistent-keepalive",
-                        f.GetValueOrDefault("persistent_keepalive", "")));
+                        f.GetValueOrDefault("persistent_keepalive", f.GetValueOrDefault("keepalive", ""))));
                     return $"wireguard://{Uri.EscapeDataString(f["private-key"])}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
                 }
                 case "vmess" when f.ContainsKey("uuid"):

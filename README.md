@@ -105,11 +105,10 @@ The Cloudflare edge check sends each target's effective TLS SNI separately from 
 
 FastNodes supports Mieru's human-readable `mierus://` simple-share format, including repeated port/protocol bindings expanded into separate TCP or UDP nodes. Supported sing-box and Clash Mieru definitions are also converted. Binary protobuf shares preserve MTU, multiplexing, handshake mode and traffic-pattern settings when converting to the official simple-share format. Profiles that require the optional proxy dialer are skipped rather than silently converted into direct connections.
 
-The official binary protobuf `mieru://` share format is decoded into normalized per-server, per-port `mierus://` entries.
 
 ## 🗂️ The full collection
 
-WireGuard `.conf` exports preserve source MTU when supplied. AmneziaWG `reserved` bytes are retained in the Clash YAML feed; the standard WireGuard `.conf` format has no equivalent directive.
+WireGuard `.conf` and Clash/Mihomo YAML exports preserve source MTU and persistent-keepalive values when supplied. AmneziaWG `reserved` bytes are retained in the Clash YAML feed; the standard WireGuard `.conf` format has no equivalent directive.
 
 All generated subscriptions live in:
 

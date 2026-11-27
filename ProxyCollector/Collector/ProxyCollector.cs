@@ -1470,7 +1470,7 @@ namespace ProxyCollector.Collector
             }
             int providerFailures = sourceStats.Values.Sum(st => Volatile.Read(ref st.ProviderFailures));
             int providerSuccesses = sourceStats.Values.Sum(st => Volatile.Read(ref st.ProviderSuccesses));
-            LogInfo($"Source health: {sourceStats.Count} sources — {healthyCount} yielded parsed proxies, {fetchFailed} fetch-failed, {emptyBody} empty-body, {unparsedContent} fetched-but-unparsed, {parseGap} extracted-but-rejected; nested provider fetches succeeded={providerSuccesses}, failed-after-retry={providerFailures}.");
+            LogInfo($"Source health: {sourceStats.Count} sources — {healthyCount} yielded parsed proxies, {fetchFailed} fetch-failed, {emptyBody} empty-body, {unparsedContent} fetched-but-unparsed, {parseGap} extracted-but-rejected; nested provider fetches succeeded={providerSuccesses}, failed={providerFailures}.");
 
             // Publish a machine-readable source audit alongside generated subscriptions.
             // This separates network reachability from parser yield and unique contribution.
@@ -4246,6 +4246,8 @@ namespace ProxyCollector.Collector
                     Q("psk", f.GetValueOrDefault("pre-shared-key",
                         f.GetValueOrDefault("preshared-key", f.GetValueOrDefault("psk", ""))));
                     Q("reserved", f.GetValueOrDefault("reserved", ""));
+                    Q("keepalive", f.GetValueOrDefault("persistent-keepalive",
+                        f.GetValueOrDefault("persistent_keepalive", "")));
                     return $"wireguard://{Uri.EscapeDataString(f["private-key"])}@{uriServer}:{port}?{string.Join("&", q)}#{remark}";
                 }
                 case "vmess" when f.ContainsKey("uuid"):

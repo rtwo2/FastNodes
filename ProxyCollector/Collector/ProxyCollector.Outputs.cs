@@ -287,23 +287,7 @@ namespace ProxyCollector.Collector
                     // Build the Clash node as data. YamlDotNet handles quoting and
                     // line breaks in every source-controlled scalar; string concatenation
                     // here would allow newline/quote injection into downloadable configs.
-                    var clashNode = new Dictionary<string, object?>
-                    {
-                        ["name"] = node.Remark,
-                        ["type"] = "wireguard",
-                        ["server"] = wgInfo.Host,
-                        ["port"] = wgInfo.Port,
-                        ["ip"] = wgInfo.Address,
-                        ["public-key"] = wgInfo.PublicKey,
-                        ["private-key"] = wgInfo.PrivateKey,
-                        ["allowed-ips"] = wgInfo.AllowedIPs,
-                        ["mtu"] = wgInfo.Mtu ?? 1280
-                    };
-                    if (!string.IsNullOrEmpty(wgInfo.Dns)) clashNode["dns"] = wgInfo.Dns;
-                    if (!string.IsNullOrEmpty(wgInfo.PresharedKey)) clashNode["preshared-key"] = wgInfo.PresharedKey;
-                    if (wgInfo.Reserved.Length == 3)
-                        clashNode["reserved"] = wgInfo.Reserved.Select(r => (int)byte.Parse(r.Trim())).ToArray();
-                    clashProxies.Add(clashNode);
+                    clashProxies.Add(BuildWireguardClashProxy(node.Remark, wgInfo));
                 }
 
                 string wireguardProtocolDirectory = Path.Combine(sub, "protocols");
@@ -1374,7 +1358,7 @@ namespace ProxyCollector.Collector
             public string? PresharedKey = null;
             public string Host = "";
             public int Port = 51820;
-            public int PersistentKeepalive = 25;
+            public int? PersistentKeepalive = null;
             public int? Mtu = null;
             public string[] Reserved = Array.Empty<string>();
         }
@@ -1448,6 +1432,30 @@ namespace ProxyCollector.Collector
                 .ToArray();
             return reservedValues.Length == 0 ||
                 (reservedValues.Length == 3 && reservedValues.All(value => byte.TryParse(value, out _)));
+        }
+
+        internal static Dictionary<string, object?> BuildWireguardClashProxy(string name, WgInfo info)
+        {
+            ArgumentNullException.ThrowIfNull(info);
+            var proxy = new Dictionary<string, object?>
+            {
+                ["name"] = name,
+                ["type"] = "wireguard",
+                ["server"] = info.Host,
+                ["port"] = info.Port,
+                ["ip"] = info.Address,
+                ["public-key"] = info.PublicKey,
+                ["private-key"] = info.PrivateKey,
+                ["allowed-ips"] = info.AllowedIPs,
+                ["mtu"] = info.Mtu ?? 1280
+            };
+            if (!string.IsNullOrEmpty(info.Dns)) proxy["dns"] = info.Dns;
+            if (!string.IsNullOrEmpty(info.PresharedKey)) proxy["preshared-key"] = info.PresharedKey;
+            if (info.Reserved.Length == 3)
+                proxy["reserved"] = info.Reserved.Select(value => (int)byte.Parse(value.Trim())).ToArray();
+            if (info.PersistentKeepalive.HasValue)
+                proxy["persistent-keepalive"] = info.PersistentKeepalive.Value;
+            return proxy;
         }
 
         internal static string SerializeWireguardClashYaml(
@@ -1604,10 +1612,13 @@ namespace ProxyCollector.Collector
                         }
 
                         string keepalive = GetWireguardDirective(decoded, "Peer", "PersistentKeepalive");
-                        if (!string.IsNullOrEmpty(keepalive) &&
-                            (!int.TryParse(keepalive, out info.PersistentKeepalive) ||
-                             info.PersistentKeepalive is < 0 or > 65535))
-                            return null;
+                        if (!string.IsNullOrEmpty(keepalive))
+                        {
+                            if (!int.TryParse(keepalive, out int parsedKeepalive) ||
+                                parsedKeepalive is < 0 or > 65535)
+                                return null;
+                            info.PersistentKeepalive = parsedKeepalive;
+                        }
                     }
                 }
                 catch { }
@@ -1638,10 +1649,13 @@ namespace ProxyCollector.Collector
                     }
                     info.PresharedKey = q.GetValueOrDefault("psk", q.GetValueOrDefault("presharedkey", ""));
                     string keepalive = q.GetValueOrDefault("persistentkeepalive", q.GetValueOrDefault("keepalive", ""));
-                    if (!string.IsNullOrEmpty(keepalive) &&
-                        (!int.TryParse(keepalive, out info.PersistentKeepalive) ||
-                         info.PersistentKeepalive is < 0 or > 65535))
-                        return null;
+                    if (!string.IsNullOrEmpty(keepalive))
+                    {
+                        if (!int.TryParse(keepalive, out int parsedKeepalive) ||
+                            parsedKeepalive is < 0 or > 65535)
+                            return null;
+                        info.PersistentKeepalive = parsedKeepalive;
+                    }
                     info.Reserved = q.GetValueOrDefault("reserved", "").Split(',', StringSplitOptions.RemoveEmptyEntries);
                 }
 
@@ -1762,7 +1776,8 @@ namespace ProxyCollector.Collector
                 sb.AppendLine($"PresharedKey = {info.PresharedKey}");
             sb.AppendLine($"Endpoint = {FormatWireguardEndpoint(info.Host, info.Port)}");
             sb.AppendLine($"AllowedIPs = {info.AllowedIPs}");
-            sb.AppendLine($"PersistentKeepalive = {info.PersistentKeepalive}");
+            if (info.PersistentKeepalive.HasValue)
+                sb.AppendLine($"PersistentKeepalive = {info.PersistentKeepalive.Value}");
             return sb.ToString();
         }
 

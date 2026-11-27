@@ -582,7 +582,7 @@ internal static class Program
             "full WireGuard conf parsing preserves every comma-separated interface address");
         Checks.Equal("1.1.1.1, 2606:4700:4700::1111", parsedFullWireguardConf.Dns,
             "full WireGuard conf parsing preserves every comma-separated DNS server");
-        Checks.Equal(17, parsedFullWireguardConf.PersistentKeepalive,
+        Checks.Equal<int?>(17, parsedFullWireguardConf.PersistentKeepalive,
             "full WireGuard conf parsing preserves the source PersistentKeepalive value");
         Checks.Equal<int?>(1380, parsedFullWireguardConf.Mtu,
             "full WireGuard conf parsing preserves the source MTU");
@@ -592,6 +592,36 @@ internal static class Program
                     rebuiltWireguardConf.Contains("MTU = 1380") &&
                     rebuiltWireguardConf.Contains("PersistentKeepalive = 17"),
             "rebuilt WireGuard conf retains multi-value fields, MTU and keepalive");
+        string keepaliveYaml = CollectorType.SerializeWireguardClashYaml(new[]
+        {
+            CollectorType.BuildWireguardClashProxy("wg-explicit", parsedFullWireguardConf)
+        });
+        Checks.That(keepaliveYaml.Contains("persistent-keepalive: 17", StringComparison.Ordinal),
+            "Mihomo WireGuard YAML preserves an explicit source keepalive value");
+
+        var noKeepaliveInfo = CollectorType.TryParseWireguardInfo(validWgLink);
+        Checks.That(noKeepaliveInfo is not null, "WireGuard link without keepalive remains valid");
+        Checks.Equal<int?>(null, noKeepaliveInfo!.PersistentKeepalive,
+            "missing source keepalive remains absent instead of inventing a default");
+        string noKeepaliveConf = CollectorType.BuildWireguardConf(noKeepaliveInfo);
+        string noKeepaliveYaml = CollectorType.SerializeWireguardClashYaml(new[]
+        {
+            CollectorType.BuildWireguardClashProxy("wg-no-keepalive", noKeepaliveInfo)
+        });
+        Checks.That(!noKeepaliveConf.Contains("PersistentKeepalive", StringComparison.Ordinal) &&
+                    !noKeepaliveYaml.Contains("persistent-keepalive", StringComparison.Ordinal),
+            "both WireGuard exports omit keepalive when the source omits it");
+
+        var zeroKeepaliveInfo = CollectorType.TryParseWireguardInfo(validWgLink + "&keepalive=0");
+        Checks.That(zeroKeepaliveInfo is not null, "WireGuard link with explicit zero keepalive remains valid");
+        Checks.Equal<int?>(0, zeroKeepaliveInfo!.PersistentKeepalive,
+            "explicit zero keepalive is distinct from an absent value");
+        Checks.That(CollectorType.BuildWireguardConf(zeroKeepaliveInfo)
+                        .Contains("PersistentKeepalive = 0", StringComparison.Ordinal) &&
+                    CollectorType.SerializeWireguardClashYaml(new[]
+                        { CollectorType.BuildWireguardClashProxy("wg-zero", zeroKeepaliveInfo) })
+                        .Contains("persistent-keepalive: 0", StringComparison.Ordinal),
+            "both WireGuard exports preserve an explicit zero keepalive");
         Checks.Equal("001 Netherlands - Amsterdam 103.1.213.21-2802.conf",
             CollectorType.BuildWireguardConfFileName(1, "Netherlands - Amsterdam | 103.1.213.21:2802"),
             "WireGuard filenames keep the endpoint and port separated and readable");
@@ -2480,6 +2510,7 @@ internal static class Program
               - 0.0.0.0/0
               - "::/0"
             reserved: [1, 2, 3]
+            persistent-keepalive: 19
         """;
         var convertedWireguard = CollectorType.DecodeAndExtractLines(
             wireguardClash, "https://example.net/wireguard.yaml");
@@ -2488,6 +2519,8 @@ internal static class Program
         Checks.That(convertedWireguard.Single().StartsWith("wireguard://", StringComparison.Ordinal) &&
                     CollectorType.IsValidWireguardLink(convertedWireguard.Single()),
             "converted Clash WireGuard URI preserves valid keys, endpoint, addresses, allowed IPs, and reserved bytes");
+        Checks.That(convertedWireguard.Single().Contains("keepalive=19", StringComparison.Ordinal),
+            "Clash/Mihomo input conversion preserves persistent-keepalive");
 
         var amneziaWireguardClash = wireguardClash.Replace(
             "reserved: [1, 2, 3]", "reserved: [1, 2, 3]\n    amnezia-wg-option: 4");

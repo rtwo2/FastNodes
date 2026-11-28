@@ -33,8 +33,19 @@ class ValidationError(Exception):
     pass
 
 
+def _wireguard_ip_list_identity(value: str, *, addresses: bool) -> tuple[str, ...]:
+    entries = [item.strip() for item in value.split(",")]
+    normalized: list[str] = []
+    for item in entries:
+        if not item:
+            raise ValueError("empty WireGuard IP list value")
+        parsed = ipaddress.ip_interface(item) if addresses else ipaddress.ip_network(item, strict=False)
+        normalized.append(str(parsed))
+    return tuple(sorted(normalized))
+
+
 def wireguard_uri_identity(line: str) -> tuple | None:
-    """Canonical WireGuard URI identity; DNS and MTU are local preferences."""
+    """Identity of the effective exported tunnel; omit DNS/MTU and ignored metadata."""
     match = re.match(r"(?i)^(?:wireguard|wg)://", line.strip())
     if not match:
         return None
@@ -46,14 +57,28 @@ def wireguard_uri_identity(line: str) -> tuple | None:
             host = ipaddress.ip_address(parsed.hostname).compressed
         except ValueError:
             host = parsed.hostname.rstrip(".").encode("idna").decode("ascii").lower()
-        port = parsed.port or 51820
-        user = unquote(parsed.username or "")
-        query = tuple(sorted(
-            (key.lower(), value)
-            for key, value in parse_qsl(parsed.query, keep_blank_values=True)
-            if key.lower() not in {"dns", "mtu"}
-        ))
-        return ("wireguard", host, port, user, query)
+
+        # Keep the same recognized fields that TryParseWireguardInfo and the
+        # download exporters actually consume. Arbitrary source query decorations
+        # cannot manufacture another output node.
+        params: dict[str, str] = {}
+        for key, value in parse_qsl(parsed.query, keep_blank_values=True):
+            params[key.lower()] = value
+
+        user = unquote(parsed.username or params.get("privatekey", params.get("private_key", "")))
+        public_key = params.get("pk", params.get("publickey", params.get("server_publickey", "")))
+        address = params.get("ip", params.get("address", params.get("allowed_ip", "10.0.0.2/32")))
+        allowed_ips = params.get("allowedips", params.get("allowed_ips", "0.0.0.0/0, ::/0"))
+        psk = params.get("psk", params.get("presharedkey", ""))
+        keepalive = params.get("persistentkeepalive", params.get("keepalive", ""))
+        reserved = tuple(item.strip() for item in params.get("reserved", "").split(",") if item.strip())
+
+        return (
+            "wireguard", host, parsed.port if parsed.port is not None else 51820,
+            user, public_key, _wireguard_ip_list_identity(address, addresses=True),
+            _wireguard_ip_list_identity(allowed_ips, addresses=False), psk,
+            int(keepalive) if keepalive else None, reserved,
+        )
     except (ValueError, UnicodeError):
         return None
 
@@ -511,10 +536,13 @@ def self_test() -> None:
         if not URI_RE.fullmatch(line):
             raise ValidationError(f"self-test rejected valid URI: {line}")
 
-    wg_uri_a = "wireguard://private@wg.example.net:51820?pk=server&ip=10.0.0.2%2F32&dns=1.1.1.1&mtu=1280"
-    wg_uri_b = "wireguard://private@wg.example.net:51820?mtu=1420&ip=10.0.0.2%2F32&pk=server&dns=8.8.8.8"
+    wg_uri_a = "wireguard://private@wg.example.net:51820?pk=server&ip=10.0.0.2%2F32&dns=1.1.1.1&mtu=1280&unused-note=first"
+    wg_uri_b = "wireguard://private@wg.example.net:51820?mtu=1420&ip=10.0.0.2%2F32&pk=server&dns=8.8.8.8&unused-note=second"
     if wireguard_uri_identity(wg_uri_a) != wireguard_uri_identity(wg_uri_b):
-        raise ValidationError("self-test failed to collapse WireGuard DNS/MTU URI variants")
+        raise ValidationError("self-test failed to collapse WireGuard equivalent exported tunnel variants")
+    wg_uri_different_address = "wireguard://private@wg.example.net:51820?pk=server&ip=10.0.0.3%2F32"
+    if wireguard_uri_identity(wg_uri_a) == wireguard_uri_identity(wg_uri_different_address):
+        raise ValidationError("self-test incorrectly collapsed different WireGuard interface addresses")
     for line in (
         "https://example.com/subscription",
         "not a proxy URI",

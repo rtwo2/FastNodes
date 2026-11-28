@@ -4454,6 +4454,22 @@ namespace ProxyCollector.Collector
             string portKey = int.TryParse(Port, out int pn)
                 ? pn.ToString(System.Globalization.CultureInfo.InvariantCulture)
                 : Port.Trim();
+            // Mieru simple-share links can bind a range of ports. Preserve the full
+            // binding in endpoint identity; comparing only the first port would merge
+            // distinct sets such as 7000-7010 and 7000-7020.
+            if (protocol == "mieru" && Uri.TryCreate(BaseLink, UriKind.Absolute, out var mieruUri))
+            {
+                var query = ProxyCollector.ParseQuery(mieruUri.Query);
+                if (query.TryGetValue("port", out string? binding) &&
+                    ProxyCollector.IsValidMieruPortBinding(binding, out int firstPort))
+                {
+                    string[] range = binding.Split('-', StringSplitOptions.None);
+                    if (range.Length == 2 && int.TryParse(range[1], out int lastPort))
+                        portKey = $"{firstPort.ToString(System.Globalization.CultureInfo.InvariantCulture)}-{lastPort.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+                    else
+                        portKey = firstPort.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                }
+            }
 
             bool protocolUsesTlsSecurity = protocol is "vless" or "vmess";
             bool implicitTlsSni = (protocolUsesTlsSecurity && !string.IsNullOrEmpty(Security)) ||

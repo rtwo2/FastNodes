@@ -422,7 +422,7 @@ namespace ProxyCollector.Collector
                         return;
 
                     bool isUnsafeAddress = false;
-                    IPAddress[] resolvedAddresses = Array.Empty<IPAddress>();
+                    IEnumerable<IPAddress> resolvedAddresses = Array.Empty<IPAddress>();
                     if (IPAddress.TryParse(parsed.Host.Trim('[', ']'), out var literal))
                     {
                         resolvedAddresses = new[] { literal };

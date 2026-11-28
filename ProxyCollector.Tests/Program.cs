@@ -2145,9 +2145,9 @@ internal static class Program
         };
         var ipv6ProfileWinner = CollectorType.SelectTopWithIpv6Diversity(
             ipv6ProfileCandidates,
-            new HashSet<string>(StringComparer.Ordinal) { "vless://ipv6@dual.example.net:443" },
+            new HashSet<string>(StringComparer.Ordinal) { "vless://dual-auth@dual.example.net:443#ipv6" },
             maxCount: 1, ipv6SharePercent: 100);
-        Checks.Equal("vless://ipv6@dual.example.net:443", ipv6ProfileWinner.Single().Link,
+        Checks.Equal("vless://dual-auth@dual.example.net:443#ipv6", ipv6ProfileWinner.Single().Link,
             "global IPv6 reservation chooses the IPv6-capable representative when credentials share a service profile");
 
         var tied = new[]
@@ -2392,8 +2392,8 @@ internal static class Program
             new[] { failedVerifiedCandidate, currentVerifiedCandidateA, currentVerifiedCandidateB });
         Checks.Equal(1, currentVerifiedProfiles.Count,
             "verified feed selects current Xray successes and collapses same-auth variants only");
-        Checks.That(currentVerifiedProfiles[0].Link.Contains("b@", StringComparison.Ordinal),
-            "verified feed chooses the best current-roundtrip credential representative");
+        Checks.Equal(5, currentVerifiedProfiles[0].XrayStreak,
+            "verified feed chooses the strongest current-roundtrip variant of the same authentication");
 
         var stratifiedIpv6Links = stratifiedCandidates.Select(x => x.Link)
             .ToHashSet(StringComparer.Ordinal);
@@ -2465,13 +2465,13 @@ internal static class Program
         {
             Link = "vmess://shared-id@same.example.net:443", Proto = "vmess",
             Host = "same.example.net", Port = "443", Network = "tcp",
-            Security = "tls", ConnectionOptionsKey = "fp=chrome;alpn=h2"
+            Security = "tls", Credential = "shared-id", ConnectionOptionsKey = "fp=chrome;alpn=h2"
         };
         var optionsVariantB = new ProxyCollector.Collector.FinalProxy
         {
             Link = "vmess://shared-id@same.example.net:443", Proto = "vmess",
             Host = "same.example.net", Port = "443", Network = "tcp",
-            Security = "tls", ConnectionOptionsKey = "fp=firefox;alpn=http/1.1"
+            Security = "tls", Credential = "shared-id", ConnectionOptionsKey = "fp=firefox;alpn=http/1.1"
         };
         Checks.Equal(CollectorType.GetTopEndpointProfileKey(optionsVariantA),
             CollectorType.GetTopEndpointProfileKey(optionsVariantB),
@@ -2481,7 +2481,7 @@ internal static class Program
         {
             Link = "trojan://shared-id@same.example.net:443", Proto = "trojan",
             Host = "same.example.net", Port = "443", Network = "tcp",
-            Security = "tls"
+            Security = "tls", Credential = "shared-id"
         };
         Checks.Equal(CollectorType.GetTopEndpointProfileKey(optionsVariantA),
             CollectorType.GetTopEndpointProfileKey(protocolVariant),
@@ -2490,13 +2490,13 @@ internal static class Program
         {
             Link = "vless://shared-id@same.example.net:443", Proto = "vless",
             Host = "same.example.net", Port = "443", Network = "tcp",
-            Security = "reality", Pbk = "different-public-key", Sid = "abcd"
+            Security = "reality", Credential = "shared-id", Pbk = "different-public-key", Sid = "abcd"
         };
         var realityBase = new ProxyCollector.Collector.FinalProxy
         {
             Link = "vless://shared-id@same.example.net:443", Proto = "vless",
             Host = "same.example.net", Port = "443", Network = "tcp",
-            Security = "reality", Pbk = "another-public-key", Sid = "abcd"
+            Security = "reality", Credential = "shared-id", Pbk = "another-public-key", Sid = "abcd"
         };
         Checks.That(CollectorType.GetTopEndpointProfileKey(realityVariant) !=
                     CollectorType.GetTopEndpointProfileKey(realityBase),
@@ -2505,13 +2505,13 @@ internal static class Program
         {
             Link = "hysteria2://shared-auth@same.example.net:443", Proto = "hysteria2",
             Host = "same.example.net", Port = "443", Network = "udp",
-            Security = "tls", ObfsPassword = "different-obfs"
+            Security = "tls", Credential = "shared-auth", ObfsPassword = "different-obfs"
         };
         var obfsBase = new ProxyCollector.Collector.FinalProxy
         {
             Link = "hysteria2://shared-auth@same.example.net:443", Proto = "hysteria2",
             Host = "same.example.net", Port = "443", Network = "udp",
-            Security = "tls", ObfsPassword = "another-obfs"
+            Security = "tls", Credential = "shared-auth", ObfsPassword = "another-obfs"
         };
         Checks.That(CollectorType.GetTopEndpointProfileKey(obfsVariant) !=
                     CollectorType.GetTopEndpointProfileKey(obfsBase),

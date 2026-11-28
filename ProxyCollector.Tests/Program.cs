@@ -1733,7 +1733,7 @@ internal static class Program
         var xhttpExtraSpace = CollectorType.ParseProxyLine(
             $"vless://{profileId}@query-identity.example.net:443?security=tls&type=xhttp&extra=%7B%22headers%22%3A%7B%22User-Agent%22%3A%22Fast%20Nodes%22%7D%7D");
         var xhttpExtraLiteralPlus = CollectorType.ParseProxyLine(
-            $"vless://{profileId}@query-identity.example.net:443?security=tls&type=xhttp&extra=%7B%22headers%22%3A%7B%22User-Agent%22%3A%22Fast%252BNodes%22%7D%7D");
+            $"vless://{profileId}@query-identity.example.net:443?security=tls&type=xhttp&extra=%7B%22headers%22%3A%7B%22User-Agent%22%3A%22Fast%2BNodes%22%7D%7D");
         Checks.That(xhttpExtraPlus is not null && xhttpExtraSpace is not null &&
                     xhttpExtraLiteralPlus is not null,
             "XHTTP extra query values using plus, percent-space, and encoded literal plus parse");

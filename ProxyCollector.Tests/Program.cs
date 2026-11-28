@@ -1690,6 +1690,43 @@ internal static class Program
             "vless://123e4567-e89b-12d3-a456-426614174000@defaults.example.net:443?type=&security=NONE");
         Checks.Equal(defaultTransportA!.DeduplicationKey, defaultTransportB!.DeduplicationKey,
             "absent and explicit default transport/security options normalize to one identity");
+
+        const string profileId = "123e4567-e89b-12d3-a456-426614174000";
+        var wsDefaultHost = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&fp=chrome&encryption=none");
+        var wsExplicitDefaults = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&fp=chrome&encryption=none&host=IDENTITY.example.net.&insecure=0&allowInsecure=false");
+        Checks.That(wsDefaultHost is not null && wsExplicitDefaults is not null,
+            "WebSocket profiles with explicit default options parse");
+        Checks.Equal(wsDefaultHost!.DeduplicationKey, wsExplicitDefaults!.DeduplicationKey,
+            "WebSocket Host equal to endpoint and explicit false TLS flags collapse to the same config");
+        Checks.Equal(wsDefaultHost.SelectionProfileKey, wsExplicitDefaults.SelectionProfileKey,
+            "semantically redundant WebSocket options also collapse in compact profile identity");
+
+        var wsDifferentHost = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&fp=chrome&encryption=none&host=front.example.net");
+        Checks.That(wsDifferentHost is not null &&
+                    wsDefaultHost.DeduplicationKey != wsDifferentHost.DeduplicationKey,
+            "a genuinely different WebSocket Host remains part of connection identity");
+
+        var wsInsecure = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&fp=chrome&encryption=none&allowInsecure=1");
+        Checks.That(wsInsecure is not null &&
+                    wsDefaultHost.DeduplicationKey != wsInsecure.DeduplicationKey,
+            "allowInsecure=true remains distinct from the secure default");
+
+        var tcpDefaultHeader = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp");
+        var tcpExplicitNone = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp&headerType=none&host=tcp-identity.example.net&allowInsecure=0");
+        Checks.Equal(tcpDefaultHeader!.DeduplicationKey, tcpExplicitNone!.DeduplicationKey,
+            "TCP headerType=none and an unused endpoint Host normalize to their defaults");
+
+        var tcpHttpHost = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp&headerType=http&host=tcp-identity.example.net");
+        Checks.That(tcpHttpHost is not null &&
+                    tcpDefaultHeader.DeduplicationKey != tcpHttpHost.DeduplicationKey,
+            "TCP HTTP-obfuscation Host remains distinct from the default raw TCP transport");
         var tuicPasswordA = CollectorType.ParseProxyLine(
             "tuic://User:Password@tuic.example.net:443");
         var tuicPasswordB = CollectorType.ParseProxyLine(

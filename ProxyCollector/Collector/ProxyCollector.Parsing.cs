@@ -285,6 +285,17 @@ namespace ProxyCollector.Collector
                         p = wireguardInfo.Port;
                         cred = wireguardInfo.PrivateKey ?? cred;
                         pbk = wireguardInfo.PublicKey ?? pbk;
+
+                        // These generic URI fields describe TLS/stream transports and
+                        // are not consumed by a WireGuard tunnel. Do not let stray
+                        // source decorations keep identical exported tunnels apart.
+                        net = "udp";
+                        sec = "";
+                        sni = "";
+                        path = "";
+                        sid = "";
+                        flow = "";
+                        obfsPwd = "";
                     }
                     else if (string.IsNullOrEmpty(cred))
                     {

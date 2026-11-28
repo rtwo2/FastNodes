@@ -2501,7 +2501,7 @@ internal static class Program
             "WireGuard private-key alternatives at the same endpoint and port select one public representative");
 
         var endpointSame = CollectorType.ParseProxyLine(
-            "trojan://different-secret@profile.example.net:443?sni=front.example.net");
+            "trojan://different-secret@profile.example.net:443?sni=profile.example.net");
         var endpointDifferentPort = CollectorType.ParseProxyLine(
             "trojan://different-secret@profile.example.net:8443?sni=front.example.net");
         var endpointDifferentSni = CollectorType.ParseProxyLine(

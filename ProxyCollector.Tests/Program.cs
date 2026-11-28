@@ -2132,13 +2132,13 @@ internal static class Program
         {
             new ProxyCollector.Collector.FinalProxy
             {
-                Link = "vless://ipv4@dual.example.net:443", Host = "dual.example.net",
+                Link = "vless://dual-auth@dual.example.net:443", Host = "dual.example.net",
                 Port = "443", Proto = "vless", SelectionProfileKey = "dual-stack-service",
                 XrayVerified = true, Score = 100
             },
             new ProxyCollector.Collector.FinalProxy
             {
-                Link = "vless://ipv6@dual.example.net:443", Host = "dual.example.net",
+                Link = "vless://dual-auth@dual.example.net:443#ipv6", Host = "dual.example.net",
                 Port = "443", Proto = "vless", SelectionProfileKey = "dual-stack-service",
                 XrayVerified = true, Score = 80
             }
@@ -2275,7 +2275,7 @@ internal static class Program
             },
             new ProxyCollector.Collector.FinalProxy
             {
-                Link = "vless://credential-b@shared.example.net:443?security=reality&type=tcp&flow=xtls-rprx-vision&sni=cdn.example.net",
+                Link = "vless://credential-a@shared.example.net:443?security=reality&type=tcp&flow=xtls-rprx-vision&sni=cdn.example.net",
                 Host = "shared.example.net", Port = "443", Proto = "vless", Sni = "cdn.example.net",
                 Network = "tcp", Security = "reality", Flow = "xtls-rprx-vision",
                 XrayVerified = true, Score = 120, SourceGroup = "repo-b", HostGroup = "shared.example.net"
@@ -2291,9 +2291,9 @@ internal static class Program
         var deduplicatedProfiles = CollectorType.SelectTopWithIpv6Diversity(
             duplicateProfiles, new HashSet<string>(StringComparer.Ordinal), maxCount: 10, ipv6SharePercent: 0);
         Checks.Equal(2, deduplicatedProfiles.Count,
-            "top selection collapses credential-only duplicates at the same connection profile");
-        Checks.That(deduplicatedProfiles.Any(x => x.Link.Contains("credential-b", StringComparison.Ordinal)),
-            "duplicate profile keeps the strongest-scored usable credential");
+            "top selection collapses transport variants with the same authentication at the same connection profile");
+        Checks.That(deduplicatedProfiles.Any(x => x.Link.Contains("credential-a", StringComparison.Ordinal) && x.Score == 120),
+            "duplicate profile keeps the strongest-evidence representative of the same authentication");
         Checks.That(deduplicatedProfiles.Any(x => x.Link.Contains("credential-c", StringComparison.Ordinal)),
             "same endpoint with a different SNI is preserved as a distinct virtual-host profile");
 
@@ -2372,26 +2372,26 @@ internal static class Program
 
         var failedVerifiedCandidate = new ProxyCollector.Collector.FinalProxy
         {
-            Link = "vless://failed@verified.example.net:443", Host = "verified.example.net",
+            Link = "vless://verified-auth@verified.example.net:443", Host = "verified.example.net",
             Port = "443", Proto = "vless", SelectionProfileKey = "verified-profile",
             XrayTested = true, XrayVerified = false
         };
         var currentVerifiedCandidateA = new ProxyCollector.Collector.FinalProxy
         {
-            Link = "vless://a@verified.example.net:443", Host = "verified.example.net",
-            Port = "443", Proto = "vless", SelectionProfileKey = "verified-profile",
+            Link = "vless://verified-auth@verified.example.net:443", Host = "verified.example.net",
+            Port = "443", Proto = "vless", Credential = "verified-auth", SelectionProfileKey = "verified-profile",
             XrayTested = true, XrayVerified = true, XrayStreak = 2, Score = 80
         };
         var currentVerifiedCandidateB = new ProxyCollector.Collector.FinalProxy
         {
-            Link = "vless://b@verified.example.net:443", Host = "verified.example.net",
-            Port = "443", Proto = "vless", SelectionProfileKey = "verified-profile",
+            Link = "vless://verified-auth@verified.example.net:443#stronger", Host = "verified.example.net",
+            Port = "443", Proto = "vless", Credential = "verified-auth", SelectionProfileKey = "verified-profile",
             XrayTested = true, XrayVerified = true, XrayStreak = 5, Score = 90
         };
         var currentVerifiedProfiles = CollectorType.SelectCurrentVerifiedProfiles(
             new[] { failedVerifiedCandidate, currentVerifiedCandidateA, currentVerifiedCandidateB });
         Checks.Equal(1, currentVerifiedProfiles.Count,
-            "verified feed selects only current Xray successes and one credential per service profile");
+            "verified feed selects current Xray successes and collapses same-auth variants only");
         Checks.That(currentVerifiedProfiles[0].Link.Contains("b@", StringComparison.Ordinal),
             "verified feed chooses the best current-roundtrip credential representative");
 
@@ -2431,7 +2431,7 @@ internal static class Program
         };
         var casePathLower = new ProxyCollector.Collector.FinalProxy
         {
-            Link = "vless://two@case-path.example.net:443?security=reality&type=ws&path=%2Fabc",
+            Link = "vless://one@case-path.example.net:443?security=reality&type=ws&path=%2Fabc",
             Proto = "vless", Host = "case-path.example.net", Port = "443",
             Network = "ws", Security = "reality", Path = "/abc"
         };

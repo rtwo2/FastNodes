@@ -81,9 +81,9 @@ We keep different kinds of evidence separate. A TLS handshake is useful, but it 
 | `verified_tls.txt` | A TLS handshake completed during the current run using the configured SNI. The probe intentionally does not validate certificate identity, so this is partial connectivity evidence, not proof of server identity or a working proxy. |
 | `top.txt` | Global shortlist using 55% full-roundtrip, 30% partial-connectivity, and 15% source/stability evidence lanes, with an IPv6 reservation and diversity caps. |
 | `top_ipv6.txt` | IPv6-capable shortlist using the same 55/30/15 evidence mix and source/provider/hostname/transport/protocol diversity controls. |
-| `stable.txt` | The published representative configuration has appeared in at least three consecutive collection runs. Any missing run resets its presence streak. Stability is tracked per exact configuration, even though only one representative is published for an endpoint. Persistence is not a promise of reachability. |
+| `stable.txt` | The published representative configuration has appeared in at least three consecutive collection runs. Any missing run resets its presence streak. Stability is tracked per exact configuration, even though only one representative is published per authenticated endpoint identity. Persistence is not a promise of reachability. |
 | `curated.txt` | Trusted-source candidates, or candidates that are both stable and TLS-verified. |
-| `everything.txt` | One best representative per canonical endpoint + port + effective SNI that survives parsing and safety filters. Many entries are not individually verified. |
+| `everything.txt` | One best representative per canonical endpoint + port + effective SNI + authentication identity that survives parsing and safety filters. Many entries are not individually verified. |
 
 ### How the ranking stays balanced
 

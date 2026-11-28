@@ -304,11 +304,11 @@ namespace ProxyCollector.Collector
                     }
                 }
 
-                // WireGuard DNS and MTU tune the local client interface. They do
-                // not identify a different remote tunnel, so they are intentionally
-                // excluded from both exact and compact profile identities. Other
-                // connection settings (keys, address, AllowedIPs, PSK, keepalive,
-                // reserved bytes, and unknown options) remain identity-significant.
+                // For ordinary URI proxy schemes, DNS/MTU and other unrecognized
+                // query options remain identity-significant unless explicitly normalized.
+                // Valid WireGuard profiles instead use GetWireguardOutputIdentityKey above:
+                // that key preserves every setting FastNodes exports and omits local DNS,
+                // MTU, and source-only decorations the exporters do not consume.
                 string[] identityExcludedOptions = new[]
                     {
                         "security", "type", "sni", "path", "pbk", "sid", "flow",

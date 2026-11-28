@@ -5,10 +5,11 @@ from __future__ import annotations
 import argparse
 import base64
 import ipaddress
+import json
 import pathlib
 import re
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 from urllib.parse import parse_qsl, unquote, urlsplit
 
 SCHEMES = (
@@ -33,6 +34,33 @@ class ValidationError(Exception):
     pass
 
 
+NON_IDENTITY_QUERY_OPTIONS = {
+    "dns", "mtu",
+    "name", "tag", "remark", "remarks", "remarks_base64", "ps", "group",
+    "country", "city", "region", "flag", "emoji", "display-name", "displayname",
+}
+NON_IDENTITY_JSON_FIELDS = NON_IDENTITY_QUERY_OPTIONS | {"profile"}
+
+
+def _normalize_identity_host(host: str) -> str:
+    value = (host or "").strip().strip("[]").rstrip(".")
+    if not value:
+        return ""
+    try:
+        address = ipaddress.ip_address(value)
+        if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped:
+            address = address.ipv4_mapped
+        return address.compressed.lower()
+    except ValueError:
+        return value.encode("idna").decode("ascii").lower()
+
+
+def _decode_urlsafe_base64(value: str) -> str:
+    token = value.strip().replace("-", "+").replace("_", "/")
+    token += "=" * ((4 - len(token) % 4) % 4)
+    return base64.b64decode(token, validate=False).decode("utf-8")
+
+
 def _wireguard_ip_list_identity(value: str, *, addresses: bool) -> tuple[str, ...]:
     entries = [item.strip() for item in value.split(",")]
     normalized: list[str] = []
@@ -46,21 +74,13 @@ def _wireguard_ip_list_identity(value: str, *, addresses: bool) -> tuple[str, ..
 
 def wireguard_uri_identity(line: str) -> tuple | None:
     """Identity of the effective exported tunnel; omit DNS/MTU and ignored metadata."""
-    match = re.match(r"(?i)^(?:wireguard|wg)://", line.strip())
-    if not match:
+    if not re.match(r"(?i)^wireguard://|^wg://", line.strip()):
         return None
     try:
         parsed = urlsplit(line.strip())
         if not parsed.hostname:
             return None
-        try:
-            host = ipaddress.ip_address(parsed.hostname).compressed
-        except ValueError:
-            host = parsed.hostname.rstrip(".").encode("idna").decode("ascii").lower()
-
-        # Keep the same recognized fields that TryParseWireguardInfo and the
-        # download exporters actually consume. Arbitrary source query decorations
-        # cannot manufacture another output node.
+        host = _normalize_identity_host(parsed.hostname)
         params: dict[str, str] = {}
         for key, value in parse_qsl(parsed.query, keep_blank_values=True):
             params[key.lower()] = value
@@ -72,7 +92,6 @@ def wireguard_uri_identity(line: str) -> tuple | None:
         psk = params.get("psk", params.get("presharedkey", ""))
         keepalive = params.get("persistentkeepalive", params.get("keepalive", ""))
         reserved = tuple(item.strip() for item in params.get("reserved", "").split(",") if item.strip())
-
         return (
             "wireguard", host, parsed.port if parsed.port is not None else 51820,
             user, public_key, _wireguard_ip_list_identity(address, addresses=True),
@@ -82,6 +101,221 @@ def wireguard_uri_identity(line: str) -> tuple | None:
     except (ValueError, UnicodeError):
         return None
 
+
+def _normalize_reality_key(value: str) -> str:
+    raw = (value or "").strip()
+    if not raw:
+        return ""
+    try:
+        token = raw.replace("-", "+").replace("_", "/")
+        token += "=" * ((4 - len(token) % 4) % 4)
+        decoded = base64.b64decode(token, validate=True)
+        if len(decoded) == 32:
+            return base64.urlsafe_b64encode(decoded).decode("ascii").rstrip("=")
+    except (ValueError, base64.binascii.Error):
+        pass
+    return raw
+
+
+def _canonical_json_value(value):
+    if isinstance(value, dict):
+        return {key: _canonical_json_value(value[key]) for key in sorted(value)}
+    if isinstance(value, list):
+        return [_canonical_json_value(item) for item in value]
+    return value
+
+
+def _vmess_json_identity(line: str) -> tuple | None:
+    try:
+        payload = _decode_urlsafe_base64(line.split("://", 1)[1].split("#", 1)[0])
+        root = json.loads(payload)
+        if not isinstance(root, dict):
+            return None
+        host = _normalize_identity_host(str(root.get("add", "")))
+        if not host:
+            return None
+        port = int(root.get("port", 443) or 443)
+        aid = int(root.get("aid", 0) or 0)
+        network = str(root.get("net", "tcp") or "tcp").strip().lower()
+        security = str(root.get("tls", "") or "").strip().lower()
+        if security == "none":
+            security = ""
+        sni = _normalize_identity_host(str(root.get("sni", "") or host))
+        path = str(root.get("path", "") or "")
+
+        normalized = {"v", "add", "port", "id", "aid", "net", "tls", "sni", "path"} | NON_IDENTITY_JSON_FIELDS | {"ps"}
+        options = {}
+        for key, value in root.items():
+            lowered = key.lower()
+            if lowered in normalized:
+                continue
+            if lowered in {"allowinsecure", "insecure"} and (
+                value is False or value == 0 or
+                isinstance(value, str) and value.lower() in {"false", "0"}
+            ):
+                continue
+            options[lowered] = _canonical_json_value(value)
+
+        return (
+            "vmess", host, port, "", network, security, sni, path,
+            "", "", "", "", aid,
+            json.dumps(options, sort_keys=True, separators=(",", ":"), ensure_ascii=False),
+        )
+    except (ValueError, UnicodeError, json.JSONDecodeError):
+        return None
+
+
+def _canonical_query_options(
+    pairs: list[tuple[str, str]], *,
+    host: str, network: str, security: str, sni: str,
+    ss_host_is_sni: bool = False, mieru: bool = False,
+) -> tuple:
+    excluded = {"security", "type", "sni", "path", "pbk", "sid", "flow", "obfs-password", "auth"}
+    if ss_host_is_sni:
+        excluded.add("host")
+    if mieru:
+        excluded.update({"profile", "protocol"})
+
+    grouped: dict[str, list[str]] = defaultdict(list)
+    lower_pairs = [(key.lower(), value) for key, value in pairs]
+    tcp_without_http_header = network == "tcp" and next(
+        (value.lower() for key, value in reversed(lower_pairs) if key == "headertype"), "none"
+    ) == "none"
+    normalizes_default_host = network in {"ws", "httpupgrade"} or tcp_without_http_header
+    fallback_host = sni if network == "httpupgrade" and security == "tls" and sni else host
+    has_custom_headers = any(key in {"header", "headers"} for key, _ in lower_pairs)
+
+    for key, value in lower_pairs:
+        if key in excluded or key in NON_IDENTITY_QUERY_OPTIONS:
+            continue
+        if key in {"allowinsecure", "insecure"} and value.lower() in {"0", "false"}:
+            continue
+        if key == "encryption" and value.lower() in {"", "none"}:
+            continue
+        if key == "headertype" and tcp_without_http_header and value.lower() == "none":
+            continue
+        if key == "host":
+            if tcp_without_http_header and not has_custom_headers:
+                continue
+            if normalizes_default_host and not tcp_without_http_header and not has_custom_headers and _normalize_identity_host(value) == fallback_host:
+                continue
+        grouped[key].append(value)
+    return tuple((key, tuple(grouped[key])) for key in sorted(grouped))
+
+
+def _ss_cipher(parsed) -> str:
+    raw_user = unquote(parsed.username or "")
+    if parsed.password is not None:
+        return raw_user.split(":", 1)[0].lower()
+    try:
+        decoded = _decode_urlsafe_base64(raw_user)
+        if ":" in decoded:
+            return decoded.split(":", 1)[0].lower()
+    except (ValueError, UnicodeError):
+        pass
+    return raw_user.lower()
+
+
+def _ssr_identity(line: str) -> tuple | None:
+    try:
+        decoded = _decode_urlsafe_base64(line.split("://", 1)[1].split("#", 1)[0])
+        main, marker, query = decoded.partition("/?")
+        if main.startswith("["):
+            close = main.index("]")
+            host = main[1:close]
+            values = main[close + 2:].split(":")
+        else:
+            values = main.split(":")
+            host, values = values[0], values[1:]
+        if len(values) != 5:
+            return None
+        port_text, protocol, method, obfs, _password = values
+        host = _normalize_identity_host(host)
+        port = int(port_text)
+        pairs = parse_qsl(query if marker else "", keep_blank_values=True)
+        params = {key.lower(): value for key, value in pairs}
+        path = params.get("obfsparam", "") + "|" + params.get("protoparam", "")
+        options = _canonical_query_options(
+            pairs, host=host, network=protocol.lower(), security=obfs.lower(), sni=host
+        )
+        return (
+            "ssr", host, port, method.lower(), protocol.lower(), obfs.lower(),
+            host, path, "", "", "", "", 0, options,
+        )
+    except (ValueError, UnicodeError, IndexError):
+        return None
+
+
+def semantic_subscription_identity(line: str) -> tuple | None:
+    """Service-profile identity used to detect semantic duplicates in public feeds."""
+    value = line.strip()
+    if not URI_RE.fullmatch(value):
+        return None
+    scheme = value.split("://", 1)[0].lower()
+    scheme = {
+        "hy2": "hysteria2", "shadowsocks": "ss",
+        "wg": "wireguard", "mierus": "mieru",
+    }.get(scheme, scheme)
+
+    if scheme == "wireguard":
+        return wireguard_uri_identity(value)
+    if scheme == "vmess" and "@" not in value.split("://", 1)[1].split("#", 1)[0]:
+        identity = _vmess_json_identity(value)
+        if identity is not None:
+            return identity
+    if scheme == "ssr":
+        return _ssr_identity(value)
+
+    try:
+        parsed = urlsplit(value)
+        if not parsed.hostname:
+            return None
+        host = _normalize_identity_host(parsed.hostname)
+        pairs = parse_qsl(parsed.query, keep_blank_values=True)
+        params: dict[str, str] = {}
+        for key, item in pairs:
+            params[key.lower()] = item
+
+        if scheme == "mieru":
+            binding = params.get("port", "")
+            port = int(binding.split("-", 1)[0])
+            network = params.get("protocol", "tcp").strip().lower()
+        else:
+            defaults = {"socks": 1080, "socks4": 1080, "socks5": 1080, "brook": 9999, "snell": 61825}
+            port = parsed.port or defaults.get(scheme, 443)
+            network = params.get("type", "tcp").strip().lower() or "tcp"
+
+        security = params.get("security", "").strip().lower()
+        if security == "none":
+            security = ""
+        if scheme == "ss":
+            sni = _normalize_identity_host(params.get("host", "") or host)
+            cipher = _ss_cipher(parsed)
+            path = ""
+        else:
+            sni = _normalize_identity_host(params.get("sni", "") or host)
+            cipher = ""
+            path = params.get("path", "")
+
+        pbk = _normalize_reality_key(params.get("pbk", ""))
+        sid = params.get("sid", "").lower()
+        flow = params.get("flow", "").lower()
+        obfs_password = params.get("obfs-password", "") if scheme in {"hysteria", "hysteria2"} else ""
+        try:
+            aid = int(params.get("aid", "0") or "0")
+        except ValueError:
+            aid = 0
+
+        options = _canonical_query_options(
+            pairs, host=host, network=network, security=security, sni=sni,
+            ss_host_is_sni=(scheme == "ss"), mieru=(scheme == "mieru"),
+        )
+        return (
+            scheme, host, port, cipher, network, security, sni, path,
+            pbk, sid, flow, obfs_password, aid, options,
+        )
+    except (ValueError, UnicodeError):
+        return None
 
 def validate_lines(path: pathlib.Path) -> tuple[int, int]:
     try:
@@ -159,19 +393,20 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
     counts = Counter(lines)
     duplicates = sum(n - 1 for n in counts.values() if n > 1)
 
-    # Catch WireGuard links that differ only by local DNS/MTU preferences even when
-    # their URI spelling or query ordering differs.
-    semantic_seen: set[tuple] = set()
-    for line in lines:
-        identity = wireguard_uri_identity(line)
+    # Catch different URI spellings that still describe one public service profile.
+    # This applies to every supported scheme, not only to WireGuard.
+    semantic_seen: dict[tuple, str] = {}
+    semantic_duplicates = 0
+    for line in dict.fromkeys(lines):
+        identity = semantic_subscription_identity(line)
         if identity is None:
             continue
-        if identity in semantic_seen:
-            duplicates += 1
+        if identity in semantic_seen and semantic_seen[identity] != line:
+            semantic_duplicates += 1
         else:
-            semantic_seen.add(identity)
+            semantic_seen[identity] = line
 
-    return len(lines), duplicates
+    return len(lines), duplicates + semantic_duplicates
 
 
 def _validate_wireguard_key(value: str, label: str, path: pathlib.Path) -> None:
@@ -433,6 +668,27 @@ def validate_tree(root: pathlib.Path, allow_legacy_oversized: bool = False) -> l
         ordered = sorted(split_groups.get(base_path, []), key=lambda item: item[0])
         return [base_path] + [path for _, path in ordered]
 
+    # Per-file checks above cannot see duplicates split across two numbered parts.
+    # Run the same semantic identity check over each complete part family.
+    for base_path in split_groups:
+        seen_profiles: dict[tuple, str] = {}
+        for part_path in all_parts(base_path):
+            for line in (
+                line.strip()
+                for line in part_path.read_text(encoding="utf-8-sig").splitlines()
+                if line.strip()
+            ):
+                identity = semantic_subscription_identity(line)
+                if identity is None:
+                    continue
+                if identity in seen_profiles and seen_profiles[identity] != line:
+                    rel = base_path.relative_to(root).as_posix()
+                    raise ValidationError(
+                        f"{rel} contains semantically duplicate profiles across split parts: "
+                        f"{seen_profiles[identity][:100]!r} and {line[:100]!r}"
+                    )
+                seen_profiles[identity] = line
+
     # The ranked IPv6 shortlist is generated directly from ipv6_only.txt's
     # candidate pool. Every top_ipv6 entry must therefore exist in the family
     # feed; catch accidental truncation or mismatched output publication.
@@ -543,6 +799,24 @@ def self_test() -> None:
     wg_uri_different_address = "wireguard://private@wg.example.net:51820?pk=server&ip=10.0.0.3%2F32"
     if wireguard_uri_identity(wg_uri_a) == wireguard_uri_identity(wg_uri_different_address):
         raise ValidationError("self-test incorrectly collapsed different WireGuard interface addresses")
+
+    vless_a = "vless://uuid@same.example.net:443?security=tls&type=ws&sni=front.example.net&path=%2Fedge&fp=chrome&dns=1.1.1.1&mtu=1280&name=source-a"
+    vless_b = "vless://other-credential@same.example.net:443?mtu=1420&name=source-b&fp=chrome&path=%2Fedge&sni=front.example.net&type=ws&security=tls&dns=8.8.8.8"
+    if semantic_subscription_identity(vless_a) != semantic_subscription_identity(vless_b):
+        raise ValidationError("self-test failed to collapse cross-protocol DNS/MTU/metadata duplicates")
+    vless_other_path = vless_b.replace("%2Fedge", "%2Fother")
+    if semantic_subscription_identity(vless_a) == semantic_subscription_identity(vless_other_path):
+        raise ValidationError("self-test incorrectly collapsed a different transport path")
+
+    ss_a = "ss://YWVzLTEyOC1nY206cHc=@same.example.net:8388?dns=1.1.1.1&mtu=1280"
+    ss_b = "ss://YWVzLTEyOC1nY206b3RoZXI=@same.example.net:8388?mtu=1420&dns=8.8.8.8"
+    if semantic_subscription_identity(ss_a) != semantic_subscription_identity(ss_b):
+        raise ValidationError("self-test failed to collapse Shadowsocks DNS/MTU credential variants")
+
+    mieru_a = "mierus://user:pass@same.example.net?profile=home&port=6666&protocol=UDP&mtu=1280&dns=1.1.1.1"
+    mieru_b = "mierus://other:secret@same.example.net?profile=travel&port=6666&protocol=udp&mtu=1400&dns=8.8.8.8"
+    if semantic_subscription_identity(mieru_a) != semantic_subscription_identity(mieru_b):
+        raise ValidationError("self-test failed to collapse Mieru profile label and client-local preferences")
     for line in (
         "https://example.com/subscription",
         "not a proxy URI",

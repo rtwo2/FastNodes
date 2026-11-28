@@ -765,7 +765,8 @@ namespace ProxyCollector.Collector
 
         private static string BuildQueryIdentityKey(string query, params string[] excludedKeys)
             // Preserve the pre-canonicalization behavior for the history migration key.
-            => BuildQueryIdentityKeyCore(query, null, null, null, decodeQueryForm: false, excludedKeys: excludedKeys);
+            => BuildQueryIdentityKeyCore(query, null, null, null,
+                normalizeDefaults: false, decodeQueryForm: false, excludedKeys: excludedKeys);
 
         // Canonicalize URI options that are explicitly set to the protocol's default.
         // This is intentionally conservative: meaningful non-default values such as a
@@ -775,29 +776,29 @@ namespace ProxyCollector.Collector
             string query, string endpointHost, string network, string headerType,
             params string[] excludedKeys)
             => BuildQueryIdentityKeyCore(query, endpointHost, network, headerType,
-                decodeQueryForm: true, excludedKeys: excludedKeys);
+                normalizeDefaults: true, decodeQueryForm: true, excludedKeys: excludedKeys);
 
         private static string BuildCanonicalQueryIdentityKey(string query, params string[] excludedKeys)
             => BuildQueryIdentityKeyCore(query, null, null, null,
-                decodeQueryForm: true, excludedKeys);
+                normalizeDefaults: true, decodeQueryForm: true, excludedKeys: excludedKeys);
 
         private static string BuildQueryIdentityKeyCore(
             string query, string? endpointHost, string? network, string? headerType,
-            bool decodeQueryForm, string[] excludedKeys)
+            bool normalizeDefaults, bool decodeQueryForm, string[] excludedKeys)
         {
             if (string.IsNullOrEmpty(query)) return "";
             var excluded = new HashSet<string>(excludedKeys, StringComparer.OrdinalIgnoreCase);
-            bool tcpWithoutHttpHeader =
+            bool tcpWithoutHttpHeader = normalizeDefaults &&
                 string.Equals(network, "tcp", StringComparison.OrdinalIgnoreCase) &&
                 (string.IsNullOrWhiteSpace(headerType) ||
                  string.Equals(headerType, "none", StringComparison.OrdinalIgnoreCase));
-            bool usesAddressAsDefaultHost =
-                string.Equals(network, "ws", StringComparison.OrdinalIgnoreCase) ||
+            bool usesAddressAsDefaultHost = normalizeDefaults &&
+                (string.Equals(network, "ws", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(network, "httpupgrade", StringComparison.OrdinalIgnoreCase) ||
-                tcpWithoutHttpHeader;
+                tcpWithoutHttpHeader);
             // Do not discard an explicit host when a separate custom-header option
             // could also specify Host; Xray gives the explicit host precedence.
-            bool hasCustomHeaders = query.TrimStart('?')
+            bool hasCustomHeaders = normalizeDefaults && query.TrimStart('?')
                 .Split('&', StringSplitOptions.RemoveEmptyEntries)
                 .Any(pair =>
                 {
@@ -834,7 +835,7 @@ namespace ProxyCollector.Collector
                 {
                     // Xray's default for certificate validation is secure: explicit false
                     // and an omitted flag are the same client behavior.
-                    if ((item.Key is "allowinsecure" or "insecure") &&
+                    if (normalizeDefaults && (item.Key is "allowinsecure" or "insecure") &&
                         (item.Value.Equals("0", StringComparison.OrdinalIgnoreCase) ||
                          item.Value.Equals("false", StringComparison.OrdinalIgnoreCase)))
                         return false;

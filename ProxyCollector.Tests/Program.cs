@@ -659,8 +659,12 @@ internal static class Program
             CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!),
             CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesB!),
             "WireGuard export identity ignores local DNS/MTU preferences");
+        string alternateWgPrivateKey = Convert.ToBase64String(Enumerable.Repeat((byte)7, 32).ToArray());
         var wgDifferentKeys = CollectorType.TryParseWireguardInfo(
-            validWgLink.Replace(validWgPrivateKey, Convert.ToBase64String(Enumerable.Repeat((byte)7, 32).ToArray()), StringComparison.Ordinal));
+            validWgLink.Replace(
+                Uri.EscapeDataString(validWgPrivateKey),
+                Uri.EscapeDataString(alternateWgPrivateKey),
+                StringComparison.Ordinal));
         Checks.That(wgDifferentKeys is not null &&
                     CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!) !=
                     CollectorType.GetWireguardOutputIdentityKey(wgDifferentKeys),

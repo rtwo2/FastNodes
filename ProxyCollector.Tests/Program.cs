@@ -625,7 +625,9 @@ internal static class Program
             validWgLink.Replace("10.0.0.2%2F32", "10.0.0.3%2F32", StringComparison.Ordinal));
         Checks.That(wgDifferentInterface is not null &&
                     wgDifferentInterface.DeduplicationKey != wgParsedPreferencesA.DeduplicationKey,
-            "WireGuard assigned interface address remains part of effective tunnel identity");
+            "WireGuard assigned interface address remains part of exact configuration identity");
+        Checks.Equal(wgDifferentInterface!.SelectionProfileKey, wgParsedPreferencesA.SelectionProfileKey,
+            "WireGuard local interface address changes do not create a second authenticated public peer");
 
         string wgExpandedIp = "10.0.0.2/32,fd00:0000:0000:0000:0000:0000:0000:0002/128";
         string wgCompressedIp = "fd00::2/128,10.0.0.2/32";
@@ -660,9 +662,16 @@ internal static class Program
         var wgDifferentKeys = CollectorType.TryParseWireguardInfo(
             validWgLink.Replace(validWgPrivateKey, Convert.ToBase64String(Enumerable.Repeat((byte)7, 32).ToArray()), StringComparison.Ordinal));
         Checks.That(wgDifferentKeys is not null &&
-                    CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!) ==
+                    CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!) !=
                     CollectorType.GetWireguardOutputIdentityKey(wgDifferentKeys),
-            "WireGuard peer/private-key alternatives at one endpoint and port create only one public export identity");
+            "WireGuard peer/private-key alternatives at one endpoint and port remain separate public export identities");
+
+        var wgDifferentPsk = CollectorType.TryParseWireguardInfo(
+            validWgLink + "&psk=" + Uri.EscapeDataString(Convert.ToBase64String(Enumerable.Repeat((byte)9, 32).ToArray())));
+        Checks.That(wgDifferentPsk is not null &&
+                    CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!) !=
+                    CollectorType.GetWireguardOutputIdentityKey(wgDifferentPsk),
+            "WireGuard preshared-key alternatives remain distinct export identities");
 
         string fullWireguardConf =
             "[Interface]\r\n" +

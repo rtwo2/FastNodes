@@ -1755,6 +1755,23 @@ internal static class Program
                     CollectorType.IsCloudflareMetadata(ssrLabel),
             "SSR embedded Base64 remarks are preserved and filtered before output naming");
 
+        string ssrTlsPayloadA =
+            $"ordinary.example.net:8388:origin:aes-128-gcm:tls1.2_ticket_auth:{ssrPasswordToken}/?obfsparam=front.example.net";
+        string ssrTlsPayloadB =
+            $"ordinary.example.net:8388:origin:aes-128-gcm:tls1.2_ticket_auth:{ssrPasswordToken}/?obfsparam=other-front.example.net";
+        string ssrTlsLinkA = "ssr://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(ssrTlsPayloadA))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        string ssrTlsLinkB = "ssr://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(ssrTlsPayloadB))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var ssrTlsA = CollectorType.ParseProxyLine(ssrTlsLinkA);
+        var ssrTlsB = CollectorType.ParseProxyLine(ssrTlsLinkB);
+        Checks.That(ssrTlsA is not null && ssrTlsB is not null &&
+                    ssrTlsA.Sni == "front.example.net" &&
+                    ssrTlsB.Sni == "other-front.example.net",
+            "SSR TLS obfsparam is parsed as the effective SNI");
+        Checks.That(ssrTlsA!.SelectionProfileKey != ssrTlsB!.SelectionProfileKey,
+            "SSR TLS obfuscation endpoints with different SNI remain separate public entries");
+
         var vmessLabelJson = JsonSerializer.Serialize(new
         {
             add = "ordinary.example.net", port = "443",

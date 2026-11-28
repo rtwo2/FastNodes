@@ -390,7 +390,7 @@ namespace ProxyCollector.Collector
 
         private async Task<List<string>> FilterSafeLastGoodLinksAsync(IReadOnlyList<string> links)
         {
-            var safe = new string?[links.Count];
+            var safe = new (string Link, ParsedProxy Parsed)?[links.Count];
             await Parallel.ForEachAsync(Enumerable.Range(0, links.Count),
                 new ParallelOptions { MaxDegreeOfParallelism = 50 },
                 async (index, _) =>
@@ -422,8 +422,10 @@ namespace ProxyCollector.Collector
                         return;
 
                     bool isUnsafeAddress = false;
+                    IPAddress[] resolvedAddresses = Array.Empty<IPAddress>();
                     if (IPAddress.TryParse(parsed.Host.Trim('[', ']'), out var literal))
                     {
+                        resolvedAddresses = new[] { literal };
                         isUnsafeAddress =
                             IsCloudflareIp(literal) ||
                             IsPrivateOrReservedIp(literal) ||
@@ -433,11 +435,11 @@ namespace ProxyCollector.Collector
                     {
                         try
                         {
-                            var addresses = await Resolver.ResolveAllAsync(parsed.Host);
+                            resolvedAddresses = await Resolver.ResolveAllAsync(parsed.Host);
                             // Reject mixed DNS answers if any address is unsafe. Keep the
                             // existing fail-open behavior on resolver failure so a DNS
                             // outage alone does not erase the last-good snapshot.
-                            isUnsafeAddress = addresses.Any(address =>
+                            isUnsafeAddress = resolvedAddresses.Any(address =>
                                 IsCloudflareIp(address) ||
                                 IsPrivateOrReservedIp(address) ||
                                 IsFireholBlacklisted(address));
@@ -448,11 +450,26 @@ namespace ProxyCollector.Collector
                         }
                     }
 
-                    if (!isUnsafeAddress) safe[index] = link;
+                    if (!isUnsafeAddress)
+                    {
+                        // Apply the same DNS alias normalization as the current-run
+                        // catalogue, so historical host/IP spellings cannot reintroduce
+                        // duplicates into verified_last_good.txt.
+                        parsed.CanonicalEndpointHost = BuildAliasCanonicalHost(parsed.Host, resolvedAddresses);
+                        safe[index] = (link, parsed);
+                    }
                 });
 
-            var filtered = DeduplicateFallbackLinks(
-                safe.Where(link => !string.IsNullOrWhiteSpace(link)).Select(link => link!));
+            // Preserve the prior evidence ordering: the first safe link for an endpoint
+            // + port + effective SNI is the representative in the historical snapshot.
+            var filtered = new List<string>();
+            var seenProfiles = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var item in safe)
+            {
+                if (item is not { } entry) continue;
+                if (seenProfiles.Add(entry.Parsed.SelectionProfileKey))
+                    filtered.Add(entry.Link);
+            }
 
             // A last-good snapshot may still contain the old provider/hash-heavy remarks.
             // Rebuild fallback labels with the current naming format too, so verified.txt

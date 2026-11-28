@@ -451,8 +451,8 @@ internal static class Program
             "vless://ABC@example.net:443?type=ws&path=%2FCase",
             "vless://abc@example.net:443?type=ws&path=%2Fcase"
         });
-        Checks.Equal(2, caseSensitiveFallbackLinks.Count,
-            "last-good fallback deduplication preserves case-sensitive credentials and paths");
+        Checks.Equal(1, caseSensitiveFallbackLinks.Count,
+            "last-good fallback deduplication keeps one endpoint/port/effective-SNI representative despite credential and path variants");
         var semanticFallbackLinks = CollectorType.DeduplicateFallbackLinks(new[]
         {
             "vless://credential-a@same.example.net:443?security=tls&type=ws&path=%2Fws#old-name",

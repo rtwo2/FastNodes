@@ -466,7 +466,8 @@ namespace ProxyCollector.Collector
             var seenProfiles = new HashSet<string>(StringComparer.Ordinal);
             foreach (var item in safe)
             {
-                if (item is not { } entry) continue;
+                if (!item.HasValue) continue;
+                var entry = item.Value;
                 if (seenProfiles.Add(entry.Parsed.SelectionProfileKey))
                     filtered.Add(entry.Link);
             }

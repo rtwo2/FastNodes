@@ -841,10 +841,14 @@ namespace ProxyCollector.Collector
                          item.Value.Equals("false", StringComparison.OrdinalIgnoreCase)))
                         return false;
 
+                    // A raw TCP transport with headerType=none never consumes Host.
+                    if (item.Key == "host" && tcpWithoutHttpHeader && !hasCustomHeaders)
+                        return false;
+
                     // An explicit Host equal to the transport's effective fallback is
                     // redundant. HTTPUpgrade may fall back to TLS serverName; WebSocket
-                    // falls back to address. TCP+headerType=none does not use Host.
-                    if (item.Key == "host" && normalizesDefaultHost &&
+                    // falls back to address.
+                    if (item.Key == "host" && normalizesDefaultHost && !tcpWithoutHttpHeader &&
                         !hasCustomHeaders && normalizedHostFallback.Length > 0 &&
                         string.Equals(
                             ProxyCollector.NormalizeIdentityHost(item.Value),

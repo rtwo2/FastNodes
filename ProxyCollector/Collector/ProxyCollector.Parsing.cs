@@ -980,10 +980,40 @@ namespace ProxyCollector.Collector
                 .Select(property => new
                 {
                     Name = property.Name.ToLowerInvariant(),
-                    Value = property.Value.Clone()
+                    Value = CanonicalizeJsonIdentityValue(property.Value)
                 })
                 .ToArray();
             return JsonSerializer.Serialize(canonical);
+        }
+
+        // VMess extra/plugin objects may be serialized with different property order
+        // by different converters. Canonicalize object keys recursively so formatting
+        // order cannot create another service profile; preserve array order and values.
+        private static object? CanonicalizeJsonIdentityValue(JsonElement value)
+        {
+            switch (value.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    var properties = new SortedDictionary<string, object?>(StringComparer.Ordinal);
+                    foreach (var property in value.EnumerateObject())
+                        properties[property.Name] = CanonicalizeJsonIdentityValue(property.Value);
+                    return properties;
+                case JsonValueKind.Array:
+                    return value.EnumerateArray()
+                        .Select(CanonicalizeJsonIdentityValue)
+                        .ToArray();
+                case JsonValueKind.String:
+                    return value.GetString();
+                case JsonValueKind.True:
+                    return true;
+                case JsonValueKind.False:
+                    return false;
+                case JsonValueKind.Null:
+                case JsonValueKind.Undefined:
+                    return null;
+                default:
+                    return value.Clone();
+            }
         }
 
         private static bool IsExplicitFalseJsonOption(JsonProperty property)

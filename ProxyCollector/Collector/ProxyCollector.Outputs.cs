@@ -832,35 +832,24 @@ namespace ProxyCollector.Collector
             if ((host.Length == 0 || port.Length == 0) &&
                 Uri.TryCreate(p.Link, UriKind.Absolute, out var uri))
             {
-                if (host.Length == 0) host = uri.Host.Trim('[', ']').TrimEnd('.').ToLowerInvariant();
-                if (port.Length == 0 && !uri.IsDefaultPort) port = uri.Port.ToString(CultureInfo.InvariantCulture);
+                if (host.Length == 0) host = NormalizeIdentityHost(uri.Host);
+                if (port.Length == 0 && !uri.IsDefaultPort)
+                    port = uri.Port.ToString(CultureInfo.InvariantCulture);
             }
             if (int.TryParse(port, NumberStyles.Integer, CultureInfo.InvariantCulture, out int portNumber))
                 port = portNumber.ToString(CultureInfo.InvariantCulture);
 
             string protocol = NormalizeProto(p.Proto);
-            string sni = string.IsNullOrWhiteSpace(p.Sni) ? host : NormalizeIdentityHost(p.Sni);
-            string rawCredential = p.Credential ?? "";
-            string credential = protocol == "wireguard"
-                ? rawCredential
-                : (protocol is "ss" or "ssr") && rawCredential.Contains(':')
-                    ? rawCredential[..rawCredential.IndexOf(':')].ToLowerInvariant()
-                    : "";
-            string network = string.IsNullOrWhiteSpace(p.Network) ? "tcp" : p.Network.Trim().ToLowerInvariant();
-            string security = string.IsNullOrWhiteSpace(p.Security) ? "none" : p.Security.Trim().ToLowerInvariant();
-            string path = (p.Path ?? "").Trim();
-            string flow = (p.Flow ?? "").Trim().ToLowerInvariant();
-            string realityKey = TryNormalizeRealityPublicKey(p.Pbk, out var normalizedRealityKey)
-                ? normalizedRealityKey : (p.Pbk ?? "").Trim();
-            string realityId = (p.Sid ?? "").Trim().ToLowerInvariant();
-            string obfuscation = (p.ObfsPassword ?? "").Trim();
-            string alterId = p.Aid.ToString(CultureInfo.InvariantCulture);
-            string options = (p.ConnectionOptionsKey ?? "").Trim();
-            return JsonSerializer.Serialize(new[]
-            {
-                protocol, host, port, credential, sni, network, security, path,
-                flow, realityKey, realityId, obfuscation, alterId, options
-            });
+            bool implicitTlsSni = !string.IsNullOrWhiteSpace(p.Security) ||
+                protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
+            string sni = !string.IsNullOrWhiteSpace(p.Sni)
+                ? NormalizeIdentityHost(p.Sni)
+                : implicitTlsSni ? host : "";
+
+            // Endpoint-first identity: the protocol/credential/transport candidate is
+            // selected later by evidence ranking; only host, port and effective SNI
+            // define a separate public-feed entry.
+            return JsonSerializer.Serialize(new[] { host, port, sni });
         }
 
         internal static List<FinalProxy> SelectTopWithIpv6Diversity(
@@ -1464,61 +1453,18 @@ namespace ProxyCollector.Collector
         // client-local variants of the same WireGuard peer and must not create another
         // node. The .conf format cannot represent Amnezia reserved bytes, so callers
         // exclude them from that format's identity; Clash YAML can preserve them.
+        // WireGuard has no TLS SNI. Public-feed uniqueness follows endpoint + port;
+        // credentials and local interface preferences are validated but do not create
+        // another copy of the same endpoint. Keep the optional argument for callers that
+        // were written against the previous format-aware helper.
         internal static string GetWireguardOutputIdentityKey(WgInfo info, bool includeReserved = true)
         {
             ArgumentNullException.ThrowIfNull(info);
-
-            static string NormalizeList(string value, bool networkList)
-            {
-                string NormalizeEntry(string entry)
-                {
-                    string[] parts = entry.Trim().Split('/', 2);
-                    if (!IPAddress.TryParse(parts[0], out var address))
-                        return entry.Trim().ToLowerInvariant();
-
-                    byte[] bytes = address.GetAddressBytes();
-                    if (parts.Length == 1)
-                        return address.ToString().ToLowerInvariant();
-
-                    int maxPrefix = bytes.Length * 8;
-                    if (!int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture,
-                            out int prefix) || prefix < 0 || prefix > maxPrefix)
-                        return entry.Trim().ToLowerInvariant();
-
-                    // Interface addresses retain their host bits. AllowedIPs are
-                    // routes, so normalize host bits away just as IPNetwork does.
-                    if (networkList)
-                    {
-                        for (int bit = prefix; bit < maxPrefix; bit++)
-                            bytes[bit / 8] &= (byte)~(1 << (7 - (bit % 8)));
-                    }
-
-                    return $"{new IPAddress(bytes).ToString().ToLowerInvariant()}/{prefix}";
-                }
-
-                return string.Join(",", (value ?? "").Split(
-                        ',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Select(NormalizeEntry)
-                    .OrderBy(item => item, StringComparer.Ordinal));
-            }
-
-            var identity = new List<string>
+            return JsonSerializer.Serialize(new[]
             {
                 NormalizeIdentityHost(info.Host),
-                info.Port.ToString(CultureInfo.InvariantCulture),
-                info.PrivateKey ?? "",
-                info.PublicKey ?? "",
-                info.PresharedKey ?? "",
-                NormalizeList(info.Address, networkList: false),
-                NormalizeList(info.AllowedIPs, networkList: true),
-                info.PersistentKeepalive?.ToString(CultureInfo.InvariantCulture) ?? ""
-            };
-
-            if (includeReserved)
-                identity.Add(string.Join(",", (info.Reserved ?? Array.Empty<string>())
-                    .Select(value => value.Trim())));
-
-            return JsonSerializer.Serialize(identity);
+                info.Port.ToString(CultureInfo.InvariantCulture)
+            });
         }
 
         internal static Dictionary<string, object?> BuildWireguardClashProxy(string name, WgInfo info)

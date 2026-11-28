@@ -842,7 +842,8 @@ namespace ProxyCollector.Collector
                 port = portNumber.ToString(CultureInfo.InvariantCulture);
 
             string protocol = NormalizeProto(p.Proto);
-            bool implicitTlsSni = !string.IsNullOrWhiteSpace(p.Security) ||
+            bool protocolUsesTlsSecurity = protocol is "vless" or "vmess";
+            bool implicitTlsSni = (protocolUsesTlsSecurity && !string.IsNullOrWhiteSpace(p.Security)) ||
                 protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
             string sni = !string.IsNullOrWhiteSpace(p.Sni)
                 ? NormalizeIdentityHost(p.Sni)

@@ -810,6 +810,9 @@ namespace ProxyCollector.Collector
                 (string.Equals(network, "ws", StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(network, "httpupgrade", StringComparison.OrdinalIgnoreCase) ||
                  tcpWithoutHttpHeader);
+            string normalizedEndpoint = string.IsNullOrWhiteSpace(endpointHost)
+                ? ""
+                : ProxyCollector.NormalizeIdentityHost(endpointHost);
             string normalizedHostFallback = normalizedEndpoint;
             // HTTPUpgrade falls back to TLS serverName before the endpoint address;
             // WebSocket falls back directly to address. Keep that distinction.
@@ -822,10 +825,6 @@ namespace ProxyCollector.Collector
             bool hasCustomHeaders = normalizeDefaults && queryParameters.Any(item =>
                 item.Key.Equals("header", StringComparison.OrdinalIgnoreCase) ||
                 item.Key.Equals("headers", StringComparison.OrdinalIgnoreCase));
-            string normalizedEndpoint = string.IsNullOrWhiteSpace(endpointHost)
-                ? ""
-                : ProxyCollector.NormalizeIdentityHost(endpointHost);
-
             // Preserve repeated parameters and their order within each key. ParseQuery's
             // dictionary is convenient for known fields, but keeps only the last duplicate
             // value; different plugins/transports may assign meaning to repeated options.
@@ -842,9 +841,9 @@ namespace ProxyCollector.Collector
                          item.Value.Equals("false", StringComparison.OrdinalIgnoreCase)))
                         return false;
 
-                    // An explicit WebSocket/HTTPUpgrade Host equal to the endpoint is
-                    // redundant: Xray falls back to address when host is omitted.
-                    // TCP+headerType=none does not use a transport Host header at all.
+                    // An explicit Host equal to the transport's effective fallback is
+                    // redundant. HTTPUpgrade may fall back to TLS serverName; WebSocket
+                    // falls back to address. TCP+headerType=none does not use Host.
                     if (item.Key == "host" && normalizesDefaultHost &&
                         !hasCustomHeaders && normalizedHostFallback.Length > 0 &&
                         string.Equals(

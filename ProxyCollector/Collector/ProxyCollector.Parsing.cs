@@ -561,7 +561,7 @@ namespace ProxyCollector.Collector
                     Credential = username + ":" + password,
                     Network = protocols[0].Value.ToLowerInvariant(),
                     BaseLink = baseLink,
-                    ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query),
+                    ConnectionOptionsKey = BuildCanonicalQueryIdentityKey(uri.Query),
                     LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                 };
             }
@@ -644,7 +644,7 @@ namespace ProxyCollector.Collector
                     Network = protocol, Security = obfs,
                     Sni = "", Path = extra,
                     BaseLink = baseLink,
-                    ConnectionOptionsKey = BuildQueryIdentityKey(query,
+                    ConnectionOptionsKey = BuildCanonicalQueryIdentityKey(query,
                         "remarks", "remarks_base64", "obfsparam", "protoparam"),
                     LegacyConnectionOptionsKey = BuildQueryIdentityKey(query, "remarks", "remarks_base64")
                 };
@@ -724,7 +724,7 @@ namespace ProxyCollector.Collector
                         Network = "tcp", Security = "",
                         Sni = q.GetValueOrDefault("host", ""), Path = "",
                         BaseLink = baseLink,
-                        ConnectionOptionsKey = BuildQueryIdentityKey(query, "host"),
+                        ConnectionOptionsKey = BuildCanonicalQueryIdentityKey(query, "host"),
                         LegacyConnectionOptionsKey = BuildQueryIdentityKey(query)
                     };
                 }
@@ -765,7 +765,7 @@ namespace ProxyCollector.Collector
 
         private static string BuildQueryIdentityKey(string query, params string[] excludedKeys)
             // Preserve the pre-canonicalization behavior for the history migration key.
-            => BuildQueryIdentityKeyCore(query, null, null, null, decodeQueryForm: false, excludedKeys);
+            => BuildQueryIdentityKeyCore(query, null, null, null, decodeQueryForm: false, excludedKeys: excludedKeys);
 
         // Canonicalize URI options that are explicitly set to the protocol's default.
         // This is intentionally conservative: meaningful non-default values such as a
@@ -775,6 +775,10 @@ namespace ProxyCollector.Collector
             string query, string endpointHost, string network, string headerType,
             params string[] excludedKeys)
             => BuildQueryIdentityKeyCore(query, endpointHost, network, headerType,
+                decodeQueryForm: true, excludedKeys: excludedKeys);
+
+        private static string BuildCanonicalQueryIdentityKey(string query, params string[] excludedKeys)
+            => BuildQueryIdentityKeyCore(query, null, null, null,
                 decodeQueryForm: true, excludedKeys);
 
         private static string BuildQueryIdentityKeyCore(

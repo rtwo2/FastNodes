@@ -133,7 +133,7 @@ def _ss_identity(line: str) -> tuple | None:
 def _ssr_identity(line: str) -> tuple | None:
     try:
         decoded = _decode_urlsafe_base64(line.split("://", 1)[1].split("#", 1)[0])
-        main, _marker, _query = decoded.partition("/?")
+        main, _marker, query = decoded.partition("/?")
         if main.startswith("["):
             close = main.index("]")
             host = main[1:close]
@@ -144,7 +144,11 @@ def _ssr_identity(line: str) -> tuple | None:
         if len(values) != 5:
             return None
         port = int(values[0])
-        return _normalize_identity_host(host), port, ""
+        obfs = values[3].strip().lower()
+        params = {key.lower(): value for key, value in parse_qsl(query, keep_blank_values=True)}
+        obfs_parameter = params.get("obfsparam", "")
+        sni = _normalize_identity_host(obfs_parameter) if obfs.startswith("tls") and obfs_parameter else ""
+        return _normalize_identity_host(host), port, sni
     except (ValueError, UnicodeError, IndexError):
         return None
 
@@ -704,6 +708,16 @@ def self_test() -> None:
     mieru_b = "mierus://other:secret@same.example.net?profile=travel&port=6666&protocol=udp&mtu=1400&dns=8.8.8.8"
     if semantic_subscription_identity(mieru_a) != semantic_subscription_identity(mieru_b):
         raise ValidationError("self-test failed to collapse Mieru endpoint duplicates")
+
+    ssr_password = base64.urlsafe_b64encode(b"secret").decode("ascii").rstrip("=")
+    ssr_tls_a = "ssr://" + base64.urlsafe_b64encode(
+        f"same.example.net:8388:origin:aes-128-gcm:tls1.2_ticket_auth:{ssr_password}/?obfsparam=front.example.net".encode()
+    ).decode("ascii").rstrip("=")
+    ssr_tls_b = "ssr://" + base64.urlsafe_b64encode(
+        f"same.example.net:8388:origin:aes-128-gcm:tls1.2_ticket_auth:{ssr_password}/?obfsparam=other-front.example.net".encode()
+    ).decode("ascii").rstrip("=")
+    if semantic_subscription_identity(ssr_tls_a) == semantic_subscription_identity(ssr_tls_b):
+        raise ValidationError("self-test incorrectly collapsed SSR TLS obfs links with different SNI")
     for line in (
         "https://example.com/subscription",
         "not a proxy URI",

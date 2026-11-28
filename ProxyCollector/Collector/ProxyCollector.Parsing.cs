@@ -335,7 +335,7 @@ namespace ProxyCollector.Collector
                     ObfsPassword = obfsPwd,
                     BaseLink   = baseLink,
                     ConnectionOptionsKey = wireguardInfo != null
-                        ? GetWireguardOutputIdentityKey(wireguardInfo, includeReserved: true)
+                        ? GetWireguardConfigurationIdentityKey(wireguardInfo)
                         : BuildProxyUriOptionsKey(uri.Query, h, net, sec, sni,
                             q.GetValueOrDefault("headerType", "none"),
                             identityExcludedOptions),

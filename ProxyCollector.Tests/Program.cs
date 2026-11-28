@@ -1732,6 +1732,32 @@ internal static class Program
         Checks.Equal(tcpDefaultHeader!.DeduplicationKey, tcpExplicitNone!.DeduplicationKey,
             "TCP headerType=none and an unused endpoint Host normalize to their defaults");
 
+        var tcpUnusedHost = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp&headerType=none&host=unused-front.example.net");
+        Checks.Equal(tcpDefaultHeader.DeduplicationKey, tcpUnusedHost!.DeduplicationKey,
+            "raw TCP with headerType=none ignores any Host override value");
+
+        var httpUpgradeSniFallback = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=httpupgrade&path=%2Fupgrade&sni=front.example.net");
+        var httpUpgradeEndpointHost = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=httpupgrade&path=%2Fupgrade&sni=front.example.net&host=identity.example.net");
+        var httpUpgradeSniHost = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=httpupgrade&path=%2Fupgrade&sni=front.example.net&host=front.example.net");
+        Checks.That(httpUpgradeSniFallback is not null && httpUpgradeEndpointHost is not null &&
+                    httpUpgradeSniHost is not null,
+            "HTTPUpgrade profiles with custom TLS server name parse");
+        Checks.That(httpUpgradeSniFallback.DeduplicationKey != httpUpgradeEndpointHost.DeduplicationKey,
+            "HTTPUpgrade preserves endpoint Host override when TLS serverName is different");
+        Checks.Equal(httpUpgradeSniFallback.DeduplicationKey, httpUpgradeSniHost.DeduplicationKey,
+            "HTTPUpgrade Host equal to TLS serverName collapses to the default fallback");
+
+        var wsCustomSni = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=front.example.net");
+        var wsExplicitAddressWithSni = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=front.example.net&host=identity.example.net");
+        Checks.Equal(wsCustomSni!.DeduplicationKey, wsExplicitAddressWithSni!.DeduplicationKey,
+            "WebSocket Host fallback remains the endpoint even with a custom TLS SNI");
+
         var tcpHttpHost = CollectorType.ParseProxyLine(
             $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp&headerType=http&host=tcp-identity.example.net");
         Checks.That(tcpHttpHost is not null &&

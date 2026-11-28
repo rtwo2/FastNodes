@@ -684,17 +684,22 @@ namespace ProxyCollector.Collector
                     return null;
 
                 var q = ParseQuery(query);
-                // obfsparam/protoparam are per-connection secrets too — different values
-                // there mean a meaningfully different config, so fold them into Path for
-                // dedup purposes even though they're not a literal path.
-                string extra = q.GetValueOrDefault("obfsparam", "") + "|" + q.GetValueOrDefault("protoparam", "");
+                // obfsparam/protoparam are per-connection options. For TLS-based
+                // SSR obfuscation, obfsparam is the TLS server name and must stay a
+                // separate public endpoint identity; other obfs modes keep it as an
+                // ordinary connection option only.
+                string obfsParameter = q.GetValueOrDefault("obfsparam", "");
+                string effectiveSni = obfs.StartsWith("tls", StringComparison.OrdinalIgnoreCase)
+                    ? obfsParameter
+                    : "";
+                string extra = obfsParameter + "|" + q.GetValueOrDefault("protoparam", "");
 
                 return new ParsedProxy
                 {
                     Protocol = "ssr", Host = host, Port = port,
                     Credential = $"{method}:{password}",
                     Network = protocol, Security = obfs,
-                    Sni = "", Path = extra,
+                    Sni = effectiveSni, Path = extra,
                     BaseLink = baseLink,
                     ConnectionOptionsKey = BuildCanonicalQueryIdentityKey(query,
                         "remarks", "remarks_base64", "obfsparam", "protoparam"),

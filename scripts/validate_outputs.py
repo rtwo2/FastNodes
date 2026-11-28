@@ -62,6 +62,36 @@ def _normalize_uuid_credential(value: str) -> str:
     return value
 
 
+def _normalize_wireguard_key(value: str) -> str:
+    raw = (value or "").strip()
+    if not raw:
+        return ""
+    try:
+        token = raw.replace("-", "+").replace("_", "/")
+        token += "=" * ((4 - len(token) % 4) % 4)
+        decoded = base64.b64decode(token, validate=True)
+        if len(decoded) == 32:
+            return base64.b64encode(decoded).decode("ascii")
+    except (ValueError, base64.binascii.Error):
+        pass
+    return raw
+
+
+def _normalize_reality_key(value: str) -> str:
+    raw = (value or "").strip()
+    if not raw:
+        return ""
+    try:
+        token = raw.replace("-", "+").replace("_", "/")
+        token += "=" * ((4 - len(token) % 4) % 4)
+        decoded = base64.b64decode(token, validate=True)
+        if len(decoded) == 32:
+            return base64.urlsafe_b64encode(decoded).decode("ascii").rstrip("=")
+    except (ValueError, base64.binascii.Error):
+        pass
+    return raw
+
+
 def _wireguard_conf_identity(decoded: str) -> tuple | None:
     section = ""
     directives: dict[str, dict[str, str]] = {}
@@ -99,9 +129,9 @@ def _wireguard_conf_identity(decoded: str) -> tuple | None:
         return None
     return (
         _normalize_identity_host(host), port, "",
-        interface.get("privatekey", "").strip(),
-        peer.get("publickey", "").strip(),
-        peer.get("presharedkey", "").strip(),
+        _normalize_wireguard_key(interface.get("privatekey", "")),
+        _normalize_wireguard_key(peer.get("publickey", "")),
+        _normalize_wireguard_key(peer.get("presharedkey", "")),
         "", "", "", 0,
     )
 
@@ -140,9 +170,9 @@ def wireguard_uri_identity(line: str) -> tuple | None:
             _normalize_identity_host(parsed.hostname),
             parsed.port or 51820,
             "",
-            private_key.strip(),
-            public_key.strip(),
-            preshared_key.strip(),
+            _normalize_wireguard_key(private_key),
+            _normalize_wireguard_key(public_key),
+            _normalize_wireguard_key(preshared_key),
             "", "", "", 0,
         )
     except (ValueError, UnicodeError):
@@ -237,8 +267,7 @@ def _ssr_identity(line: str) -> tuple | None:
         sni = _normalize_identity_host(obfs_parameter) if obfs.startswith("tls") and obfs_parameter else ""
         password = _decode_urlsafe_base64(encoded_password)
         credential = method.lower() + ":" + password
-        transport_auth = protocol.lower() + "|" + obfs
-        return _normalize_identity_host(host), port, sni, credential, "", "", "", transport_auth, "", 0
+        return _normalize_identity_host(host), port, sni, credential, "", "", "", "", "", 0
     except (ValueError, UnicodeError, IndexError):
         return None
 
@@ -308,8 +337,8 @@ def semantic_subscription_identity(line: str) -> tuple | None:
             credential = params.get("auth", "")
         credential = _normalize_uuid_credential(credential) if scheme in {"vless", "vmess"} else credential
 
-        public_key = params.get("pbk", "")
-        preshared_key = params.get("psk", params.get("presharedkey", ""))
+        public_key = _normalize_reality_key(params.get("pbk", ""))
+        preshared_key = _normalize_wireguard_key(params.get("psk", params.get("presharedkey", "")))
         short_id = params.get("sid", "").lower()
         flow = params.get("flow", "").lower()
         obfs_password = params.get("obfs-password", "")

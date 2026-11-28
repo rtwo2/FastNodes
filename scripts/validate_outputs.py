@@ -135,101 +135,31 @@ def _vmess_json_identity(line: str) -> tuple | None:
         if not host:
             return None
         port = int(root.get("port", 443) or 443)
-        aid = int(root.get("aid", 0) or 0)
-        network = str(root.get("net", "tcp") or "tcp").strip().lower()
         security = str(root.get("tls", "") or "").strip().lower()
-        if security == "none":
-            security = ""
-        sni = _normalize_identity_host(str(root.get("sni", "") or host))
-        path = str(root.get("path", "") or "")
-
-        normalized = {"v", "add", "port", "id", "aid", "net", "tls", "sni", "path"} | NON_IDENTITY_JSON_FIELDS | {"ps"}
-        options = {}
-        for key, value in root.items():
-            lowered = key.lower()
-            if lowered in normalized:
-                continue
-            if lowered in {"allowinsecure", "insecure"} and (
-                value is False or value == 0 or
-                isinstance(value, str) and value.lower() in {"false", "0"}
-            ):
-                continue
-            options[lowered] = _canonical_json_value(value)
-
-        return (
-            "vmess", host, port, "", network, security, sni, path,
-            "", "", "", "", aid,
-            json.dumps(options, sort_keys=True, separators=(",", ":"), ensure_ascii=False),
+        sni_value = str(root.get("sni", "") or "").strip()
+        sni = _normalize_identity_host(sni_value) if sni_value else (
+            host if security not in {"", "none", "false", "0"} else ""
         )
+        return host, port, sni
     except (ValueError, UnicodeError, json.JSONDecodeError):
         return None
 
 
-def _canonical_query_options(
-    pairs: list[tuple[str, str]], *,
-    host: str, network: str, security: str, sni: str,
-    ss_host_is_sni: bool = False, mieru: bool = False,
-) -> tuple:
-    excluded = {"security", "type", "sni", "path", "pbk", "sid", "flow", "obfs-password", "auth"}
-    if ss_host_is_sni:
-        excluded.add("host")
-    if mieru:
-        excluded.update({"profile", "protocol"})
-
-    grouped: dict[str, list[str]] = defaultdict(list)
-    lower_pairs = [(key.lower(), value) for key, value in pairs]
-    tcp_without_http_header = network == "tcp" and next(
-        (value.lower() for key, value in reversed(lower_pairs) if key == "headertype"), "none"
-    ) == "none"
-    normalizes_default_host = network in {"ws", "httpupgrade"} or tcp_without_http_header
-    fallback_host = sni if network == "httpupgrade" and security == "tls" and sni else host
-    has_custom_headers = any(key in {"header", "headers"} for key, _ in lower_pairs)
-
-    for key, value in lower_pairs:
-        if key in excluded or key in NON_IDENTITY_QUERY_OPTIONS:
-            continue
-        if key in {"allowinsecure", "insecure"} and value.lower() in {"0", "false"}:
-            continue
-        if key == "encryption" and value.lower() in {"", "none"}:
-            continue
-        if key == "headertype" and tcp_without_http_header and value.lower() == "none":
-            continue
-        if key == "host":
-            if tcp_without_http_header and not has_custom_headers:
-                continue
-            if normalizes_default_host and not tcp_without_http_header and not has_custom_headers and _normalize_identity_host(value) == fallback_host:
-                continue
-        grouped[key].append(value)
-    return tuple((key, tuple(grouped[key])) for key in sorted(grouped))
-
-
 def _ss_identity(line: str) -> tuple | None:
-    """Parse both SIP002 and legacy base64 Shadowsocks links for service identity."""
+    """Parse both SIP002 and legacy base64 Shadowsocks links."""
     try:
         rest = line.split("://", 1)[1].split("#", 1)[0]
         if "@" in rest:
-            user_part, host_part = rest.split("@", 1)
-            query = ""
-            if "?" in host_part:
-                host_port, query = host_part.split("?", 1)
-            else:
-                host_port = host_part
-            try:
-                decoded_credential = _decode_urlsafe_base64(user_part)
-            except (ValueError, UnicodeError):
-                decoded_credential = unquote(user_part)
+            _user_part, host_part = rest.split("@", 1)
+            host_port, _separator, query = host_part.partition("?")
         else:
             decoded = _decode_urlsafe_base64(rest)
             main, marker, query = decoded.partition("/?")
             if "@" not in main:
                 return None
-            decoded_credential, host_port = main.split("@", 1)
+            _user_part, host_port = main.split("@", 1)
             if not marker:
                 query = ""
-
-        if ":" not in decoded_credential:
-            return None
-        cipher = decoded_credential.split(":", 1)[0].lower()
 
         if host_port.startswith("["):
             close = host_port.find("]")
@@ -241,17 +171,11 @@ def _ss_identity(line: str) -> tuple | None:
             host, separator, port_text = host_port.rpartition(":")
             if not separator or ":" in host:
                 return None
-
         host = _normalize_identity_host(host)
         port = int(port_text)
-        pairs = parse_qsl(query, keep_blank_values=True)
-        params = {key.lower(): value for key, value in pairs}
-        sni = _normalize_identity_host(params.get("host", "") or host)
-        options = _canonical_query_options(
-            pairs, host=host, network="tcp", security="", sni=sni,
-            ss_host_is_sni=True,
-        )
-        return ("ss", host, port, cipher, "tcp", "", sni, "", "", "", "", "", 0, options)
+        params = {key.lower(): value for key, value in parse_qsl(query, keep_blank_values=True)}
+        sni = _normalize_identity_host(params.get("host", "")) if params.get("host") else ""
+        return host, port, sni
     except (ValueError, UnicodeError):
         return None
 
@@ -259,7 +183,7 @@ def _ss_identity(line: str) -> tuple | None:
 def _ssr_identity(line: str) -> tuple | None:
     try:
         decoded = _decode_urlsafe_base64(line.split("://", 1)[1].split("#", 1)[0])
-        main, marker, query = decoded.partition("/?")
+        main, _marker, _query = decoded.partition("/?")
         if main.startswith("["):
             close = main.index("]")
             host = main[1:close]
@@ -269,27 +193,14 @@ def _ssr_identity(line: str) -> tuple | None:
             host, values = values[0], values[1:]
         if len(values) != 5:
             return None
-        port_text, protocol, method, obfs, _password = values
-        host = _normalize_identity_host(host)
-        port = int(port_text)
-        pairs = parse_qsl(query if marker else "", keep_blank_values=True)
-        params = {key.lower(): value for key, value in pairs}
-        path = params.get("obfsparam", "") + "|" + params.get("protoparam", "")
-        options = _canonical_query_options(
-            [(key, value) for key, value in pairs
-             if key.lower() not in {"obfsparam", "protoparam"}],
-            host=host, network=protocol.lower(), security=obfs.lower(), sni=host
-        )
-        return (
-            "ssr", host, port, method.lower(), protocol.lower(), obfs.lower(),
-            host, path, "", "", "", "", 0, options,
-        )
+        port = int(values[0])
+        return _normalize_identity_host(host), port, ""
     except (ValueError, UnicodeError, IndexError):
         return None
 
 
 def semantic_subscription_identity(line: str) -> tuple | None:
-    """Service-profile identity used to detect semantic duplicates in public feeds."""
+    """Endpoint-first identity: canonical host, port, and effective SNI only."""
     value = line.strip()
     if not URI_RE.fullmatch(value):
         return None
@@ -299,65 +210,46 @@ def semantic_subscription_identity(line: str) -> tuple | None:
         "wg": "wireguard", "mierus": "mieru",
     }.get(scheme, scheme)
 
-    if scheme == "wireguard":
-        return wireguard_uri_identity(value)
     if scheme == "vmess" and "@" not in value.split("://", 1)[1].split("#", 1)[0]:
         identity = _vmess_json_identity(value)
         if identity is not None:
             return identity
-    if scheme == "ssr":
-        return _ssr_identity(value)
     if scheme == "ss":
         return _ss_identity(value)
+    if scheme == "ssr":
+        return _ssr_identity(value)
 
     try:
         parsed = urlsplit(value)
         if not parsed.hostname:
             return None
         host = _normalize_identity_host(parsed.hostname)
-        pairs = parse_qsl(parsed.query, keep_blank_values=True)
-        params: dict[str, str] = {}
-        for key, item in pairs:
-            params[key.lower()] = item
+        params = {key.lower(): item for key, item in parse_qsl(parsed.query, keep_blank_values=True)}
 
         if scheme == "mieru":
             binding = params.get("port", "")
             port = int(binding.split("-", 1)[0])
-            network = params.get("protocol", "tcp").strip().lower()
         else:
-            defaults = {"socks": 1080, "socks4": 1080, "socks5": 1080, "brook": 9999, "snell": 61825}
+            defaults = {
+                "socks": 1080, "socks4": 1080, "socks5": 1080,
+                "brook": 9999, "snell": 61825,
+            }
             port = parsed.port or defaults.get(scheme, 443)
-            network = params.get("type", "tcp").strip().lower() or "tcp"
 
-        security = params.get("security", "").strip().lower()
-        if security == "none":
-            security = ""
-        if scheme == "ss":
-            sni = _normalize_identity_host(params.get("host", "") or host)
-            cipher = _ss_cipher(parsed)
-            path = ""
+        sni_value = params.get("sni", "").strip()
+        if scheme == "wireguard":
+            sni = _normalize_identity_host(sni_value) if sni_value else ""
+        elif scheme == "ss":
+            sni = _normalize_identity_host(params.get("host", "")) if params.get("host") else ""
         else:
-            sni = _normalize_identity_host(params.get("sni", "") or host)
-            cipher = ""
-            path = params.get("path", "")
+            security = params.get("security", "").strip().lower()
+            implicit_tls = (
+                security not in {"", "none", "false", "0"} or
+                scheme in {"trojan", "hysteria", "hysteria2", "tuic", "juicity", "anytls", "naive"}
+            )
+            sni = _normalize_identity_host(sni_value) if sni_value else (host if implicit_tls else "")
 
-        pbk = _normalize_reality_key(params.get("pbk", ""))
-        sid = params.get("sid", "").lower()
-        flow = params.get("flow", "").lower()
-        obfs_password = params.get("obfs-password", "") if scheme in {"hysteria", "hysteria2"} else ""
-        try:
-            aid = int(params.get("aid", "0") or "0")
-        except ValueError:
-            aid = 0
-
-        options = _canonical_query_options(
-            pairs, host=host, network=network, security=security, sni=sni,
-            ss_host_is_sni=(scheme == "ss"), mieru=(scheme == "mieru"),
-        )
-        return (
-            scheme, host, port, cipher, network, security, sni, path,
-            pbk, sid, flow, obfs_password, aid, options,
-        )
+        return host, port, sni
     except (ValueError, UnicodeError):
         return None
 
@@ -589,20 +481,10 @@ def validate_wireguard_conf(path: pathlib.Path) -> tuple:
     except ValueError:
         normalized_host = host.rstrip(".").encode("idna").decode("ascii").lower()
 
-    # Deliberately omit [Interface] DNS and MTU: they are local client preferences,
-    # not a different server tunnel. Keep credentials, assigned interface address,
-    # peer keys, endpoint, AllowedIPs, keepalive, and extension bytes identity-significant.
-    return (
-        interface["privatekey"],
-        addresses,
-        peer["publickey"],
-        peer.get("presharedkey", ""),
-        normalized_host,
-        int(port_text),
-        allowed_ips,
-        int(keepalive) if keepalive is not None else None,
-        reserved,
-    )
+    # Public-feed policy is one WireGuard entry per endpoint and port.
+    # Keys, routes, DNS, MTU and keepalive are still validated for a usable file,
+    # but do not create another copy of an already represented endpoint.
+    return (normalized_host, int(port_text), "")
 
 def validate_wireguard_confs(root: pathlib.Path) -> int:
     directory = root / "wireguard"
@@ -836,31 +718,34 @@ def self_test() -> None:
         if not URI_RE.fullmatch(line):
             raise ValidationError(f"self-test rejected valid URI: {line}")
 
-    wg_uri_a = "wireguard://private@wg.example.net:51820?pk=server&ip=10.0.0.2%2F32&dns=1.1.1.1&mtu=1280&unused-note=first"
-    wg_uri_b = "wireguard://private@wg.example.net:51820?mtu=1420&ip=10.0.0.2%2F32&pk=server&dns=8.8.8.8&unused-note=second"
-    if wireguard_uri_identity(wg_uri_a) != wireguard_uri_identity(wg_uri_b):
-        raise ValidationError("self-test failed to collapse WireGuard equivalent exported tunnel variants")
-    wg_uri_different_address = "wireguard://private@wg.example.net:51820?pk=server&ip=10.0.0.3%2F32"
-    if wireguard_uri_identity(wg_uri_a) == wireguard_uri_identity(wg_uri_different_address):
-        raise ValidationError("self-test incorrectly collapsed different WireGuard interface addresses")
+    wg_uri_a = "wireguard://private@wg.example.net:51820?pk=server&ip=10.0.0.2%2F32&dns=1.1.1.1&mtu=1280"
+    wg_uri_b = "wireguard://another-private@wg.example.net:51820?mtu=1420&ip=10.0.0.2%2F32&pk=another-server&dns=8.8.8.8"
+    if semantic_subscription_identity(wg_uri_a) != semantic_subscription_identity(wg_uri_b):
+        raise ValidationError("self-test failed to collapse WireGuard endpoint duplicates")
+    wg_uri_other_port = "wireguard://private@wg.example.net:51821?pk=server&ip=10.0.0.2%2F32"
+    if semantic_subscription_identity(wg_uri_a) == semantic_subscription_identity(wg_uri_other_port):
+        raise ValidationError("self-test incorrectly collapsed different WireGuard ports")
 
     vless_a = "vless://uuid@same.example.net:443?security=tls&type=ws&sni=front.example.net&path=%2Fedge&fp=chrome&dns=1.1.1.1&mtu=1280&name=source-a"
-    vless_b = "vless://other-credential@same.example.net:443?mtu=1420&name=source-b&fp=chrome&path=%2Fedge&sni=front.example.net&type=ws&security=tls&dns=8.8.8.8"
+    vless_b = "trojan://different-secret@same.example.net:443?sni=front.example.net&mtu=1420&name=source-b&dns=8.8.8.8"
     if semantic_subscription_identity(vless_a) != semantic_subscription_identity(vless_b):
-        raise ValidationError("self-test failed to collapse cross-protocol DNS/MTU/metadata duplicates")
-    vless_other_path = vless_b.replace("%2Fedge", "%2Fother")
-    if semantic_subscription_identity(vless_a) == semantic_subscription_identity(vless_other_path):
-        raise ValidationError("self-test incorrectly collapsed a different transport path")
+        raise ValidationError("self-test failed to collapse different protocol/credential/metadata variants at one endpoint")
+    vless_other_port = vless_b.replace(":443", ":8443")
+    if semantic_subscription_identity(vless_a) == semantic_subscription_identity(vless_other_port):
+        raise ValidationError("self-test incorrectly collapsed different endpoint ports")
+    vless_other_sni = vless_b.replace("front.example.net", "other-front.example.net")
+    if semantic_subscription_identity(vless_a) == semantic_subscription_identity(vless_other_sni):
+        raise ValidationError("self-test incorrectly collapsed different SNI values")
 
     ss_a = "ss://YWVzLTEyOC1nY206cHc=@same.example.net:8388?dns=1.1.1.1&mtu=1280"
     ss_b = "ss://YWVzLTEyOC1nY206b3RoZXI=@same.example.net:8388?mtu=1420&dns=8.8.8.8"
     if semantic_subscription_identity(ss_a) != semantic_subscription_identity(ss_b):
-        raise ValidationError("self-test failed to collapse Shadowsocks DNS/MTU credential variants")
+        raise ValidationError("self-test failed to collapse Shadowsocks endpoint duplicates")
 
     mieru_a = "mierus://user:pass@same.example.net?profile=home&port=6666&protocol=UDP&mtu=1280&dns=1.1.1.1"
     mieru_b = "mierus://other:secret@same.example.net?profile=travel&port=6666&protocol=udp&mtu=1400&dns=8.8.8.8"
     if semantic_subscription_identity(mieru_a) != semantic_subscription_identity(mieru_b):
-        raise ValidationError("self-test failed to collapse Mieru profile label and client-local preferences")
+        raise ValidationError("self-test failed to collapse Mieru endpoint duplicates")
     for line in (
         "https://example.com/subscription",
         "not a proxy URI",

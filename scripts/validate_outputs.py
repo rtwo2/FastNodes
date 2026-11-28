@@ -779,15 +779,25 @@ def self_test() -> None:
         finally:
             duplicate_path.unlink(missing_ok=True)
 
+        # Under endpoint-first public dedup, a different client-side interface
+        # address is still not a second public node when endpoint and port match.
         different_address = valid_conf.replace(
             "Address = 10.0.0.2/32, fd00::2/128",
             "Address = 10.0.0.3/32, fd00::2/128"
         )
         different_address_path = wg_dir / "different-interface-address.conf"
         different_address_path.write_text(different_address, encoding="utf-8")
-        if validate_wireguard_confs(root) != 2:
-            raise ValidationError("self-test incorrectly collapsed distinct WireGuard interface addresses")
-        different_address_path.unlink()
+        try:
+            validate_wireguard_confs(root)
+        except ValidationError as exc:
+            if "duplicate WireGuard tunnel config" not in str(exc):
+                raise
+        else:
+            raise ValidationError(
+                "self-test failed to reject a second WireGuard config at the same endpoint/port"
+            )
+        finally:
+            different_address_path.unlink(missing_ok=True)
 
         invalid_keepalive_yaml = yaml.replace("persistent-keepalive: 0", "persistent-keepalive: 65536")
         (root / "protocols" / "wireguard.txt").write_text(invalid_keepalive_yaml, encoding="utf-8")

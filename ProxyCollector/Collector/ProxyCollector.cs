@@ -4459,15 +4459,34 @@ namespace ProxyCollector.Collector
             // distinct sets such as 7000-7010 and 7000-7020.
             if (protocol == "mieru" && Uri.TryCreate(BaseLink, UriKind.Absolute, out var mieruUri))
             {
-                var query = ProxyCollector.ParseQuery(mieruUri.Query);
-                if (query.TryGetValue("port", out string? binding) &&
-                    ProxyCollector.IsValidMieruPortBinding(binding, out int firstPort))
+                string? binding = null;
+                foreach (string part in mieruUri.Query.TrimStart('?').Split(
+                             '&', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    int equals = part.IndexOf('=');
+                    if (equals <= 0) continue;
+                    string key = Uri.UnescapeDataString(part[..equals].Replace("+", " "));
+                    if (!key.Equals("port", StringComparison.OrdinalIgnoreCase)) continue;
+                    binding = Uri.UnescapeDataString(part[(equals + 1)..].Replace("+", " "));
+                    break;
+                }
+
+                if (!string.IsNullOrWhiteSpace(binding))
                 {
                     string[] range = binding.Split('-', StringSplitOptions.None);
-                    if (range.Length == 2 && int.TryParse(range[1], out int lastPort))
-                        portKey = $"{firstPort.ToString(System.Globalization.CultureInfo.InvariantCulture)}-{lastPort.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
-                    else
-                        portKey = firstPort.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    bool valid = range.Length is 1 or 2 &&
+                        int.TryParse(range[0], System.Globalization.NumberStyles.None,
+                            System.Globalization.CultureInfo.InvariantCulture, out int firstPort) &&
+                        firstPort is >= 1 and <= 65535;
+                    int lastPort = firstPort;
+                    if (valid && range.Length == 2)
+                        valid = int.TryParse(range[1], System.Globalization.NumberStyles.None,
+                            System.Globalization.CultureInfo.InvariantCulture, out lastPort) &&
+                            lastPort >= firstPort && lastPort <= 65535;
+                    if (valid)
+                        portKey = range.Length == 2
+                            ? $"{firstPort.ToString(System.Globalization.CultureInfo.InvariantCulture)}-{lastPort.ToString(System.Globalization.CultureInfo.InvariantCulture)}"
+                            : firstPort.ToString(System.Globalization.CultureInfo.InvariantCulture);
                 }
             }
 

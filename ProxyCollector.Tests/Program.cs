@@ -1633,6 +1633,14 @@ internal static class Program
                     mieruLocalA.DeduplicationKey == mieruLocalB.DeduplicationKey,
             "Mieru profile labels, DNS and MTU do not create extra copies of the same transport binding");
 
+        var mieruRangeA = CollectorType.ParseProxyLine(
+            "mierus://user:pass@mieru-range.example.net?profile=main&port=7000-7010&protocol=UDP");
+        var mieruRangeB = CollectorType.ParseProxyLine(
+            "mierus://user:pass@mieru-range.example.net?profile=backup&port=7000-7020&protocol=UDP");
+        Checks.That(mieruRangeA is not null && mieruRangeB is not null &&
+                    mieruRangeA.SelectionProfileKey != mieruRangeB.SelectionProfileKey,
+            "different Mieru port ranges remain separate endpoint identities even when their first port matches");
+
         string vmessLocalJsonA = """{"v":"2","ps":"source-a","add":"vmess-normalization.example.net","port":"443","id":"123e4567-e89b-12d3-a456-426614174000","aid":"0","net":"ws","tls":"tls","sni":"front.example.net","host":"ws.example.net","path":"/edge","scy":"auto","fp":"chrome","alpn":["h2"],"dns":"1.1.1.1","mtu":1280,"tag":"feed-a"}""";
         string vmessLocalJsonB = """{"tag":"feed-b","mtu":1420,"dns":"8.8.8.8","alpn":["h2"],"fp":"chrome","scy":"auto","path":"/edge","host":"ws.example.net","sni":"front.example.net","tls":"tls","net":"ws","aid":"0","id":"123e4567-e89b-12d3-a456-426614174000","port":"443","add":"vmess-normalization.example.net","ps":"source-b","v":"2"}""";
         var vmessLocalA = CollectorType.ParseProxyLine(

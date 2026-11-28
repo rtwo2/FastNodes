@@ -1690,6 +1690,93 @@ internal static class Program
             "vless://123e4567-e89b-12d3-a456-426614174000@defaults.example.net:443?type=&security=NONE");
         Checks.Equal(defaultTransportA!.DeduplicationKey, defaultTransportB!.DeduplicationKey,
             "absent and explicit default transport/security options normalize to one identity");
+
+        const string profileId = "123e4567-e89b-12d3-a456-426614174000";
+        var wsDefaultHost = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&fp=chrome&encryption=none");
+        var wsExplicitDefaults = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&fp=chrome&encryption=none&host=IDENTITY.example.net.&insecure=0&allowInsecure=false");
+        Checks.That(wsDefaultHost is not null && wsExplicitDefaults is not null,
+            "WebSocket profiles with explicit default options parse");
+        Checks.Equal(wsDefaultHost!.DeduplicationKey, wsExplicitDefaults!.DeduplicationKey,
+            "WebSocket Host equal to endpoint and explicit false TLS flags collapse to the same config");
+        Checks.Equal(wsDefaultHost.SelectionProfileKey, wsExplicitDefaults.SelectionProfileKey,
+            "semantically redundant WebSocket options also collapse in compact profile identity");
+        Checks.That(wsDefaultHost.LegacyDeduplicationKey != wsExplicitDefaults.LegacyDeduplicationKey,
+            "legacy identity retains original explicit-default options for history migration");
+
+        var wsHeaderFallback = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&headers=%7B%22Host%22%3A%22front.example.net%22%7D");
+        var wsExplicitHostPriority = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&host=identity.example.net&headers=%7B%22Host%22%3A%22front.example.net%22%7D");
+        Checks.That(wsHeaderFallback is not null && wsExplicitHostPriority is not null &&
+                    wsHeaderFallback.DeduplicationKey != wsExplicitHostPriority.DeduplicationKey,
+            "explicit WebSocket Host preserves precedence over a competing custom Host header");
+
+        var wsDifferentHost = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&fp=chrome&encryption=none&host=front.example.net");
+        Checks.That(wsDifferentHost is not null &&
+                    wsDefaultHost.DeduplicationKey != wsDifferentHost.DeduplicationKey,
+            "a genuinely different WebSocket Host remains part of connection identity");
+
+        var wsInsecure = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&fp=chrome&encryption=none&allowInsecure=1");
+        Checks.That(wsInsecure is not null &&
+                    wsDefaultHost.DeduplicationKey != wsInsecure.DeduplicationKey,
+            "allowInsecure=true remains distinct from the secure default");
+
+        var tcpDefaultHeader = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp");
+        var tcpExplicitNone = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp&headerType=none&host=tcp-identity.example.net&allowInsecure=0");
+        Checks.Equal(tcpDefaultHeader!.DeduplicationKey, tcpExplicitNone!.DeduplicationKey,
+            "TCP headerType=none and an unused endpoint Host normalize to their defaults");
+
+        var tcpUnusedHost = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp&headerType=none&host=unused-front.example.net");
+        Checks.Equal(tcpDefaultHeader.DeduplicationKey, tcpUnusedHost!.DeduplicationKey,
+            "raw TCP with headerType=none ignores any Host override value");
+
+        var httpUpgradeSniFallback = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=httpupgrade&path=%2Fupgrade&sni=front.example.net");
+        var httpUpgradeEndpointHost = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=httpupgrade&path=%2Fupgrade&sni=front.example.net&host=identity.example.net");
+        var httpUpgradeSniHost = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=httpupgrade&path=%2Fupgrade&sni=front.example.net&host=front.example.net");
+        Checks.That(httpUpgradeSniFallback is not null && httpUpgradeEndpointHost is not null &&
+                    httpUpgradeSniHost is not null,
+            "HTTPUpgrade profiles with custom TLS server name parse");
+        Checks.That(httpUpgradeSniFallback.DeduplicationKey != httpUpgradeEndpointHost.DeduplicationKey,
+            "HTTPUpgrade preserves endpoint Host override when TLS serverName is different");
+        Checks.Equal(httpUpgradeSniFallback.DeduplicationKey, httpUpgradeSniHost.DeduplicationKey,
+            "HTTPUpgrade Host equal to TLS serverName collapses to the default fallback");
+
+        var wsCustomSni = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=front.example.net");
+        var wsExplicitAddressWithSni = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=front.example.net&host=identity.example.net");
+        Checks.Equal(wsCustomSni!.DeduplicationKey, wsExplicitAddressWithSni!.DeduplicationKey,
+            "WebSocket Host fallback remains the endpoint even with a custom TLS SNI");
+
+        var tcpHttpHost = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp&headerType=http&host=tcp-identity.example.net");
+        Checks.That(tcpHttpHost is not null &&
+                    tcpDefaultHeader.DeduplicationKey != tcpHttpHost.DeduplicationKey,
+            "TCP HTTP-obfuscation Host remains distinct from the default raw TCP transport");
+
+        var xhttpExtraPlus = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@query-identity.example.net:443?security=tls&type=xhttp&extra=%7B%22headers%22%3A%7B%22User-Agent%22%3A%22Fast+Nodes%22%7D%7D");
+        var xhttpExtraSpace = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@query-identity.example.net:443?security=tls&type=xhttp&extra=%7B%22headers%22%3A%7B%22User-Agent%22%3A%22Fast%20Nodes%22%7D%7D");
+        var xhttpExtraLiteralPlus = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@query-identity.example.net:443?security=tls&type=xhttp&extra=%7B%22headers%22%3A%7B%22User-Agent%22%3A%22Fast%2BNodes%22%7D%7D");
+        Checks.That(xhttpExtraPlus is not null && xhttpExtraSpace is not null &&
+                    xhttpExtraLiteralPlus is not null,
+            "XHTTP extra query values using plus, percent-space, and encoded literal plus parse");
+        Checks.Equal(xhttpExtraPlus!.DeduplicationKey, xhttpExtraSpace!.DeduplicationKey,
+            "query-form plus and percent-space spellings share one proxy identity");
+        Checks.That(xhttpExtraPlus.DeduplicationKey != xhttpExtraLiteralPlus!.DeduplicationKey,
+            "an explicitly encoded literal plus remains distinct from a query-form space");
         var tuicPasswordA = CollectorType.ParseProxyLine(
             "tuic://User:Password@tuic.example.net:443");
         var tuicPasswordB = CollectorType.ParseProxyLine(

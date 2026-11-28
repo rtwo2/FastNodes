@@ -645,21 +645,24 @@ internal static class Program
         var wgDifferentReserved = CollectorType.ParseProxyLine(validWgLink + "&reserved=1%2C2%2C3");
         var wgOtherReserved = CollectorType.ParseProxyLine(validWgLink + "&reserved=1%2C2%2C4");
         Checks.That(wgDifferentReserved is not null && wgOtherReserved is not null &&
-                    wgDifferentReserved.DeduplicationKey != wgOtherReserved.DeduplicationKey,
-            "WireGuard Amnezia reserved bytes remain identity-significant for Clash YAML");
+                    wgDifferentReserved.DeduplicationKey != wgOtherReserved.DeduplicationKey &&
+                    wgDifferentReserved.SelectionProfileKey == wgOtherReserved.SelectionProfileKey,
+            "WireGuard reserved-byte variants remain separately testable but share one endpoint/port public entry");
 
         var wgOutputPreferencesA = CollectorType.TryParseWireguardInfo(wgLocalPreferencesA);
         var wgOutputPreferencesB = CollectorType.TryParseWireguardInfo(wgLocalPreferencesB);
         Checks.That(wgOutputPreferencesA is not null && wgOutputPreferencesB is not null,
             "WireGuard DNS/MTU variants remain exportable");
         Checks.Equal(
-            CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!, includeReserved: false),
-            CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesB!, includeReserved: false),
-            "standard .conf export identity ignores DNS and MTU preference changes");
-        Checks.Equal(
-            CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!, includeReserved: true),
-            CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesB!, includeReserved: true),
-            "Clash export identity ignores DNS and MTU preference changes while retaining reserved-byte identity");
+            CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!),
+            CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesB!),
+            "WireGuard export identity ignores local DNS/MTU preferences");
+        var wgDifferentKeys = CollectorType.TryParseWireguardInfo(
+            validWgLink.Replace(validWgPrivateKey, Convert.ToBase64String(Enumerable.Repeat((byte)7, 32).ToArray()), StringComparison.Ordinal));
+        Checks.That(wgDifferentKeys is not null &&
+                    CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!) ==
+                    CollectorType.GetWireguardOutputIdentityKey(wgDifferentKeys),
+            "WireGuard peer/private-key alternatives at one endpoint and port create only one public export identity");
 
         string fullWireguardConf =
             "[Interface]\r\n" +

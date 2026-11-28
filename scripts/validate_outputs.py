@@ -351,6 +351,41 @@ def semantic_subscription_identity(line: str) -> tuple | None:
         return None
 
 
+def duplicate_examples(path: pathlib.Path, limit: int = 3) -> list[str]:
+    """Return concrete exact/semantic duplicate pairs for actionable CI diagnostics."""
+    try:
+        lines = [
+            line.strip()
+            for line in path.read_text(encoding="utf-8-sig").splitlines()
+            if line.strip()
+        ]
+    except (OSError, UnicodeDecodeError):
+        return []
+
+    examples: list[str] = []
+    exact_seen: set[str] = set()
+    semantic_seen: dict[tuple, str] = {}
+    for line in lines:
+        if line in exact_seen:
+            examples.append(f"exact duplicate: {line[:180]!r}")
+        else:
+            exact_seen.add(line)
+
+        identity = semantic_subscription_identity(line)
+        if identity is None:
+            continue
+        previous = semantic_seen.get(identity)
+        if previous is not None and previous != line:
+            examples.append(
+                f"same endpoint/SNI/auth identity: {previous[:140]!r} <> {line[:140]!r}"
+            )
+        else:
+            semantic_seen[identity] = line
+        if len(examples) >= limit:
+            break
+    return examples
+
+
 def validate_lines(path: pathlib.Path) -> tuple[int, int]:
     try:
         raw = path.read_bytes()
@@ -675,7 +710,11 @@ def validate_tree(root: pathlib.Path, allow_legacy_oversized: bool = False) -> l
         rel = path.relative_to(root).as_posix()
         counts[rel] = count
         if duplicates:
-            raise ValidationError(f"{rel} contains {duplicates} duplicate line(s); generated subscription entries must be unique")
+            examples = duplicate_examples(path)
+            detail = f"; examples: {' | '.join(examples)}" if examples else ""
+            raise ValidationError(
+                f"{rel} contains {duplicates} duplicate line(s); generated subscription entries must be unique{detail}"
+            )
         size = path.stat().st_size
         if size > MAX_PART_BYTES:
             message = (

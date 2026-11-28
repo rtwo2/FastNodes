@@ -764,7 +764,8 @@ namespace ProxyCollector.Collector
         }
 
         private static string BuildQueryIdentityKey(string query, params string[] excludedKeys)
-            => BuildQueryIdentityKeyCore(query, null, null, null, excludedKeys);
+            // Preserve the pre-canonicalization behavior for the history migration key.
+            => BuildQueryIdentityKeyCore(query, null, null, null, decodeQueryForm: false, excludedKeys);
 
         // Canonicalize URI options that are explicitly set to the protocol's default.
         // This is intentionally conservative: meaningful non-default values such as a
@@ -773,11 +774,12 @@ namespace ProxyCollector.Collector
         private static string BuildProxyUriOptionsKey(
             string query, string endpointHost, string network, string headerType,
             params string[] excludedKeys)
-            => BuildQueryIdentityKeyCore(query, endpointHost, network, headerType, excludedKeys);
+            => BuildQueryIdentityKeyCore(query, endpointHost, network, headerType,
+                decodeQueryForm: true, excludedKeys);
 
         private static string BuildQueryIdentityKeyCore(
             string query, string? endpointHost, string? network, string? headerType,
-            string[] excludedKeys)
+            bool decodeQueryForm, string[] excludedKeys)
         {
             if (string.IsNullOrEmpty(query)) return "";
             var excluded = new HashSet<string>(excludedKeys, StringComparer.OrdinalIgnoreCase);
@@ -807,8 +809,8 @@ namespace ProxyCollector.Collector
                     string rawValue = equals < 0 ? "" : pair[(equals + 1)..];
                     return new
                     {
-                        Key = Uri.UnescapeDataString(rawKey).ToLowerInvariant(),
-                        Value = Uri.UnescapeDataString(rawValue)
+                        Key = UnescapeQueryComponent(rawKey, decodeQueryForm).ToLowerInvariant(),
+                        Value = UnescapeQueryComponent(rawValue, decodeQueryForm)
                     };
                 })
                 .Where(item => !excluded.Contains(item.Key))
@@ -844,6 +846,15 @@ namespace ProxyCollector.Collector
                 .ToArray();
             return JsonSerializer.Serialize(canonical);
         }
+
+        // Go net/url.QueryUnescape (used by Xray's URI query parsing) treats '+' as
+        // a space. System.Uri.UnescapeDataString does not, so use this for actual query
+        // parsing and canonical profile identity. Legacy history keys deliberately keep
+        // the old decoding mode to preserve one-run migration compatibility.
+        private static string UnescapeQueryComponent(string value, bool decodeQueryForm = true)
+            => Uri.UnescapeDataString(decodeQueryForm
+                ? value.Replace("+", " ", StringComparison.Ordinal)
+                : value);
 
         private static string BuildJsonIdentityKey(JsonElement root, bool excludeNormalizedFields = false)
         {
@@ -914,7 +925,7 @@ namespace ProxyCollector.Collector
             {
                 var kv = pair.Split('=', 2);
                 if (kv.Length == 2)
-                    result[Uri.UnescapeDataString(kv[0])] = Uri.UnescapeDataString(kv[1]);
+                    result[UnescapeQueryComponent(kv[0])] = UnescapeQueryComponent(kv[1]);
             }
             return result;
         }

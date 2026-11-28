@@ -558,10 +558,16 @@ def validate_wireguard_conf(path: pathlib.Path) -> tuple:
     except ValueError:
         normalized_host = host.rstrip(".").encode("idna").decode("ascii").lower()
 
-    # Public-feed policy is one WireGuard entry per endpoint and port.
-    # Keys, routes, DNS, MTU and keepalive are still validated for a usable file,
-    # but do not create another copy of an already represented endpoint.
-    return (normalized_host, int(port_text), "")
+    # Public-feed policy keeps one representative per endpoint + port + peer
+    # authentication. Client-side interface addresses/routes, DNS, MTU and keepalive
+    # are not authentication and do not create another copy.
+    return (
+        normalized_host,
+        int(port_text),
+        interface["privatekey"].strip(),
+        peer["publickey"].strip(),
+        peer.get("presharedkey", "").strip(),
+    )
 
 def validate_wireguard_confs(root: pathlib.Path) -> int:
     directory = root / "wireguard"

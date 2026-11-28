@@ -197,17 +197,19 @@ namespace ProxyCollector.Collector
                     if (sec.Equals("none", StringComparison.OrdinalIgnoreCase)) sec = "";
                     // URI-form VMess follows the same rule as other URI protocols:
                     // the transport Host header is not an implicit TLS SNI.
+                    string host = NormalizeUriHost(uri.Host);
                     string sni = q.GetValueOrDefault("sni", "");
                     return new ParsedProxy
                     {
-                        Protocol = "vmess", Host = NormalizeUriHost(uri.Host),
+                        Protocol = "vmess", Host = host,
                         Port = (uri.Port > 0 ? uri.Port : 443).ToString(),
                         Credential = Uri.UnescapeDataString(uri.UserInfo ?? ""),
                         Network = net, Security = sec,
                         Sni = sni, Path = q.GetValueOrDefault("path", ""),
                         Aid = int.TryParse(q.GetValueOrDefault("aid", "0"), out var a) ? a : 0,
                         BaseLink = baseLink,
-                        ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query,
+                        ConnectionOptionsKey = BuildProxyUriOptionsKey(uri.Query, host, net,
+                            q.GetValueOrDefault("headerType", "none"),
                             "security", "type", "sni", "path", "aid"),
                         LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                     };
@@ -284,7 +286,8 @@ namespace ProxyCollector.Collector
                     Flow       = flow,
                     ObfsPassword = obfsPwd,
                     BaseLink   = baseLink,
-                    ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query,
+                    ConnectionOptionsKey = BuildProxyUriOptionsKey(uri.Query, h, net,
+                        q.GetValueOrDefault("headerType", "none"),
                         "security", "type", "sni", "path", "pbk", "sid", "flow",
                         "obfs-password", "auth"),
                     LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
@@ -761,9 +764,34 @@ namespace ProxyCollector.Collector
         }
 
         private static string BuildQueryIdentityKey(string query, params string[] excludedKeys)
+            => BuildQueryIdentityKeyCore(query, null, null, null, excludedKeys);
+
+        // Canonicalize URI options that are explicitly set to the protocol's default.
+        // This is intentionally conservative: meaningful non-default values such as a
+        // different WebSocket Host, HTTP obfuscation host, or allowInsecure=true remain
+        // part of identity.
+        private static string BuildProxyUriOptionsKey(
+            string query, string endpointHost, string network, string headerType,
+            params string[] excludedKeys)
+            => BuildQueryIdentityKeyCore(query, endpointHost, network, headerType, excludedKeys);
+
+        private static string BuildQueryIdentityKeyCore(
+            string query, string? endpointHost, string? network, string? headerType,
+            string[] excludedKeys)
         {
             if (string.IsNullOrEmpty(query)) return "";
             var excluded = new HashSet<string>(excludedKeys, StringComparer.OrdinalIgnoreCase);
+            bool tcpWithoutHttpHeader =
+                string.Equals(network, "tcp", StringComparison.OrdinalIgnoreCase) &&
+                (string.IsNullOrWhiteSpace(headerType) ||
+                 string.Equals(headerType, "none", StringComparison.OrdinalIgnoreCase));
+            bool usesAddressAsDefaultHost =
+                string.Equals(network, "ws", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(network, "httpupgrade", StringComparison.OrdinalIgnoreCase) ||
+                tcpWithoutHttpHeader;
+            string normalizedEndpoint = string.IsNullOrWhiteSpace(endpointHost)
+                ? ""
+                : ProxyCollector.NormalizeIdentityHost(endpointHost);
 
             // Preserve repeated parameters and their order within each key. ParseQuery's
             // dictionary is convenient for known fields, but keeps only the last duplicate
@@ -784,6 +812,33 @@ namespace ProxyCollector.Collector
                     };
                 })
                 .Where(item => !excluded.Contains(item.Key))
+                .Where(item =>
+                {
+                    // Xray's default for certificate validation is secure: explicit false
+                    // and an omitted flag are the same client behavior.
+                    if ((item.Key is "allowinsecure" or "insecure") &&
+                        (item.Value.Equals("0", StringComparison.OrdinalIgnoreCase) ||
+                         item.Value.Equals("false", StringComparison.OrdinalIgnoreCase)))
+                        return false;
+
+                    // An explicit WebSocket/HTTPUpgrade Host equal to the endpoint is
+                    // redundant: Xray falls back to address when host is omitted.
+                    // TCP+headerType=none does not use a transport Host header at all.
+                    if (item.Key == "host" && usesAddressAsDefaultHost &&
+                        normalizedEndpoint.Length > 0 &&
+                        string.Equals(
+                            ProxyCollector.NormalizeIdentityHost(item.Value),
+                            normalizedEndpoint,
+                            StringComparison.Ordinal))
+                        return false;
+
+                    // TCP's header type defaults to "none".
+                    if (item.Key == "headertype" && tcpWithoutHttpHeader &&
+                        item.Value.Equals("none", StringComparison.OrdinalIgnoreCase))
+                        return false;
+
+                    return true;
+                })
                 .OrderBy(item => item.Key, StringComparer.Ordinal)
                 .Select(item => new[] { item.Key, item.Value })
                 .ToArray();

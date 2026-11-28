@@ -260,7 +260,7 @@ def _ssr_identity(line: str) -> tuple | None:
         if len(values) != 5:
             return None
         port = int(values[0])
-        protocol, method, obfs, encoded_password = values[1:]
+        _protocol, method, obfs, encoded_password = values[1:]
         obfs = obfs.strip().lower()
         params = {key.lower(): value for key, value in parse_qsl(query, keep_blank_values=True)}
         obfs_parameter = params.get("obfsparam", "")
@@ -338,9 +338,9 @@ def semantic_subscription_identity(line: str) -> tuple | None:
         credential = _normalize_uuid_credential(credential) if scheme in {"vless", "vmess"} else credential
 
         public_key = _normalize_reality_key(params.get("pbk", ""))
-        preshared_key = _normalize_wireguard_key(params.get("psk", params.get("presharedkey", "")))
-        short_id = params.get("sid", "").lower()
-        flow = params.get("flow", "").lower()
+        preshared_key = params.get("psk", params.get("presharedkey", "")).strip()
+        short_id = params.get("sid", "").strip().lower()
+        flow = params.get("flow", "").strip().lower()
         obfs_password = params.get("obfs-password", "")
         aid = int(params.get("aid", "0") or "0")
         return (
@@ -423,9 +423,9 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
                     identity = (
                         _normalize_identity_host(server.group(1).strip().strip("'\"")),
                         int(port.group(1)),
-                        private_key,
-                        public_key,
-                        preshared_key,
+                        _normalize_wireguard_key(private_key),
+                        _normalize_wireguard_key(public_key),
+                        _normalize_wireguard_key(preshared_key),
                     )
                     if identity in seen_wireguard:
                         raise ValidationError(

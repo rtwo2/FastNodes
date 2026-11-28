@@ -232,13 +232,13 @@ def semantic_subscription_identity(line: str) -> tuple | None:
         else:
             defaults = {
                 "socks": 1080, "socks4": 1080, "socks5": 1080,
-                "brook": 9999, "snell": 61825,
+                "brook": 9999, "snell": 61825, "wireguard": 51820,
             }
             port = parsed.port or defaults.get(scheme, 443)
 
         sni_value = params.get("sni", "").strip()
-        if scheme == "wireguard":
-            sni = _normalize_identity_host(sni_value) if sni_value else ""
+        if scheme in {"wireguard", "mieru"}:
+            sni = ""
         elif scheme == "ss":
             sni = _normalize_identity_host(params.get("host", "")) if params.get("host") else ""
         else:

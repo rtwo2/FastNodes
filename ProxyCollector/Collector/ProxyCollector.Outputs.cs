@@ -910,12 +910,12 @@ namespace ProxyCollector.Collector
                 .Where(x => !string.IsNullOrWhiteSpace(x.Link))
                 .GroupBy(GetTopEndpointProfileKey, StringComparer.Ordinal)
                 .Select(group => group
-                    // When the same authenticated profile has IPv4 and IPv6 candidates, retain
-                    // the IPv6-capable representative if the profile is dual-stack;
-                    // otherwise the IPv6 reservation could be lost before selection.
-                    .OrderByDescending(x => ipv6Links.Contains(x.Link))
-                    .ThenByDescending(x => x.XrayVerified)
+                    // Evidence always outranks address-family preference. IPv6 is a
+                    // representative tie-breaker only after current verification class:
+                    // an unverified IPv6 alias must never displace a full Xray pass.
+                    .OrderByDescending(x => x.XrayVerified)
                     .ThenByDescending(x => x.TlsVerified || x.EdgeVerified)
+                    .ThenByDescending(x => ipv6Links.Contains(x.Link))
                     .ThenByDescending(x => x.IranTested)
                     .ThenByDescending(x => x.IsStable)
                     .ThenByDescending(x => x.XrayStreak)

@@ -451,16 +451,16 @@ internal static class Program
             "vless://ABC@example.net:443?type=ws&path=%2FCase",
             "vless://abc@example.net:443?type=ws&path=%2Fcase"
         });
-        Checks.Equal(1, caseSensitiveFallbackLinks.Count,
-            "last-good fallback deduplication keeps one endpoint/port/effective-SNI representative despite credential and path variants");
+        Checks.Equal(2, caseSensitiveFallbackLinks.Count,
+            "last-good fallback preserves case-sensitive credential variants at the same endpoint");
         var semanticFallbackLinks = CollectorType.DeduplicateFallbackLinks(new[]
         {
             "vless://credential-a@same.example.net:443?security=tls&type=ws&path=%2Fws#old-name",
-            "vless://credential-b@SAME.example.net:443?path=/ws&type=WS&security=TLS#new-name",
-            "vless://credential-c@same.example.net:443?security=tls&type=ws&sni=other.example.net&path=/ws"
+            "vless://credential-a@SAME.example.net:443?path=/ws&type=WS&security=TLS#new-name",
+            "vless://credential-a@same.example.net:443?security=tls&type=ws&sni=other.example.net&path=/ws"
         });
         Checks.Equal(2, semanticFallbackLinks.Count,
-            "fallback feed collapses credential and query-order duplicates but preserves a distinct SNI profile");
+            "fallback feed collapses same-auth query/path variants but preserves a distinct SNI profile");
         Checks.That(semanticFallbackLinks[0].Contains("credential-a@", StringComparison.Ordinal),
             "last-good dedup keeps the first evidence-ranked service representative instead of alphabetizing credentials");
 

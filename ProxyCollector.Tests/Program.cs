@@ -1703,6 +1703,14 @@ internal static class Program
         Checks.Equal(wsDefaultHost.SelectionProfileKey, wsExplicitDefaults.SelectionProfileKey,
             "semantically redundant WebSocket options also collapse in compact profile identity");
 
+        var wsHeaderFallback = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&headers=%7B%22Host%22%3A%22front.example.net%22%7D");
+        var wsExplicitHostPriority = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&host=identity.example.net&headers=%7B%22Host%22%3A%22front.example.net%22%7D");
+        Checks.That(wsHeaderFallback is not null && wsExplicitHostPriority is not null &&
+                    wsHeaderFallback.DeduplicationKey != wsExplicitHostPriority.DeduplicationKey,
+            "explicit WebSocket Host preserves precedence over a competing custom Host header");
+
         var wsDifferentHost = CollectorType.ParseProxyLine(
             $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&fp=chrome&encryption=none&host=front.example.net");
         Checks.That(wsDifferentHost is not null &&

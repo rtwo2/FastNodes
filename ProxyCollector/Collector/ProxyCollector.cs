@@ -3018,25 +3018,47 @@ namespace ProxyCollector.Collector
         internal static void UpdateStreaks(Dictionary<string, NodeHistory> history, List<ParsedProxy> alive)
         {
             var seenNow = new HashSet<string>();
+            // The previous public identity omitted WireGuard PSK. It can therefore
+            // map to more than one new identity. Only migrate that history when the
+            // mapping is one-to-one; never copy one old streak onto distinct PSK nodes.
+            var previousIdentityCounts = alive
+                .GroupBy(p => p.PreviousDeduplicationKey, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+            var legacyIdentityCounts = alive
+                .GroupBy(p => p.LegacyDeduplicationKey, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+
             foreach (var p in alive)
             {
                 string k = HistKey(p.DeduplicationKey);
                 seenNow.Add(k);
                 if (!history.TryGetValue(k, out var h))
                 {
-                    // Identity keys became canonical (IDN/IP normalization, semantic
-                    // options and UUID-only case folding). Migrate the matching old key
-                    // once so a safe dedup upgrade does not reset all stability streaks.
-                    string legacyKey = HistKey(p.LegacyDeduplicationKey);
-                    if (legacyKey != k && history.TryGetValue(legacyKey, out var legacyHistory))
+                    string previousKey = HistKey(p.PreviousDeduplicationKey);
+                    if (previousIdentityCounts[p.PreviousDeduplicationKey] == 1 &&
+                        previousKey != k && history.TryGetValue(previousKey, out var previousHistory))
                     {
-                        h = legacyHistory;
-                        history.Remove(legacyKey);
+                        h = previousHistory;
+                        history.Remove(previousKey);
                         history[k] = h;
                     }
                     else
                     {
-                        h = history[k] = new NodeHistory { Streak = 0, Misses = 0 };
+                        // Fallback for snapshots from the older colon-delimited identity
+                        // schema. Ambiguous case-folded credentials must not share history.
+                        string legacyIdentity = p.LegacyDeduplicationKey;
+                        string legacyKey = HistKey(legacyIdentity);
+                        if (legacyIdentityCounts[legacyIdentity] == 1 &&
+                            legacyKey != k && history.TryGetValue(legacyKey, out var legacyHistory))
+                        {
+                            h = legacyHistory;
+                            history.Remove(legacyKey);
+                            history[k] = h;
+                        }
+                        else
+                        {
+                            h = history[k] = new NodeHistory { Streak = 0, Misses = 0 };
+                        }
                     }
                 }
 
@@ -4429,6 +4451,46 @@ namespace ProxyCollector.Collector
 
         public string DeduplicationKey =>
             BuildIdentityKey(Host, aliasMode: false);
+
+        // Exact identity used immediately before authentication-aware public identity
+        // added the WireGuard preshared key. Keep it separate from the much older
+        // colon-delimited LegacyDeduplicationKey so history migration matches the
+        // actual previous release's JSON key byte-for-byte.
+        public string PreviousDeduplicationKey
+        {
+            get
+            {
+                string protocol = ProxyCollector.NormalizeProto(Protocol);
+                string hostKey = ProxyCollector.NormalizeIdentityHost(Host);
+                string originalHostKey = hostKey;
+                string portKey = int.TryParse(Port, out int pn)
+                    ? pn.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    : Port.Trim();
+
+                bool implicitTlsSni = !string.IsNullOrEmpty(Security) ||
+                    protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
+                string sniKey = !string.IsNullOrWhiteSpace(Sni)
+                    ? ProxyCollector.NormalizeIdentityHost(Sni)
+                    : implicitTlsSni ? originalHostKey : hostKey;
+
+                string credential = CredKey(Protocol, Credential);
+                string publicKey = ProxyCollector.TryNormalizeRealityPublicKey(Pbk, out var normalizedKey)
+                    ? normalizedKey : (Pbk ?? "").Trim();
+
+                return JsonSerializer.Serialize(new[]
+                {
+                    protocol, hostKey, portKey, credential,
+                    (Network ?? "tcp").Trim().ToLowerInvariant(),
+                    (Security ?? "").Trim().ToLowerInvariant(),
+                    sniKey, Path ?? "", publicKey,
+                    (Sid ?? "").Trim().ToLowerInvariant(),
+                    (Flow ?? "").Trim().ToLowerInvariant(),
+                    ObfsPassword ?? "",
+                    Aid.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ConnectionOptionsKey ?? ""
+                });
+            }
+        }
 
         // Public feeds keep one representative per canonical endpoint + port +
         // effective SNI + authentication identity. Cosmetic/local preferences do not

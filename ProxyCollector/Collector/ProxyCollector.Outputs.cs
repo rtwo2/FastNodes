@@ -851,9 +851,11 @@ namespace ProxyCollector.Collector
 
         internal static string GetTopEndpointProfileKey(FinalProxy p)
         {
-            if (!string.IsNullOrWhiteSpace(p.SelectionProfileKey))
-                return p.SelectionProfileKey;
-
+            // Public output identity must be based on the endpoint actually published
+            // in the URI, not a DNS-canonical alias cached during probing. One hostname
+            // can resolve to multiple addresses across sources/runs; allowing that
+            // transient DNS result to split a single advertised host caused semantic
+            // duplicates in country/continent feeds and disagreed with the output validator.
             string host = NormalizeIdentityHost(p.Host);
             string port = (p.Port ?? "").Trim();
             if ((host.Length == 0 || port.Length == 0) &&

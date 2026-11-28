@@ -2154,6 +2154,28 @@ internal static class Program
         Checks.Equal("vless://dual-auth@dual.example.net:443#ipv6", ipv6ProfileWinner.Single().Link,
             "global IPv6 reservation chooses the IPv6-capable representative when credentials share a service profile");
 
+        var verifiedBeatsIpv6Alias = CollectorType.SelectTopWithIpv6Diversity(
+            new[]
+            {
+                new ProxyCollector.Collector.FinalProxy
+                {
+                    Link = "vless://same-auth@evidence.example.net:443", Host = "evidence.example.net",
+                    Port = "443", Proto = "vless", SelectionProfileKey = "same-auth-profile",
+                    XrayVerified = true, Score = 50
+                },
+                new ProxyCollector.Collector.FinalProxy
+                {
+                    Link = "vless://same-auth@evidence.example.net:443#ipv6", Host = "evidence.example.net",
+                    Port = "443", Proto = "vless", SelectionProfileKey = "same-auth-profile",
+                    XrayVerified = false, TlsVerified = true, Score = 500
+                }
+            },
+            new HashSet<string>(StringComparer.Ordinal)
+                { "vless://same-auth@evidence.example.net:443#ipv6" },
+            maxCount: 1, ipv6SharePercent: 100);
+        Checks.Equal("vless://same-auth@evidence.example.net:443", verifiedBeatsIpv6Alias.Single().Link,
+            "full Xray verification outranks IPv6 preference when choosing the canonical profile representative");
+
         var tied = new[]
         {
             new ProxyCollector.Collector.FinalProxy { Link = "vless://c@c.example.net:443", Host = "c.example.net", Port = "443", Remark = "tie", Score = 10, TlsVerified = true },

@@ -911,6 +911,12 @@ def self_test() -> None:
     vless_b = "trojan://same-secret@same.example.net:443?sni=front.example.net&mtu=1420&name=source-b&dns=8.8.8.8"
     if semantic_subscription_identity(vless_a) != semantic_subscription_identity(vless_b):
         raise ValidationError("self-test failed to collapse same-auth cross-protocol/local-metadata variants")
+    with tempfile.TemporaryDirectory() as duplicate_tmp:
+        duplicate_path = pathlib.Path(duplicate_tmp) / "duplicate.txt"
+        duplicate_path.write_text(vless_a + "\n" + vless_b + "\n", encoding="utf-8")
+        examples = duplicate_examples(duplicate_path)
+        if not examples or "same endpoint/SNI/auth identity" not in examples[0]:
+            raise ValidationError("self-test failed to explain semantic duplicate output entries")
     vless_other_port = vless_b.replace(":443", ":8443")
     if semantic_subscription_identity(vless_a) == semantic_subscription_identity(vless_other_port):
         raise ValidationError("self-test incorrectly collapsed different endpoint ports")

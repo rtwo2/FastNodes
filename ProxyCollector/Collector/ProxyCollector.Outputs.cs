@@ -842,6 +842,19 @@ namespace ProxyCollector.Collector
                 port = portNumber.ToString(CultureInfo.InvariantCulture);
 
             string protocol = NormalizeProto(p.Proto);
+            if (protocol == "mieru" && Uri.TryCreate(p.Link, UriKind.Absolute, out var mieruUri))
+            {
+                var query = ParseQuery(mieruUri.Query);
+                if (query.TryGetValue("port", out string? binding) &&
+                    IsValidMieruPortBinding(binding, out int firstPort))
+                {
+                    string[] range = binding.Split('-', StringSplitOptions.None);
+                    port = range.Length == 2 && int.TryParse(range[1], out int lastPort)
+                        ? $"{firstPort.ToString(CultureInfo.InvariantCulture)}-{lastPort.ToString(CultureInfo.InvariantCulture)}"
+                        : firstPort.ToString(CultureInfo.InvariantCulture);
+                }
+            }
+
             bool protocolUsesTlsSecurity = protocol is "vless" or "vmess";
             bool implicitTlsSni = (protocolUsesTlsSecurity && !string.IsNullOrWhiteSpace(p.Security)) ||
                 protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";

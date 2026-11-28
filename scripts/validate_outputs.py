@@ -61,43 +61,15 @@ def _decode_urlsafe_base64(value: str) -> str:
     return base64.b64decode(token, validate=False).decode("utf-8")
 
 
-def _wireguard_ip_list_identity(value: str, *, addresses: bool) -> tuple[str, ...]:
-    entries = [item.strip() for item in value.split(",")]
-    normalized: list[str] = []
-    for item in entries:
-        if not item:
-            raise ValueError("empty WireGuard IP list value")
-        parsed = ipaddress.ip_interface(item) if addresses else ipaddress.ip_network(item, strict=False)
-        normalized.append(str(parsed))
-    return tuple(sorted(normalized))
-
-
 def wireguard_uri_identity(line: str) -> tuple | None:
-    """Identity of the effective exported tunnel; omit DNS/MTU and ignored metadata."""
+    """WireGuard public identity is endpoint + port; the protocol has no SNI."""
     if not re.match(r"(?i)^wireguard://|^wg://", line.strip()):
         return None
     try:
         parsed = urlsplit(line.strip())
         if not parsed.hostname:
             return None
-        host = _normalize_identity_host(parsed.hostname)
-        params: dict[str, str] = {}
-        for key, value in parse_qsl(parsed.query, keep_blank_values=True):
-            params[key.lower()] = value
-
-        user = unquote(parsed.username or params.get("privatekey", params.get("private_key", "")))
-        public_key = params.get("pk", params.get("publickey", params.get("server_publickey", "")))
-        address = params.get("ip", params.get("address", params.get("allowed_ip", "10.0.0.2/32")))
-        allowed_ips = params.get("allowedips", params.get("allowed_ips", "0.0.0.0/0, ::/0"))
-        psk = params.get("psk", params.get("presharedkey", ""))
-        keepalive = params.get("persistentkeepalive", params.get("keepalive", ""))
-        reserved = tuple(item.strip() for item in params.get("reserved", "").split(",") if item.strip())
-        return (
-            "wireguard", host, parsed.port if parsed.port is not None else 51820,
-            user, public_key, _wireguard_ip_list_identity(address, addresses=True),
-            _wireguard_ip_list_identity(allowed_ips, addresses=False), psk,
-            int(keepalive) if keepalive else None, reserved,
-        )
+        return _normalize_identity_host(parsed.hostname), parsed.port or 51820, ""
     except (ValueError, UnicodeError):
         return None
 
@@ -210,6 +182,8 @@ def semantic_subscription_identity(line: str) -> tuple | None:
         "wg": "wireguard", "mierus": "mieru",
     }.get(scheme, scheme)
 
+    if scheme == "wireguard":
+        return wireguard_uri_identity(value)
     if scheme == "vmess" and "@" not in value.split("://", 1)[1].split("#", 1)[0]:
         identity = _vmess_json_identity(value)
         if identity is not None:
@@ -243,8 +217,9 @@ def semantic_subscription_identity(line: str) -> tuple | None:
             sni = _normalize_identity_host(params.get("host", "")) if params.get("host") else ""
         else:
             security = params.get("security", "").strip().lower()
+            protocol_uses_tls_security = scheme in {"vless", "vmess"}
             implicit_tls = (
-                security not in {"", "none", "false", "0"} or
+                (protocol_uses_tls_security and security not in {"", "none", "false", "0"}) or
                 scheme in {"trojan", "hysteria", "hysteria2", "tuic", "juicity", "anytls", "naive"}
             )
             sni = _normalize_identity_host(sni_value) if sni_value else (host if implicit_tls else "")

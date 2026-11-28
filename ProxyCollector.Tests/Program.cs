@@ -1727,6 +1727,20 @@ internal static class Program
         Checks.That(tcpHttpHost is not null &&
                     tcpDefaultHeader.DeduplicationKey != tcpHttpHost.DeduplicationKey,
             "TCP HTTP-obfuscation Host remains distinct from the default raw TCP transport");
+
+        var xhttpExtraPlus = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@query-identity.example.net:443?security=tls&type=xhttp&extra=%7B%22headers%22%3A%7B%22User-Agent%22%3A%22Fast+Nodes%22%7D%7D");
+        var xhttpExtraSpace = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@query-identity.example.net:443?security=tls&type=xhttp&extra=%7B%22headers%22%3A%7B%22User-Agent%22%3A%22Fast%20Nodes%22%7D%7D");
+        var xhttpExtraLiteralPlus = CollectorType.ParseProxyLine(
+            $"vless://{profileId}@query-identity.example.net:443?security=tls&type=xhttp&extra=%7B%22headers%22%3A%7B%22User-Agent%22%3A%22Fast%252BNodes%22%7D%7D");
+        Checks.That(xhttpExtraPlus is not null && xhttpExtraSpace is not null &&
+                    xhttpExtraLiteralPlus is not null,
+            "XHTTP extra query values using plus, percent-space, and encoded literal plus parse");
+        Checks.Equal(xhttpExtraPlus!.DeduplicationKey, xhttpExtraSpace!.DeduplicationKey,
+            "query-form plus and percent-space spellings share one proxy identity");
+        Checks.That(xhttpExtraPlus.DeduplicationKey != xhttpExtraLiteralPlus!.DeduplicationKey,
+            "an explicitly encoded literal plus remains distinct from a query-form space");
         var tuicPasswordA = CollectorType.ParseProxyLine(
             "tuic://User:Password@tuic.example.net:443");
         var tuicPasswordB = CollectorType.ParseProxyLine(

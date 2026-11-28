@@ -1592,6 +1592,54 @@ internal static class Program
         Checks.That(pluginA is not null && pluginB is not null &&
                     pluginA.DeduplicationKey != pluginB.DeduplicationKey,
             "unmodeled Shadowsocks plugin options remain distinct during deduplication");
+        const string stableProfileBase =
+            "vless://123e4567-e89b-12d3-a456-426614174000@profile-normalization.example.net:443?security=tls&type=ws&sni=front.example.net&host=ws.example.net&path=%2Fedge&fp=chrome&alpn=h2";
+        var profileLocalA = CollectorType.ParseProxyLine(
+            stableProfileBase + "&dns=1.1.1.1&mtu=1280&name=source-a&tag=feed-a&remarks=first");
+        var profileLocalB = CollectorType.ParseProxyLine(
+            stableProfileBase + "&dns=8.8.8.8%2C1.1.1.1&mtu=1420&name=source-b&tag=feed-b&remarks=second");
+        Checks.That(profileLocalA is not null && profileLocalB is not null,
+            "VLESS profiles with client-local DNS/MTU and display metadata parse");
+        Checks.Equal(profileLocalA!.DeduplicationKey, profileLocalB!.DeduplicationKey,
+            "VLESS DNS/MTU/name/tag/remarks differences collapse in exact node identity");
+        Checks.Equal(profileLocalA.SelectionProfileKey, profileLocalB.SelectionProfileKey,
+            "VLESS DNS/MTU/name/tag/remarks differences collapse in compact feed identity");
+
+        var profileDifferentFingerprint = CollectorType.ParseProxyLine(
+            stableProfileBase.Replace("fp=chrome", "fp=firefox", StringComparison.Ordinal));
+        var profileDifferentPath = CollectorType.ParseProxyLine(
+            stableProfileBase.Replace("path=%2Fedge", "path=%2Fother", StringComparison.Ordinal));
+        Checks.That(profileDifferentFingerprint is not null && profileDifferentPath is not null &&
+                    profileDifferentFingerprint.DeduplicationKey != profileLocalA.DeduplicationKey &&
+                    profileDifferentPath.DeduplicationKey != profileLocalA.DeduplicationKey,
+            "TLS fingerprint and transport path remain identity-significant");
+
+        var shadowsocksLocalA = CollectorType.ParseProxyLine(
+            "ss://YWVzLTEyOC1nY206cHc=@ss-local.example.net:8388?dns=1.1.1.1&mtu=1280&name=source-a");
+        var shadowsocksLocalB = CollectorType.ParseProxyLine(
+            "ss://YWVzLTEyOC1nY206cHc=@ss-local.example.net:8388?mtu=1420&dns=8.8.8.8&name=source-b");
+        Checks.That(shadowsocksLocalA is not null && shadowsocksLocalB is not null &&
+                    shadowsocksLocalA.DeduplicationKey == shadowsocksLocalB.DeduplicationKey,
+            "Shadowsocks DNS/MTU/display variants collapse without discarding the cipher or plugin identity");
+
+        var mieruLocalA = CollectorType.ParseProxyLine(
+            "mierus://user:password@mieru-local.example.net?profile=office&port=6666&protocol=UDP&mtu=1280&dns=1.1.1.1");
+        var mieruLocalB = CollectorType.ParseProxyLine(
+            "mierus://user:password@mieru-local.example.net?profile=travel&port=6666&protocol=udp&mtu=1400&dns=8.8.8.8");
+        Checks.That(mieruLocalA is not null && mieruLocalB is not null &&
+                    mieruLocalA.DeduplicationKey == mieruLocalB.DeduplicationKey,
+            "Mieru profile labels, DNS and MTU do not create extra copies of the same transport binding");
+
+        string vmessLocalJsonA = """{"v":"2","ps":"source-a","add":"vmess-normalization.example.net","port":"443","id":"123e4567-e89b-12d3-a456-426614174000","aid":"0","net":"ws","tls":"tls","sni":"front.example.net","host":"ws.example.net","path":"/edge","scy":"auto","fp":"chrome","alpn":["h2"],"dns":"1.1.1.1","mtu":1280,"tag":"feed-a"}""";
+        string vmessLocalJsonB = """{"tag":"feed-b","mtu":1420,"dns":"8.8.8.8","alpn":["h2"],"fp":"chrome","scy":"auto","path":"/edge","host":"ws.example.net","sni":"front.example.net","tls":"tls","net":"ws","aid":"0","id":"123e4567-e89b-12d3-a456-426614174000","port":"443","add":"vmess-normalization.example.net","ps":"source-b","v":"2"}""";
+        var vmessLocalA = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessLocalJsonA)));
+        var vmessLocalB = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessLocalJsonB)));
+        Checks.That(vmessLocalA is not null && vmessLocalB is not null &&
+                    vmessLocalA.DeduplicationKey == vmessLocalB.DeduplicationKey,
+            "VMess JSON property ordering, ps, tag, DNS and MTU do not create duplicate node identities");
+
         var unknownOptionA = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&custom-mode=alpha");
         var unknownOptionB = CollectorType.ParseProxyLine(

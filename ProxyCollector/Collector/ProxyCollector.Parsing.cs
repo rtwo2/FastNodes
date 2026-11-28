@@ -208,7 +208,7 @@ namespace ProxyCollector.Collector
                         Sni = sni, Path = q.GetValueOrDefault("path", ""),
                         Aid = int.TryParse(q.GetValueOrDefault("aid", "0"), out var a) ? a : 0,
                         BaseLink = baseLink,
-                        ConnectionOptionsKey = BuildProxyUriOptionsKey(uri.Query, host, net,
+                        ConnectionOptionsKey = BuildProxyUriOptionsKey(uri.Query, host, net, sec, sni,
                             q.GetValueOrDefault("headerType", "none"),
                             "security", "type", "sni", "path", "aid"),
                         LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
@@ -286,7 +286,7 @@ namespace ProxyCollector.Collector
                     Flow       = flow,
                     ObfsPassword = obfsPwd,
                     BaseLink   = baseLink,
-                    ConnectionOptionsKey = BuildProxyUriOptionsKey(uri.Query, h, net,
+                    ConnectionOptionsKey = BuildProxyUriOptionsKey(uri.Query, h, net, sec, sni,
                         q.GetValueOrDefault("headerType", "none"),
                         "security", "type", "sni", "path", "pbk", "sid", "flow",
                         "obfs-password", "auth"),
@@ -765,7 +765,7 @@ namespace ProxyCollector.Collector
 
         private static string BuildQueryIdentityKey(string query, params string[] excludedKeys)
             // Preserve the pre-canonicalization behavior for the history migration key.
-            => BuildQueryIdentityKeyCore(query, null, null, null,
+            => BuildQueryIdentityKeyCore(query, null, null, null, null, null,
                 normalizeDefaults: false, decodeQueryForm: false, excludedKeys: excludedKeys);
 
         // Canonicalize URI options that are explicitly set to the protocol's default.
@@ -773,18 +773,18 @@ namespace ProxyCollector.Collector
         // different WebSocket Host, HTTP obfuscation host, or allowInsecure=true remain
         // part of identity.
         private static string BuildProxyUriOptionsKey(
-            string query, string endpointHost, string network, string headerType,
+            string query, string endpointHost, string network, string security, string sni, string headerType,
             params string[] excludedKeys)
-            => BuildQueryIdentityKeyCore(query, endpointHost, network, headerType,
+            => BuildQueryIdentityKeyCore(query, endpointHost, network, security, sni, headerType,
                 normalizeDefaults: true, decodeQueryForm: true, excludedKeys: excludedKeys);
 
         private static string BuildCanonicalQueryIdentityKey(string query, params string[] excludedKeys)
-            => BuildQueryIdentityKeyCore(query, null, null, null,
+            => BuildQueryIdentityKeyCore(query, null, null, null, null, null,
                 normalizeDefaults: true, decodeQueryForm: true, excludedKeys: excludedKeys);
 
         private static string BuildQueryIdentityKeyCore(
-            string query, string? endpointHost, string? network, string? headerType,
-            bool normalizeDefaults, bool decodeQueryForm, string[] excludedKeys)
+            string query, string? endpointHost, string? network, string? security, string? sni,
+            string? headerType, bool normalizeDefaults, bool decodeQueryForm, string[] excludedKeys)
         {
             if (string.IsNullOrEmpty(query)) return "";
             var excluded = new HashSet<string>(excludedKeys, StringComparer.OrdinalIgnoreCase);
@@ -806,10 +806,17 @@ namespace ProxyCollector.Collector
                 string.Equals(network, "tcp", StringComparison.OrdinalIgnoreCase) &&
                 (string.IsNullOrWhiteSpace(headerType) ||
                  string.Equals(headerType, "none", StringComparison.OrdinalIgnoreCase));
-            bool usesAddressAsDefaultHost = normalizeDefaults &&
+            bool normalizesDefaultHost = normalizeDefaults &&
                 (string.Equals(network, "ws", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(network, "httpupgrade", StringComparison.OrdinalIgnoreCase) ||
-                tcpWithoutHttpHeader);
+                 string.Equals(network, "httpupgrade", StringComparison.OrdinalIgnoreCase) ||
+                 tcpWithoutHttpHeader);
+            string normalizedHostFallback = normalizedEndpoint;
+            // HTTPUpgrade falls back to TLS serverName before the endpoint address;
+            // WebSocket falls back directly to address. Keep that distinction.
+            if (string.Equals(network, "httpupgrade", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(security, "tls", StringComparison.OrdinalIgnoreCase) &&
+                !string.IsNullOrWhiteSpace(sni))
+                normalizedHostFallback = ProxyCollector.NormalizeIdentityHost(sni);
             // Do not discard an explicit host when a separate custom-header option
             // could also specify Host; Xray gives the explicit host precedence.
             bool hasCustomHeaders = normalizeDefaults && queryParameters.Any(item =>
@@ -838,11 +845,11 @@ namespace ProxyCollector.Collector
                     // An explicit WebSocket/HTTPUpgrade Host equal to the endpoint is
                     // redundant: Xray falls back to address when host is omitted.
                     // TCP+headerType=none does not use a transport Host header at all.
-                    if (item.Key == "host" && usesAddressAsDefaultHost &&
-                        !hasCustomHeaders && normalizedEndpoint.Length > 0 &&
+                    if (item.Key == "host" && normalizesDefaultHost &&
+                        !hasCustomHeaders && normalizedHostFallback.Length > 0 &&
                         string.Equals(
                             ProxyCollector.NormalizeIdentityHost(item.Value),
-                            normalizedEndpoint,
+                            normalizedHostFallback,
                             StringComparison.Ordinal))
                         return false;
 

@@ -1855,8 +1855,8 @@ internal static class Program
             "case-sensitive custom VLESS IDs remain distinct full configurations");
         Checks.Equal(customCaseA!.LegacyDeduplicationKey, customCaseB!.LegacyDeduplicationKey,
             "legacy history identity remains available for migrating case-folded custom IDs");
-        Checks.Equal(customCaseA.SelectionProfileKey, customCaseB.SelectionProfileKey,
-            "credential variants share a service profile in compact feeds");
+        Checks.That(customCaseA.SelectionProfileKey != customCaseB.SelectionProfileKey,
+            "case-sensitive custom VLESS IDs remain distinct public authentication profiles");
         var differentPluginOption = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@node.example.net:443?security=tls&fp=chrome&alpn=h2&plugin-mode=other");
         Checks.That(differentPluginOption is not null &&

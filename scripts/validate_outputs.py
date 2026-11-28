@@ -926,8 +926,8 @@ def self_test() -> None:
         finally:
             duplicate_path.unlink(missing_ok=True)
 
-        # Under endpoint-first public dedup, a different client-side interface
-        # address is still not a second public node when endpoint and port match.
+        # Under authenticated endpoint dedup, a different client-side interface
+        # address alone does not create another public node when peer keys match.
         different_address = valid_conf.replace(
             "Address = 10.0.0.2/32, fd00::2/128",
             "Address = 10.0.0.3/32, fd00::2/128"
@@ -945,6 +945,22 @@ def self_test() -> None:
             )
         finally:
             different_address_path.unlink(missing_ok=True)
+
+        # A different private key is a different authenticated WireGuard peer and
+        # must remain a separate downloadable configuration at the same endpoint.
+        different_key = valid_conf.replace(
+            f"PrivateKey = {valid_key_1}",
+            "PrivateKey = " + base64.b64encode(bytes([7]) * 32).decode("ascii")
+        )
+        different_key_path = wg_dir / "different-auth.conf"
+        different_key_path.write_text(different_key, encoding="utf-8")
+        try:
+            if validate_wireguard_confs(root) != 2:
+                raise ValidationError(
+                    "self-test incorrectly collapsed different WireGuard authentication keys"
+                )
+        finally:
+            different_key_path.unlink(missing_ok=True)
 
         invalid_keepalive_yaml = yaml.replace("persistent-keepalive: 0", "persistent-keepalive: 65536")
         (root / "protocols" / "wireguard.txt").write_text(invalid_keepalive_yaml, encoding="utf-8")

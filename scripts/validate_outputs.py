@@ -882,6 +882,11 @@ def self_test() -> None:
     if semantic_subscription_identity(vless_a) == semantic_subscription_identity(vless_other_password):
         raise ValidationError("self-test incorrectly collapsed different authentication credentials")
 
+    custom_id_a = "vless://CustomId@custom.example.net:443?security=tls"
+    custom_id_b = "vless://customid@custom.example.net:443?security=tls"
+    if semantic_subscription_identity(custom_id_a) == semantic_subscription_identity(custom_id_b):
+        raise ValidationError("self-test incorrectly case-folded a custom VLESS authentication ID")
+
     ss_a = "ss://YWVzLTEyOC1nY206cHc=@same.example.net:8388?dns=1.1.1.1&mtu=1280"
     ss_b = "ss://YWVzLTEyOC1nY206cHc=@same.example.net:8388?mtu=1420&dns=8.8.8.8"
     if semantic_subscription_identity(ss_a) != semantic_subscription_identity(ss_b):

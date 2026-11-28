@@ -34,14 +34,6 @@ class ValidationError(Exception):
     pass
 
 
-NON_IDENTITY_QUERY_OPTIONS = {
-    "dns", "mtu",
-    "name", "tag", "remark", "remarks", "remarks_base64", "ps", "group",
-    "country", "city", "region", "flag", "emoji", "display-name", "displayname",
-}
-NON_IDENTITY_JSON_FIELDS = NON_IDENTITY_QUERY_OPTIONS | {"profile"}
-
-
 def _normalize_identity_host(host: str) -> str:
     value = (host or "").strip().strip("[]").rstrip(".")
     if not value:

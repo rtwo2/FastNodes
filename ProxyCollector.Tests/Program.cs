@@ -627,6 +627,21 @@ internal static class Program
                     wgDifferentInterface.DeduplicationKey != wgParsedPreferencesA.DeduplicationKey,
             "WireGuard assigned interface address remains part of effective tunnel identity");
 
+        string wgExpandedIp = "10.0.0.2/32,fd00:0000:0000:0000:0000:0000:0000:0002/128";
+        string wgCompressedIp = "fd00::2/128,10.0.0.2/32";
+        string wgExpandedAllowed = "0.0.0.0/0,2001:4860:4860:0000:0000:0000:0000:8888/128";
+        string wgCompressedAllowed = "2001:4860:4860::8888/128,0.0.0.0/0";
+        var wgExpandedAddresses = CollectorType.ParseProxyLine(
+            validWgLink.Replace("ip=10.0.0.2%2F32", "ip=" + Uri.EscapeDataString(wgExpandedIp), StringComparison.Ordinal)
+                + "&allowedips=" + Uri.EscapeDataString(wgExpandedAllowed));
+        var wgCompressedAddresses = CollectorType.ParseProxyLine(
+            validWgLink.Replace("ip=10.0.0.2%2F32", "ip=" + Uri.EscapeDataString(wgCompressedIp), StringComparison.Ordinal)
+                + "&allowedips=" + Uri.EscapeDataString(wgCompressedAllowed));
+        Checks.That(wgExpandedAddresses is not null && wgCompressedAddresses is not null,
+            "WireGuard profiles with expanded and compressed IPv6 forms parse");
+        Checks.Equal(wgExpandedAddresses!.DeduplicationKey, wgCompressedAddresses!.DeduplicationKey,
+            "WireGuard identity canonicalizes IPv6 spellings and list ordering");
+
         var wgDifferentReserved = CollectorType.ParseProxyLine(validWgLink + "&reserved=1%2C2%2C3");
         var wgOtherReserved = CollectorType.ParseProxyLine(validWgLink + "&reserved=1%2C2%2C4");
         Checks.That(wgDifferentReserved is not null && wgOtherReserved is not null &&

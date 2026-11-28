@@ -26,7 +26,7 @@ OUTPUT_FIELDS = (
     "unparsed_runs", "provider_failure_runs", "parsed_zero_unique_runs",
     "latest_status", "latest_parsed", "latest_unique",
     "average_parsed", "average_unique", "latest_fetch_elapsed_ms", "max_fetch_elapsed_ms",
-    "latest_parse_elapsed_ms", "classification",
+    "latest_parse_elapsed_ms", "classification", "last_seen_utc", "present_in_latest_run",
 )
 
 
@@ -113,20 +113,30 @@ def classify(values: list[dict], latest: dict, fetch_failures: int, parse_succes
 
 
 def render_trends(snapshots: list[dict]) -> str:
+    if not snapshots:
+        return ""
+
+    latest_snapshot = snapshots[-1]
     urls = sorted({url for snapshot in snapshots for url in snapshot["sources"]})
     rows = []
     for url in urls:
-        values = [snapshot["sources"][url] for snapshot in snapshots if url in snapshot["sources"]]
-        latest = values[-1]
+        observed = [
+            (snapshot, snapshot["sources"][url])
+            for snapshot in snapshots if url in snapshot["sources"]
+        ]
+        values = [value for _, value in observed]
+        last_seen_snapshot, latest = observed[-1]
+        present_in_latest_run = url in latest_snapshot["sources"]
         fetch_successes = sum(v["fetch_successes"] > 0 for v in values)
         fetch_failures = sum(v["status"] == "fetch-failed" for v in values)
         parse_successes = sum(v["parsed"] > 0 for v in values)
         unparsed = sum(v["status"] in {"fetched-but-unparsed", "extracted-but-rejected"} for v in values)
         parsed_zero_unique = sum(v["parsed"] > 0 and v["unique"] == 0 for v in values)
         provider_failure_runs = sum(v.get("provider_failures", 0) > 0 for v in values)
-        classification = classify(
-            values, latest, fetch_failures, parse_successes,
-            parsed_zero_unique, provider_failure_runs
+        classification = (
+            classify(values, latest, fetch_failures, parse_successes,
+                     parsed_zero_unique, provider_failure_runs)
+            if present_in_latest_run else "removed-from-current-list"
         )
         rows.append({
             "url": url,
@@ -146,6 +156,8 @@ def render_trends(snapshots: list[dict]) -> str:
             "max_fetch_elapsed_ms": max(v.get("fetch_elapsed_ms", 0) for v in values),
             "latest_parse_elapsed_ms": latest.get("parse_elapsed_ms", 0),
             "classification": classification,
+            "last_seen_utc": last_seen_snapshot.get("captured_at_utc", ""),
+            "present_in_latest_run": "true" if present_in_latest_run else "false",
         })
     priority = {
         "recurring-unparsed-feed": 0,
@@ -156,6 +168,7 @@ def render_trends(snapshots: list[dict]) -> str:
         "intermittent-no-unique": 4,
         "monitor": 5,
         "contributing": 6,
+        "removed-from-current-list": 7,
     }
     rows.sort(key=lambda row: (
         priority.get(row["classification"], 99),
@@ -215,19 +228,23 @@ def self_test() -> None:
     redundant = "https://example.test/duplicate.txt"
     contributor = "https://example.test/useful.txt"
     provider_failure = "https://example.test/profile-with-providers.yaml"
+    removed_feed = "https://example.test/removed-from-current-list.txt"
     with tempfile.TemporaryDirectory() as tmp:
         root = pathlib.Path(tmp)
         history = root / "state" / "source-health-history.json"
         output = root / "sub" / "diagnostics" / "source-health-trends.csv"
         for idx in range(3):
             source_csv = root / f"source-health-{idx}.csv"
-            create_csv(source_csv, [
+            rows = [
                 (unparsed_feed, 1, 1000, 20, 0, 0, 0, 0, 0, 100 + idx, 0, "fetched-but-unparsed"),
                 (rejected_content, 1, 1000, 20, 12, 0, 0, 0, 0, 90 + idx, 5, "extracted-but-rejected"),
                 (redundant, 1, 1000, 20, 15, 10, 0, 0, 0, 200 + idx, 20, "healthy"),
                 (contributor, 1, 1000, 20, 10, 10, 4, 0, 0, 50 + idx, 10, "healthy"),
                 (provider_failure, 1, 1200, 30, 0, 0, 0, 0, 2, 80 + idx, 10, "provider-failed-or-unparsed"),
-            ])
+            ]
+            if idx < 2:
+                rows.append((removed_feed, 1, 500, 10, 5, 5, 1, 0, 0, 40, 4, "healthy"))
+            create_csv(source_csv, rows)
             process(source_csv, history, output, captured_at=f"2026-01-0{idx + 1}T00:00:00Z")
         with output.open("r", encoding="utf-8", newline="") as stream:
             rows = {r["url"]: r for r in csv.DictReader(stream)}
@@ -237,9 +254,12 @@ def self_test() -> None:
         assert rows[contributor]["classification"] == "contributing", rows[contributor]
         assert rows[provider_failure]["classification"] == "recurring-provider-failure", rows[provider_failure]
         assert rows[provider_failure]["provider_failure_runs"] == "3", rows[provider_failure]
+        assert rows[removed_feed]["classification"] == "removed-from-current-list", rows[removed_feed]
+        assert rows[removed_feed]["present_in_latest_run"] == "false", rows[removed_feed]
+        assert rows[removed_feed]["last_seen_utc"] == "2026-01-02T00:00:00Z", rows[removed_feed]
         persisted = json.loads(history.read_text(encoding="utf-8"))
         assert len(persisted["snapshots"]) == 3
-        print("Source-health trend self-tests passed: unparsed feeds, rejected content, provider failures, repeated zero contribution, useful source.")
+        print("Source-health trend self-tests passed: removed feeds, unparsed/rejected content, provider failures, repeated zero contribution, useful source.")
 
 
 def main() -> int:

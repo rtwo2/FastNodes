@@ -615,6 +615,12 @@ internal static class Program
         Checks.Equal(wgUnknownOptionA!.DeduplicationKey, wgUnknownOptionB!.DeduplicationKey,
             "WireGuard variants that serialize to the same effective tunnel collapse even when ignored query metadata differs");
 
+        var wgTransportDecorations = CollectorType.ParseProxyLine(
+            validWgLink + "&type=tcp&security=tls&sni=front.example.net&path=%2Fignored&flow=ignored&sid=ignored");
+        Checks.That(wgTransportDecorations is not null &&
+                    wgTransportDecorations.DeduplicationKey == wgParsedPreferencesA.DeduplicationKey,
+            "WireGuard identity ignores unrelated TLS/stream fields not consumed by its exporters");
+
         var wgDifferentInterface = CollectorType.ParseProxyLine(
             validWgLink.Replace("10.0.0.2%2F32", "10.0.0.3%2F32", StringComparison.Ordinal));
         Checks.That(wgDifferentInterface is not null &&

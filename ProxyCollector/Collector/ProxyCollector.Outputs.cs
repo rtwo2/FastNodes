@@ -90,10 +90,10 @@ namespace ProxyCollector.Collector
             foreach (var d in new[] { "protocols", "countries", "continents" })
                 Directory.CreateDirectory(Path.Combine(sub, d));
 
-            // Pick one canonical representative per endpoint + port + effective SNI.
+            // Pick one canonical representative per endpoint + port + effective SNI + auth.
             // Every compact URI category below is derived from this same set, guaranteeing
-            // that different credentials/protocols/transport variants at one endpoint do
-            // not reappear in separate category files. All variants were probed first, so
+            // that same-auth protocol/transport variants do not reappear in category files,
+            // while different passwords/keys remain separate. All variants were probed first, so
             // the selected representative can use the strongest available evidence.
             var catalogueProfiles = SelectBestEndpointProfiles(proxies);
 
@@ -105,13 +105,13 @@ namespace ProxyCollector.Collector
             int collapsedCatalogueVariants = proxies.Count - catalogueProfiles.Count;
             int everythingPartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "everything"), catalogueProfiles.Select(x => x.Link));
-            LogSuccess($"Saved everything.txt ({catalogueProfiles.Count} distinct endpoint/port/SNI identities; " +
+            LogSuccess($"Saved everything.txt ({catalogueProfiles.Count} distinct endpoint/port/SNI/auth identities; " +
                        $"{collapsedCatalogueVariants} endpoint variants collapsed)" +
                        (everythingPartCount > 1 ? $" across {everythingPartCount} parts (≤50 MiB each)" : ""));
 
-            // The master catalogue and compact evidence feeds share one best
-            // representative per endpoint + port + effective SNI. Protocol, credential
-            // and transport alternatives are intentionally not repeated in public feeds.
+            // The master catalogue and compact evidence feeds share one best representative
+            // per endpoint + port + effective SNI + authentication. Only same-auth protocol
+            // and transport variants collapse; different credentials remain public entries.
             var stable = SelectCatalogueProfilesForCategory(catalogueProfiles, x => x.IsStable);
             int stablePartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "stable"), stable.Select(x => x.Link));
@@ -287,9 +287,9 @@ namespace ProxyCollector.Collector
                     if (wgInfo == null) continue;
                     parsed++;
 
-                    // WireGuard public output follows the same endpoint + port rule:
-                    // alternative peer keys and local interface preferences are checked
-                    // for validity but do not create another published endpoint entry.
+                    // WireGuard public output follows endpoint + port + peer authentication:
+                    // different private/public/PSK keys remain separate; only local
+                    // interface preferences and routing metadata are ignored.
                     string confIdentity = GetWireguardOutputIdentityKey(wgInfo);
                     if (seenConfIdentities.Add(confIdentity))
                     {
@@ -303,8 +303,8 @@ namespace ProxyCollector.Collector
                         confDuplicates++;
                     }
 
-                    // Keep the Clash YAML guard consistent with the standard .conf
-                    // export: one entry per endpoint and port (WireGuard has no SNI).
+                    // Keep the Clash YAML guard consistent with .conf: one entry per endpoint,
+                    // port and private/public/PSK authentication (WireGuard has no SNI).
                     string clashIdentity = GetWireguardOutputIdentityKey(wgInfo);
                     if (seenClashIdentities.Add(clashIdentity))
                     {
@@ -910,9 +910,9 @@ namespace ProxyCollector.Collector
                 .Where(x => !string.IsNullOrWhiteSpace(x.Link))
                 .GroupBy(GetTopEndpointProfileKey, StringComparer.Ordinal)
                 .Select(group => group
-                    // When credentials share one service profile, retain the IPv6-capable
-                    // representative if the profile is dual-stack; otherwise the IPv6
-                    // reservation could be lost before selection even begins.
+                    // When the same authenticated profile has IPv4 and IPv6 candidates, retain
+                    // the IPv6-capable representative if the profile is dual-stack;
+                    // otherwise the IPv6 reservation could be lost before selection.
                     .OrderByDescending(x => ipv6Links.Contains(x.Link))
                     .ThenByDescending(x => x.XrayVerified)
                     .ThenByDescending(x => x.TlsVerified || x.EdgeVerified)

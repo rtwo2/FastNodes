@@ -4430,6 +4430,46 @@ namespace ProxyCollector.Collector
         public string DeduplicationKey =>
             BuildIdentityKey(Host, aliasMode: false);
 
+        // Exact identity used immediately before authentication-aware public identity
+        // added the WireGuard preshared key. Keep it separate from the much older
+        // colon-delimited LegacyDeduplicationKey so history migration matches the
+        // actual previous release's JSON key byte-for-byte.
+        public string PreviousDeduplicationKey
+        {
+            get
+            {
+                string protocol = ProxyCollector.NormalizeProto(Protocol);
+                string hostKey = ProxyCollector.NormalizeIdentityHost(Host);
+                string originalHostKey = hostKey;
+                string portKey = int.TryParse(Port, out int pn)
+                    ? pn.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    : Port.Trim();
+
+                bool implicitTlsSni = !string.IsNullOrEmpty(Security) ||
+                    protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
+                string sniKey = !string.IsNullOrWhiteSpace(Sni)
+                    ? ProxyCollector.NormalizeIdentityHost(Sni)
+                    : implicitTlsSni ? originalHostKey : hostKey;
+
+                string credential = CredKey(Protocol, Credential);
+                string publicKey = ProxyCollector.TryNormalizeRealityPublicKey(Pbk, out var normalizedKey)
+                    ? normalizedKey : (Pbk ?? "").Trim();
+
+                return JsonSerializer.Serialize(new[]
+                {
+                    protocol, hostKey, portKey, credential,
+                    (Network ?? "tcp").Trim().ToLowerInvariant(),
+                    (Security ?? "").Trim().ToLowerInvariant(),
+                    sniKey, Path ?? "", publicKey,
+                    (Sid ?? "").Trim().ToLowerInvariant(),
+                    (Flow ?? "").Trim().ToLowerInvariant(),
+                    ObfsPassword ?? "",
+                    Aid.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ConnectionOptionsKey ?? ""
+                });
+            }
+        }
+
         // Public feeds keep one representative per canonical endpoint + port +
         // effective SNI + authentication identity. Cosmetic/local preferences do not
         // create extra copies, while different passwords, UUIDs, keys or auth material do.

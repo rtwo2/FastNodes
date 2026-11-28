@@ -365,6 +365,7 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
         if not blocks:
             raise ValidationError(f"{path}: YAML subscription has no proxy entries")
 
+        seen_wireguard: dict[tuple, int] = {}
         for index, block in enumerate(blocks, 1):
             kind = re.search(r"""(?m)^[ \t]*type[ \t]*:[ \t]*['"]?([a-z0-9_-]+)""", block, re.IGNORECASE)
             server = re.search(r"""(?m)^[ \t]*(?:server|server-host|endpoint|address)[ \t]*:[ \t]*([^#\n]+)""", block, re.IGNORECASE)
@@ -378,6 +379,40 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
                 raise ValidationError(f"{path}: YAML proxy entry {index} has no server endpoint")
             if not port or not (1 <= int(port.group(1)) <= 65535):
                 raise ValidationError(f"{path}: YAML proxy entry {index} has invalid port")
+
+            # The generated Clash WireGuard feed can contain many YAML blocks, so
+            # validate semantic uniqueness there as well as in the paired .conf files.
+            if actual_type == "wireguard":
+                def scalar(name: str) -> str:
+                    match = re.search(
+                        rf"""(?m)^[ \t]*{re.escape(name)}[ \t]*:[ \t]*(?:"([^"]*)"|'([^']*)'|([^#\n]+))""",
+                        block, re.IGNORECASE
+                    )
+                    if not match:
+                        return ""
+                    return next((value.strip() for value in match.groups() if value is not None), "")
+
+                private_key = scalar("private-key")
+                public_key = scalar("public-key")
+                preshared_key = scalar("preshared-key")
+                # Legacy/non-WireGuard YAML fixtures may omit keys; structural
+                # validation remains compatible, but only complete auth tuples can
+                # be compared as semantic public identities.
+                if private_key and public_key:
+                    identity = (
+                        _normalize_identity_host(server.group(1).strip().strip("'\"")),
+                        int(port.group(1)),
+                        private_key,
+                        public_key,
+                        preshared_key,
+                    )
+                    if identity in seen_wireguard:
+                        raise ValidationError(
+                            f"{path}: YAML WireGuard entry {index} duplicates authenticated endpoint entry "
+                            f"{seen_wireguard[identity]} (same server, port, private/public/PSK keys)"
+                        )
+                    seen_wireguard[identity] = index
+
             has_keepalive = re.search(
                 r"(?m)^[ \t]*persistent-keepalive[ \t]*:", block, re.IGNORECASE
             )

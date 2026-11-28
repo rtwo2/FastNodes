@@ -610,7 +610,7 @@ namespace ProxyCollector.Collector
                     Credential = username + ":" + password,
                     Network = protocols[0].Value.ToLowerInvariant(),
                     BaseLink = baseLink,
-                    ConnectionOptionsKey = BuildCanonicalQueryIdentityKey(uri.Query),
+                    ConnectionOptionsKey = BuildCanonicalQueryIdentityKey(uri.Query, "profile"),
                     LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                 };
             }
@@ -812,6 +812,17 @@ namespace ProxyCollector.Collector
             catch { return null; }
         }
 
+        // These options change only the local client interface or display metadata;
+        // they do not identify a different remote proxy service. They are intentionally
+        // omitted from current exact and compact identities, but are left in the original
+        // share link so the selected representative keeps its source settings.
+        private static readonly HashSet<string> NonIdentityQueryOptions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "dns", "mtu",
+            "name", "tag", "remark", "remarks", "remarks_base64", "ps", "group",
+            "country", "city", "region", "flag", "emoji", "display-name", "displayname"
+        };
+
         private static string BuildQueryIdentityKey(string query, params string[] excludedKeys)
             // Preserve the pre-canonicalization behavior for the history migration key.
             => BuildQueryIdentityKeyCore(query, null, null, null, null, null,
@@ -883,6 +894,19 @@ namespace ProxyCollector.Collector
                 .Where(item => !excluded.Contains(item.Key))
                 .Where(item =>
                 {
+                    // Keep the historical identity schema untouched for the one-run
+                    // ranking-history migration, but remove known client-local and
+                    // display-only options from every current identity.
+                    if (normalizeDefaults && NonIdentityQueryOptions.Contains(item.Key))
+                        return false;
+
+                    // An omitted VLESS encryption option and encryption=none are the
+                    // same protocol default. Non-default encryption values remain.
+                    if (normalizeDefaults && item.Key == "encryption" &&
+                        (string.IsNullOrWhiteSpace(item.Value) ||
+                         item.Value.Equals("none", StringComparison.OrdinalIgnoreCase)))
+                        return false;
+
                     // Xray's default for certificate validation is secure: explicit false
                     // and an omitted flag are the same client behavior.
                     if (normalizeDefaults && (item.Key is "allowinsecure" or "insecure") &&
@@ -936,11 +960,18 @@ namespace ProxyCollector.Collector
             {
                 "v", "add", "port", "id", "aid", "net", "tls", "sni", "path"
             };
+            string[] localAndDisplayFields =
+            {
+                "dns", "mtu", "name", "tag", "remark", "remarks", "group",
+                "country", "city", "region", "flag", "emoji", "display-name", "displayname"
+            };
             var canonical = root.EnumerateObject()
                 .Where(property =>
                     !property.Name.Equals("ps", StringComparison.OrdinalIgnoreCase) &&
                     (!excludeNormalizedFields ||
-                     !normalizedFields.Contains(property.Name, StringComparer.OrdinalIgnoreCase)))
+                     (!normalizedFields.Contains(property.Name, StringComparer.OrdinalIgnoreCase) &&
+                      !localAndDisplayFields.Contains(property.Name, StringComparer.OrdinalIgnoreCase) &&
+                      !IsExplicitFalseJsonOption(property))))
                 .OrderBy(property => property.Name, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(property => property.Name, StringComparer.Ordinal)
                 .Select(property => new
@@ -950,6 +981,20 @@ namespace ProxyCollector.Collector
                 })
                 .ToArray();
             return JsonSerializer.Serialize(canonical);
+        }
+
+        private static bool IsExplicitFalseJsonOption(JsonProperty property)
+        {
+            if (!property.Name.Equals("allowInsecure", StringComparison.OrdinalIgnoreCase) &&
+                !property.Name.Equals("insecure", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            return property.Value.ValueKind == JsonValueKind.False ||
+                (property.Value.ValueKind == JsonValueKind.String &&
+                 property.Value.GetString() is { } text &&
+                 (text.Equals("false", StringComparison.OrdinalIgnoreCase) || text == "0")) ||
+                (property.Value.ValueKind == JsonValueKind.Number &&
+                 property.Value.TryGetInt32(out int number) && number == 0);
         }
 
         private static string NormalizeUriHost(string host)

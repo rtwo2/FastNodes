@@ -1373,7 +1373,7 @@ namespace ProxyCollector.Collector
                 foreach (var line in sourceSpool.ReadSourceLines(sourceIndex))
                 {
                     processed++;
-                    if (processed % 100000 == 0) LogInfo($"  {processed}/{totalRawLines} parsed...");
+                    if (processed % 100000 == 0) LogInfo($"  {processed}/{totalExtractedLines} parsed...");
 
                     var t = line.Trim();
                     if (string.IsNullOrWhiteSpace(t) || t.StartsWith("#")) continue;

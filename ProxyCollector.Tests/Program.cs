@@ -42,9 +42,9 @@ internal static class Program
             Link = "hysteria://user-c@alias.example.net:443", Proto = "hysteria",
             Host = "alias.example.net", Port = "443", Network = "udp", Security = "tls"
         };
-        Checks.Equal(2, CollectorType.SelectBestEndpointProfiles(
+        Checks.Equal(1, CollectorType.SelectBestEndpointProfiles(
                 new[] { hy2Alias, hysteria2Canonical, hysteriaV1 }).Count,
-            "Hysteria2 aliases share one service profile while Hysteria v1 remains distinct");
+            "Hysteria protocol variants at the same endpoint/port/effective SNI share one public entry");
 
         Checks.Equal(0, CollectorType.CountRawLines(""),
             "empty source bodies contain zero raw lines");
@@ -2519,7 +2519,7 @@ internal static class Program
             "trojan://different-secret@profile.example.net:443?sni=other-front.example.net");
         Checks.That(endpointSame is not null && endpointDifferentPort is not null && endpointDifferentSni is not null,
             "endpoint-first identity test profiles parse");
-        Checks.Equal(profileCredentialA.SelectionProfileKey, endpointSame!.SelectionProfileKey,
+        Checks.Equal(profileCredentialA!.SelectionProfileKey, endpointSame!.SelectionProfileKey,
             "a different protocol and credential still share one host/port/SNI public entry");
         Checks.That(profileCredentialA.SelectionProfileKey != endpointDifferentPort!.SelectionProfileKey,
             "a different endpoint port always remains a separate public entry");

@@ -1623,7 +1623,7 @@ namespace ProxyCollector.Collector
                     LegacyNodeId = HistKey(p.LegacyDeduplicationKey),
                     ConnectionIdentityKey = p.DeduplicationKey,
                     SelectionProfileKey = p.SelectionProfileKey,
-                    Credential = p.Credential,
+                    Credential = p.Credential, PresharedKey = p.PresharedKey,
                     Sni = p.Sni, Network = p.Network, Security = p.Security,
                     Path = p.Path, Flow = p.Flow, Pbk = p.Pbk, Sid = p.Sid,
                     ObfsPassword = p.ObfsPassword, Aid = p.Aid,
@@ -4391,7 +4391,8 @@ namespace ProxyCollector.Collector
         public string Security    { get; set; } = "";
         public string Sni         { get; set; } = "";
         public string Path        { get; set; } = "";
-        public string Pbk         { get; set; } = ""; // REALITY public key
+        public string Pbk         { get; set; } = ""; // REALITY/WireGuard peer public key
+        public string PresharedKey { get; set; } = ""; // WireGuard preshared peer key
         public string Sid         { get; set; } = ""; // REALITY short id
         public string Flow        { get; set; } = ""; // xtls-rprx-vision etc. — changes the handshake
         public string ObfsPassword{ get; set; } = ""; // hysteria2 obfs (salamander) password
@@ -4427,12 +4428,11 @@ namespace ProxyCollector.Collector
         public string LegacyConnectionOptionsKey { get; set; } = "";
 
         public string DeduplicationKey =>
-            BuildIdentityKey(Host, includeCredential: true, aliasMode: false);
+            BuildIdentityKey(Host, aliasMode: false);
 
-        // Public feeds intentionally keep one representative per canonical host/IP +
-        // port + effective SNI. Credentials, protocol aliases, paths, local preferences,
-        // and display metadata do not create extra copies. A different port or effective
-        // SNI remains a separate candidate.
+        // Public feeds keep one representative per canonical endpoint + port +
+        // effective SNI + authentication identity. Cosmetic/local preferences do not
+        // create extra copies, while different passwords, UUIDs, keys or auth material do.
         public string SelectionProfileKey
         {
             get
@@ -4444,7 +4444,7 @@ namespace ProxyCollector.Collector
         }
 
         public string EndpointKey(string canonicalHost) =>
-            BuildIdentityKey(canonicalHost, includeCredential: true, aliasMode: true);
+            BuildIdentityKey(canonicalHost, aliasMode: true);
 
         private string BuildEndpointSelectionKey(string endpointHost)
         {
@@ -4498,10 +4498,37 @@ namespace ProxyCollector.Collector
                 ? ProxyCollector.NormalizeIdentityHost(Sni)
                 : implicitTlsSni ? originalHostKey : "";
 
-            return JsonSerializer.Serialize(new[] { hostKey, portKey, sniKey });
+            string authenticationKey = BuildSelectionAuthenticationKey(
+                Protocol, Credential, Pbk, PresharedKey, Sid, Flow, ObfsPassword, Aid);
+            return JsonSerializer.Serialize(new[] { hostKey, portKey, sniKey, authenticationKey });
         }
 
-        private string BuildIdentityKey(string identityHost, bool includeCredential, bool aliasMode)
+        internal static string BuildSelectionAuthenticationKey(
+            string protocol, string credential, string publicKey, string presharedKey,
+            string shortId, string flow, string obfsPassword, int alterId)
+        {
+            string normalizedCredential = CredKey(protocol, credential ?? "");
+            string normalizedPublicKey = ProxyCollector.TryNormalizeRealityPublicKey(
+                publicKey ?? "", out var normalizedKey)
+                ? normalizedKey : (publicKey ?? "").Trim();
+
+            // Passwords remain case-sensitive. UUID-form VLESS/VMess IDs and cipher
+            // names are normalized only where their protocol semantics permit it.
+            // Special authentication material is included even when it is carried
+            // outside userinfo (REALITY, WireGuard, Hysteria obfuscation, VMess aid).
+            return JsonSerializer.Serialize(new[]
+            {
+                normalizedCredential,
+                normalizedPublicKey,
+                (presharedKey ?? "").Trim(),
+                (shortId ?? "").Trim().ToLowerInvariant(),
+                (flow ?? "").Trim().ToLowerInvariant(),
+                obfsPassword ?? "",
+                alterId.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            });
+        }
+
+        private string BuildIdentityKey(string identityHost, bool aliasMode)
         {
             string protocol = ProxyCollector.NormalizeProto(Protocol);
             string hostKey = ProxyCollector.NormalizeIdentityHost(identityHost);
@@ -4521,7 +4548,7 @@ namespace ProxyCollector.Collector
                 (Network.Equals("h2", StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(Sni));
             string endpointHostKey = aliasMode && implicitTransportHost ? originalHostKey : hostKey;
 
-            string credential = includeCredential ? CredKey(Protocol, Credential) : ProfileCredKey(Protocol, Credential);
+            string credential = CredKey(Protocol, Credential);
             string publicKey = ProxyCollector.TryNormalizeRealityPublicKey(Pbk, out var normalizedKey)
                 ? normalizedKey : (Pbk ?? "").Trim();
 
@@ -4530,6 +4557,7 @@ namespace ProxyCollector.Collector
             return JsonSerializer.Serialize(new[]
             {
                 protocol, endpointHostKey, portKey, credential,
+                (PresharedKey ?? "").Trim(),
                 (Network ?? "tcp").Trim().ToLowerInvariant(),
                 (Security ?? "").Trim().ToLowerInvariant(),
                 sniKey, Path ?? "", publicKey,
@@ -4575,16 +4603,6 @@ namespace ProxyCollector.Collector
             return cred;
         }
 
-        private static string ProfileCredKey(string proto, string cred)
-        {
-            proto = ProxyCollector.NormalizeProto(proto);
-            // Cipher selection is a connection setting for SS/SSR, while the password
-            // is an access credential. Compact feeds collapse passwords, not cipher modes.
-            if ((proto == "ss" || proto == "ssr") && cred.Contains(':'))
-                return cred[..cred.IndexOf(':')].ToLowerInvariant();
-            return "";
-        }
-
         private static string LegacyCredKey(string proto, string cred)
         {
             proto = ProxyCollector.NormalizeProto(proto);
@@ -4610,6 +4628,7 @@ namespace ProxyCollector.Collector
         public string  ConnectionIdentityKey { get; set; } = "";
         public string  SelectionProfileKey { get; set; } = "";
         public string  Credential       { get; set; } = "";
+        public string  PresharedKey     { get; set; } = "";
         public string  Proto            { get; set; } = "";
         public string  Host             { get; set; } = "";
         public string  Port             { get; set; } = "";

@@ -90,10 +90,10 @@ namespace ProxyCollector.Collector
             foreach (var d in new[] { "protocols", "countries", "continents" })
                 Directory.CreateDirectory(Path.Combine(sub, d));
 
-            // Pick one canonical representative per endpoint + port + effective SNI.
+            // Pick one canonical representative per endpoint + port + effective SNI + auth.
             // Every compact URI category below is derived from this same set, guaranteeing
-            // that different credentials/protocols/transport variants at one endpoint do
-            // not reappear in separate category files. All variants were probed first, so
+            // that same-auth protocol/transport variants do not reappear in category files,
+            // while different passwords/keys remain separate. All variants were probed first, so
             // the selected representative can use the strongest available evidence.
             var catalogueProfiles = SelectBestEndpointProfiles(proxies);
 
@@ -105,13 +105,13 @@ namespace ProxyCollector.Collector
             int collapsedCatalogueVariants = proxies.Count - catalogueProfiles.Count;
             int everythingPartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "everything"), catalogueProfiles.Select(x => x.Link));
-            LogSuccess($"Saved everything.txt ({catalogueProfiles.Count} distinct endpoint/port/SNI identities; " +
+            LogSuccess($"Saved everything.txt ({catalogueProfiles.Count} distinct endpoint/port/SNI/auth identities; " +
                        $"{collapsedCatalogueVariants} endpoint variants collapsed)" +
                        (everythingPartCount > 1 ? $" across {everythingPartCount} parts (≤50 MiB each)" : ""));
 
-            // The master catalogue and compact evidence feeds share one best
-            // representative per endpoint + port + effective SNI. Protocol, credential
-            // and transport alternatives are intentionally not repeated in public feeds.
+            // The master catalogue and compact evidence feeds share one best representative
+            // per endpoint + port + effective SNI + authentication. Only same-auth protocol
+            // and transport variants collapse; different credentials remain public entries.
             var stable = SelectCatalogueProfilesForCategory(catalogueProfiles, x => x.IsStable);
             int stablePartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "stable"), stable.Select(x => x.Link));
@@ -287,9 +287,9 @@ namespace ProxyCollector.Collector
                     if (wgInfo == null) continue;
                     parsed++;
 
-                    // WireGuard public output follows the same endpoint + port rule:
-                    // alternative peer keys and local interface preferences are checked
-                    // for validity but do not create another published endpoint entry.
+                    // WireGuard public output follows endpoint + port + peer authentication:
+                    // different private/public/PSK keys remain separate; only local
+                    // interface preferences and routing metadata are ignored.
                     string confIdentity = GetWireguardOutputIdentityKey(wgInfo);
                     if (seenConfIdentities.Add(confIdentity))
                     {
@@ -303,8 +303,8 @@ namespace ProxyCollector.Collector
                         confDuplicates++;
                     }
 
-                    // Keep the Clash YAML guard consistent with the standard .conf
-                    // export: one entry per endpoint and port (WireGuard has no SNI).
+                    // Keep the Clash YAML guard consistent with .conf: one entry per endpoint,
+                    // port and private/public/PSK authentication (WireGuard has no SNI).
                     string clashIdentity = GetWireguardOutputIdentityKey(wgInfo);
                     if (seenClashIdentities.Add(clashIdentity))
                     {
@@ -747,11 +747,18 @@ namespace ProxyCollector.Collector
             if (!string.IsNullOrWhiteSpace(p.ConnectionIdentityKey))
                 return p.ConnectionIdentityKey;
 
-            // Test fixtures and older serialized snapshots may not carry the parsed key.
-            // Reconstruct exact configuration identity from the service profile plus its
-            // credential (WireGuard already includes its private key in the profile).
-            string credential = NormalizeProto(p.Proto) == "wireguard" ? "" : p.Credential ?? "";
-            return JsonSerializer.Serialize(new[] { GetTopEndpointProfileKey(p), credential });
+            // Test fixtures and older snapshots may not carry the parsed exact key.
+            // The public identity already includes authentication; add transport and
+            // option fields here to retain exact-configuration duplicate semantics.
+            return JsonSerializer.Serialize(new[]
+            {
+                GetTopEndpointProfileKey(p),
+                NormalizeProto(p.Proto),
+                (p.Network ?? "tcp").Trim().ToLowerInvariant(),
+                (p.Security ?? "").Trim().ToLowerInvariant(),
+                p.Path ?? "",
+                p.ConnectionOptionsKey ?? ""
+            });
         }
 
         internal static List<FinalProxy> DeduplicateFinalProxies(IEnumerable<FinalProxy> proxies)
@@ -798,8 +805,9 @@ namespace ProxyCollector.Collector
                 .ToList();
         }
 
-        // Compact public feeds use one best representative per endpoint + port + SNI.
-        // Exact alternatives remain available to evidence ranking before this selection.
+        // Compact public feeds use one best representative per endpoint + port + SNI
+        // + authentication identity. Exact variants remain available to evidence
+        // ranking before this selection.
         internal static int GetVerifiedSnapshotReplacementFloor(int previousVerifiedCount) =>
             previousVerifiedCount <= 0
                 ? 1
@@ -879,10 +887,13 @@ namespace ProxyCollector.Collector
                 ? NormalizeIdentityHost(p.Sni)
                 : implicitTlsSni ? host : "";
 
-            // Endpoint-first identity: the protocol/credential/transport candidate is
-            // selected later by evidence ranking; only host, port and effective SNI
-            // define a separate public-feed entry.
-            return JsonSerializer.Serialize(new[] { host, port, sni });
+            string authenticationKey = ParsedProxy.BuildSelectionAuthenticationKey(
+                p.Proto, p.Credential, p.Pbk, p.PresharedKey, p.Sid, p.Flow,
+                p.ObfsPassword, p.Aid);
+
+            // The same endpoint/SNI with a different password, UUID, key or other
+            // protocol-specific authentication material is a separate public node.
+            return JsonSerializer.Serialize(new[] { host, port, sni, authenticationKey });
         }
 
         internal static List<FinalProxy> SelectTopWithIpv6Diversity(
@@ -899,12 +910,12 @@ namespace ProxyCollector.Collector
                 .Where(x => !string.IsNullOrWhiteSpace(x.Link))
                 .GroupBy(GetTopEndpointProfileKey, StringComparer.Ordinal)
                 .Select(group => group
-                    // When credentials share one service profile, retain the IPv6-capable
-                    // representative if the profile is dual-stack; otherwise the IPv6
-                    // reservation could be lost before selection even begins.
-                    .OrderByDescending(x => ipv6Links.Contains(x.Link))
-                    .ThenByDescending(x => x.XrayVerified)
+                    // Evidence always outranks address-family preference. IPv6 is a
+                    // representative tie-breaker only after current verification class:
+                    // an unverified IPv6 alias must never displace a full Xray pass.
+                    .OrderByDescending(x => x.XrayVerified)
                     .ThenByDescending(x => x.TlsVerified || x.EdgeVerified)
+                    .ThenByDescending(x => ipv6Links.Contains(x.Link))
                     .ThenByDescending(x => x.IranTested)
                     .ThenByDescending(x => x.IsStable)
                     .ThenByDescending(x => x.XrayStreak)
@@ -1481,17 +1492,9 @@ namespace ProxyCollector.Collector
                 (reservedValues.Length == 3 && reservedValues.All(value => byte.TryParse(value, out _)));
         }
 
-        // Identity of the effective exported tunnel, not its display name or local
-        // resolver/link-MTU preferences. Different DNS and MTU values are harmless
-        // client-local variants of the same WireGuard peer and must not create another
-        // node. The .conf format cannot represent Amnezia reserved bytes, so callers
-        // exclude them from that format's identity; Clash YAML can preserve them.
-        // WireGuard has no TLS SNI. Public-feed uniqueness follows endpoint + port;
-        // credentials and local interface preferences are validated but do not create
-        // another copy of the same endpoint. Keep the optional argument for callers that
-        // were written against the previous format-aware helper.
-        // Exact candidate identity keeps tunnel credentials and routing material
-        // distinct during probing. DNS and MTU are local preferences and are omitted.
+        // Exact configuration identity for WireGuard candidate parsing/testing.
+        // Local DNS/MTU and source-only decorations are normalized separately from
+        // the public endpoint/authentication identity below.
         internal static string GetWireguardConfigurationIdentityKey(WgInfo info)
         {
             ArgumentNullException.ThrowIfNull(info);
@@ -1543,15 +1546,20 @@ namespace ProxyCollector.Collector
             });
         }
 
-        // Public WireGuard output identity is deliberately endpoint-first. Peer-key
-        // and local-interface alternatives remain testable but produce one public entry.
+        // Public WireGuard identity is endpoint + port + peer authentication
+        // (private key, peer public key and optional preshared key). Local interface
+        // address, AllowedIPs, DNS, MTU, keepalive and reserved metadata do not create
+        // another entry for the same authenticated peer.
         internal static string GetWireguardOutputIdentityKey(WgInfo info)
         {
             ArgumentNullException.ThrowIfNull(info);
             return JsonSerializer.Serialize(new[]
             {
                 NormalizeIdentityHost(info.Host),
-                info.Port.ToString(CultureInfo.InvariantCulture)
+                info.Port.ToString(CultureInfo.InvariantCulture),
+                (info.PrivateKey ?? "").Trim(),
+                (info.PublicKey ?? "").Trim(),
+                (info.PresharedKey ?? "").Trim()
             });
         }
 

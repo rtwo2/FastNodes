@@ -14,17 +14,18 @@ initialized before removing the checked-in snapshot from `main`.
 
 ## Public endpoint deduplication
 
-The published catalogue keeps one representative for each canonical endpoint identity:
+The published catalogue keeps one representative for each authenticated endpoint identity:
 
 - Canonical endpoint host/IP (DNS aliases are collapsed only when resolution establishes an unambiguous single-address identity).
-- Port.
+- Port (including the full Mieru port-range binding).
 - Effective SNI. A different explicit SNI, or a different implicit TLS SNI caused by a different hostname, remains a separate entry.
+- Authentication material: case-sensitive passwords, username/password pairs, UUID/custom IDs, cipher/password pairs, WireGuard peer keys, REALITY key/short-ID, VMess alterId, VLESS flow and protocol obfuscation passwords.
 
-Different ports always remain separate. Different SNI values always remain separate. Credentials, proxy protocol, transport/path variations, cipher or obfuscation alternatives, WireGuard keys, local DNS/MTU preferences and display metadata do not create more public entries when the endpoint, port and effective SNI match.
+Different ports, effective SNI values or authentication credentials always remain separate. UUID-form IDs are case-insensitive; ordinary passwords and base64 keys remain case-sensitive. Protocol spelling and transport/path variants do not create another public entry when all four identity dimensions match. DNS, MTU, remarks, source labels and display metadata are ignored.
 
-All exact variants are retained through parsing and probing. The output selector then chooses one representative by current evidence (full Xray round-trip first, then TLS/edge connectivity, source trust, stability and score). This avoids selecting an arbitrary source-order winner while keeping the public feeds compact. The selected representative's exact test evidence is retained; evidence from a different discarded configuration is not falsely attached to it.
+All exact variants are retained through parsing and probing. The output selector then chooses one representative per authenticated endpoint identity by current evidence (full Xray round-trip first, then TLS/edge connectivity, source trust, stability and score). This avoids selecting an arbitrary source-order winner while keeping the public feeds compact. The selected representative's exact test evidence is retained; evidence from a different credential is never transferred to it.
 
-This policy is intentionally an endpoint shortlist, not an exhaustive credentials/protocol catalogue. A protocol-specific feed includes the selected endpoint representative only. Consumers needing alternative accounts or transport configurations should use the upstream sources rather than expect every alternate link in public outputs.
+This policy is an authenticated-endpoint shortlist, not an exhaustive dump of every URI spelling. Different passwords/keys at the same host and port remain separately available, while cosmetic or local-setting variants of the same authenticated node collapse. A protocol-specific feed includes the selected representative's protocol for each retained identity.
 
 ## Recommended GitHub settings
 

@@ -1473,6 +1473,61 @@ namespace ProxyCollector.Collector
         // credentials and local interface preferences are validated but do not create
         // another copy of the same endpoint. Keep the optional argument for callers that
         // were written against the previous format-aware helper.
+        // Exact candidate identity keeps tunnel credentials and routing material
+        // distinct during probing. DNS and MTU are local preferences and are omitted.
+        internal static string GetWireguardConfigurationIdentityKey(WgInfo info)
+        {
+            ArgumentNullException.ThrowIfNull(info);
+
+            static string NormalizeList(string value, bool networkList)
+            {
+                string NormalizeEntry(string entry)
+                {
+                    string[] parts = entry.Trim().Split('/', 2);
+                    if (!IPAddress.TryParse(parts[0], out var address))
+                        return entry.Trim().ToLowerInvariant();
+
+                    byte[] bytes = address.GetAddressBytes();
+                    if (parts.Length == 1)
+                        return address.ToString().ToLowerInvariant();
+
+                    int maxPrefix = bytes.Length * 8;
+                    if (!int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture,
+                            out int prefix) || prefix < 0 || prefix > maxPrefix)
+                        return entry.Trim().ToLowerInvariant();
+
+                    if (networkList)
+                    {
+                        for (int bit = prefix; bit < maxPrefix; bit++)
+                            bytes[bit / 8] &= (byte)~(1 << (7 - (bit % 8)));
+                    }
+
+                    return $"{new IPAddress(bytes).ToString().ToLowerInvariant()}/{prefix}";
+                }
+
+                return string.Join(",", (value ?? "").Split(
+                        ',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(NormalizeEntry)
+                    .OrderBy(item => item, StringComparer.Ordinal));
+            }
+
+            return JsonSerializer.Serialize(new[]
+            {
+                NormalizeIdentityHost(info.Host),
+                info.Port.ToString(CultureInfo.InvariantCulture),
+                info.PrivateKey ?? "",
+                info.PublicKey ?? "",
+                info.PresharedKey ?? "",
+                NormalizeList(info.Address, networkList: false),
+                NormalizeList(info.AllowedIPs, networkList: true),
+                info.PersistentKeepalive?.ToString(CultureInfo.InvariantCulture) ?? "",
+                string.Join(",", (info.Reserved ?? Array.Empty<string>())
+                    .Select(value => value.Trim()))
+            });
+        }
+
+        // Public WireGuard output identity is deliberately endpoint-first. Peer-key
+        // and local-interface alternatives remain testable but produce one public entry.
         internal static string GetWireguardOutputIdentityKey(WgInfo info)
         {
             ArgumentNullException.ThrowIfNull(info);

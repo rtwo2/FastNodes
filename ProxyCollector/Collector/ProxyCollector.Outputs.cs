@@ -90,10 +90,11 @@ namespace ProxyCollector.Collector
             foreach (var d in new[] { "protocols", "countries", "continents" })
                 Directory.CreateDirectory(Path.Combine(sub, d));
 
-            // Pick one canonical representative per service profile first. Every
-            // compact URI category below is derived from this same set, guaranteeing
-            // exact-link membership in everything.txt even when credential variants
-            // carry different per-credential history/evidence.
+            // Pick one canonical representative per endpoint + port + effective SNI.
+            // Every compact URI category below is derived from this same set, guaranteeing
+            // that different credentials/protocols/transport variants at one endpoint do
+            // not reappear in separate category files. All variants were probed first, so
+            // the selected representative can use the strongest available evidence.
             var catalogueProfiles = SelectBestEndpointProfiles(proxies);
 
             // Classify the canonical catalogue representatives into both address
@@ -104,13 +105,13 @@ namespace ProxyCollector.Collector
             int collapsedCatalogueVariants = proxies.Count - catalogueProfiles.Count;
             int everythingPartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "everything"), catalogueProfiles.Select(x => x.Link));
-            LogSuccess($"Saved everything.txt ({catalogueProfiles.Count} distinct service profiles; " +
-                       $"{collapsedCatalogueVariants} credential/URI variants collapsed)" +
+            LogSuccess($"Saved everything.txt ({catalogueProfiles.Count} distinct endpoint/port/SNI identities; " +
+                       $"{collapsedCatalogueVariants} endpoint variants collapsed)" +
                        (everythingPartCount > 1 ? $" across {everythingPartCount} parts (≤50 MiB each)" : ""));
 
-            // The master catalogue and compact evidence feeds both use one best
-            // representative per service profile. Credential-only alternatives are
-            // collapsed; connection-affecting differences remain distinct.
+            // The master catalogue and compact evidence feeds share one best
+            // representative per endpoint + port + effective SNI. Protocol, credential
+            // and transport alternatives are intentionally not repeated in public feeds.
             var stable = SelectCatalogueProfilesForCategory(catalogueProfiles, x => x.IsStable);
             int stablePartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "stable"), stable.Select(x => x.Link));
@@ -286,9 +287,10 @@ namespace ProxyCollector.Collector
                     if (wgInfo == null) continue;
                     parsed++;
 
-                    // WireGuard .conf omits Amnezia reserved bytes, so two configs
-                    // differing only in that unsupported .conf field are one .conf.
-                    string confIdentity = GetWireguardOutputIdentityKey(wgInfo, includeReserved: false);
+                    // WireGuard public output follows the same endpoint + port rule:
+                    // alternative peer keys and local interface preferences are checked
+                    // for validity but do not create another published endpoint entry.
+                    string confIdentity = GetWireguardOutputIdentityKey(wgInfo);
                     if (seenConfIdentities.Add(confIdentity))
                     {
                         confCount++;
@@ -301,9 +303,9 @@ namespace ProxyCollector.Collector
                         confDuplicates++;
                     }
 
-                    // Clash YAML does preserve Amnezia reserved bytes, so its semantic
-                    // identity is slightly richer than the standard .conf identity.
-                    string clashIdentity = GetWireguardOutputIdentityKey(wgInfo, includeReserved: true);
+                    // Keep the Clash YAML guard consistent with the standard .conf
+                    // export: one entry per endpoint and port (WireGuard has no SNI).
+                    string clashIdentity = GetWireguardOutputIdentityKey(wgInfo);
                     if (seenClashIdentities.Add(clashIdentity))
                     {
                         clashProxies.Add(BuildWireguardClashProxy(node.Remark, wgInfo));
@@ -779,8 +781,8 @@ namespace ProxyCollector.Collector
                 .ToList();
         }
 
-        // Compact category feeds use one best representative per connection profile.
-        // The master catalogue still retains distinct credentials as distinct configs.
+        // Compact public feeds use one best representative per endpoint + port + SNI.
+        // Exact alternatives remain available to evidence ranking before this selection.
         internal static int GetVerifiedSnapshotReplacementFloor(int previousVerifiedCount) =>
             previousVerifiedCount <= 0
                 ? 1

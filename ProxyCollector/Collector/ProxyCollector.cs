@@ -4455,7 +4455,8 @@ namespace ProxyCollector.Collector
                 ? pn.ToString(System.Globalization.CultureInfo.InvariantCulture)
                 : Port.Trim();
 
-            bool implicitTlsSni = !string.IsNullOrEmpty(Security) ||
+            bool protocolUsesTlsSecurity = protocol is "vless" or "vmess";
+            bool implicitTlsSni = (protocolUsesTlsSecurity && !string.IsNullOrEmpty(Security)) ||
                 protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
             string sniKey = !string.IsNullOrWhiteSpace(Sni)
                 ? ProxyCollector.NormalizeIdentityHost(Sni)

@@ -921,11 +921,17 @@ def self_test() -> None:
         yaml = ('proxies:\n'
                 '  - name: "WG test 1"\n    type: wireguard\n    server: "2001:db8::1"\n    port: 51820\n    persistent-keepalive: 0\n    reserved:\n      - 0\n      - 0\n      - 0\n'
                 '  - name: "WG test 2"\n    type: wireguard\n    server: "198.51.100.2"\n    port: 123\n')
-        (root / "protocols" / "wireguard.txt").write_text(yaml, encoding="utf-8")
+
         wg_dir = root / "wireguard"
         wg_dir.mkdir()
         valid_key_1 = base64.b64encode(bytes(range(32))).decode("ascii")
         valid_key_2 = base64.b64encode(bytes(range(32, 64))).decode("ascii")
+        yaml = yaml.replace(
+            "    port: 51820\\n",
+            f"    port: 51820\\n    private-key: {valid_key_1}\\n    public-key: {valid_key_2}\\n",
+            1,
+        )
+        (root / "protocols" / "wireguard.txt").write_text(yaml, encoding="utf-8")
         valid_conf = (
             "[Interface]\n"
             f"PrivateKey = {valid_key_1}\n"
@@ -939,6 +945,28 @@ def self_test() -> None:
             "PersistentKeepalive = 25\n"
             "MTU = 1380\n"
         )
+        # Duplicate the first authenticated peer in Clash YAML: this must be
+        # rejected even though the block name is different.
+        duplicate_yaml = yaml + (
+            '  - name: "WG duplicate auth"\\n'
+            '    type: wireguard\\n'
+            '    server: "2001:db8::1"\\n'
+            '    port: 51820\\n'
+            f'    private-key: {valid_key_1}\\n'
+            f'    public-key: {valid_key_2}\\n'
+        )
+        duplicate_yaml_path = root / "duplicate-wireguard.yaml"
+        duplicate_yaml_path.write_text(duplicate_yaml, encoding="utf-8")
+        try:
+            validate_lines(duplicate_yaml_path)
+        except ValidationError as exc:
+            if "duplicates authenticated endpoint entry" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to reject duplicate authenticated WireGuard Clash YAML peers")
+        finally:
+            duplicate_yaml_path.unlink(missing_ok=True)
+
         wg_conf_path = wg_dir / "valid.conf"
         wg_conf_path.write_text(valid_conf, encoding="utf-8")
         report = validate_tree(root)

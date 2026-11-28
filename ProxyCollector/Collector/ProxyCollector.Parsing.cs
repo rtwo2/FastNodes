@@ -310,15 +310,11 @@ namespace ProxyCollector.Collector
                 // Exact WireGuard configuration identity retains all exported tunnel
                 // settings for parsing/testing. Public output identity is narrower and is
                 // built later from endpoint, port, SNI and authentication material.
-                string[] identityExcludedOptions = new[]
-                    {
-                        "security", "type", "sni", "path", "pbk", "sid", "flow",
-                        "obfs-password", "auth"
-                    }
-                    .Concat(scheme is "wireguard" or "wg"
-                        ? new[] { "dns", "mtu" }
-                        : Array.Empty<string>())
-                    .ToArray();
+                string[] identityExcludedOptions =
+                {
+                    "security", "type", "sni", "path", "pbk", "sid", "flow",
+                    "obfs-password", "auth"
+                };
 
                 return new ParsedProxy
                 {

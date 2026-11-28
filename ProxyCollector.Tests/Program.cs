@@ -202,6 +202,11 @@ internal static class Program
             "a negative Worker result ID is rejected");
         Checks.That(!CollectorType.IsValidEdgeResultId(25, expectedEdgeBatchIds, 25),
             "an out-of-range Worker result ID is rejected");
+        Checks.That(CollectorType.FindDuplicateEdgeResultIds(new[] { 10, 11, 10 })
+                .SetEquals(new[] { 10 }),
+            "all occurrences of a duplicated Worker result ID are rejected as ambiguous");
+        Checks.Equal(0, CollectorType.FindDuplicateEdgeResultIds(new[] { 10, 11, 12 }).Count,
+            "unique Worker result IDs remain eligible for edge evidence");
         Checks.That(CollectorType.IsEdgeTcpConnected("ok"),
             "edge SNI/TLS results are only evaluated after a confirmed TCP connection");
         Checks.That(CollectorType.IsEdgeTcpConnected("OK"),

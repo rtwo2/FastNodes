@@ -1702,6 +1702,8 @@ internal static class Program
             "WebSocket Host equal to endpoint and explicit false TLS flags collapse to the same config");
         Checks.Equal(wsDefaultHost.SelectionProfileKey, wsExplicitDefaults.SelectionProfileKey,
             "semantically redundant WebSocket options also collapse in compact profile identity");
+        Checks.That(wsDefaultHost.LegacyDeduplicationKey != wsExplicitDefaults.LegacyDeduplicationKey,
+            "legacy identity retains original explicit-default options for history migration");
 
         var wsHeaderFallback = CollectorType.ParseProxyLine(
             $"vless://{profileId}@identity.example.net:443?security=tls&type=ws&path=%2Fws&sni=identity.example.net&headers=%7B%22Host%22%3A%22front.example.net%22%7D");

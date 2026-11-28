@@ -1460,7 +1460,7 @@ namespace ProxyCollector.Collector
         // credentials and local interface preferences are validated but do not create
         // another copy of the same endpoint. Keep the optional argument for callers that
         // were written against the previous format-aware helper.
-        internal static string GetWireguardOutputIdentityKey(WgInfo info, bool includeReserved = true)
+        internal static string GetWireguardOutputIdentityKey(WgInfo info)
         {
             ArgumentNullException.ThrowIfNull(info);
             return JsonSerializer.Serialize(new[]

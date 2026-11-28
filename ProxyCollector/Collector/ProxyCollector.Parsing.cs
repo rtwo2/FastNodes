@@ -254,6 +254,8 @@ namespace ProxyCollector.Collector
                 string path = q.GetValueOrDefault("path", "");
                 string pbk  = q.GetValueOrDefault("pbk", "");
                 string sid  = q.GetValueOrDefault("sid", "");
+                string presharedKey = q.GetValueOrDefault("psk",
+                    q.GetValueOrDefault("presharedkey", ""));
 
                 // v6.12: flow and obfs-password are part of a node's connection identity
                 // — links differing only by them are DIFFERENT nodes (and one variant is
@@ -285,6 +287,7 @@ namespace ProxyCollector.Collector
                         p = wireguardInfo.Port;
                         cred = wireguardInfo.PrivateKey ?? cred;
                         pbk = wireguardInfo.PublicKey ?? pbk;
+                        presharedKey = wireguardInfo.PresharedKey ?? presharedKey;
 
                         // These generic URI fields describe TLS/stream transports and
                         // are not consumed by a WireGuard tunnel. Do not let stray
@@ -304,11 +307,9 @@ namespace ProxyCollector.Collector
                     }
                 }
 
-                // For ordinary URI proxy schemes, DNS/MTU and other unrecognized
-                // query options remain identity-significant unless explicitly normalized.
-                // Valid WireGuard profiles instead use GetWireguardOutputIdentityKey above:
-                // that key preserves every setting FastNodes exports and omits local DNS,
-                // MTU, and source-only decorations the exporters do not consume.
+                // Exact WireGuard configuration identity retains all exported tunnel
+                // settings for parsing/testing. Public output identity is narrower and is
+                // built later from endpoint, port, SNI and authentication material.
                 string[] identityExcludedOptions = new[]
                     {
                         "security", "type", "sni", "path", "pbk", "sid", "flow",
@@ -325,6 +326,7 @@ namespace ProxyCollector.Collector
                     Host       = h,
                     Port       = p.ToString(),
                     Credential = cred,
+                    PresharedKey = presharedKey,
                     Network    = net,
                     Security   = sec,
                     Sni        = sni,

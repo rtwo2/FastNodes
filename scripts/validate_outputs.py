@@ -927,8 +927,8 @@ def self_test() -> None:
         valid_key_1 = base64.b64encode(bytes(range(32))).decode("ascii")
         valid_key_2 = base64.b64encode(bytes(range(32, 64))).decode("ascii")
         yaml = yaml.replace(
-            "    port: 51820\\n",
-            f"    port: 51820\\n    private-key: {valid_key_1}\\n    public-key: {valid_key_2}\\n",
+            "    port: 51820\n",
+            f"    port: 51820\n    private-key: {valid_key_1}\n    public-key: {valid_key_2}\n",
             1,
         )
         (root / "protocols" / "wireguard.txt").write_text(yaml, encoding="utf-8")
@@ -948,12 +948,12 @@ def self_test() -> None:
         # Duplicate the first authenticated peer in Clash YAML: this must be
         # rejected even though the block name is different.
         duplicate_yaml = yaml + (
-            '  - name: "WG duplicate auth"\\n'
-            '    type: wireguard\\n'
-            '    server: "2001:db8::1"\\n'
-            '    port: 51820\\n'
-            f'    private-key: {valid_key_1}\\n'
-            f'    public-key: {valid_key_2}\\n'
+            '  - name: "WG duplicate auth"\n'
+            '    type: wireguard\n'
+            '    server: "2001:db8::1"\n'
+            '    port: 51820\n'
+            f'    private-key: {valid_key_1}\n'
+            f'    public-key: {valid_key_2}\n'
         )
         duplicate_yaml_path = root / "duplicate-wireguard.yaml"
         duplicate_yaml_path.write_text(duplicate_yaml, encoding="utf-8")

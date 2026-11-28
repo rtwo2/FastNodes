@@ -203,17 +203,57 @@ def _canonical_query_options(
     return tuple((key, tuple(grouped[key])) for key in sorted(grouped))
 
 
-def _ss_cipher(parsed) -> str:
-    raw_user = unquote(parsed.username or "")
-    if parsed.password is not None:
-        return raw_user.split(":", 1)[0].lower()
+def _ss_identity(line: str) -> tuple | None:
+    """Parse both SIP002 and legacy base64 Shadowsocks links for service identity."""
     try:
-        decoded = _decode_urlsafe_base64(raw_user)
-        if ":" in decoded:
-            return decoded.split(":", 1)[0].lower()
+        rest = line.split("://", 1)[1].split("#", 1)[0]
+        if "@" in rest:
+            user_part, host_part = rest.split("@", 1)
+            query = ""
+            if "?" in host_part:
+                host_port, query = host_part.split("?", 1)
+            else:
+                host_port = host_part
+            try:
+                decoded_credential = _decode_urlsafe_base64(user_part)
+            except (ValueError, UnicodeError):
+                decoded_credential = unquote(user_part)
+        else:
+            decoded = _decode_urlsafe_base64(rest)
+            main, marker, query = decoded.partition("/?")
+            if "@" not in main:
+                return None
+            decoded_credential, host_port = main.split("@", 1)
+            if not marker:
+                query = ""
+
+        if ":" not in decoded_credential:
+            return None
+        cipher = decoded_credential.split(":", 1)[0].lower()
+
+        if host_port.startswith("["):
+            close = host_port.find("]")
+            if close <= 1 or host_port[close + 1:close + 2] != ":":
+                return None
+            host = host_port[1:close]
+            port_text = host_port[close + 2:]
+        else:
+            host, separator, port_text = host_port.rpartition(":")
+            if not separator or ":" in host:
+                return None
+
+        host = _normalize_identity_host(host)
+        port = int(port_text)
+        pairs = parse_qsl(query, keep_blank_values=True)
+        params = {key.lower(): value for key, value in pairs}
+        sni = _normalize_identity_host(params.get("host", "") or host)
+        options = _canonical_query_options(
+            pairs, host=host, network="tcp", security="", sni=sni,
+            ss_host_is_sni=True,
+        )
+        return ("ss", host, port, cipher, "tcp", "", sni, "", "", "", "", "", 0, options)
     except (ValueError, UnicodeError):
-        pass
-    return raw_user.lower()
+        return None
 
 
 def _ssr_identity(line: str) -> tuple | None:
@@ -236,7 +276,9 @@ def _ssr_identity(line: str) -> tuple | None:
         params = {key.lower(): value for key, value in pairs}
         path = params.get("obfsparam", "") + "|" + params.get("protoparam", "")
         options = _canonical_query_options(
-            pairs, host=host, network=protocol.lower(), security=obfs.lower(), sni=host
+            [(key, value) for key, value in pairs
+             if key.lower() not in {"obfsparam", "protoparam"}],
+            host=host, network=protocol.lower(), security=obfs.lower(), sni=host
         )
         return (
             "ssr", host, port, method.lower(), protocol.lower(), obfs.lower(),
@@ -265,6 +307,8 @@ def semantic_subscription_identity(line: str) -> tuple | None:
             return identity
     if scheme == "ssr":
         return _ssr_identity(value)
+    if scheme == "ss":
+        return _ss_identity(value)
 
     try:
         parsed = urlsplit(value)

@@ -1623,7 +1623,7 @@ namespace ProxyCollector.Collector
                     LegacyNodeId = HistKey(p.LegacyDeduplicationKey),
                     ConnectionIdentityKey = p.DeduplicationKey,
                     SelectionProfileKey = p.SelectionProfileKey,
-                    Credential = p.Credential,
+                    Credential = p.Credential, PresharedKey = p.PresharedKey,
                     Sni = p.Sni, Network = p.Network, Security = p.Security,
                     Path = p.Path, Flow = p.Flow, Pbk = p.Pbk, Sid = p.Sid,
                     ObfsPassword = p.ObfsPassword, Aid = p.Aid,

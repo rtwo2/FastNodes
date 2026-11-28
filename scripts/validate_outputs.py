@@ -61,18 +61,100 @@ def _decode_urlsafe_base64(value: str) -> str:
     return base64.b64decode(token, validate=False).decode("utf-8")
 
 
+def _normalize_uuid_credential(value: str) -> str:
+    if re.fullmatch(
+        r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
+        value,
+    ):
+        return value.lower()
+    return value
+
+
+def _wireguard_conf_identity(decoded: str) -> tuple | None:
+    section = ""
+    directives: dict[str, dict[str, str]] = {}
+    for raw in decoded.splitlines():
+        line = raw.strip()
+        if not line or line.startswith(("#", ";")):
+            continue
+        if line.startswith("[") and line.endswith("]"):
+            section = line[1:-1].strip().lower()
+            directives.setdefault(section, {})
+            continue
+        if section and "=" in line:
+            key, value = (part.strip() for part in line.split("=", 1))
+            directives[section][key.lower()] = value
+
+    interface = directives.get("interface", {})
+    peer = directives.get("peer", {})
+    endpoint = peer.get("endpoint", "")
+    if not endpoint:
+        return None
+    if endpoint.startswith("["):
+        close = endpoint.find("]")
+        if close <= 1 or endpoint[close + 1:close + 2] != ":":
+            return None
+        host, port_text = endpoint[1:close], endpoint[close + 2:]
+    else:
+        host, separator, port_text = endpoint.rpartition(":")
+        if not separator or ":" in host:
+            return None
+    try:
+        port = int(port_text)
+        if not 1 <= port <= 65535:
+            return None
+    except ValueError:
+        return None
+    return (
+        _normalize_identity_host(host), port, "",
+        interface.get("privatekey", "").strip(),
+        peer.get("publickey", "").strip(),
+        peer.get("presharedkey", "").strip(),
+        "", "", "", 0,
+    )
+
+
 def wireguard_uri_identity(line: str) -> tuple | None:
-    """WireGuard public identity is endpoint + port; the protocol has no SNI."""
+    """WireGuard public identity is endpoint + port + peer authentication."""
     if not re.match(r"(?i)^wireguard://|^wg://", line.strip()):
         return None
     try:
+        rest = line.strip().split("://", 1)[1].split("#", 1)[0]
+        if "@" not in rest and "?" not in rest:
+            try:
+                decoded = _decode_urlsafe_base64(rest)
+                if "[Interface]" in decoded and "[Peer]" in decoded:
+                    identity = _wireguard_conf_identity(decoded)
+                    if identity is not None:
+                        return identity
+            except (ValueError, UnicodeError):
+                pass
+
         parsed = urlsplit(line.strip())
         if not parsed.hostname:
             return None
-        return _normalize_identity_host(parsed.hostname), parsed.port or 51820, ""
+        params = {
+            key.lower(): value
+            for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+        }
+        private_key = unquote(parsed.username or params.get(
+            "privatekey", params.get("private_key", "")
+        ))
+        public_key = params.get("pk", params.get(
+            "publickey", params.get("server_publickey", "")
+        ))
+        preshared_key = params.get("psk", params.get("presharedkey", ""))
+        return (
+            _normalize_identity_host(parsed.hostname),
+            parsed.port or 51820,
+            "",
+            private_key.strip(),
+            public_key.strip(),
+            preshared_key.strip(),
+            "", "", "", 0,
+        )
     except (ValueError, UnicodeError):
         return None
-
 
 
 def _vmess_json_identity(line: str) -> tuple | None:
@@ -90,7 +172,9 @@ def _vmess_json_identity(line: str) -> tuple | None:
         sni = _normalize_identity_host(sni_value) if sni_value else (
             host if security not in {"", "none", "false", "0"} else ""
         )
-        return host, port, sni
+        credential = _normalize_uuid_credential(str(root.get("id", "") or ""))
+        aid = int(root.get("aid", 0) or 0)
+        return host, port, sni, credential, "", "", "", "", "", aid
     except (ValueError, UnicodeError, json.JSONDecodeError):
         return None
 
@@ -100,16 +184,26 @@ def _ss_identity(line: str) -> tuple | None:
     try:
         rest = line.split("://", 1)[1].split("#", 1)[0]
         if "@" in rest:
-            _user_part, host_part = rest.split("@", 1)
+            user_part, host_part = rest.split("@", 1)
             host_port, _separator, query = host_part.partition("?")
+            try:
+                decoded_credential = _decode_urlsafe_base64(user_part)
+            except (ValueError, UnicodeError):
+                decoded_credential = unquote(user_part)
         else:
             decoded = _decode_urlsafe_base64(rest)
             main, marker, query = decoded.partition("/?")
             if "@" not in main:
                 return None
-            _user_part, host_port = main.split("@", 1)
+            decoded_credential, host_port = main.split("@", 1)
             if not marker:
                 query = ""
+        if ":" not in decoded_credential:
+            decoded_credential = unquote(decoded_credential)
+        if ":" not in decoded_credential:
+            return None
+        cipher, password = decoded_credential.split(":", 1)
+        credential = cipher.lower() + ":" + password
 
         if host_port.startswith("["):
             close = host_port.find("]")
@@ -125,7 +219,7 @@ def _ss_identity(line: str) -> tuple | None:
         port = int(port_text)
         params = {key.lower(): value for key, value in parse_qsl(query, keep_blank_values=True)}
         sni = _normalize_identity_host(params.get("host", "")) if params.get("host") else ""
-        return host, port, sni
+        return host, port, sni, credential, "", "", "", "", "", 0
     except (ValueError, UnicodeError):
         return None
 
@@ -144,17 +238,21 @@ def _ssr_identity(line: str) -> tuple | None:
         if len(values) != 5:
             return None
         port = int(values[0])
-        obfs = values[3].strip().lower()
+        protocol, method, obfs, encoded_password = values[1:]
+        obfs = obfs.strip().lower()
         params = {key.lower(): value for key, value in parse_qsl(query, keep_blank_values=True)}
         obfs_parameter = params.get("obfsparam", "")
         sni = _normalize_identity_host(obfs_parameter) if obfs.startswith("tls") and obfs_parameter else ""
-        return _normalize_identity_host(host), port, sni
+        password = _decode_urlsafe_base64(encoded_password)
+        credential = method.lower() + ":" + password
+        transport_auth = protocol.lower() + "|" + obfs
+        return _normalize_identity_host(host), port, sni, credential, "", "", "", transport_auth, "", 0
     except (ValueError, UnicodeError, IndexError):
         return None
 
 
 def semantic_subscription_identity(line: str) -> tuple | None:
-    """Endpoint-first identity: canonical host, port, and effective SNI only."""
+    """Public identity: canonical host + port + effective SNI + authentication."""
     value = line.strip()
     if not URI_RE.fullmatch(value):
         return None
@@ -193,12 +291,12 @@ def semantic_subscription_identity(line: str) -> tuple | None:
         else:
             defaults = {
                 "socks": 1080, "socks4": 1080, "socks5": 1080,
-                "brook": 9999, "snell": 61825, "wireguard": 51820,
+                "brook": 9999, "snell": 61825,
             }
             port = parsed.port or defaults.get(scheme, 443)
 
         sni_value = params.get("sni", "").strip()
-        if scheme in {"wireguard", "mieru"}:
+        if scheme in {"mieru"}:
             sni = ""
         elif scheme == "ss":
             sni = _normalize_identity_host(params.get("host", "")) if params.get("host") else ""
@@ -211,9 +309,26 @@ def semantic_subscription_identity(line: str) -> tuple | None:
             )
             sni = _normalize_identity_host(sni_value) if sni_value else (host if implicit_tls else "")
 
-        return host, port, sni
+        credential = unquote(parsed.username or "")
+        if parsed.password is not None:
+            credential += ":" + unquote(parsed.password)
+        if scheme == "hysteria" and not credential:
+            credential = params.get("auth", "")
+        credential = _normalize_uuid_credential(credential) if scheme in {"vless", "vmess"} else credential
+
+        public_key = params.get("pbk", "")
+        preshared_key = params.get("psk", params.get("presharedkey", ""))
+        short_id = params.get("sid", "").lower()
+        flow = params.get("flow", "").lower()
+        obfs_password = params.get("obfs-password", "")
+        aid = int(params.get("aid", "0") or "0")
+        return (
+            host, port, sni, credential, public_key, preshared_key,
+            short_id, flow, obfs_password, aid
+        )
     except (ValueError, UnicodeError):
         return None
+
 
 def validate_lines(path: pathlib.Path) -> tuple[int, int]:
     try:
@@ -681,33 +796,45 @@ def self_test() -> None:
             raise ValidationError(f"self-test rejected valid URI: {line}")
 
     wg_uri_a = "wireguard://private@wg.example.net:51820?pk=server&ip=10.0.0.2%2F32&dns=1.1.1.1&mtu=1280"
-    wg_uri_b = "wireguard://another-private@wg.example.net:51820?mtu=1420&ip=10.0.0.2%2F32&pk=another-server&dns=8.8.8.8"
+    wg_uri_b = "wireguard://private@wg.example.net:51820?mtu=1420&ip=10.0.0.3%2F32&pk=server&dns=8.8.8.8"
     if semantic_subscription_identity(wg_uri_a) != semantic_subscription_identity(wg_uri_b):
-        raise ValidationError("self-test failed to collapse WireGuard endpoint duplicates")
+        raise ValidationError("self-test failed to collapse WireGuard local-preference variants")
+    wg_uri_different_key = "wireguard://another-private@wg.example.net:51820?pk=server&ip=10.0.0.2%2F32"
+    if semantic_subscription_identity(wg_uri_a) == semantic_subscription_identity(wg_uri_different_key):
+        raise ValidationError("self-test incorrectly collapsed WireGuard private-key alternatives")
     wg_uri_other_port = "wireguard://private@wg.example.net:51821?pk=server&ip=10.0.0.2%2F32"
     if semantic_subscription_identity(wg_uri_a) == semantic_subscription_identity(wg_uri_other_port):
         raise ValidationError("self-test incorrectly collapsed different WireGuard ports")
 
-    vless_a = "vless://uuid@same.example.net:443?security=tls&type=ws&sni=front.example.net&path=%2Fedge&fp=chrome&dns=1.1.1.1&mtu=1280&name=source-a"
-    vless_b = "trojan://different-secret@same.example.net:443?sni=front.example.net&mtu=1420&name=source-b&dns=8.8.8.8"
+    vless_a = "vless://same-secret@same.example.net:443?security=tls&type=ws&sni=front.example.net&path=%2Fedge&fp=chrome&dns=1.1.1.1&mtu=1280&name=source-a"
+    vless_b = "trojan://same-secret@same.example.net:443?sni=front.example.net&mtu=1420&name=source-b&dns=8.8.8.8"
     if semantic_subscription_identity(vless_a) != semantic_subscription_identity(vless_b):
-        raise ValidationError("self-test failed to collapse different protocol/credential/metadata variants at one endpoint")
+        raise ValidationError("self-test failed to collapse same-auth cross-protocol/local-metadata variants")
     vless_other_port = vless_b.replace(":443", ":8443")
     if semantic_subscription_identity(vless_a) == semantic_subscription_identity(vless_other_port):
         raise ValidationError("self-test incorrectly collapsed different endpoint ports")
     vless_other_sni = vless_b.replace("front.example.net", "other-front.example.net")
     if semantic_subscription_identity(vless_a) == semantic_subscription_identity(vless_other_sni):
         raise ValidationError("self-test incorrectly collapsed different SNI values")
+    vless_other_password = vless_b.replace("same-secret", "different-secret")
+    if semantic_subscription_identity(vless_a) == semantic_subscription_identity(vless_other_password):
+        raise ValidationError("self-test incorrectly collapsed different authentication credentials")
 
     ss_a = "ss://YWVzLTEyOC1nY206cHc=@same.example.net:8388?dns=1.1.1.1&mtu=1280"
-    ss_b = "ss://YWVzLTEyOC1nY206b3RoZXI=@same.example.net:8388?mtu=1420&dns=8.8.8.8"
+    ss_b = "ss://YWVzLTEyOC1nY206cHc=@same.example.net:8388?mtu=1420&dns=8.8.8.8"
     if semantic_subscription_identity(ss_a) != semantic_subscription_identity(ss_b):
-        raise ValidationError("self-test failed to collapse Shadowsocks endpoint duplicates")
+        raise ValidationError("self-test failed to collapse same-password Shadowsocks local-preference variants")
+    ss_other_password = "ss://YWVzLTEyOC1nY206b3RoZXI=@same.example.net:8388"
+    if semantic_subscription_identity(ss_a) == semantic_subscription_identity(ss_other_password):
+        raise ValidationError("self-test incorrectly collapsed different Shadowsocks passwords")
 
     mieru_a = "mierus://user:pass@same.example.net?profile=home&port=6666&protocol=UDP&mtu=1280&dns=1.1.1.1"
-    mieru_b = "mierus://other:secret@same.example.net?profile=travel&port=6666&protocol=udp&mtu=1400&dns=8.8.8.8"
+    mieru_b = "mierus://user:pass@same.example.net?profile=travel&port=6666&protocol=udp&mtu=1400&dns=8.8.8.8"
     if semantic_subscription_identity(mieru_a) != semantic_subscription_identity(mieru_b):
-        raise ValidationError("self-test failed to collapse Mieru endpoint duplicates")
+        raise ValidationError("self-test failed to collapse same-auth Mieru endpoint variants")
+    mieru_other_password = "mierus://user:other@same.example.net?profile=home&port=6666&protocol=UDP"
+    if semantic_subscription_identity(mieru_a) == semantic_subscription_identity(mieru_other_password):
+        raise ValidationError("self-test incorrectly collapsed different Mieru passwords")
 
     ssr_password = base64.urlsafe_b64encode(b"secret").decode("ascii").rstrip("=")
     ssr_tls_a = "ssr://" + base64.urlsafe_b64encode(

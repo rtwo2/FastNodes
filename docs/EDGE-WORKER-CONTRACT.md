@@ -1,9 +1,9 @@
 # Cloudflare edge Worker contract
 
 The collector sends edge probes to the externally deployed Worker configured by the
-GitHub Actions secrets `WORKER_URL` and `WORKER_AUTH`. The Worker source and its
-deployment are not stored in this repository, so a collector-side change alone cannot
-guarantee custom-SNI verification.
+GitHub Actions secrets `WORKER_URL` and `WORKER_AUTH`. The versioned Worker source is
+[`cloudflare/fastnodes-worker.js`](../cloudflare/fastnodes-worker.js); deployment remains
+a separate Cloudflare operation and must be updated independently of the collector.
 
 ## Request
 
@@ -19,12 +19,25 @@ The Worker must keep the endpoint address and TLS SNI separate. It must connect 
 `host:port` and use `sni` as the TLS server name. It must not replace a custom SNI
 with the endpoint hostname.
 
+## Concurrency and timing
+
+The Worker accepts up to 25 targets per request but runs at most four probes at once.
+Cloudflare documents a six-connection simultaneous-outgoing limit per Worker
+invocation; raw TCP/TLS sockets stay open until the probe finishes, so the Worker keeps
+headroom rather than creating 25 sockets with `Promise.all`. The four-second probe
+timeout starts after a target acquires a concurrency slot. Time spent waiting in the
+local queue is not counted against the network timeout.
+
+The Worker reports Cloudflare policy blocks as `tcp: blocked-address`. This is a
+vantage/policy outcome, not a TLS handshake failure and not a node-removal signal.
+
 ## Response
 
 Return a JSON object with a `results` array. Each result must include:
 
 - `id`: the exact target ID
 - `tcp`: a non-empty status string; `ok` means the endpoint TCP connection was established
+  - Other statuses include `blocked-address`, `cf-blocked`, `refused`, `timeout`, `dns`, and `error`
 - `tls`: a TLS status string when the TLS outcome is known
 - `sni`: the exact SNI value actually configured for the TLS handshake, when the handshake was reached and an SNI hostname was sent
 
@@ -71,9 +84,9 @@ way to prove that the external service actually applied the requested SNI.
 
 ## Deployment checklist
 
-1. Update the external Worker to consume `target.sni` and apply it to the TLS socket.
-2. Return the actual applied SNI in `results[].sni`.
-3. Deploy the Worker before expecting custom-SNI edge results to be credited.
+1. Deploy the versioned source in [`cloudflare/fastnodes-worker.js`](../cloudflare/fastnodes-worker.js).
+2. Keep the Worker secret named `AUTH`; keep the matching value in GitHub Actions as `WORKER_AUTH`.
+3. Return the configured SNI in `results[].sni`.
 4. Run a controlled test with `host != sni`; verify the response echoes the requested
    SNI and that the TLS handshake is performed using it.
 5. Keep `WORKER_AUTH` in GitHub Actions secrets and the Worker environment. Never

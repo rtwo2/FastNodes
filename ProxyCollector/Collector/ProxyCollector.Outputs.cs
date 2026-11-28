@@ -266,6 +266,9 @@ namespace ProxyCollector.Collector
             // NekoBox's JSON parser has a bug with WireGuard outbounds, so we output
             // Clash YAML which NekoBox parses perfectly. The official WireGuard app
             // imports .conf files. We output BOTH so either client can use the data.
+            // All feeds are projections of the same canonical catalogue. Keep a second
+            // format-aware identity guard here because multiple URI representations can
+            // serialize to the exact same downloadable WireGuard config.
             var wgNodes = SelectCatalogueProfilesForCategory(catalogueProfiles, x => x.Proto == "wireguard");
             if (wgNodes.Count > 0)
             {
@@ -273,28 +276,49 @@ namespace ProxyCollector.Collector
                 Directory.CreateDirectory(wgDir);
 
                 var clashProxies = new List<Dictionary<string, object?>>();
-                int ok = 0;
+                var seenConfIdentities = new HashSet<string>(StringComparer.Ordinal);
+                var seenClashIdentities = new HashSet<string>(StringComparer.Ordinal);
+                int parsed = 0, confCount = 0, confDuplicates = 0, clashDuplicates = 0;
+
                 foreach (var node in wgNodes)
                 {
                     var wgInfo = TryParseWireguardInfo(node.Link);
                     if (wgInfo == null) continue;
-                    ok++;
+                    parsed++;
 
-                    // Individual .conf — WireGuard app imports this directly
-                    string fileName = BuildWireguardConfFileName(ok, node.Remark);
-                    await File.WriteAllTextAsync(Path.Combine(wgDir, fileName), BuildWireguardConf(wgInfo));
+                    // WireGuard .conf omits Amnezia reserved bytes, so two configs
+                    // differing only in that unsupported .conf field are one .conf.
+                    string confIdentity = GetWireguardOutputIdentityKey(wgInfo, includeReserved: false);
+                    if (seenConfIdentities.Add(confIdentity))
+                    {
+                        confCount++;
+                        string fileName = BuildWireguardConfFileName(confCount, node.Remark);
+                        await File.WriteAllTextAsync(
+                            Path.Combine(wgDir, fileName), BuildWireguardConf(wgInfo));
+                    }
+                    else
+                    {
+                        confDuplicates++;
+                    }
 
-                    // Build the Clash node as data. YamlDotNet handles quoting and
-                    // line breaks in every source-controlled scalar; string concatenation
-                    // here would allow newline/quote injection into downloadable configs.
-                    clashProxies.Add(BuildWireguardClashProxy(node.Remark, wgInfo));
+                    // Clash YAML does preserve Amnezia reserved bytes, so its semantic
+                    // identity is slightly richer than the standard .conf identity.
+                    string clashIdentity = GetWireguardOutputIdentityKey(wgInfo, includeReserved: true);
+                    if (seenClashIdentities.Add(clashIdentity))
+                    {
+                        clashProxies.Add(BuildWireguardClashProxy(node.Remark, wgInfo));
+                    }
+                    else
+                    {
+                        clashDuplicates++;
+                    }
                 }
 
                 string wireguardProtocolDirectory = Path.Combine(sub, "protocols");
                 foreach (string stalePart in Directory.GetFiles(wireguardProtocolDirectory, "wireguard_part*.txt"))
                     File.Delete(stalePart);
 
-                if (ok > 0)
+                if (clashProxies.Count > 0)
                 {
                     var yamlParts = SerializeWireguardClashYamlParts(clashProxies);
                     for (int partIndex = 0; partIndex < yamlParts.Count; partIndex++)
@@ -311,8 +335,9 @@ namespace ProxyCollector.Collector
                     File.Delete(Path.Combine(wireguardProtocolDirectory, "wireguard.txt"));
                 }
 
-                LogSuccess($"Saved wireguard: {ok}/{wgNodes.Count} converted → " +
-                           $"{ok} Clash YAML nodes (NekoBox) + {ok} .conf files (WireGuard app)");
+                LogSuccess($"Saved wireguard: {parsed}/{wgNodes.Count} parsed; " +
+                           $"{confCount} unique .conf files ({confDuplicates} duplicate configs collapsed), " +
+                           $"{clashProxies.Count} unique Clash YAML nodes ({clashDuplicates} duplicate profiles collapsed).");
             }
 
             // Diagnostics are part of the same staged tree, so published subscriptions
@@ -1432,6 +1457,40 @@ namespace ProxyCollector.Collector
                 .ToArray();
             return reservedValues.Length == 0 ||
                 (reservedValues.Length == 3 && reservedValues.All(value => byte.TryParse(value, out _)));
+        }
+
+        // Identity of the effective exported tunnel, not its display name or local
+        // resolver/link-MTU preferences. Different DNS and MTU values are harmless
+        // client-local variants of the same WireGuard peer and must not create another
+        // node. The .conf format cannot represent Amnezia reserved bytes, so callers
+        // exclude them from that format's identity; Clash YAML can preserve them.
+        internal static string GetWireguardOutputIdentityKey(WgInfo info, bool includeReserved = true)
+        {
+            ArgumentNullException.ThrowIfNull(info);
+
+            static string NormalizeList(string value) =>
+                string.Join(",", (value ?? "").Split(
+                    ',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(item => item.ToLowerInvariant())
+                    .OrderBy(item => item, StringComparer.Ordinal));
+
+            var identity = new List<string>
+            {
+                NormalizeIdentityHost(info.Host),
+                info.Port.ToString(CultureInfo.InvariantCulture),
+                info.PrivateKey ?? "",
+                info.PublicKey ?? "",
+                info.PresharedKey ?? "",
+                NormalizeList(info.Address),
+                NormalizeList(info.AllowedIPs),
+                info.PersistentKeepalive?.ToString(CultureInfo.InvariantCulture) ?? ""
+            };
+
+            if (includeReserved)
+                identity.Add(string.Join(",", (info.Reserved ?? Array.Empty<string>())
+                    .Select(value => value.Trim())));
+
+            return JsonSerializer.Serialize(identity);
         }
 
         internal static Dictionary<string, object?> BuildWireguardClashProxy(string name, WgInfo info)

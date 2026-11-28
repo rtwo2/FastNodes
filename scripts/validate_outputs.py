@@ -9,6 +9,7 @@ import pathlib
 import re
 import sys
 from collections import Counter
+from urllib.parse import parse_qsl, unquote, urlsplit
 
 SCHEMES = (
     "vmess", "vless", "trojan", "ss", "shadowsocks", "ssr", "hysteria",
@@ -30,6 +31,31 @@ MAX_PART_BYTES = 50 * 1024 * 1024
 
 class ValidationError(Exception):
     pass
+
+
+def wireguard_uri_identity(line: str) -> tuple | None:
+    """Canonical WireGuard URI identity; DNS and MTU are local preferences."""
+    match = re.match(r"(?i)^(?:wireguard|wg)://", line.strip())
+    if not match:
+        return None
+    try:
+        parsed = urlsplit(line.strip())
+        if not parsed.hostname:
+            return None
+        try:
+            host = ipaddress.ip_address(parsed.hostname).compressed
+        except ValueError:
+            host = parsed.hostname.rstrip(".").encode("idna").decode("ascii").lower()
+        port = parsed.port or 51820
+        user = unquote(parsed.username or "")
+        query = tuple(sorted(
+            (key.lower(), value)
+            for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+            if key.lower() not in {"dns", "mtu"}
+        ))
+        return ("wireguard", host, port, user, query)
+    except (ValueError, UnicodeError):
+        return None
 
 
 def validate_lines(path: pathlib.Path) -> tuple[int, int]:
@@ -107,6 +133,19 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
 
     counts = Counter(lines)
     duplicates = sum(n - 1 for n in counts.values() if n > 1)
+
+    # Catch WireGuard links that differ only by local DNS/MTU preferences even when
+    # their URI spelling or query ordering differs.
+    semantic_seen: set[tuple] = set()
+    for line in lines:
+        identity = wireguard_uri_identity(line)
+        if identity is None:
+            continue
+        if identity in semantic_seen:
+            duplicates += 1
+        else:
+            semantic_seen.add(identity)
+
     return len(lines), duplicates
 
 
@@ -138,7 +177,19 @@ def _validate_wireguard_host(host: str, path: pathlib.Path) -> None:
         raise ValidationError(f"{path}: invalid WireGuard endpoint hostname {host!r}")
 
 
-def validate_wireguard_conf(path: pathlib.Path) -> None:
+def _normalize_wireguard_ip_list(value: str, *, interface_addresses: bool) -> tuple[str, ...]:
+    values = [item.strip() for item in value.split(",")]
+    if not values or any(not item for item in values):
+        raise ValueError("empty IP list entry")
+    parsed = [
+        ipaddress.ip_interface(item) if interface_addresses
+        else ipaddress.ip_network(item, strict=False)
+        for item in values
+    ]
+    return tuple(sorted(str(item) for item in parsed))
+
+
+def validate_wireguard_conf(path: pathlib.Path) -> tuple:
     try:
         content = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as exc:
@@ -187,11 +238,7 @@ def validate_wireguard_conf(path: pathlib.Path) -> None:
         _validate_wireguard_key(peer["presharedkey"], "PresharedKey", path)
 
     try:
-        addresses = [item.strip() for item in interface["address"].split(",")]
-        if not addresses or any(not item for item in addresses):
-            raise ValueError("empty address")
-        for item in addresses:
-            ipaddress.ip_interface(item)
+        addresses = _normalize_wireguard_ip_list(interface["address"], interface_addresses=True)
     except ValueError as exc:
         raise ValidationError(f"{path}: invalid [Interface] Address: {exc}") from exc
 
@@ -207,11 +254,7 @@ def validate_wireguard_conf(path: pathlib.Path) -> None:
             raise ValidationError(f"{path}: invalid [Interface] DNS: {exc}") from exc
 
     try:
-        allowed_ips = [item.strip() for item in peer["allowedips"].split(",")]
-        if not allowed_ips or any(not item for item in allowed_ips):
-            raise ValueError("empty AllowedIPs entry")
-        for item in allowed_ips:
-            ipaddress.ip_network(item, strict=False)
+        allowed_ips = _normalize_wireguard_ip_list(peer["allowedips"], interface_addresses=False)
     except ValueError as exc:
         raise ValidationError(f"{path}: invalid [Peer] AllowedIPs: {exc}") from exc
 
@@ -233,6 +276,29 @@ def validate_wireguard_conf(path: pathlib.Path) -> None:
     if keepalive is not None and (not keepalive.isdigit() or int(keepalive) > 65535):
         raise ValidationError(f"{path}: invalid PersistentKeepalive value")
 
+    reserved = tuple(item.strip() for item in peer.get("reserved", "").split(",") if item.strip())
+    if reserved and (len(reserved) != 3 or any(not item.isdigit() or int(item) > 255 for item in reserved)):
+        raise ValidationError(f"{path}: invalid WireGuard Reserved bytes")
+
+    try:
+        normalized_host = ipaddress.ip_address(host).compressed
+    except ValueError:
+        normalized_host = host.rstrip(".").encode("idna").decode("ascii").lower()
+
+    # Deliberately omit [Interface] DNS and MTU: they are local client preferences,
+    # not a different server tunnel. Keep credentials, assigned interface address,
+    # peer keys, endpoint, AllowedIPs, keepalive, and extension bytes identity-significant.
+    return (
+        interface["privatekey"],
+        addresses,
+        peer["publickey"],
+        peer.get("presharedkey", ""),
+        normalized_host,
+        int(port_text),
+        allowed_ips,
+        int(keepalive) if keepalive is not None else None,
+        reserved,
+    )
 
 def validate_wireguard_confs(root: pathlib.Path) -> int:
     directory = root / "wireguard"
@@ -249,8 +315,15 @@ def validate_wireguard_confs(root: pathlib.Path) -> int:
                 f"{directory}: WireGuard YAML exists but no matching .conf files were generated"
             )
         return 0
+    seen: dict[tuple, pathlib.Path] = {}
     for path in paths:
-        validate_wireguard_conf(path)
+        identity = validate_wireguard_conf(path)
+        if identity in seen:
+            raise ValidationError(
+                f"{path}: duplicate WireGuard tunnel config already emitted as {seen[identity]} "
+                "(DNS/MTU differences do not create a distinct node)"
+            )
+        seen[identity] = path
     return len(paths)
 
 
@@ -437,6 +510,11 @@ def self_test() -> None:
     for line in good:
         if not URI_RE.fullmatch(line):
             raise ValidationError(f"self-test rejected valid URI: {line}")
+
+    wg_uri_a = "wireguard://private@wg.example.net:51820?pk=server&ip=10.0.0.2%2F32&dns=1.1.1.1&mtu=1280"
+    wg_uri_b = "wireguard://private@wg.example.net:51820?mtu=1420&ip=10.0.0.2%2F32&pk=server&dns=8.8.8.8"
+    if wireguard_uri_identity(wg_uri_a) != wireguard_uri_identity(wg_uri_b):
+        raise ValidationError("self-test failed to collapse WireGuard DNS/MTU URI variants")
     for line in (
         "https://example.com/subscription",
         "not a proxy URI",
@@ -488,12 +566,40 @@ def self_test() -> None:
             "Endpoint = [2001:4860:4860::8888]:51820\n"
             "AllowedIPs = 0.0.0.0/0, ::/0\n"
             "PersistentKeepalive = 25\n"
+            "MTU = 1380\n"
         )
         wg_conf_path = wg_dir / "valid.conf"
         wg_conf_path.write_text(valid_conf, encoding="utf-8")
         report = validate_tree(root)
         if not any("Validated 1 WireGuard .conf file(s)." in line for line in report):
             raise ValidationError("self-test failed to report validated WireGuard .conf output")
+
+        duplicate_conf = valid_conf.replace(
+            "DNS = 1.1.1.1, 2606:4700:4700::1111",
+            "DNS = 8.8.8.8"
+        ).replace("MTU = 1380", "MTU = 1280")
+        duplicate_path = wg_dir / "duplicate-local-preferences.conf"
+        duplicate_path.write_text(duplicate_conf, encoding="utf-8")
+        try:
+            validate_wireguard_confs(root)
+        except ValidationError as exc:
+            if "duplicate WireGuard tunnel config" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to reject a WireGuard duplicate differing only in DNS/MTU")
+        finally:
+            duplicate_path.unlink(missing_ok=True)
+
+        different_address = valid_conf.replace(
+            "Address = 10.0.0.2/32, fd00::2/128",
+            "Address = 10.0.0.3/32, fd00::2/128"
+        )
+        different_address_path = wg_dir / "different-interface-address.conf"
+        different_address_path.write_text(different_address, encoding="utf-8")
+        if validate_wireguard_confs(root) != 2:
+            raise ValidationError("self-test incorrectly collapsed distinct WireGuard interface addresses")
+        different_address_path.unlink()
+
         invalid_keepalive_yaml = yaml.replace("persistent-keepalive: 0", "persistent-keepalive: 65536")
         (root / "protocols" / "wireguard.txt").write_text(invalid_keepalive_yaml, encoding="utf-8")
         try:

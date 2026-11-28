@@ -592,6 +592,30 @@ internal static class Program
         Checks.That(CollectorType.IsValidWireguardLink(validWgLink),
             "valid WireGuard key material remains eligible for output feeds");
 
+        string wgLocalPreferencesA = validWgLink + "&dns=1.1.1.1&mtu=1280";
+        string wgLocalPreferencesB = validWgLink + "&dns=8.8.8.8%2C1.1.1.1&mtu=1420";
+        var wgParsedPreferencesA = CollectorType.ParseProxyLine(wgLocalPreferencesA);
+        var wgParsedPreferencesB = CollectorType.ParseProxyLine(wgLocalPreferencesB);
+        Checks.That(wgParsedPreferencesA is not null && wgParsedPreferencesB is not null,
+            "WireGuard profiles with different local DNS/MTU preferences parse");
+        Checks.Equal(wgParsedPreferencesA!.DeduplicationKey, wgParsedPreferencesB!.DeduplicationKey,
+            "WireGuard DNS and MTU differences do not create duplicate exact tunnel identities");
+        Checks.Equal(wgParsedPreferencesA.SelectionProfileKey, wgParsedPreferencesB.SelectionProfileKey,
+            "WireGuard DNS and MTU differences collapse in every compact output profile");
+
+        var wgOutputPreferencesA = CollectorType.TryParseWireguardInfo(wgLocalPreferencesA);
+        var wgOutputPreferencesB = CollectorType.TryParseWireguardInfo(wgLocalPreferencesB);
+        Checks.That(wgOutputPreferencesA is not null && wgOutputPreferencesB is not null,
+            "WireGuard DNS/MTU variants remain exportable");
+        Checks.Equal(
+            CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!, includeReserved: false),
+            CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesB!, includeReserved: false),
+            "standard .conf export identity ignores DNS and MTU preference changes");
+        Checks.Equal(
+            CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!, includeReserved: true),
+            CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesB!, includeReserved: true),
+            "Clash export identity ignores DNS and MTU preference changes while retaining reserved-byte identity");
+
         string fullWireguardConf =
             "[Interface]\r\n" +
             $"PrivateKey = {validWgPrivateKey}\r\n" +
@@ -1734,7 +1758,7 @@ internal static class Program
 
         var tcpUnusedHost = CollectorType.ParseProxyLine(
             $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp&headerType=none&host=unused-front.example.net");
-        Checks.Equal(tcpDefaultHeader.DeduplicationKey, tcpUnusedHost!.DeduplicationKey,
+        Checks.Equal(tcpDefaultHeader!.DeduplicationKey, tcpUnusedHost!.DeduplicationKey,
             "raw TCP with headerType=none ignores any Host override value");
 
         var httpUpgradeSniFallback = CollectorType.ParseProxyLine(
@@ -1746,9 +1770,9 @@ internal static class Program
         Checks.That(httpUpgradeSniFallback is not null && httpUpgradeEndpointHost is not null &&
                     httpUpgradeSniHost is not null,
             "HTTPUpgrade profiles with custom TLS server name parse");
-        Checks.That(httpUpgradeSniFallback.DeduplicationKey != httpUpgradeEndpointHost.DeduplicationKey,
+        Checks.That(httpUpgradeSniFallback!.DeduplicationKey != httpUpgradeEndpointHost!.DeduplicationKey,
             "HTTPUpgrade preserves endpoint Host override when TLS serverName is different");
-        Checks.Equal(httpUpgradeSniFallback.DeduplicationKey, httpUpgradeSniHost.DeduplicationKey,
+        Checks.Equal(httpUpgradeSniFallback!.DeduplicationKey, httpUpgradeSniHost!.DeduplicationKey,
             "HTTPUpgrade Host equal to TLS serverName collapses to the default fallback");
 
         var wsCustomSni = CollectorType.ParseProxyLine(
@@ -1761,7 +1785,7 @@ internal static class Program
         var tcpHttpHost = CollectorType.ParseProxyLine(
             $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp&headerType=http&host=tcp-identity.example.net");
         Checks.That(tcpHttpHost is not null &&
-                    tcpDefaultHeader.DeduplicationKey != tcpHttpHost.DeduplicationKey,
+                    tcpDefaultHeader!.DeduplicationKey != tcpHttpHost.DeduplicationKey,
             "TCP HTTP-obfuscation Host remains distinct from the default raw TCP transport");
 
         var xhttpExtraPlus = CollectorType.ParseProxyLine(

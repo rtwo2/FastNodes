@@ -271,6 +271,21 @@ namespace ProxyCollector.Collector
                 if (string.IsNullOrEmpty(cred) && scheme == "hysteria")
                     cred = q.GetValueOrDefault("auth", "");
 
+                // WireGuard DNS and MTU tune the local client interface. They do
+                // not identify a different remote tunnel, so they are intentionally
+                // excluded from both exact and compact profile identities. Other
+                // connection settings (keys, address, AllowedIPs, PSK, keepalive,
+                // reserved bytes, and unknown options) remain identity-significant.
+                string[] identityExcludedOptions = new[]
+                    {
+                        "security", "type", "sni", "path", "pbk", "sid", "flow",
+                        "obfs-password", "auth"
+                    }
+                    .Concat(scheme is "wireguard" or "wg"
+                        ? new[] { "dns", "mtu" }
+                        : Array.Empty<string>())
+                    .ToArray();
+
                 return new ParsedProxy
                 {
                     Protocol   = scheme,
@@ -288,8 +303,7 @@ namespace ProxyCollector.Collector
                     BaseLink   = baseLink,
                     ConnectionOptionsKey = BuildProxyUriOptionsKey(uri.Query, h, net, sec, sni,
                         q.GetValueOrDefault("headerType", "none"),
-                        "security", "type", "sni", "path", "pbk", "sid", "flow",
-                        "obfs-password", "auth"),
+                        identityExcludedOptions),
                     LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                 };
             }

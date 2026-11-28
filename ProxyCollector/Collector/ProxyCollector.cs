@@ -2696,7 +2696,7 @@ namespace ProxyCollector.Collector
             if (pool.Count == 0) { LogInfo("Edge verification: no candidates."); return; }
 
             int ok = 0;
-            int noTcpConnection = 0, preTcpCfBlocked = 0, preTcpRefused = 0,
+            int noTcpConnection = 0, preTcpCfBlocked = 0, preTcpBlockedAddress = 0, preTcpRefused = 0,
                 preTcpTimeouts = 0, preTcpDnsFails = 0, preTcpTlsFails = 0, preTcpErrors = 0;
             int sniUnconfirmed = 0, sniMissing = 0, sniMismatched = 0;
             int tlsHandshakeFailures = 0;
@@ -2771,6 +2771,7 @@ namespace ProxyCollector.Collector
                                     switch (tcp.Trim().ToLowerInvariant())
                                     {
                                         case "cf-blocked": Interlocked.Increment(ref preTcpCfBlocked); break;
+                                        case "blocked-address": Interlocked.Increment(ref preTcpBlockedAddress); break;
                                         case "refused": Interlocked.Increment(ref preTcpRefused); break;
                                         case "timeout": Interlocked.Increment(ref preTcpTimeouts); break;
                                         case "dns": Interlocked.Increment(ref preTcpDnsFails); break;
@@ -2845,7 +2846,8 @@ namespace ProxyCollector.Collector
 
             LogInfo($"Edge verification: {ok}/{pool.Count} endpoints TLS-verified from the CF edge → " +
                     $"nodes promoted (+20). [no confirmed TCP connection {noTcpConnection} " +
-                    $"(cf-blocked {preTcpCfBlocked}, refused {preTcpRefused}, timeout {preTcpTimeouts}, " +
+                    $"(cf-blocked {preTcpCfBlocked}, blocked-address {preTcpBlockedAddress}, " +
+                    $"refused {preTcpRefused}, timeout {preTcpTimeouts}, " +
                     $"dns {preTcpDnsFails}, tls-error {preTcpTlsFails}, err {preTcpErrors}); " +
                     $"TLS handshake failures after confirmed TCP+SNI {tlsHandshakeFailures}; " +
                     $"SNI-unconfirmed after TCP {sniUnconfirmed}]. Failures are not drops.");

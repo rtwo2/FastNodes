@@ -610,7 +610,10 @@ namespace ProxyCollector.Collector
                     Credential = username + ":" + password,
                     Network = protocols[0].Value.ToLowerInvariant(),
                     BaseLink = baseLink,
-                    ConnectionOptionsKey = BuildCanonicalQueryIdentityKey(uri.Query, "profile"),
+                    // The profile is a display label; TCP/UDP transport is already
+                    // represented in Network, while the port binding remains in the
+                    // query so distinct ranges cannot collapse.
+                    ConnectionOptionsKey = BuildCanonicalQueryIdentityKey(uri.Query, "profile", "protocol"),
                     LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                 };
             }

@@ -30,17 +30,17 @@ internal static class Program
         var hy2Alias = new ProxyCollector.Collector.FinalProxy
         {
             Link = "hy2://shared-auth@alias.example.net:443", Proto = "hy2",
-            Host = "alias.example.net", Port = "443", Network = "udp", Security = "tls"
+            Host = "alias.example.net", Port = "443", Credential = "shared-auth", Network = "udp", Security = "tls"
         };
         var hysteria2Canonical = new ProxyCollector.Collector.FinalProxy
         {
             Link = "hysteria2://shared-auth@alias.example.net:443", Proto = "hysteria2",
-            Host = "alias.example.net", Port = "443", Network = "udp", Security = "tls"
+            Host = "alias.example.net", Port = "443", Credential = "shared-auth", Network = "udp", Security = "tls"
         };
         var hysteriaV1 = new ProxyCollector.Collector.FinalProxy
         {
             Link = "hysteria://user-c@alias.example.net:443", Proto = "hysteria",
-            Host = "alias.example.net", Port = "443", Network = "udp", Security = "tls"
+            Host = "alias.example.net", Port = "443", Credential = "user-c", Network = "udp", Security = "tls"
         };
         Checks.Equal(2, CollectorType.SelectBestEndpointProfiles(
                 new[] { hy2Alias, hysteria2Canonical, hysteriaV1 }).Count,
@@ -2269,21 +2269,21 @@ internal static class Program
             new ProxyCollector.Collector.FinalProxy
             {
                 Link = "vless://credential-a@shared.example.net:443?security=reality&type=tcp&flow=xtls-rprx-vision&sni=cdn.example.net",
-                Host = "shared.example.net", Port = "443", Proto = "vless", Sni = "cdn.example.net",
+                Host = "shared.example.net", Port = "443", Proto = "vless", Credential = "credential-a", Sni = "cdn.example.net",
                 Network = "tcp", Security = "reality", Flow = "xtls-rprx-vision",
                 XrayVerified = true, Score = 80, SourceGroup = "repo-a", HostGroup = "shared.example.net"
             },
             new ProxyCollector.Collector.FinalProxy
             {
                 Link = "vless://credential-a@shared.example.net:443?security=reality&type=tcp&flow=xtls-rprx-vision&sni=cdn.example.net",
-                Host = "shared.example.net", Port = "443", Proto = "vless", Sni = "cdn.example.net",
+                Host = "shared.example.net", Port = "443", Proto = "vless", Credential = "credential-a", Sni = "cdn.example.net",
                 Network = "tcp", Security = "reality", Flow = "xtls-rprx-vision",
                 XrayVerified = true, Score = 120, SourceGroup = "repo-b", HostGroup = "shared.example.net"
             },
             new ProxyCollector.Collector.FinalProxy
             {
                 Link = "vless://credential-c@shared.example.net:443?security=reality&type=tcp&flow=xtls-rprx-vision&sni=other.example.net",
-                Host = "shared.example.net", Port = "443", Proto = "vless", Sni = "other.example.net",
+                Host = "shared.example.net", Port = "443", Proto = "vless", Credential = "credential-c", Sni = "other.example.net",
                 Network = "tcp", Security = "reality", Flow = "xtls-rprx-vision",
                 XrayVerified = true, Score = 100, SourceGroup = "repo-c", HostGroup = "shared.example.net"
             }
@@ -2427,13 +2427,13 @@ internal static class Program
         {
             Link = "vless://one@case-path.example.net:443?security=reality&type=ws&path=%2FABC",
             Proto = "vless", Host = "case-path.example.net", Port = "443",
-            Network = "ws", Security = "reality", Path = "/ABC"
+            Network = "ws", Security = "reality", Credential = "one", Path = "/ABC"
         };
         var casePathLower = new ProxyCollector.Collector.FinalProxy
         {
             Link = "vless://one@case-path.example.net:443?security=reality&type=ws&path=%2Fabc",
             Proto = "vless", Host = "case-path.example.net", Port = "443",
-            Network = "ws", Security = "reality", Path = "/abc"
+            Network = "ws", Security = "reality", Credential = "one", Path = "/abc"
         };
         Checks.Equal(1, CollectorType.SelectBestEndpointProfiles(
                 new[] { casePathUpper, casePathLower }).Count,

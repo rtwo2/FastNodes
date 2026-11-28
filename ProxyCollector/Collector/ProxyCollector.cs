@@ -3018,25 +3018,47 @@ namespace ProxyCollector.Collector
         internal static void UpdateStreaks(Dictionary<string, NodeHistory> history, List<ParsedProxy> alive)
         {
             var seenNow = new HashSet<string>();
+            // The previous public identity omitted WireGuard PSK. It can therefore
+            // map to more than one new identity. Only migrate that history when the
+            // mapping is one-to-one; never copy one old streak onto distinct PSK nodes.
+            var previousIdentityCounts = alive
+                .GroupBy(p => p.PreviousDeduplicationKey, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+            var legacyIdentityCounts = alive
+                .GroupBy(p => p.LegacyDeduplicationKey, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+
             foreach (var p in alive)
             {
                 string k = HistKey(p.DeduplicationKey);
                 seenNow.Add(k);
                 if (!history.TryGetValue(k, out var h))
                 {
-                    // Identity keys became canonical (IDN/IP normalization, semantic
-                    // options and UUID-only case folding). Migrate the matching old key
-                    // once so a safe dedup upgrade does not reset all stability streaks.
-                    string legacyKey = HistKey(p.LegacyDeduplicationKey);
-                    if (legacyKey != k && history.TryGetValue(legacyKey, out var legacyHistory))
+                    string previousKey = HistKey(p.PreviousDeduplicationKey);
+                    if (previousIdentityCounts[p.PreviousDeduplicationKey] == 1 &&
+                        previousKey != k && history.TryGetValue(previousKey, out var previousHistory))
                     {
-                        h = legacyHistory;
-                        history.Remove(legacyKey);
+                        h = previousHistory;
+                        history.Remove(previousKey);
                         history[k] = h;
                     }
                     else
                     {
-                        h = history[k] = new NodeHistory { Streak = 0, Misses = 0 };
+                        // Fallback for snapshots from the older colon-delimited identity
+                        // schema. Ambiguous case-folded credentials must not share history.
+                        string legacyIdentity = p.LegacyDeduplicationKey;
+                        string legacyKey = HistKey(legacyIdentity);
+                        if (legacyIdentityCounts[legacyIdentity] == 1 &&
+                            legacyKey != k && history.TryGetValue(legacyKey, out var legacyHistory))
+                        {
+                            h = legacyHistory;
+                            history.Remove(legacyKey);
+                            history[k] = h;
+                        }
+                        else
+                        {
+                            h = history[k] = new NodeHistory { Streak = 0, Misses = 0 };
+                        }
                     }
                 }
 

@@ -5,6 +5,7 @@ using System.Threading;
 using ProxyCollector.Services;
 using YamlDotNet.RepresentationModel;
 using System.Text;
+using System.Security.Cryptography;
 using System.Text.Json;
 using CollectorType = ProxyCollector.Collector.ProxyCollector;
 
@@ -45,6 +46,21 @@ internal static class Program
         Checks.Equal(2, CollectorType.SelectBestEndpointProfiles(
                 new[] { hy2Alias, hysteria2Canonical, hysteriaV1 }).Count,
             "Hysteria2 spelling aliases with the same auth collapse; Hysteria v1 with different auth remains separate");
+
+        var dnsAliasA = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://same-auth@multi.example.net:443", Proto = "vless",
+            Host = "multi.example.net", Port = "443", Credential = "same-auth",
+            Security = "tls", SelectionProfileKey = "resolved-ip-a"
+        };
+        var dnsAliasB = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://same-auth@multi.example.net:443?type=ws", Proto = "vless",
+            Host = "multi.example.net", Port = "443", Credential = "same-auth",
+            Security = "tls", SelectionProfileKey = "resolved-ip-b"
+        };
+        Checks.Equal(1, CollectorType.SelectBestEndpointProfiles(new[] { dnsAliasA, dnsAliasB }).Count,
+            "one advertised hostname cannot split into duplicate public profiles because DNS resolved to different IPs");
 
         Checks.Equal(0, CollectorType.CountRawLines(""),
             "empty source bodies contain zero raw lines");
@@ -117,6 +133,44 @@ internal static class Program
         Checks.That(!returnedAfterGap.IsStable, "a returning node must earn three new consecutive appearances");
         Checks.Equal(4, returnedAfterGap.VerifiedStreak, "a missed presence run preserves independent TLS verification history");
         Checks.Equal(5, returnedAfterGap.XrayStreak, "a missed presence run preserves independent Xray verification history");
+
+        var migratedNode = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "vless", Host = "migration.example.net", Port = "443",
+            Credential = "migration-user", Network = "tcp", Security = "tls"
+        };
+        string previousHistoryKey = Convert.ToHexString(
+            SHA256.HashData(Encoding.UTF8.GetBytes(migratedNode.PreviousDeduplicationKey)), 0, 8);
+        var migratedHistory = new Dictionary<string, ProxyCollector.Collector.NodeHistory>(StringComparer.Ordinal)
+        {
+            [previousHistoryKey] = new ProxyCollector.Collector.NodeHistory { Streak = 4 }
+        };
+        CollectorType.UpdateStreaks(migratedHistory, new List<ProxyCollector.Collector.ParsedProxy> { migratedNode });
+        Checks.Equal(5, migratedNode.Streak,
+            "presence streak migrates from the immediately previous JSON identity schema");
+
+        var oldWireGuardHistoryNode = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "wireguard", Host = "wg-migration.example.net", Port = "51820",
+            Network = "udp", PresharedKey = "old-psk-a"
+        };
+        string ambiguousPreviousKey = Convert.ToHexString(
+            SHA256.HashData(Encoding.UTF8.GetBytes(oldWireGuardHistoryNode.PreviousDeduplicationKey)), 0, 8);
+        var ambiguousHistory = new Dictionary<string, ProxyCollector.Collector.NodeHistory>(StringComparer.Ordinal)
+        {
+            [ambiguousPreviousKey] = new ProxyCollector.Collector.NodeHistory { Streak = 9 }
+        };
+        var wireGuardPskB = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "wireguard", Host = "wg-migration.example.net", Port = "51820",
+            Network = "udp", PresharedKey = "old-psk-b"
+        };
+        CollectorType.UpdateStreaks(ambiguousHistory,
+            new List<ProxyCollector.Collector.ParsedProxy> { oldWireGuardHistoryNode, wireGuardPskB });
+        Checks.Equal(1, oldWireGuardHistoryNode.Streak,
+            "ambiguous old history is not copied onto the first distinct PSK profile");
+        Checks.Equal(1, wireGuardPskB.Streak,
+            "ambiguous old history is not copied onto another distinct PSK profile");
 
         var interleavedFamilies = HappyEyeballsConnector.OrderAddresses(new[]
         {

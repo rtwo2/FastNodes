@@ -4474,9 +4474,10 @@ namespace ProxyCollector.Collector
                 if (!string.IsNullOrWhiteSpace(binding))
                 {
                     string[] range = binding.Split('-', StringSplitOptions.None);
+                    int firstPort = 0;
                     bool valid = range.Length is 1 or 2 &&
                         int.TryParse(range[0], System.Globalization.NumberStyles.None,
-                            System.Globalization.CultureInfo.InvariantCulture, out int firstPort) &&
+                            System.Globalization.CultureInfo.InvariantCulture, out firstPort) &&
                         firstPort is >= 1 and <= 65535;
                     int lastPort = firstPort;
                     if (valid && range.Length == 2)

@@ -1468,11 +1468,39 @@ namespace ProxyCollector.Collector
         {
             ArgumentNullException.ThrowIfNull(info);
 
-            static string NormalizeList(string value) =>
-                string.Join(",", (value ?? "").Split(
-                    ',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Select(item => item.ToLowerInvariant())
+            static string NormalizeList(string value, bool networkList)
+            {
+                string NormalizeEntry(string entry)
+                {
+                    string[] parts = entry.Trim().Split('/', 2);
+                    if (!IPAddress.TryParse(parts[0], out var address))
+                        return entry.Trim().ToLowerInvariant();
+
+                    byte[] bytes = address.GetAddressBytes();
+                    if (parts.Length == 1)
+                        return address.ToString().ToLowerInvariant();
+
+                    int maxPrefix = bytes.Length * 8;
+                    if (!int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture,
+                            out int prefix) || prefix < 0 || prefix > maxPrefix)
+                        return entry.Trim().ToLowerInvariant();
+
+                    // Interface addresses retain their host bits. AllowedIPs are
+                    // routes, so normalize host bits away just as IPNetwork does.
+                    if (networkList)
+                    {
+                        for (int bit = prefix; bit < maxPrefix; bit++)
+                            bytes[bit / 8] &= (byte)~(1 << (7 - (bit % 8)));
+                    }
+
+                    return $"{new IPAddress(bytes).ToString().ToLowerInvariant()}/{prefix}";
+                }
+
+                return string.Join(",", (value ?? "").Split(
+                        ',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(NormalizeEntry)
                     .OrderBy(item => item, StringComparer.Ordinal));
+            }
 
             var identity = new List<string>
             {
@@ -1481,8 +1509,8 @@ namespace ProxyCollector.Collector
                 info.PrivateKey ?? "",
                 info.PublicKey ?? "",
                 info.PresharedKey ?? "",
-                NormalizeList(info.Address),
-                NormalizeList(info.AllowedIPs),
+                NormalizeList(info.Address, networkList: false),
+                NormalizeList(info.AllowedIPs, networkList: true),
                 info.PersistentKeepalive?.ToString(CultureInfo.InvariantCulture) ?? ""
             };
 

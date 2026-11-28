@@ -722,9 +722,8 @@ namespace ProxyCollector.Collector
             return Math.Min(outputCount, Math.Max(shareCap, balancedCap));
         }
 
-        // Endpoint profile identity excludes access credentials except for WireGuard,
-        // where the private key defines a different local tunnel interface. Parsed
-        // candidates carry this key from the single canonical identity implementation.
+        // Exact candidate identity retains credentials and protocol-specific config
+        // during probing. Public endpoint selection happens later, after evidence is known.
         internal static string GetFinalConnectionIdentityKey(FinalProxy p)
         {
             if (!string.IsNullOrWhiteSpace(p.ConnectionIdentityKey))

@@ -2396,9 +2396,9 @@ internal static class Program
             Proto = "vless", Host = "case-path.example.net", Port = "443",
             Network = "ws", Security = "reality", Path = "/abc"
         };
-        Checks.Equal(2, CollectorType.SelectBestEndpointProfiles(
+        Checks.Equal(1, CollectorType.SelectBestEndpointProfiles(
                 new[] { casePathUpper, casePathLower }).Count,
-            "profile dedup preserves case-sensitive transport paths in compact outputs");
+            "endpoint-first output keeps one representative when only transport path casing differs");
 
         var ssFallbackA = new ProxyCollector.Collector.FinalProxy
         {
@@ -2418,9 +2418,9 @@ internal static class Program
             Proto = "ss", Host = "fallback-ss.example.net", Port = "8388",
             Credential = "chacha20-ietf-poly1305:password-c"
         };
-        Checks.Equal(2, CollectorType.SelectBestEndpointProfiles(
+        Checks.Equal(1, CollectorType.SelectBestEndpointProfiles(
                 new[] { ssFallbackA, ssFallbackB, ssFallbackOtherCipher }).Count,
-            "fallback FinalProxy service profiles collapse password variants but preserve different Shadowsocks ciphers");
+            "fallback FinalProxy identity keeps one representative per Shadowsocks endpoint and port");
 
         var optionsVariantA = new ProxyCollector.Collector.FinalProxy
         {
@@ -2434,9 +2434,9 @@ internal static class Program
             Host = "same.example.net", Port = "443", Network = "tcp",
             Security = "tls", ConnectionOptionsKey = "fp=firefox;alpn=http/1.1"
         };
-        Checks.That(CollectorType.GetTopEndpointProfileKey(optionsVariantA) !=
-                    CollectorType.GetTopEndpointProfileKey(optionsVariantB),
-            "deduplication preserves VMess/SS variants with different connection-affecting options");
+        Checks.Equal(CollectorType.GetTopEndpointProfileKey(optionsVariantA),
+            CollectorType.GetTopEndpointProfileKey(optionsVariantB),
+            "VMess fingerprint and ALPN alternatives at the same endpoint/port/SNI select one compact representative");
 
         var protocolVariant = new ProxyCollector.Collector.FinalProxy
         {
@@ -2444,9 +2444,9 @@ internal static class Program
             Host = "same.example.net", Port = "443", Network = "tcp",
             Security = "tls"
         };
-        Checks.That(CollectorType.GetTopEndpointProfileKey(optionsVariantA) !=
-                    CollectorType.GetTopEndpointProfileKey(protocolVariant),
-            "different proxy protocols at the same host and port remain distinct profiles");
+        Checks.Equal(CollectorType.GetTopEndpointProfileKey(optionsVariantA),
+            CollectorType.GetTopEndpointProfileKey(protocolVariant),
+            "different proxy protocols at the same endpoint/port/effective SNI share one public entry");
         var realityVariant = new ProxyCollector.Collector.FinalProxy
         {
             Link = "vless://c@same.example.net:443", Proto = "vless",
@@ -2459,9 +2459,9 @@ internal static class Program
             Host = "same.example.net", Port = "443", Network = "tcp",
             Security = "reality", Pbk = "another-public-key", Sid = "abcd"
         };
-        Checks.That(CollectorType.GetTopEndpointProfileKey(realityVariant) !=
-                    CollectorType.GetTopEndpointProfileKey(realityBase),
-            "distinct REALITY public keys remain separate endpoint profiles");
+        Checks.Equal(CollectorType.GetTopEndpointProfileKey(realityVariant),
+            CollectorType.GetTopEndpointProfileKey(realityBase),
+            "REALITY key alternatives at the same endpoint/port/SNI select one public representative");
         var obfsVariant = new ProxyCollector.Collector.FinalProxy
         {
             Link = "hysteria2://a@same.example.net:443", Proto = "hysteria2",
@@ -2474,9 +2474,9 @@ internal static class Program
             Host = "same.example.net", Port = "443", Network = "udp",
             Security = "tls", ObfsPassword = "another-obfs"
         };
-        Checks.That(CollectorType.GetTopEndpointProfileKey(obfsVariant) !=
-                    CollectorType.GetTopEndpointProfileKey(obfsBase),
-            "different Hysteria2 obfuscation secrets remain separate endpoint profiles");
+        Checks.Equal(CollectorType.GetTopEndpointProfileKey(obfsVariant),
+            CollectorType.GetTopEndpointProfileKey(obfsBase),
+            "Hysteria2 obfuscation credential alternatives at the same endpoint/port/SNI select one public representative");
 
         var profileCredentialA = CollectorType.ParseProxyLine(
             "vless://credential-a@profile.example.net:443?security=tls");
@@ -2497,8 +2497,55 @@ internal static class Program
             Protocol = "wireguard", Host = "wg.example.net", Port = "51820",
             Credential = "private-key-b"
         };
-        Checks.That(wireguardProfileA.SelectionProfileKey != wireguardProfileB.SelectionProfileKey,
-            "WireGuard private keys remain part of tunnel-profile identity");
+        Checks.Equal(wireguardProfileA.SelectionProfileKey, wireguardProfileB.SelectionProfileKey,
+            "WireGuard private-key alternatives at the same endpoint and port select one public representative");
+
+        var endpointSame = CollectorType.ParseProxyLine(
+            "trojan://different-secret@profile.example.net:443?sni=front.example.net");
+        var endpointDifferentPort = CollectorType.ParseProxyLine(
+            "trojan://different-secret@profile.example.net:8443?sni=front.example.net");
+        var endpointDifferentSni = CollectorType.ParseProxyLine(
+            "trojan://different-secret@profile.example.net:443?sni=other-front.example.net");
+        Checks.That(endpointSame is not null && endpointDifferentPort is not null && endpointDifferentSni is not null,
+            "endpoint-first identity test profiles parse");
+        Checks.Equal(profileCredentialA.SelectionProfileKey, endpointSame!.SelectionProfileKey,
+            "a different protocol and credential still share one host/port/SNI public entry");
+        Checks.That(profileCredentialA.SelectionProfileKey != endpointDifferentPort!.SelectionProfileKey,
+            "a different endpoint port always remains a separate public entry");
+        Checks.That(profileCredentialA.SelectionProfileKey != endpointDifferentSni!.SelectionProfileKey,
+            "a different explicit SNI always remains a separate public entry");
+
+        var hostnameAlias = CollectorType.ParseProxyLine(
+            "vless://alias-user@alias.example.net:443?security=tls&sni=front.example.net");
+        var literalAlias = CollectorType.ParseProxyLine(
+            "trojan://literal-user@203.0.113.44:443?sni=front.example.net");
+        Checks.That(hostnameAlias is not null && literalAlias is not null,
+            "hostname and literal-IP alias test profiles parse");
+        hostnameAlias!.CanonicalEndpointHost = "203.0.113.44";
+        literalAlias!.CanonicalEndpointHost = "203.0.113.44";
+        Checks.Equal(hostnameAlias.SelectionProfileKey, literalAlias.SelectionProfileKey,
+            "DNS-canonical hostname and its literal-IP alias share one public identity when port and SNI match");
+
+        var bestEndpointCandidate = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "trojan://ordinary@profile.example.net:443?sni=front.example.net",
+            Proto = "trojan", Host = "profile.example.net", Port = "443", Sni = "front.example.net",
+            SelectionProfileKey = profileCredentialA.SelectionProfileKey,
+            TlsVerified = true, Score = 50
+        };
+        var strongestEndpointCandidate = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://credential-a@profile.example.net:443?security=tls&sni=front.example.net",
+            Proto = "vless", Host = "profile.example.net", Port = "443", Sni = "front.example.net",
+            SelectionProfileKey = profileCredentialA.SelectionProfileKey,
+            XrayVerified = true, Score = 100
+        };
+        var selectedEndpointCandidate = CollectorType.SelectBestEndpointProfiles(
+            new[] { bestEndpointCandidate, strongestEndpointCandidate });
+        Checks.Equal(1, selectedEndpointCandidate.Count,
+            "only one cross-protocol candidate survives per endpoint/port/SNI");
+        Checks.Equal(strongestEndpointCandidate.Link, selectedEndpointCandidate[0].Link,
+            "the best currently verified configuration wins the endpoint representative");
 
         var finalExactA = new ProxyCollector.Collector.FinalProxy
         {
@@ -2573,8 +2620,8 @@ internal static class Program
                     ssProfileA.SelectionProfileKey == ssProfileB.SelectionProfileKey,
             "Shadowsocks password variants are distinct configs but one service profile");
         Checks.That(ssProfileA is not null && ssDifferentCipher is not null &&
-                    ssProfileA.SelectionProfileKey != ssDifferentCipher.SelectionProfileKey,
-            "Shadowsocks cipher methods remain part of service-profile identity");
+                    ssProfileA.SelectionProfileKey == ssDifferentCipher.SelectionProfileKey,
+            "Shadowsocks cipher alternatives at one endpoint/port share one public entry");
 
         var nearbySingleSource = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@nearby.example.net:443?security=tls")!;

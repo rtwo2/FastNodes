@@ -603,6 +603,25 @@ internal static class Program
         Checks.Equal(wgParsedPreferencesA.SelectionProfileKey, wgParsedPreferencesB.SelectionProfileKey,
             "WireGuard DNS and MTU differences collapse in every compact output profile");
 
+        var wgUnknownOptionA = CollectorType.ParseProxyLine(validWgLink + "&dns=9.9.9.9&mtu=1360&unused-client-note=alpha");
+        var wgUnknownOptionB = CollectorType.ParseProxyLine(validWgLink + "&dns=8.8.8.8&mtu=1420&unused-client-note=beta");
+        Checks.That(wgUnknownOptionA is not null && wgUnknownOptionB is not null,
+            "WireGuard profiles with exporter-ignored query options parse");
+        Checks.Equal(wgUnknownOptionA!.DeduplicationKey, wgUnknownOptionB!.DeduplicationKey,
+            "WireGuard variants that serialize to the same effective tunnel collapse even when ignored query metadata differs");
+
+        var wgDifferentInterface = CollectorType.ParseProxyLine(
+            validWgLink.Replace("10.0.0.2%2F32", "10.0.0.3%2F32", StringComparison.Ordinal));
+        Checks.That(wgDifferentInterface is not null &&
+                    wgDifferentInterface.DeduplicationKey != wgParsedPreferencesA.DeduplicationKey,
+            "WireGuard assigned interface address remains part of effective tunnel identity");
+
+        var wgDifferentReserved = CollectorType.ParseProxyLine(validWgLink + "&reserved=1%2C2%2C3");
+        var wgOtherReserved = CollectorType.ParseProxyLine(validWgLink + "&reserved=1%2C2%2C4");
+        Checks.That(wgDifferentReserved is not null && wgOtherReserved is not null &&
+                    wgDifferentReserved.DeduplicationKey != wgOtherReserved.DeduplicationKey,
+            "WireGuard Amnezia reserved bytes remain identity-significant for Clash YAML");
+
         var wgOutputPreferencesA = CollectorType.TryParseWireguardInfo(wgLocalPreferencesA);
         var wgOutputPreferencesB = CollectorType.TryParseWireguardInfo(wgLocalPreferencesB);
         Checks.That(wgOutputPreferencesA is not null && wgOutputPreferencesB is not null,

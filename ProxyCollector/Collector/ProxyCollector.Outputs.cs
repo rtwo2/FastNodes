@@ -747,11 +747,18 @@ namespace ProxyCollector.Collector
             if (!string.IsNullOrWhiteSpace(p.ConnectionIdentityKey))
                 return p.ConnectionIdentityKey;
 
-            // Test fixtures and older serialized snapshots may not carry the parsed key.
-            // Reconstruct exact configuration identity from the service profile plus its
-            // credential (WireGuard already includes its private key in the profile).
-            string credential = NormalizeProto(p.Proto) == "wireguard" ? "" : p.Credential ?? "";
-            return JsonSerializer.Serialize(new[] { GetTopEndpointProfileKey(p), credential });
+            // Test fixtures and older snapshots may not carry the parsed exact key.
+            // The public identity already includes authentication; add transport and
+            // option fields here to retain exact-configuration duplicate semantics.
+            return JsonSerializer.Serialize(new[]
+            {
+                GetTopEndpointProfileKey(p),
+                NormalizeProto(p.Proto),
+                (p.Network ?? "tcp").Trim().ToLowerInvariant(),
+                (p.Security ?? "").Trim().ToLowerInvariant(),
+                p.Path ?? "",
+                p.ConnectionOptionsKey ?? ""
+            });
         }
 
         internal static List<FinalProxy> DeduplicateFinalProxies(IEnumerable<FinalProxy> proxies)
@@ -798,8 +805,9 @@ namespace ProxyCollector.Collector
                 .ToList();
         }
 
-        // Compact public feeds use one best representative per endpoint + port + SNI.
-        // Exact alternatives remain available to evidence ranking before this selection.
+        // Compact public feeds use one best representative per endpoint + port + SNI
+        // + authentication identity. Exact variants remain available to evidence
+        // ranking before this selection.
         internal static int GetVerifiedSnapshotReplacementFloor(int previousVerifiedCount) =>
             previousVerifiedCount <= 0
                 ? 1
@@ -879,10 +887,13 @@ namespace ProxyCollector.Collector
                 ? NormalizeIdentityHost(p.Sni)
                 : implicitTlsSni ? host : "";
 
-            // Endpoint-first identity: the protocol/credential/transport candidate is
-            // selected later by evidence ranking; only host, port and effective SNI
-            // define a separate public-feed entry.
-            return JsonSerializer.Serialize(new[] { host, port, sni });
+            string authenticationKey = ParsedProxy.BuildSelectionAuthenticationKey(
+                p.Proto, p.Credential, p.Pbk, p.PresharedKey, p.Sid, p.Flow,
+                p.ObfsPassword, p.Aid);
+
+            // The same endpoint/SNI with a different password, UUID, key or other
+            // protocol-specific authentication material is a separate public node.
+            return JsonSerializer.Serialize(new[] { host, port, sni, authenticationKey });
         }
 
         internal static List<FinalProxy> SelectTopWithIpv6Diversity(
@@ -1481,17 +1492,9 @@ namespace ProxyCollector.Collector
                 (reservedValues.Length == 3 && reservedValues.All(value => byte.TryParse(value, out _)));
         }
 
-        // Identity of the effective exported tunnel, not its display name or local
-        // resolver/link-MTU preferences. Different DNS and MTU values are harmless
-        // client-local variants of the same WireGuard peer and must not create another
-        // node. The .conf format cannot represent Amnezia reserved bytes, so callers
-        // exclude them from that format's identity; Clash YAML can preserve them.
-        // WireGuard has no TLS SNI. Public-feed uniqueness follows endpoint + port;
-        // credentials and local interface preferences are validated but do not create
-        // another copy of the same endpoint. Keep the optional argument for callers that
-        // were written against the previous format-aware helper.
-        // Exact candidate identity keeps tunnel credentials and routing material
-        // distinct during probing. DNS and MTU are local preferences and are omitted.
+        // Exact configuration identity for WireGuard candidate parsing/testing.
+        // Local DNS/MTU and source-only decorations are normalized separately from
+        // the public endpoint/authentication identity below.
         internal static string GetWireguardConfigurationIdentityKey(WgInfo info)
         {
             ArgumentNullException.ThrowIfNull(info);
@@ -1543,15 +1546,20 @@ namespace ProxyCollector.Collector
             });
         }
 
-        // Public WireGuard output identity is deliberately endpoint-first. Peer-key
-        // and local-interface alternatives remain testable but produce one public entry.
+        // Public WireGuard identity is endpoint + port + peer authentication
+        // (private key, peer public key and optional preshared key). Local interface
+        // address, AllowedIPs, DNS, MTU, keepalive and reserved metadata do not create
+        // another entry for the same authenticated peer.
         internal static string GetWireguardOutputIdentityKey(WgInfo info)
         {
             ArgumentNullException.ThrowIfNull(info);
             return JsonSerializer.Serialize(new[]
             {
                 NormalizeIdentityHost(info.Host),
-                info.Port.ToString(CultureInfo.InvariantCulture)
+                info.Port.ToString(CultureInfo.InvariantCulture),
+                (info.PrivateKey ?? "").Trim(),
+                (info.PublicKey ?? "").Trim(),
+                (info.PresharedKey ?? "").Trim()
             });
         }
 

@@ -788,36 +788,7 @@ namespace ProxyCollector.Collector
         {
             if (string.IsNullOrEmpty(query)) return "";
             var excluded = new HashSet<string>(excludedKeys, StringComparer.OrdinalIgnoreCase);
-            bool tcpWithoutHttpHeader = normalizeDefaults &&
-                string.Equals(network, "tcp", StringComparison.OrdinalIgnoreCase) &&
-                (string.IsNullOrWhiteSpace(headerType) ||
-                 string.Equals(headerType, "none", StringComparison.OrdinalIgnoreCase));
-            bool usesAddressAsDefaultHost = normalizeDefaults &&
-                (string.Equals(network, "ws", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(network, "httpupgrade", StringComparison.OrdinalIgnoreCase) ||
-                tcpWithoutHttpHeader);
-            // Do not discard an explicit host when a separate custom-header option
-            // could also specify Host; Xray gives the explicit host precedence.
-            bool hasCustomHeaders = normalizeDefaults && query.TrimStart('?')
-                .Split('&', StringSplitOptions.RemoveEmptyEntries)
-                .Any(pair =>
-                {
-                    int equals = pair.IndexOf('=');
-                    string rawKey = equals < 0 ? pair : pair[..equals];
-                    string key = UnescapeQueryComponent(rawKey, decodeQueryForm);
-                    return key.Equals("header", StringComparison.OrdinalIgnoreCase) ||
-                           key.Equals("headers", StringComparison.OrdinalIgnoreCase);
-                });
-            string normalizedEndpoint = string.IsNullOrWhiteSpace(endpointHost)
-                ? ""
-                : ProxyCollector.NormalizeIdentityHost(endpointHost);
-
-            // Preserve repeated parameters and their order within each key. ParseQuery's
-            // dictionary is convenient for known fields, but keeps only the last duplicate
-            // value; different plugins/transports may assign meaning to repeated options.
-            // Sorting by key removes irrelevant ordering differences between separate names
-            // while retaining the original order of repeated values for the same name.
-            var canonical = query.TrimStart('?')
+            var queryParameters = query.TrimStart('?')
                 .Split('&', StringSplitOptions.RemoveEmptyEntries)
                 .Select(pair =>
                 {
@@ -830,6 +801,30 @@ namespace ProxyCollector.Collector
                         Value = UnescapeQueryComponent(rawValue, decodeQueryForm)
                     };
                 })
+                .ToArray();
+            bool tcpWithoutHttpHeader = normalizeDefaults &&
+                string.Equals(network, "tcp", StringComparison.OrdinalIgnoreCase) &&
+                (string.IsNullOrWhiteSpace(headerType) ||
+                 string.Equals(headerType, "none", StringComparison.OrdinalIgnoreCase));
+            bool usesAddressAsDefaultHost = normalizeDefaults &&
+                (string.Equals(network, "ws", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(network, "httpupgrade", StringComparison.OrdinalIgnoreCase) ||
+                tcpWithoutHttpHeader);
+            // Do not discard an explicit host when a separate custom-header option
+            // could also specify Host; Xray gives the explicit host precedence.
+            bool hasCustomHeaders = normalizeDefaults && queryParameters.Any(item =>
+                item.Key.Equals("header", StringComparison.OrdinalIgnoreCase) ||
+                item.Key.Equals("headers", StringComparison.OrdinalIgnoreCase));
+            string normalizedEndpoint = string.IsNullOrWhiteSpace(endpointHost)
+                ? ""
+                : ProxyCollector.NormalizeIdentityHost(endpointHost);
+
+            // Preserve repeated parameters and their order within each key. ParseQuery's
+            // dictionary is convenient for known fields, but keeps only the last duplicate
+            // value; different plugins/transports may assign meaning to repeated options.
+            // Sorting by key removes irrelevant ordering differences between separate names
+            // while retaining the original order of repeated values for the same name.
+            var canonical = queryParameters
                 .Where(item => !excluded.Contains(item.Key))
                 .Where(item =>
                 {

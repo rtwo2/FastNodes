@@ -271,6 +271,28 @@ namespace ProxyCollector.Collector
                 if (string.IsNullOrEmpty(cred) && scheme == "hysteria")
                     cred = q.GetValueOrDefault("auth", "");
 
+                // A WireGuard link can contain more source-specific/unknown query options
+                // than the exporter actually emits. Use the effective parsed tunnel as its
+                // identity so variants that produce the same downloadable config collapse
+                // in the master catalogue and every derived feed, not only in wireguard/.
+                WgInfo? wireguardInfo = null;
+                if (scheme is "wireguard" or "wg")
+                {
+                    wireguardInfo = TryParseWireguardInfo(baseLink);
+                    if (wireguardInfo != null)
+                    {
+                        h = NormalizeUriHost(wireguardInfo.Host);
+                        p = wireguardInfo.Port;
+                        cred = wireguardInfo.PrivateKey ?? cred;
+                        pbk = wireguardInfo.PublicKey ?? pbk;
+                    }
+                    else if (string.IsNullOrEmpty(cred))
+                    {
+                        cred = q.GetValueOrDefault("privatekey",
+                            q.GetValueOrDefault("private_key", ""));
+                    }
+                }
+
                 // WireGuard DNS and MTU tune the local client interface. They do
                 // not identify a different remote tunnel, so they are intentionally
                 // excluded from both exact and compact profile identities. Other
@@ -301,9 +323,11 @@ namespace ProxyCollector.Collector
                     Flow       = flow,
                     ObfsPassword = obfsPwd,
                     BaseLink   = baseLink,
-                    ConnectionOptionsKey = BuildProxyUriOptionsKey(uri.Query, h, net, sec, sni,
-                        q.GetValueOrDefault("headerType", "none"),
-                        identityExcludedOptions),
+                    ConnectionOptionsKey = wireguardInfo != null
+                        ? GetWireguardOutputIdentityKey(wireguardInfo, includeReserved: true)
+                        : BuildProxyUriOptionsKey(uri.Query, h, net, sec, sni,
+                            q.GetValueOrDefault("headerType", "none"),
+                            identityExcludedOptions),
                     LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                 };
             }

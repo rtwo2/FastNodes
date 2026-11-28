@@ -90,10 +90,11 @@ namespace ProxyCollector.Collector
             foreach (var d in new[] { "protocols", "countries", "continents" })
                 Directory.CreateDirectory(Path.Combine(sub, d));
 
-            // Pick one canonical representative per service profile first. Every
-            // compact URI category below is derived from this same set, guaranteeing
-            // exact-link membership in everything.txt even when credential variants
-            // carry different per-credential history/evidence.
+            // Pick one canonical representative per endpoint + port + effective SNI.
+            // Every compact URI category below is derived from this same set, guaranteeing
+            // that different credentials/protocols/transport variants at one endpoint do
+            // not reappear in separate category files. All variants were probed first, so
+            // the selected representative can use the strongest available evidence.
             var catalogueProfiles = SelectBestEndpointProfiles(proxies);
 
             // Classify the canonical catalogue representatives into both address
@@ -104,13 +105,13 @@ namespace ProxyCollector.Collector
             int collapsedCatalogueVariants = proxies.Count - catalogueProfiles.Count;
             int everythingPartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "everything"), catalogueProfiles.Select(x => x.Link));
-            LogSuccess($"Saved everything.txt ({catalogueProfiles.Count} distinct service profiles; " +
-                       $"{collapsedCatalogueVariants} credential/URI variants collapsed)" +
+            LogSuccess($"Saved everything.txt ({catalogueProfiles.Count} distinct endpoint/port/SNI identities; " +
+                       $"{collapsedCatalogueVariants} endpoint variants collapsed)" +
                        (everythingPartCount > 1 ? $" across {everythingPartCount} parts (≤50 MiB each)" : ""));
 
-            // The master catalogue and compact evidence feeds both use one best
-            // representative per service profile. Credential-only alternatives are
-            // collapsed; connection-affecting differences remain distinct.
+            // The master catalogue and compact evidence feeds share one best
+            // representative per endpoint + port + effective SNI. Protocol, credential
+            // and transport alternatives are intentionally not repeated in public feeds.
             var stable = SelectCatalogueProfilesForCategory(catalogueProfiles, x => x.IsStable);
             int stablePartCount = await WriteSubscriptionPartsAsync(
                 Path.Combine(sub, "stable"), stable.Select(x => x.Link));
@@ -266,6 +267,9 @@ namespace ProxyCollector.Collector
             // NekoBox's JSON parser has a bug with WireGuard outbounds, so we output
             // Clash YAML which NekoBox parses perfectly. The official WireGuard app
             // imports .conf files. We output BOTH so either client can use the data.
+            // All feeds are projections of the same canonical catalogue. Keep a second
+            // format-aware identity guard here because multiple URI representations can
+            // serialize to the exact same downloadable WireGuard config.
             var wgNodes = SelectCatalogueProfilesForCategory(catalogueProfiles, x => x.Proto == "wireguard");
             if (wgNodes.Count > 0)
             {
@@ -273,28 +277,50 @@ namespace ProxyCollector.Collector
                 Directory.CreateDirectory(wgDir);
 
                 var clashProxies = new List<Dictionary<string, object?>>();
-                int ok = 0;
+                var seenConfIdentities = new HashSet<string>(StringComparer.Ordinal);
+                var seenClashIdentities = new HashSet<string>(StringComparer.Ordinal);
+                int parsed = 0, confCount = 0, confDuplicates = 0, clashDuplicates = 0;
+
                 foreach (var node in wgNodes)
                 {
                     var wgInfo = TryParseWireguardInfo(node.Link);
                     if (wgInfo == null) continue;
-                    ok++;
+                    parsed++;
 
-                    // Individual .conf — WireGuard app imports this directly
-                    string fileName = BuildWireguardConfFileName(ok, node.Remark);
-                    await File.WriteAllTextAsync(Path.Combine(wgDir, fileName), BuildWireguardConf(wgInfo));
+                    // WireGuard public output follows the same endpoint + port rule:
+                    // alternative peer keys and local interface preferences are checked
+                    // for validity but do not create another published endpoint entry.
+                    string confIdentity = GetWireguardOutputIdentityKey(wgInfo);
+                    if (seenConfIdentities.Add(confIdentity))
+                    {
+                        confCount++;
+                        string fileName = BuildWireguardConfFileName(confCount, node.Remark);
+                        await File.WriteAllTextAsync(
+                            Path.Combine(wgDir, fileName), BuildWireguardConf(wgInfo));
+                    }
+                    else
+                    {
+                        confDuplicates++;
+                    }
 
-                    // Build the Clash node as data. YamlDotNet handles quoting and
-                    // line breaks in every source-controlled scalar; string concatenation
-                    // here would allow newline/quote injection into downloadable configs.
-                    clashProxies.Add(BuildWireguardClashProxy(node.Remark, wgInfo));
+                    // Keep the Clash YAML guard consistent with the standard .conf
+                    // export: one entry per endpoint and port (WireGuard has no SNI).
+                    string clashIdentity = GetWireguardOutputIdentityKey(wgInfo);
+                    if (seenClashIdentities.Add(clashIdentity))
+                    {
+                        clashProxies.Add(BuildWireguardClashProxy(node.Remark, wgInfo));
+                    }
+                    else
+                    {
+                        clashDuplicates++;
+                    }
                 }
 
                 string wireguardProtocolDirectory = Path.Combine(sub, "protocols");
                 foreach (string stalePart in Directory.GetFiles(wireguardProtocolDirectory, "wireguard_part*.txt"))
                     File.Delete(stalePart);
 
-                if (ok > 0)
+                if (clashProxies.Count > 0)
                 {
                     var yamlParts = SerializeWireguardClashYamlParts(clashProxies);
                     for (int partIndex = 0; partIndex < yamlParts.Count; partIndex++)
@@ -311,8 +337,9 @@ namespace ProxyCollector.Collector
                     File.Delete(Path.Combine(wireguardProtocolDirectory, "wireguard.txt"));
                 }
 
-                LogSuccess($"Saved wireguard: {ok}/{wgNodes.Count} converted → " +
-                           $"{ok} Clash YAML nodes (NekoBox) + {ok} .conf files (WireGuard app)");
+                LogSuccess($"Saved wireguard: {parsed}/{wgNodes.Count} parsed; " +
+                           $"{confCount} unique .conf files ({confDuplicates} duplicate configs collapsed), " +
+                           $"{clashProxies.Count} unique Clash YAML nodes ({clashDuplicates} duplicate profiles collapsed).");
             }
 
             // Diagnostics are part of the same staged tree, so published subscriptions
@@ -363,7 +390,7 @@ namespace ProxyCollector.Collector
 
         private async Task<List<string>> FilterSafeLastGoodLinksAsync(IReadOnlyList<string> links)
         {
-            var safe = new string?[links.Count];
+            var safe = new (string Link, ParsedProxy Parsed)?[links.Count];
             await Parallel.ForEachAsync(Enumerable.Range(0, links.Count),
                 new ParallelOptions { MaxDegreeOfParallelism = 50 },
                 async (index, _) =>
@@ -395,8 +422,10 @@ namespace ProxyCollector.Collector
                         return;
 
                     bool isUnsafeAddress = false;
+                    IEnumerable<IPAddress> resolvedAddresses = Array.Empty<IPAddress>();
                     if (IPAddress.TryParse(parsed.Host.Trim('[', ']'), out var literal))
                     {
+                        resolvedAddresses = new[] { literal };
                         isUnsafeAddress =
                             IsCloudflareIp(literal) ||
                             IsPrivateOrReservedIp(literal) ||
@@ -406,11 +435,11 @@ namespace ProxyCollector.Collector
                     {
                         try
                         {
-                            var addresses = await Resolver.ResolveAllAsync(parsed.Host);
+                            resolvedAddresses = await Resolver.ResolveAllAsync(parsed.Host);
                             // Reject mixed DNS answers if any address is unsafe. Keep the
                             // existing fail-open behavior on resolver failure so a DNS
                             // outage alone does not erase the last-good snapshot.
-                            isUnsafeAddress = addresses.Any(address =>
+                            isUnsafeAddress = resolvedAddresses.Any(address =>
                                 IsCloudflareIp(address) ||
                                 IsPrivateOrReservedIp(address) ||
                                 IsFireholBlacklisted(address));
@@ -421,11 +450,27 @@ namespace ProxyCollector.Collector
                         }
                     }
 
-                    if (!isUnsafeAddress) safe[index] = link;
+                    if (!isUnsafeAddress)
+                    {
+                        // Apply the same DNS alias normalization as the current-run
+                        // catalogue, so historical host/IP spellings cannot reintroduce
+                        // duplicates into verified_last_good.txt.
+                        parsed.CanonicalEndpointHost = BuildAliasCanonicalHost(parsed.Host, resolvedAddresses);
+                        safe[index] = (link, parsed);
+                    }
                 });
 
-            var filtered = DeduplicateFallbackLinks(
-                safe.Where(link => !string.IsNullOrWhiteSpace(link)).Select(link => link!));
+            // Preserve the prior evidence ordering: the first safe link for an endpoint
+            // + port + effective SNI is the representative in the historical snapshot.
+            var filtered = new List<string>();
+            var seenProfiles = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var item in safe)
+            {
+                if (!item.HasValue) continue;
+                var entry = item.Value;
+                if (seenProfiles.Add(entry.Parsed.SelectionProfileKey))
+                    filtered.Add(entry.Link);
+            }
 
             // A last-good snapshot may still contain the old provider/hash-heavy remarks.
             // Rebuild fallback labels with the current naming format too, so verified.txt
@@ -695,9 +740,8 @@ namespace ProxyCollector.Collector
             return Math.Min(outputCount, Math.Max(shareCap, balancedCap));
         }
 
-        // Endpoint profile identity excludes access credentials except for WireGuard,
-        // where the private key defines a different local tunnel interface. Parsed
-        // candidates carry this key from the single canonical identity implementation.
+        // Exact candidate identity retains credentials and protocol-specific config
+        // during probing. Public endpoint selection happens later, after evidence is known.
         internal static string GetFinalConnectionIdentityKey(FinalProxy p)
         {
             if (!string.IsNullOrWhiteSpace(p.ConnectionIdentityKey))
@@ -754,8 +798,8 @@ namespace ProxyCollector.Collector
                 .ToList();
         }
 
-        // Compact category feeds use one best representative per connection profile.
-        // The master catalogue still retains distinct credentials as distinct configs.
+        // Compact public feeds use one best representative per endpoint + port + SNI.
+        // Exact alternatives remain available to evidence ranking before this selection.
         internal static int GetVerifiedSnapshotReplacementFloor(int previousVerifiedCount) =>
             previousVerifiedCount <= 0
                 ? 1
@@ -807,35 +851,38 @@ namespace ProxyCollector.Collector
             if ((host.Length == 0 || port.Length == 0) &&
                 Uri.TryCreate(p.Link, UriKind.Absolute, out var uri))
             {
-                if (host.Length == 0) host = uri.Host.Trim('[', ']').TrimEnd('.').ToLowerInvariant();
-                if (port.Length == 0 && !uri.IsDefaultPort) port = uri.Port.ToString(CultureInfo.InvariantCulture);
+                if (host.Length == 0) host = NormalizeIdentityHost(uri.Host);
+                if (port.Length == 0 && !uri.IsDefaultPort)
+                    port = uri.Port.ToString(CultureInfo.InvariantCulture);
             }
             if (int.TryParse(port, NumberStyles.Integer, CultureInfo.InvariantCulture, out int portNumber))
                 port = portNumber.ToString(CultureInfo.InvariantCulture);
 
             string protocol = NormalizeProto(p.Proto);
-            string sni = string.IsNullOrWhiteSpace(p.Sni) ? host : NormalizeIdentityHost(p.Sni);
-            string rawCredential = p.Credential ?? "";
-            string credential = protocol == "wireguard"
-                ? rawCredential
-                : (protocol is "ss" or "ssr") && rawCredential.Contains(':')
-                    ? rawCredential[..rawCredential.IndexOf(':')].ToLowerInvariant()
-                    : "";
-            string network = string.IsNullOrWhiteSpace(p.Network) ? "tcp" : p.Network.Trim().ToLowerInvariant();
-            string security = string.IsNullOrWhiteSpace(p.Security) ? "none" : p.Security.Trim().ToLowerInvariant();
-            string path = (p.Path ?? "").Trim();
-            string flow = (p.Flow ?? "").Trim().ToLowerInvariant();
-            string realityKey = TryNormalizeRealityPublicKey(p.Pbk, out var normalizedRealityKey)
-                ? normalizedRealityKey : (p.Pbk ?? "").Trim();
-            string realityId = (p.Sid ?? "").Trim().ToLowerInvariant();
-            string obfuscation = (p.ObfsPassword ?? "").Trim();
-            string alterId = p.Aid.ToString(CultureInfo.InvariantCulture);
-            string options = (p.ConnectionOptionsKey ?? "").Trim();
-            return JsonSerializer.Serialize(new[]
+            if (protocol == "mieru" && Uri.TryCreate(p.Link, UriKind.Absolute, out var mieruUri))
             {
-                protocol, host, port, credential, sni, network, security, path,
-                flow, realityKey, realityId, obfuscation, alterId, options
-            });
+                var query = ParseQuery(mieruUri.Query);
+                if (query.TryGetValue("port", out string? binding) &&
+                    IsValidMieruPortBinding(binding, out int firstPort))
+                {
+                    string[] range = binding.Split('-', StringSplitOptions.None);
+                    port = range.Length == 2 && int.TryParse(range[1], out int lastPort)
+                        ? $"{firstPort.ToString(CultureInfo.InvariantCulture)}-{lastPort.ToString(CultureInfo.InvariantCulture)}"
+                        : firstPort.ToString(CultureInfo.InvariantCulture);
+                }
+            }
+
+            bool protocolUsesTlsSecurity = protocol is "vless" or "vmess";
+            bool implicitTlsSni = (protocolUsesTlsSecurity && !string.IsNullOrWhiteSpace(p.Security)) ||
+                protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
+            string sni = !string.IsNullOrWhiteSpace(p.Sni)
+                ? NormalizeIdentityHost(p.Sni)
+                : implicitTlsSni ? host : "";
+
+            // Endpoint-first identity: the protocol/credential/transport candidate is
+            // selected later by evidence ranking; only host, port and effective SNI
+            // define a separate public-feed entry.
+            return JsonSerializer.Serialize(new[] { host, port, sni });
         }
 
         internal static List<FinalProxy> SelectTopWithIpv6Diversity(
@@ -1432,6 +1479,80 @@ namespace ProxyCollector.Collector
                 .ToArray();
             return reservedValues.Length == 0 ||
                 (reservedValues.Length == 3 && reservedValues.All(value => byte.TryParse(value, out _)));
+        }
+
+        // Identity of the effective exported tunnel, not its display name or local
+        // resolver/link-MTU preferences. Different DNS and MTU values are harmless
+        // client-local variants of the same WireGuard peer and must not create another
+        // node. The .conf format cannot represent Amnezia reserved bytes, so callers
+        // exclude them from that format's identity; Clash YAML can preserve them.
+        // WireGuard has no TLS SNI. Public-feed uniqueness follows endpoint + port;
+        // credentials and local interface preferences are validated but do not create
+        // another copy of the same endpoint. Keep the optional argument for callers that
+        // were written against the previous format-aware helper.
+        // Exact candidate identity keeps tunnel credentials and routing material
+        // distinct during probing. DNS and MTU are local preferences and are omitted.
+        internal static string GetWireguardConfigurationIdentityKey(WgInfo info)
+        {
+            ArgumentNullException.ThrowIfNull(info);
+
+            static string NormalizeList(string value, bool networkList)
+            {
+                string NormalizeEntry(string entry)
+                {
+                    string[] parts = entry.Trim().Split('/', 2);
+                    if (!IPAddress.TryParse(parts[0], out var address))
+                        return entry.Trim().ToLowerInvariant();
+
+                    byte[] bytes = address.GetAddressBytes();
+                    if (parts.Length == 1)
+                        return address.ToString().ToLowerInvariant();
+
+                    int maxPrefix = bytes.Length * 8;
+                    if (!int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture,
+                            out int prefix) || prefix < 0 || prefix > maxPrefix)
+                        return entry.Trim().ToLowerInvariant();
+
+                    if (networkList)
+                    {
+                        for (int bit = prefix; bit < maxPrefix; bit++)
+                            bytes[bit / 8] &= (byte)~(1 << (7 - (bit % 8)));
+                    }
+
+                    return $"{new IPAddress(bytes).ToString().ToLowerInvariant()}/{prefix}";
+                }
+
+                return string.Join(",", (value ?? "").Split(
+                        ',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(NormalizeEntry)
+                    .OrderBy(item => item, StringComparer.Ordinal));
+            }
+
+            return JsonSerializer.Serialize(new[]
+            {
+                NormalizeIdentityHost(info.Host),
+                info.Port.ToString(CultureInfo.InvariantCulture),
+                info.PrivateKey ?? "",
+                info.PublicKey ?? "",
+                info.PresharedKey ?? "",
+                NormalizeList(info.Address, networkList: false),
+                NormalizeList(info.AllowedIPs, networkList: true),
+                info.PersistentKeepalive?.ToString(CultureInfo.InvariantCulture) ?? "",
+                string.Join(",", (info.Reserved ?? Array.Empty<string>())
+                    .Select(value => value.Trim()))
+            });
+        }
+
+        // Public WireGuard output identity is deliberately endpoint-first. Peer-key
+        // and local-interface alternatives remain testable but produce one public entry.
+        internal static string GetWireguardOutputIdentityKey(WgInfo info)
+        {
+            ArgumentNullException.ThrowIfNull(info);
+            return JsonSerializer.Serialize(new[]
+            {
+                NormalizeIdentityHost(info.Host),
+                info.Port.ToString(CultureInfo.InvariantCulture)
+            });
         }
 
         internal static Dictionary<string, object?> BuildWireguardClashProxy(string name, WgInfo info)

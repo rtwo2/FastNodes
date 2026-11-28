@@ -42,9 +42,9 @@ internal static class Program
             Link = "hysteria://user-c@alias.example.net:443", Proto = "hysteria",
             Host = "alias.example.net", Port = "443", Network = "udp", Security = "tls"
         };
-        Checks.Equal(2, CollectorType.SelectBestEndpointProfiles(
+        Checks.Equal(1, CollectorType.SelectBestEndpointProfiles(
                 new[] { hy2Alias, hysteria2Canonical, hysteriaV1 }).Count,
-            "Hysteria2 aliases share one service profile while Hysteria v1 remains distinct");
+            "Hysteria protocol variants at the same endpoint/port/effective SNI share one public entry");
 
         Checks.Equal(0, CollectorType.CountRawLines(""),
             "empty source bodies contain zero raw lines");
@@ -202,6 +202,11 @@ internal static class Program
             "a negative Worker result ID is rejected");
         Checks.That(!CollectorType.IsValidEdgeResultId(25, expectedEdgeBatchIds, 25),
             "an out-of-range Worker result ID is rejected");
+        Checks.That(CollectorType.FindDuplicateEdgeResultIds(new[] { 10, 11, 10 })
+                .SetEquals(new[] { 10 }),
+            "all occurrences of a duplicated Worker result ID are rejected as ambiguous");
+        Checks.Equal(0, CollectorType.FindDuplicateEdgeResultIds(new[] { 10, 11, 12 }).Count,
+            "unique Worker result IDs remain eligible for edge evidence");
         Checks.That(CollectorType.IsEdgeTcpConnected("ok"),
             "edge SNI/TLS results are only evaluated after a confirmed TCP connection");
         Checks.That(CollectorType.IsEdgeTcpConnected("OK"),
@@ -446,8 +451,8 @@ internal static class Program
             "vless://ABC@example.net:443?type=ws&path=%2FCase",
             "vless://abc@example.net:443?type=ws&path=%2Fcase"
         });
-        Checks.Equal(2, caseSensitiveFallbackLinks.Count,
-            "last-good fallback deduplication preserves case-sensitive credentials and paths");
+        Checks.Equal(1, caseSensitiveFallbackLinks.Count,
+            "last-good fallback deduplication keeps one endpoint/port/effective-SNI representative despite credential and path variants");
         var semanticFallbackLinks = CollectorType.DeduplicateFallbackLinks(new[]
         {
             "vless://credential-a@same.example.net:443?security=tls&type=ws&path=%2Fws#old-name",
@@ -591,6 +596,73 @@ internal static class Program
         string validWgLink = $"wireguard://{Uri.EscapeDataString(validWgPrivateKey)}@wg.example.net:51820?pk={Uri.EscapeDataString(validWgPublicKey)}&ip=10.0.0.2%2F32";
         Checks.That(CollectorType.IsValidWireguardLink(validWgLink),
             "valid WireGuard key material remains eligible for output feeds");
+
+        string wgLocalPreferencesA = validWgLink + "&dns=1.1.1.1&mtu=1280";
+        string wgLocalPreferencesB = validWgLink + "&dns=8.8.8.8%2C1.1.1.1&mtu=1420";
+        var wgParsedPreferencesA = CollectorType.ParseProxyLine(wgLocalPreferencesA);
+        var wgParsedPreferencesB = CollectorType.ParseProxyLine(wgLocalPreferencesB);
+        Checks.That(wgParsedPreferencesA is not null && wgParsedPreferencesB is not null,
+            "WireGuard profiles with different local DNS/MTU preferences parse");
+        Checks.Equal(wgParsedPreferencesA!.DeduplicationKey, wgParsedPreferencesB!.DeduplicationKey,
+            "WireGuard DNS and MTU differences do not create duplicate exact tunnel identities");
+        Checks.Equal(wgParsedPreferencesA.SelectionProfileKey, wgParsedPreferencesB.SelectionProfileKey,
+            "WireGuard DNS and MTU differences collapse in every compact output profile");
+
+        var wgUnknownOptionA = CollectorType.ParseProxyLine(validWgLink + "&dns=9.9.9.9&mtu=1360&unused-client-note=alpha");
+        var wgUnknownOptionB = CollectorType.ParseProxyLine(validWgLink + "&dns=8.8.8.8&mtu=1420&unused-client-note=beta");
+        Checks.That(wgUnknownOptionA is not null && wgUnknownOptionB is not null,
+            "WireGuard profiles with exporter-ignored query options parse");
+        Checks.Equal(wgUnknownOptionA!.DeduplicationKey, wgUnknownOptionB!.DeduplicationKey,
+            "WireGuard variants that serialize to the same effective tunnel collapse even when ignored query metadata differs");
+
+        var wgTransportDecorations = CollectorType.ParseProxyLine(
+            validWgLink + "&type=tcp&security=tls&sni=front.example.net&path=%2Fignored&flow=ignored&sid=ignored");
+        Checks.That(wgTransportDecorations is not null &&
+                    wgTransportDecorations.DeduplicationKey == wgParsedPreferencesA.DeduplicationKey,
+            "WireGuard identity ignores unrelated TLS/stream fields not consumed by its exporters");
+
+        var wgDifferentInterface = CollectorType.ParseProxyLine(
+            validWgLink.Replace("10.0.0.2%2F32", "10.0.0.3%2F32", StringComparison.Ordinal));
+        Checks.That(wgDifferentInterface is not null &&
+                    wgDifferentInterface.DeduplicationKey != wgParsedPreferencesA.DeduplicationKey,
+            "WireGuard assigned interface address remains part of effective tunnel identity");
+
+        string wgExpandedIp = "10.0.0.2/32,fd00:0000:0000:0000:0000:0000:0000:0002/128";
+        string wgCompressedIp = "fd00::2/128,10.0.0.2/32";
+        string wgExpandedAllowed = "0.0.0.0/0,2001:4860:4860:0000:0000:0000:0000:8888/128";
+        string wgCompressedAllowed = "2001:4860:4860::8888/128,0.0.0.0/0";
+        var wgExpandedAddresses = CollectorType.ParseProxyLine(
+            validWgLink.Replace("ip=10.0.0.2%2F32", "ip=" + Uri.EscapeDataString(wgExpandedIp), StringComparison.Ordinal)
+                + "&allowedips=" + Uri.EscapeDataString(wgExpandedAllowed));
+        var wgCompressedAddresses = CollectorType.ParseProxyLine(
+            validWgLink.Replace("ip=10.0.0.2%2F32", "ip=" + Uri.EscapeDataString(wgCompressedIp), StringComparison.Ordinal)
+                + "&allowedips=" + Uri.EscapeDataString(wgCompressedAllowed));
+        Checks.That(wgExpandedAddresses is not null && wgCompressedAddresses is not null,
+            "WireGuard profiles with expanded and compressed IPv6 forms parse");
+        Checks.Equal(wgExpandedAddresses!.DeduplicationKey, wgCompressedAddresses!.DeduplicationKey,
+            "WireGuard identity canonicalizes IPv6 spellings and list ordering");
+
+        var wgDifferentReserved = CollectorType.ParseProxyLine(validWgLink + "&reserved=1%2C2%2C3");
+        var wgOtherReserved = CollectorType.ParseProxyLine(validWgLink + "&reserved=1%2C2%2C4");
+        Checks.That(wgDifferentReserved is not null && wgOtherReserved is not null &&
+                    wgDifferentReserved.DeduplicationKey != wgOtherReserved.DeduplicationKey &&
+                    wgDifferentReserved.SelectionProfileKey == wgOtherReserved.SelectionProfileKey,
+            "WireGuard reserved-byte variants remain separately testable but share one endpoint/port public entry");
+
+        var wgOutputPreferencesA = CollectorType.TryParseWireguardInfo(wgLocalPreferencesA);
+        var wgOutputPreferencesB = CollectorType.TryParseWireguardInfo(wgLocalPreferencesB);
+        Checks.That(wgOutputPreferencesA is not null && wgOutputPreferencesB is not null,
+            "WireGuard DNS/MTU variants remain exportable");
+        Checks.Equal(
+            CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!),
+            CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesB!),
+            "WireGuard export identity ignores local DNS/MTU preferences");
+        var wgDifferentKeys = CollectorType.TryParseWireguardInfo(
+            validWgLink.Replace(validWgPrivateKey, Convert.ToBase64String(Enumerable.Repeat((byte)7, 32).ToArray()), StringComparison.Ordinal));
+        Checks.That(wgDifferentKeys is not null &&
+                    CollectorType.GetWireguardOutputIdentityKey(wgOutputPreferencesA!) ==
+                    CollectorType.GetWireguardOutputIdentityKey(wgDifferentKeys),
+            "WireGuard peer/private-key alternatives at one endpoint and port create only one public export identity");
 
         string fullWireguardConf =
             "[Interface]\r\n" +
@@ -1523,6 +1595,80 @@ internal static class Program
         Checks.That(pluginA is not null && pluginB is not null &&
                     pluginA.DeduplicationKey != pluginB.DeduplicationKey,
             "unmodeled Shadowsocks plugin options remain distinct during deduplication");
+        const string stableProfileBase =
+            "vless://123e4567-e89b-12d3-a456-426614174000@profile-normalization.example.net:443?security=tls&type=ws&sni=front.example.net&host=ws.example.net&path=%2Fedge&fp=chrome&alpn=h2";
+        var profileLocalA = CollectorType.ParseProxyLine(
+            stableProfileBase + "&dns=1.1.1.1&mtu=1280&name=source-a&tag=feed-a&remarks=first");
+        var profileLocalB = CollectorType.ParseProxyLine(
+            stableProfileBase + "&dns=8.8.8.8%2C1.1.1.1&mtu=1420&name=source-b&tag=feed-b&remarks=second");
+        Checks.That(profileLocalA is not null && profileLocalB is not null,
+            "VLESS profiles with client-local DNS/MTU and display metadata parse");
+        Checks.Equal(profileLocalA!.DeduplicationKey, profileLocalB!.DeduplicationKey,
+            "VLESS DNS/MTU/name/tag/remarks differences collapse in exact node identity");
+        Checks.Equal(profileLocalA.SelectionProfileKey, profileLocalB.SelectionProfileKey,
+            "VLESS DNS/MTU/name/tag/remarks differences collapse in compact feed identity");
+
+        var profileDifferentFingerprint = CollectorType.ParseProxyLine(
+            stableProfileBase.Replace("fp=chrome", "fp=firefox", StringComparison.Ordinal));
+        var profileDifferentPath = CollectorType.ParseProxyLine(
+            stableProfileBase.Replace("path=%2Fedge", "path=%2Fother", StringComparison.Ordinal));
+        Checks.That(profileDifferentFingerprint is not null && profileDifferentPath is not null &&
+                    profileDifferentFingerprint.DeduplicationKey != profileLocalA.DeduplicationKey &&
+                    profileDifferentPath.DeduplicationKey != profileLocalA.DeduplicationKey,
+            "TLS fingerprint and transport path remain identity-significant");
+
+        var shadowsocksLocalA = CollectorType.ParseProxyLine(
+            "ss://YWVzLTEyOC1nY206cHc=@ss-local.example.net:8388?dns=1.1.1.1&mtu=1280&name=source-a");
+        var shadowsocksLocalB = CollectorType.ParseProxyLine(
+            "ss://YWVzLTEyOC1nY206cHc=@ss-local.example.net:8388?mtu=1420&dns=8.8.8.8&name=source-b");
+        Checks.That(shadowsocksLocalA is not null && shadowsocksLocalB is not null &&
+                    shadowsocksLocalA.DeduplicationKey == shadowsocksLocalB.DeduplicationKey,
+            "Shadowsocks DNS/MTU/display variants collapse without discarding the cipher or plugin identity");
+
+        var mieruLocalA = CollectorType.ParseProxyLine(
+            "mierus://user:password@mieru-local.example.net?profile=office&port=6666&protocol=UDP&mtu=1280&dns=1.1.1.1");
+        var mieruLocalB = CollectorType.ParseProxyLine(
+            "mierus://user:password@mieru-local.example.net?profile=travel&port=6666&protocol=udp&mtu=1400&dns=8.8.8.8");
+        Checks.That(mieruLocalA is not null && mieruLocalB is not null &&
+                    mieruLocalA.DeduplicationKey == mieruLocalB.DeduplicationKey,
+            "Mieru profile labels, DNS and MTU do not create extra copies of the same transport binding");
+
+        var mieruRangeA = CollectorType.ParseProxyLine(
+            "mierus://user:pass@mieru-range.example.net?profile=main&port=7000-7010&protocol=UDP");
+        var mieruRangeB = CollectorType.ParseProxyLine(
+            "mierus://user:pass@mieru-range.example.net?profile=backup&port=7000-7020&protocol=UDP");
+        Checks.That(mieruRangeA is not null && mieruRangeB is not null &&
+                    mieruRangeA.SelectionProfileKey != mieruRangeB.SelectionProfileKey,
+            "different Mieru port ranges remain separate endpoint identities even when their first port matches");
+
+        string vmessLocalJsonA = """{"v":"2","ps":"source-a","add":"vmess-normalization.example.net","port":"443","id":"123e4567-e89b-12d3-a456-426614174000","aid":"0","net":"ws","tls":"tls","sni":"front.example.net","host":"ws.example.net","path":"/edge","scy":"auto","fp":"chrome","alpn":["h2"],"dns":"1.1.1.1","mtu":1280,"tag":"feed-a"}""";
+        string vmessLocalJsonB = """{"tag":"feed-b","mtu":1420,"dns":"8.8.8.8","alpn":["h2"],"fp":"chrome","scy":"auto","path":"/edge","host":"ws.example.net","sni":"front.example.net","tls":"tls","net":"ws","aid":"0","id":"123e4567-e89b-12d3-a456-426614174000","port":"443","add":"vmess-normalization.example.net","ps":"source-b","v":"2"}""";
+        var vmessLocalA = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessLocalJsonA)));
+        var vmessLocalB = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessLocalJsonB)));
+        Checks.That(vmessLocalA is not null && vmessLocalB is not null &&
+                    vmessLocalA.DeduplicationKey == vmessLocalB.DeduplicationKey,
+            "VMess JSON property ordering, ps, tag, DNS and MTU do not create duplicate node identities");
+
+        string vmessNestedOptionsA = """{"add":"nested-vmess.example.net","port":"443","id":"123e4567-e89b-12d3-a456-426614174000","net":"ws","tls":"tls","path":"/ws","extra":{"headers":{"X-One":"1","X-Two":"2"},"mode":"fast"}}""";
+        string vmessNestedOptionsB = """{"extra":{"mode":"fast","headers":{"X-Two":"2","X-One":"1"}},"path":"/ws","tls":"tls","net":"ws","id":"123e4567-e89b-12d3-a456-426614174000","port":"443","add":"nested-vmess.example.net"}""";
+        var vmessNestedA = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessNestedOptionsA)));
+        var vmessNestedB = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessNestedOptionsB)));
+        Checks.That(vmessNestedA is not null && vmessNestedB is not null &&
+                    vmessNestedA.DeduplicationKey == vmessNestedB.DeduplicationKey,
+            "nested VMess option-object property order does not create duplicate service identities");
+
+        string vmessDifferentNestedValue = vmessNestedOptionsB.Replace(
+            "\"X-One\":\"1\"", "\"X-One\":\"changed\"", StringComparison.Ordinal);
+        var vmessNestedDifferent = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessDifferentNestedValue)));
+        Checks.That(vmessNestedDifferent is not null && vmessNestedA is not null &&
+                    vmessNestedDifferent.DeduplicationKey != vmessNestedA.DeduplicationKey,
+            "nested VMess connection-option value changes remain identity-significant");
+
         var unknownOptionA = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&custom-mode=alpha");
         var unknownOptionB = CollectorType.ParseProxyLine(
@@ -1608,6 +1754,23 @@ internal static class Program
                     ssrLabel.SourceRemark == "Cloudflare WARP" &&
                     CollectorType.IsCloudflareMetadata(ssrLabel),
             "SSR embedded Base64 remarks are preserved and filtered before output naming");
+
+        string ssrTlsPayloadA =
+            $"ordinary.example.net:8388:origin:aes-128-gcm:tls1.2_ticket_auth:{ssrPasswordToken}/?obfsparam=front.example.net";
+        string ssrTlsPayloadB =
+            $"ordinary.example.net:8388:origin:aes-128-gcm:tls1.2_ticket_auth:{ssrPasswordToken}/?obfsparam=other-front.example.net";
+        string ssrTlsLinkA = "ssr://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(ssrTlsPayloadA))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        string ssrTlsLinkB = "ssr://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(ssrTlsPayloadB))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var ssrTlsA = CollectorType.ParseProxyLine(ssrTlsLinkA);
+        var ssrTlsB = CollectorType.ParseProxyLine(ssrTlsLinkB);
+        Checks.That(ssrTlsA is not null && ssrTlsB is not null &&
+                    ssrTlsA.Sni == "front.example.net" &&
+                    ssrTlsB.Sni == "other-front.example.net",
+            "SSR TLS obfsparam is parsed as the effective SNI");
+        Checks.That(ssrTlsA!.SelectionProfileKey != ssrTlsB!.SelectionProfileKey,
+            "SSR TLS obfuscation endpoints with different SNI remain separate public entries");
 
         var vmessLabelJson = JsonSerializer.Serialize(new
         {
@@ -1734,7 +1897,7 @@ internal static class Program
 
         var tcpUnusedHost = CollectorType.ParseProxyLine(
             $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp&headerType=none&host=unused-front.example.net");
-        Checks.Equal(tcpDefaultHeader.DeduplicationKey, tcpUnusedHost!.DeduplicationKey,
+        Checks.Equal(tcpDefaultHeader!.DeduplicationKey, tcpUnusedHost!.DeduplicationKey,
             "raw TCP with headerType=none ignores any Host override value");
 
         var httpUpgradeSniFallback = CollectorType.ParseProxyLine(
@@ -1746,9 +1909,9 @@ internal static class Program
         Checks.That(httpUpgradeSniFallback is not null && httpUpgradeEndpointHost is not null &&
                     httpUpgradeSniHost is not null,
             "HTTPUpgrade profiles with custom TLS server name parse");
-        Checks.That(httpUpgradeSniFallback.DeduplicationKey != httpUpgradeEndpointHost.DeduplicationKey,
+        Checks.That(httpUpgradeSniFallback!.DeduplicationKey != httpUpgradeEndpointHost!.DeduplicationKey,
             "HTTPUpgrade preserves endpoint Host override when TLS serverName is different");
-        Checks.Equal(httpUpgradeSniFallback.DeduplicationKey, httpUpgradeSniHost.DeduplicationKey,
+        Checks.Equal(httpUpgradeSniFallback!.DeduplicationKey, httpUpgradeSniHost!.DeduplicationKey,
             "HTTPUpgrade Host equal to TLS serverName collapses to the default fallback");
 
         var wsCustomSni = CollectorType.ParseProxyLine(
@@ -1761,7 +1924,7 @@ internal static class Program
         var tcpHttpHost = CollectorType.ParseProxyLine(
             $"vless://{profileId}@tcp-identity.example.net:443?security=tls&type=tcp&headerType=http&host=tcp-identity.example.net");
         Checks.That(tcpHttpHost is not null &&
-                    tcpDefaultHeader.DeduplicationKey != tcpHttpHost.DeduplicationKey,
+                    tcpDefaultHeader!.DeduplicationKey != tcpHttpHost.DeduplicationKey,
             "TCP HTTP-obfuscation Host remains distinct from the default raw TCP transport");
 
         var xhttpExtraPlus = CollectorType.ParseProxyLine(
@@ -2261,9 +2424,9 @@ internal static class Program
             Proto = "vless", Host = "case-path.example.net", Port = "443",
             Network = "ws", Security = "reality", Path = "/abc"
         };
-        Checks.Equal(2, CollectorType.SelectBestEndpointProfiles(
+        Checks.Equal(1, CollectorType.SelectBestEndpointProfiles(
                 new[] { casePathUpper, casePathLower }).Count,
-            "profile dedup preserves case-sensitive transport paths in compact outputs");
+            "endpoint-first output keeps one representative when only transport path casing differs");
 
         var ssFallbackA = new ProxyCollector.Collector.FinalProxy
         {
@@ -2283,9 +2446,9 @@ internal static class Program
             Proto = "ss", Host = "fallback-ss.example.net", Port = "8388",
             Credential = "chacha20-ietf-poly1305:password-c"
         };
-        Checks.Equal(2, CollectorType.SelectBestEndpointProfiles(
+        Checks.Equal(1, CollectorType.SelectBestEndpointProfiles(
                 new[] { ssFallbackA, ssFallbackB, ssFallbackOtherCipher }).Count,
-            "fallback FinalProxy service profiles collapse password variants but preserve different Shadowsocks ciphers");
+            "fallback FinalProxy identity keeps one representative per Shadowsocks endpoint and port");
 
         var optionsVariantA = new ProxyCollector.Collector.FinalProxy
         {
@@ -2299,9 +2462,9 @@ internal static class Program
             Host = "same.example.net", Port = "443", Network = "tcp",
             Security = "tls", ConnectionOptionsKey = "fp=firefox;alpn=http/1.1"
         };
-        Checks.That(CollectorType.GetTopEndpointProfileKey(optionsVariantA) !=
-                    CollectorType.GetTopEndpointProfileKey(optionsVariantB),
-            "deduplication preserves VMess/SS variants with different connection-affecting options");
+        Checks.Equal(CollectorType.GetTopEndpointProfileKey(optionsVariantA),
+            CollectorType.GetTopEndpointProfileKey(optionsVariantB),
+            "VMess fingerprint and ALPN alternatives at the same endpoint/port/SNI select one compact representative");
 
         var protocolVariant = new ProxyCollector.Collector.FinalProxy
         {
@@ -2309,9 +2472,9 @@ internal static class Program
             Host = "same.example.net", Port = "443", Network = "tcp",
             Security = "tls"
         };
-        Checks.That(CollectorType.GetTopEndpointProfileKey(optionsVariantA) !=
-                    CollectorType.GetTopEndpointProfileKey(protocolVariant),
-            "different proxy protocols at the same host and port remain distinct profiles");
+        Checks.Equal(CollectorType.GetTopEndpointProfileKey(optionsVariantA),
+            CollectorType.GetTopEndpointProfileKey(protocolVariant),
+            "different proxy protocols at the same endpoint/port/effective SNI share one public entry");
         var realityVariant = new ProxyCollector.Collector.FinalProxy
         {
             Link = "vless://c@same.example.net:443", Proto = "vless",
@@ -2324,9 +2487,9 @@ internal static class Program
             Host = "same.example.net", Port = "443", Network = "tcp",
             Security = "reality", Pbk = "another-public-key", Sid = "abcd"
         };
-        Checks.That(CollectorType.GetTopEndpointProfileKey(realityVariant) !=
-                    CollectorType.GetTopEndpointProfileKey(realityBase),
-            "distinct REALITY public keys remain separate endpoint profiles");
+        Checks.Equal(CollectorType.GetTopEndpointProfileKey(realityVariant),
+            CollectorType.GetTopEndpointProfileKey(realityBase),
+            "REALITY key alternatives at the same endpoint/port/SNI select one public representative");
         var obfsVariant = new ProxyCollector.Collector.FinalProxy
         {
             Link = "hysteria2://a@same.example.net:443", Proto = "hysteria2",
@@ -2339,9 +2502,9 @@ internal static class Program
             Host = "same.example.net", Port = "443", Network = "udp",
             Security = "tls", ObfsPassword = "another-obfs"
         };
-        Checks.That(CollectorType.GetTopEndpointProfileKey(obfsVariant) !=
-                    CollectorType.GetTopEndpointProfileKey(obfsBase),
-            "different Hysteria2 obfuscation secrets remain separate endpoint profiles");
+        Checks.Equal(CollectorType.GetTopEndpointProfileKey(obfsVariant),
+            CollectorType.GetTopEndpointProfileKey(obfsBase),
+            "Hysteria2 obfuscation credential alternatives at the same endpoint/port/SNI select one public representative");
 
         var profileCredentialA = CollectorType.ParseProxyLine(
             "vless://credential-a@profile.example.net:443?security=tls");
@@ -2362,8 +2525,55 @@ internal static class Program
             Protocol = "wireguard", Host = "wg.example.net", Port = "51820",
             Credential = "private-key-b"
         };
-        Checks.That(wireguardProfileA.SelectionProfileKey != wireguardProfileB.SelectionProfileKey,
-            "WireGuard private keys remain part of tunnel-profile identity");
+        Checks.Equal(wireguardProfileA.SelectionProfileKey, wireguardProfileB.SelectionProfileKey,
+            "WireGuard private-key alternatives at the same endpoint and port select one public representative");
+
+        var endpointSame = CollectorType.ParseProxyLine(
+            "trojan://different-secret@profile.example.net:443?sni=profile.example.net");
+        var endpointDifferentPort = CollectorType.ParseProxyLine(
+            "trojan://different-secret@profile.example.net:8443?sni=front.example.net");
+        var endpointDifferentSni = CollectorType.ParseProxyLine(
+            "trojan://different-secret@profile.example.net:443?sni=other-front.example.net");
+        Checks.That(endpointSame is not null && endpointDifferentPort is not null && endpointDifferentSni is not null,
+            "endpoint-first identity test profiles parse");
+        Checks.Equal(profileCredentialA!.SelectionProfileKey, endpointSame!.SelectionProfileKey,
+            "a different protocol and credential still share one host/port/SNI public entry");
+        Checks.That(profileCredentialA.SelectionProfileKey != endpointDifferentPort!.SelectionProfileKey,
+            "a different endpoint port always remains a separate public entry");
+        Checks.That(profileCredentialA.SelectionProfileKey != endpointDifferentSni!.SelectionProfileKey,
+            "a different explicit SNI always remains a separate public entry");
+
+        var hostnameAlias = CollectorType.ParseProxyLine(
+            "vless://alias-user@alias.example.net:443?security=tls&sni=front.example.net");
+        var literalAlias = CollectorType.ParseProxyLine(
+            "trojan://literal-user@203.0.113.44:443?sni=front.example.net");
+        Checks.That(hostnameAlias is not null && literalAlias is not null,
+            "hostname and literal-IP alias test profiles parse");
+        hostnameAlias!.CanonicalEndpointHost = "203.0.113.44";
+        literalAlias!.CanonicalEndpointHost = "203.0.113.44";
+        Checks.Equal(hostnameAlias.SelectionProfileKey, literalAlias.SelectionProfileKey,
+            "DNS-canonical hostname and its literal-IP alias share one public identity when port and SNI match");
+
+        var bestEndpointCandidate = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "trojan://ordinary@profile.example.net:443?sni=front.example.net",
+            Proto = "trojan", Host = "profile.example.net", Port = "443", Sni = "front.example.net",
+            SelectionProfileKey = profileCredentialA.SelectionProfileKey,
+            TlsVerified = true, Score = 50
+        };
+        var strongestEndpointCandidate = new ProxyCollector.Collector.FinalProxy
+        {
+            Link = "vless://credential-a@profile.example.net:443?security=tls&sni=front.example.net",
+            Proto = "vless", Host = "profile.example.net", Port = "443", Sni = "front.example.net",
+            SelectionProfileKey = profileCredentialA.SelectionProfileKey,
+            XrayVerified = true, Score = 100
+        };
+        var selectedEndpointCandidate = CollectorType.SelectBestEndpointProfiles(
+            new[] { bestEndpointCandidate, strongestEndpointCandidate });
+        Checks.Equal(1, selectedEndpointCandidate.Count,
+            "only one cross-protocol candidate survives per endpoint/port/SNI");
+        Checks.Equal(strongestEndpointCandidate.Link, selectedEndpointCandidate[0].Link,
+            "the best currently verified configuration wins the endpoint representative");
 
         var finalExactA = new ProxyCollector.Collector.FinalProxy
         {
@@ -2438,8 +2648,8 @@ internal static class Program
                     ssProfileA.SelectionProfileKey == ssProfileB.SelectionProfileKey,
             "Shadowsocks password variants are distinct configs but one service profile");
         Checks.That(ssProfileA is not null && ssDifferentCipher is not null &&
-                    ssProfileA.SelectionProfileKey != ssDifferentCipher.SelectionProfileKey,
-            "Shadowsocks cipher methods remain part of service-profile identity");
+                    ssProfileA.SelectionProfileKey == ssDifferentCipher.SelectionProfileKey,
+            "Shadowsocks cipher alternatives at one endpoint/port share one public entry");
 
         var nearbySingleSource = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@nearby.example.net:443?security=tls")!;

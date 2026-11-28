@@ -81,9 +81,9 @@ We keep different kinds of evidence separate. A TLS handshake is useful, but it 
 | `verified_tls.txt` | A TLS handshake completed during the current run using the configured SNI. The probe intentionally does not validate certificate identity, so this is partial connectivity evidence, not proof of server identity or a working proxy. |
 | `top.txt` | Global shortlist using 55% full-roundtrip, 30% partial-connectivity, and 15% source/stability evidence lanes, with an IPv6 reservation and diversity caps. |
 | `top_ipv6.txt` | IPv6-capable shortlist using the same 55/30/15 evidence mix and source/provider/hostname/transport/protocol diversity controls. |
-| `stable.txt` | The selected credential variant has appeared in at least three consecutive collection runs. Any missing run resets its presence streak. Stability is tracked per exact configuration; other credentials collapsed into the same service profile do not inherit that status. Persistence is not a promise of reachability. |
+| `stable.txt` | The published representative configuration has appeared in at least three consecutive collection runs. Any missing run resets its presence streak. Stability is tracked per exact configuration, even though only one representative is published for an endpoint. Persistence is not a promise of reachability. |
 | `curated.txt` | Trusted-source candidates, or candidates that are both stable and TLS-verified. |
-| `everything.txt` | One best representative per distinct service profile that survives parsing and safety filters. Many entries are not individually verified. |
+| `everything.txt` | One best representative per canonical endpoint + port + effective SNI that survives parsing and safety filters. Many entries are not individually verified. |
 
 ### How the ranking stays balanced
 
@@ -93,7 +93,13 @@ Both top feeds use the same evidence mix:
 - **30% — Partial connectivity:** useful TLS/connectivity signals, without pretending they prove a working tunnel.
 - **15% — Source and stability:** source quality and persistence, including candidates a remote runner cannot currently reach.
 
-The selector collapses credential-only duplicates for the same service profile while preserving connection-affecting differences such as SNI, transport, path, REALITY keys, obfuscation options, Shadowsocks cipher modes, and WireGuard tunnel keys. Source, provider, hostname, transport, and protocol caps help prevent one large feed or host family from taking over. Hostname grouping uses the Public Suffix List, including wildcard and exception rules, with the previous heuristic retained as a fallback if the list cannot be loaded. A reserved share also keeps source-backed QUIC and native-tunnel candidates in consideration when the current TCP/Xray probes cannot test them.
+### Endpoint-first deduplication
+
+The public catalogue uses one representative per **canonical host/IP + port + effective SNI**. A different port remains a separate entry, and a different explicit/effective SNI remains a separate entry. When multiple links share that identity, FastNodes chooses the strongest representative using current Xray round-trip evidence first, then TLS/edge connectivity, source trust, stability, and score.
+
+Credentials, protocol spelling, transport/path variants, REALITY/obfuscation alternatives, DNS, MTU, remarks, source labels and display metadata do not create extra public entries when host/IP, port and effective SNI are the same. This is intentionally an endpoint shortlist rather than an exhaustive list of every account or protocol configuration: alternate links are retained long enough to be parsed and tested, but only the best representative is published. Consequently a protocol-specific feed contains the selected representative's protocol, not every alternate protocol observed at that endpoint.
+
+Hostname/IP aliases are unified when DNS establishes one unambiguous canonical address set. Different ports and different SNI values are never merged. Source, provider, hostname, transport and protocol caps then help prevent one large feed or host family from taking over. Hostname grouping uses the Public Suffix List, including wildcard and exception rules, with the previous heuristic retained as a fallback if the list cannot be loaded. A reserved share also keeps source-backed QUIC and native-tunnel candidates in consideration when the current TCP/Xray probes cannot test them.
 
 The global feed also reserves its configured IPv6 share. When one evidence lane or diversity group cannot fill its allocation, other lanes can backfill available slots without turning off diversity controls.
 

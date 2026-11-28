@@ -1902,7 +1902,10 @@ namespace ProxyCollector.Collector
                     ? new[] { literal }
                     : await Resolver.ResolveAllAsync(p.Host); // full cached A/AAAA set
                 string canonical = BuildAliasCanonicalHost(p.Host, addresses);
+                p.CanonicalEndpointHost = canonical;
 
+                // Keep exact connection variants for testing. The compact public-feed
+                // selector runs after tests so it can choose the strongest one.
                 string key = p.EndpointKey(canonical);
                 if (index.TryGetValue(key, out var pos))
                 {
@@ -2608,6 +2611,15 @@ namespace ProxyCollector.Collector
         internal static bool IsValidEdgeResultId(int id, IReadOnlySet<int> expectedBatchIds, int poolCount)
             => id >= 0 && id < poolCount && expectedBatchIds.Contains(id);
 
+        // A duplicated result ID makes the Worker response ambiguous. Reject every
+        // occurrence of that ID rather than accepting whichever record happens to
+        // appear first in the response array.
+        internal static HashSet<int> FindDuplicateEdgeResultIds(IEnumerable<int> resultIds)
+            => resultIds.GroupBy(id => id)
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Key)
+                .ToHashSet();
+
         // The Worker reports tcp="ok" only after the endpoint TCP connection is
         // established. Without that signal, no TLS handshake/SNI confirmation can
         // be evaluated and the result must not count as an edge test failure.
@@ -2696,7 +2708,7 @@ namespace ProxyCollector.Collector
             if (pool.Count == 0) { LogInfo("Edge verification: no candidates."); return; }
 
             int ok = 0;
-            int noTcpConnection = 0, preTcpCfBlocked = 0, preTcpRefused = 0,
+            int noTcpConnection = 0, preTcpCfBlocked = 0, preTcpBlockedAddress = 0, preTcpRefused = 0,
                 preTcpTimeouts = 0, preTcpDnsFails = 0, preTcpTlsFails = 0, preTcpErrors = 0;
             int sniUnconfirmed = 0, sniMissing = 0, sniMismatched = 0;
             int tlsHandshakeFailures = 0;
@@ -2739,7 +2751,24 @@ namespace ProxyCollector.Collector
                             using var resp = await _http.SendAsync(req, ct);
                             resp.EnsureSuccessStatusCode();
                             using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
-                            foreach (var r in doc.RootElement.GetProperty("results").EnumerateArray())
+                            var resultsElement = doc.RootElement.GetProperty("results");
+                            if (resultsElement.ValueKind != JsonValueKind.Array)
+                                throw new InvalidOperationException("Edge verification response has no results array.");
+
+                            var resultRows = resultsElement.EnumerateArray().ToArray();
+                            var validResultIds = resultRows
+                                .Where(row => row.ValueKind == JsonValueKind.Object &&
+                                    row.TryGetProperty("id", out var resultId) &&
+                                    resultId.ValueKind == JsonValueKind.Number &&
+                                    resultId.TryGetInt32(out int parsedId) &&
+                                    IsValidEdgeResultId(parsedId, expectedBatchIds, pool.Count))
+                                .Select(row => row.GetProperty("id").GetInt32())
+                                .ToList();
+                            var duplicateResultIds = FindDuplicateEdgeResultIds(validResultIds);
+                            foreach (int duplicateId in duplicateResultIds)
+                                LogWarning($"Edge verification returned duplicate result ID {duplicateId}; ignoring all results for it.");
+
+                            foreach (var r in resultRows)
                             {
                                 if (r.ValueKind != JsonValueKind.Object ||
                                     !r.TryGetProperty("id", out var idElement) ||
@@ -2750,6 +2779,9 @@ namespace ProxyCollector.Collector
                                     LogWarning("Edge verification returned an invalid or out-of-batch result ID; ignoring it.");
                                     continue;
                                 }
+
+                                if (duplicateResultIds.Contains(id))
+                                    continue;
 
                                 // SNI is only meaningful after the Worker confirms that
                                 // the endpoint TCP connection was established. A timeout,
@@ -2771,6 +2803,7 @@ namespace ProxyCollector.Collector
                                     switch (tcp.Trim().ToLowerInvariant())
                                     {
                                         case "cf-blocked": Interlocked.Increment(ref preTcpCfBlocked); break;
+                                        case "blocked-address": Interlocked.Increment(ref preTcpBlockedAddress); break;
                                         case "refused": Interlocked.Increment(ref preTcpRefused); break;
                                         case "timeout": Interlocked.Increment(ref preTcpTimeouts); break;
                                         case "dns": Interlocked.Increment(ref preTcpDnsFails); break;
@@ -2845,7 +2878,8 @@ namespace ProxyCollector.Collector
 
             LogInfo($"Edge verification: {ok}/{pool.Count} endpoints TLS-verified from the CF edge → " +
                     $"nodes promoted (+20). [no confirmed TCP connection {noTcpConnection} " +
-                    $"(cf-blocked {preTcpCfBlocked}, refused {preTcpRefused}, timeout {preTcpTimeouts}, " +
+                    $"(cf-blocked {preTcpCfBlocked}, blocked-address {preTcpBlockedAddress}, " +
+                    $"refused {preTcpRefused}, timeout {preTcpTimeouts}, " +
                     $"dns {preTcpDnsFails}, tls-error {preTcpTlsFails}, err {preTcpErrors}); " +
                     $"TLS handshake failures after confirmed TCP+SNI {tlsHandshakeFailures}; " +
                     $"SNI-unconfirmed after TCP {sniUnconfirmed}]. Failures are not drops.");
@@ -4378,6 +4412,9 @@ namespace ProxyCollector.Collector
         public bool   EdgeTested    { get; set; }  // current-run edge probe returned a per-node result
         public bool   EdgeVerified  { get; set; }  // TLS verified from the CF edge vantage (this run)
         public string BaseLink    { get; set; } = "";
+        // DNS-canonical endpoint used only by the compact public-feed identity.
+        // Set after resolution so a hostname and its single-IP alias can collapse.
+        public string CanonicalEndpointHost { get; set; } = "";
         // Original display metadata is kept separately because BaseLink is canonicalized
         // without fragments before connection parsing and identity calculation.
         public string SourceRemark { get; set; } = "";
@@ -4392,13 +4429,77 @@ namespace ProxyCollector.Collector
         public string DeduplicationKey =>
             BuildIdentityKey(Host, includeCredential: true, aliasMode: false);
 
-        // Precision feeds collapse credential variants of the same service profile.
-        // WireGuard is the exception: its private key identifies the local tunnel.
-        public string SelectionProfileKey =>
-            BuildIdentityKey(Host, includeCredential: ProxyCollector.NormalizeProto(Protocol) == "wireguard", aliasMode: false);
+        // Public feeds intentionally keep one representative per canonical host/IP +
+        // port + effective SNI. Credentials, protocol aliases, paths, local preferences,
+        // and display metadata do not create extra copies. A different port or effective
+        // SNI remains a separate candidate.
+        public string SelectionProfileKey
+        {
+            get
+            {
+                string endpointHost = string.IsNullOrWhiteSpace(CanonicalEndpointHost)
+                    ? Host : CanonicalEndpointHost;
+                return BuildEndpointSelectionKey(endpointHost);
+            }
+        }
 
         public string EndpointKey(string canonicalHost) =>
             BuildIdentityKey(canonicalHost, includeCredential: true, aliasMode: true);
+
+        private string BuildEndpointSelectionKey(string endpointHost)
+        {
+            string protocol = ProxyCollector.NormalizeProto(Protocol);
+            string originalHostKey = ProxyCollector.NormalizeIdentityHost(Host);
+            string hostKey = ProxyCollector.NormalizeIdentityHost(endpointHost);
+            string portKey = int.TryParse(Port, out int pn)
+                ? pn.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                : Port.Trim();
+            // Mieru simple-share links can bind a range of ports. Preserve the full
+            // binding in endpoint identity; comparing only the first port would merge
+            // distinct sets such as 7000-7010 and 7000-7020.
+            if (protocol == "mieru" && Uri.TryCreate(BaseLink, UriKind.Absolute, out var mieruUri))
+            {
+                string? binding = null;
+                foreach (string part in mieruUri.Query.TrimStart('?').Split(
+                             '&', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    int equals = part.IndexOf('=');
+                    if (equals <= 0) continue;
+                    string key = Uri.UnescapeDataString(part[..equals].Replace("+", " "));
+                    if (!key.Equals("port", StringComparison.OrdinalIgnoreCase)) continue;
+                    binding = Uri.UnescapeDataString(part[(equals + 1)..].Replace("+", " "));
+                    break;
+                }
+
+                if (!string.IsNullOrWhiteSpace(binding))
+                {
+                    string[] range = binding.Split('-', StringSplitOptions.None);
+                    int firstPort = 0;
+                    bool valid = range.Length is 1 or 2 &&
+                        int.TryParse(range[0], System.Globalization.NumberStyles.None,
+                            System.Globalization.CultureInfo.InvariantCulture, out firstPort) &&
+                        firstPort is >= 1 and <= 65535;
+                    int lastPort = firstPort;
+                    if (valid && range.Length == 2)
+                        valid = int.TryParse(range[1], System.Globalization.NumberStyles.None,
+                            System.Globalization.CultureInfo.InvariantCulture, out lastPort) &&
+                            lastPort >= firstPort && lastPort <= 65535;
+                    if (valid)
+                        portKey = range.Length == 2
+                            ? $"{firstPort.ToString(System.Globalization.CultureInfo.InvariantCulture)}-{lastPort.ToString(System.Globalization.CultureInfo.InvariantCulture)}"
+                            : firstPort.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                }
+            }
+
+            bool protocolUsesTlsSecurity = protocol is "vless" or "vmess";
+            bool implicitTlsSni = (protocolUsesTlsSecurity && !string.IsNullOrEmpty(Security)) ||
+                protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
+            string sniKey = !string.IsNullOrWhiteSpace(Sni)
+                ? ProxyCollector.NormalizeIdentityHost(Sni)
+                : implicitTlsSni ? originalHostKey : "";
+
+            return JsonSerializer.Serialize(new[] { hostKey, portKey, sniKey });
+        }
 
         private string BuildIdentityKey(string identityHost, bool includeCredential, bool aliasMode)
         {

@@ -271,6 +271,54 @@ namespace ProxyCollector.Collector
                 if (string.IsNullOrEmpty(cred) && scheme == "hysteria")
                     cred = q.GetValueOrDefault("auth", "");
 
+                // A WireGuard link can contain more source-specific/unknown query options
+                // than the exporter actually emits. Use the effective parsed tunnel as its
+                // identity so variants that produce the same downloadable config collapse
+                // in the master catalogue and every derived feed, not only in wireguard/.
+                WgInfo? wireguardInfo = null;
+                if (scheme is "wireguard" or "wg")
+                {
+                    wireguardInfo = TryParseWireguardInfo(baseLink);
+                    if (wireguardInfo != null)
+                    {
+                        h = NormalizeUriHost(wireguardInfo.Host);
+                        p = wireguardInfo.Port;
+                        cred = wireguardInfo.PrivateKey ?? cred;
+                        pbk = wireguardInfo.PublicKey ?? pbk;
+
+                        // These generic URI fields describe TLS/stream transports and
+                        // are not consumed by a WireGuard tunnel. Do not let stray
+                        // source decorations keep identical exported tunnels apart.
+                        net = "udp";
+                        sec = "";
+                        sni = "";
+                        path = "";
+                        sid = "";
+                        flow = "";
+                        obfsPwd = "";
+                    }
+                    else if (string.IsNullOrEmpty(cred))
+                    {
+                        cred = q.GetValueOrDefault("privatekey",
+                            q.GetValueOrDefault("private_key", ""));
+                    }
+                }
+
+                // For ordinary URI proxy schemes, DNS/MTU and other unrecognized
+                // query options remain identity-significant unless explicitly normalized.
+                // Valid WireGuard profiles instead use GetWireguardOutputIdentityKey above:
+                // that key preserves every setting FastNodes exports and omits local DNS,
+                // MTU, and source-only decorations the exporters do not consume.
+                string[] identityExcludedOptions = new[]
+                    {
+                        "security", "type", "sni", "path", "pbk", "sid", "flow",
+                        "obfs-password", "auth"
+                    }
+                    .Concat(scheme is "wireguard" or "wg"
+                        ? new[] { "dns", "mtu" }
+                        : Array.Empty<string>())
+                    .ToArray();
+
                 return new ParsedProxy
                 {
                     Protocol   = scheme,
@@ -286,10 +334,11 @@ namespace ProxyCollector.Collector
                     Flow       = flow,
                     ObfsPassword = obfsPwd,
                     BaseLink   = baseLink,
-                    ConnectionOptionsKey = BuildProxyUriOptionsKey(uri.Query, h, net, sec, sni,
-                        q.GetValueOrDefault("headerType", "none"),
-                        "security", "type", "sni", "path", "pbk", "sid", "flow",
-                        "obfs-password", "auth"),
+                    ConnectionOptionsKey = wireguardInfo != null
+                        ? GetWireguardConfigurationIdentityKey(wireguardInfo)
+                        : BuildProxyUriOptionsKey(uri.Query, h, net, sec, sni,
+                            q.GetValueOrDefault("headerType", "none"),
+                            identityExcludedOptions),
                     LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                 };
             }
@@ -561,7 +610,10 @@ namespace ProxyCollector.Collector
                     Credential = username + ":" + password,
                     Network = protocols[0].Value.ToLowerInvariant(),
                     BaseLink = baseLink,
-                    ConnectionOptionsKey = BuildCanonicalQueryIdentityKey(uri.Query),
+                    // The profile is a display label; TCP/UDP transport is already
+                    // represented in Network, while the port binding remains in the
+                    // query so distinct ranges cannot collapse.
+                    ConnectionOptionsKey = BuildCanonicalQueryIdentityKey(uri.Query, "profile", "protocol"),
                     LegacyConnectionOptionsKey = BuildQueryIdentityKey(uri.Query)
                 };
             }
@@ -632,17 +684,22 @@ namespace ProxyCollector.Collector
                     return null;
 
                 var q = ParseQuery(query);
-                // obfsparam/protoparam are per-connection secrets too — different values
-                // there mean a meaningfully different config, so fold them into Path for
-                // dedup purposes even though they're not a literal path.
-                string extra = q.GetValueOrDefault("obfsparam", "") + "|" + q.GetValueOrDefault("protoparam", "");
+                // obfsparam/protoparam are per-connection options. For TLS-based
+                // SSR obfuscation, obfsparam is the TLS server name and must stay a
+                // separate public endpoint identity; other obfs modes keep it as an
+                // ordinary connection option only.
+                string obfsParameter = q.GetValueOrDefault("obfsparam", "");
+                string effectiveSni = obfs.StartsWith("tls", StringComparison.OrdinalIgnoreCase)
+                    ? obfsParameter
+                    : "";
+                string extra = obfsParameter + "|" + q.GetValueOrDefault("protoparam", "");
 
                 return new ParsedProxy
                 {
                     Protocol = "ssr", Host = host, Port = port,
                     Credential = $"{method}:{password}",
                     Network = protocol, Security = obfs,
-                    Sni = "", Path = extra,
+                    Sni = effectiveSni, Path = extra,
                     BaseLink = baseLink,
                     ConnectionOptionsKey = BuildCanonicalQueryIdentityKey(query,
                         "remarks", "remarks_base64", "obfsparam", "protoparam"),
@@ -763,6 +820,17 @@ namespace ProxyCollector.Collector
             catch { return null; }
         }
 
+        // These options change only the local client interface or display metadata;
+        // they do not identify a different remote proxy service. They are intentionally
+        // omitted from current exact and compact identities, but are left in the original
+        // share link so the selected representative keeps its source settings.
+        private static readonly HashSet<string> NonIdentityQueryOptions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "dns", "mtu",
+            "name", "tag", "remark", "remarks", "remarks_base64", "ps", "group",
+            "country", "city", "region", "flag", "emoji", "display-name", "displayname"
+        };
+
         private static string BuildQueryIdentityKey(string query, params string[] excludedKeys)
             // Preserve the pre-canonicalization behavior for the history migration key.
             => BuildQueryIdentityKeyCore(query, null, null, null, null, null,
@@ -834,6 +902,19 @@ namespace ProxyCollector.Collector
                 .Where(item => !excluded.Contains(item.Key))
                 .Where(item =>
                 {
+                    // Keep the historical identity schema untouched for the one-run
+                    // ranking-history migration, but remove known client-local and
+                    // display-only options from every current identity.
+                    if (normalizeDefaults && NonIdentityQueryOptions.Contains(item.Key))
+                        return false;
+
+                    // An omitted VLESS encryption option and encryption=none are the
+                    // same protocol default. Non-default encryption values remain.
+                    if (normalizeDefaults && item.Key == "encryption" &&
+                        (string.IsNullOrWhiteSpace(item.Value) ||
+                         item.Value.Equals("none", StringComparison.OrdinalIgnoreCase)))
+                        return false;
+
                     // Xray's default for certificate validation is secure: explicit false
                     // and an omitted flag are the same client behavior.
                     if (normalizeDefaults && (item.Key is "allowinsecure" or "insecure") &&
@@ -887,20 +968,71 @@ namespace ProxyCollector.Collector
             {
                 "v", "add", "port", "id", "aid", "net", "tls", "sni", "path"
             };
+            string[] localAndDisplayFields =
+            {
+                "dns", "mtu", "name", "tag", "remark", "remarks", "group",
+                "country", "city", "region", "flag", "emoji", "display-name", "displayname"
+            };
             var canonical = root.EnumerateObject()
                 .Where(property =>
                     !property.Name.Equals("ps", StringComparison.OrdinalIgnoreCase) &&
                     (!excludeNormalizedFields ||
-                     !normalizedFields.Contains(property.Name, StringComparer.OrdinalIgnoreCase)))
+                     (!normalizedFields.Contains(property.Name, StringComparer.OrdinalIgnoreCase) &&
+                      !localAndDisplayFields.Contains(property.Name, StringComparer.OrdinalIgnoreCase) &&
+                      !IsExplicitFalseJsonOption(property))))
                 .OrderBy(property => property.Name, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(property => property.Name, StringComparer.Ordinal)
                 .Select(property => new
                 {
                     Name = property.Name.ToLowerInvariant(),
-                    Value = property.Value.Clone()
+                    Value = CanonicalizeJsonIdentityValue(property.Value)
                 })
                 .ToArray();
             return JsonSerializer.Serialize(canonical);
+        }
+
+        // VMess extra/plugin objects may be serialized with different property order
+        // by different converters. Canonicalize object keys recursively so formatting
+        // order cannot create another service profile; preserve array order and values.
+        private static object? CanonicalizeJsonIdentityValue(JsonElement value)
+        {
+            switch (value.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    var properties = new SortedDictionary<string, object?>(StringComparer.Ordinal);
+                    foreach (var property in value.EnumerateObject())
+                        properties[property.Name] = CanonicalizeJsonIdentityValue(property.Value);
+                    return properties;
+                case JsonValueKind.Array:
+                    return value.EnumerateArray()
+                        .Select(CanonicalizeJsonIdentityValue)
+                        .ToArray();
+                case JsonValueKind.String:
+                    return value.GetString();
+                case JsonValueKind.True:
+                    return true;
+                case JsonValueKind.False:
+                    return false;
+                case JsonValueKind.Null:
+                case JsonValueKind.Undefined:
+                    return null;
+                default:
+                    return value.Clone();
+            }
+        }
+
+        private static bool IsExplicitFalseJsonOption(JsonProperty property)
+        {
+            if (!property.Name.Equals("allowInsecure", StringComparison.OrdinalIgnoreCase) &&
+                !property.Name.Equals("insecure", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            return property.Value.ValueKind == JsonValueKind.False ||
+                (property.Value.ValueKind == JsonValueKind.String &&
+                 property.Value.GetString() is { } text &&
+                 (text.Equals("false", StringComparison.OrdinalIgnoreCase) || text == "0")) ||
+                (property.Value.ValueKind == JsonValueKind.Number &&
+                 property.Value.TryGetInt32(out int number) && number == 0);
         }
 
         private static string NormalizeUriHost(string host)

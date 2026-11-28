@@ -5,10 +5,12 @@ from __future__ import annotations
 import argparse
 import base64
 import ipaddress
+import json
 import pathlib
 import re
 import sys
 from collections import Counter
+from urllib.parse import parse_qsl, unquote, urlsplit
 
 SCHEMES = (
     "vmess", "vless", "trojan", "ss", "shadowsocks", "ssr", "hysteria",
@@ -31,6 +33,187 @@ MAX_PART_BYTES = 50 * 1024 * 1024
 class ValidationError(Exception):
     pass
 
+
+NON_IDENTITY_QUERY_OPTIONS = {
+    "dns", "mtu",
+    "name", "tag", "remark", "remarks", "remarks_base64", "ps", "group",
+    "country", "city", "region", "flag", "emoji", "display-name", "displayname",
+}
+NON_IDENTITY_JSON_FIELDS = NON_IDENTITY_QUERY_OPTIONS | {"profile"}
+
+
+def _normalize_identity_host(host: str) -> str:
+    value = (host or "").strip().strip("[]").rstrip(".")
+    if not value:
+        return ""
+    try:
+        address = ipaddress.ip_address(value)
+        if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped:
+            address = address.ipv4_mapped
+        return address.compressed.lower()
+    except ValueError:
+        return value.encode("idna").decode("ascii").lower()
+
+
+def _decode_urlsafe_base64(value: str) -> str:
+    token = value.strip().replace("-", "+").replace("_", "/")
+    token += "=" * ((4 - len(token) % 4) % 4)
+    return base64.b64decode(token, validate=False).decode("utf-8")
+
+
+def wireguard_uri_identity(line: str) -> tuple | None:
+    """WireGuard public identity is endpoint + port; the protocol has no SNI."""
+    if not re.match(r"(?i)^wireguard://|^wg://", line.strip()):
+        return None
+    try:
+        parsed = urlsplit(line.strip())
+        if not parsed.hostname:
+            return None
+        return _normalize_identity_host(parsed.hostname), parsed.port or 51820, ""
+    except (ValueError, UnicodeError):
+        return None
+
+
+
+def _vmess_json_identity(line: str) -> tuple | None:
+    try:
+        payload = _decode_urlsafe_base64(line.split("://", 1)[1].split("#", 1)[0])
+        root = json.loads(payload)
+        if not isinstance(root, dict):
+            return None
+        host = _normalize_identity_host(str(root.get("add", "")))
+        if not host:
+            return None
+        port = int(root.get("port", 443) or 443)
+        security = str(root.get("tls", "") or "").strip().lower()
+        sni_value = str(root.get("sni", "") or "").strip()
+        sni = _normalize_identity_host(sni_value) if sni_value else (
+            host if security not in {"", "none", "false", "0"} else ""
+        )
+        return host, port, sni
+    except (ValueError, UnicodeError, json.JSONDecodeError):
+        return None
+
+
+def _ss_identity(line: str) -> tuple | None:
+    """Parse both SIP002 and legacy base64 Shadowsocks links."""
+    try:
+        rest = line.split("://", 1)[1].split("#", 1)[0]
+        if "@" in rest:
+            _user_part, host_part = rest.split("@", 1)
+            host_port, _separator, query = host_part.partition("?")
+        else:
+            decoded = _decode_urlsafe_base64(rest)
+            main, marker, query = decoded.partition("/?")
+            if "@" not in main:
+                return None
+            _user_part, host_port = main.split("@", 1)
+            if not marker:
+                query = ""
+
+        if host_port.startswith("["):
+            close = host_port.find("]")
+            if close <= 1 or host_port[close + 1:close + 2] != ":":
+                return None
+            host = host_port[1:close]
+            port_text = host_port[close + 2:]
+        else:
+            host, separator, port_text = host_port.rpartition(":")
+            if not separator or ":" in host:
+                return None
+        host = _normalize_identity_host(host)
+        port = int(port_text)
+        params = {key.lower(): value for key, value in parse_qsl(query, keep_blank_values=True)}
+        sni = _normalize_identity_host(params.get("host", "")) if params.get("host") else ""
+        return host, port, sni
+    except (ValueError, UnicodeError):
+        return None
+
+
+def _ssr_identity(line: str) -> tuple | None:
+    try:
+        decoded = _decode_urlsafe_base64(line.split("://", 1)[1].split("#", 1)[0])
+        main, _marker, query = decoded.partition("/?")
+        if main.startswith("["):
+            close = main.index("]")
+            host = main[1:close]
+            values = main[close + 2:].split(":")
+        else:
+            values = main.split(":")
+            host, values = values[0], values[1:]
+        if len(values) != 5:
+            return None
+        port = int(values[0])
+        obfs = values[3].strip().lower()
+        params = {key.lower(): value for key, value in parse_qsl(query, keep_blank_values=True)}
+        obfs_parameter = params.get("obfsparam", "")
+        sni = _normalize_identity_host(obfs_parameter) if obfs.startswith("tls") and obfs_parameter else ""
+        return _normalize_identity_host(host), port, sni
+    except (ValueError, UnicodeError, IndexError):
+        return None
+
+
+def semantic_subscription_identity(line: str) -> tuple | None:
+    """Endpoint-first identity: canonical host, port, and effective SNI only."""
+    value = line.strip()
+    if not URI_RE.fullmatch(value):
+        return None
+    scheme = value.split("://", 1)[0].lower()
+    scheme = {
+        "hy2": "hysteria2", "shadowsocks": "ss",
+        "wg": "wireguard", "mierus": "mieru",
+    }.get(scheme, scheme)
+
+    if scheme == "wireguard":
+        return wireguard_uri_identity(value)
+    if scheme == "vmess" and "@" not in value.split("://", 1)[1].split("#", 1)[0]:
+        identity = _vmess_json_identity(value)
+        if identity is not None:
+            return identity
+    if scheme == "ss":
+        return _ss_identity(value)
+    if scheme == "ssr":
+        return _ssr_identity(value)
+
+    try:
+        parsed = urlsplit(value)
+        if not parsed.hostname:
+            return None
+        host = _normalize_identity_host(parsed.hostname)
+        params = {key.lower(): item for key, item in parse_qsl(parsed.query, keep_blank_values=True)}
+
+        if scheme == "mieru":
+            binding = params.get("port", "")
+            range_parts = binding.split("-", 1)
+            first_port = int(range_parts[0])
+            port = (
+                f"{first_port}-{int(range_parts[1])}"
+                if len(range_parts) == 2 else first_port
+            )
+        else:
+            defaults = {
+                "socks": 1080, "socks4": 1080, "socks5": 1080,
+                "brook": 9999, "snell": 61825, "wireguard": 51820,
+            }
+            port = parsed.port or defaults.get(scheme, 443)
+
+        sni_value = params.get("sni", "").strip()
+        if scheme in {"wireguard", "mieru"}:
+            sni = ""
+        elif scheme == "ss":
+            sni = _normalize_identity_host(params.get("host", "")) if params.get("host") else ""
+        else:
+            security = params.get("security", "").strip().lower()
+            protocol_uses_tls_security = scheme in {"vless", "vmess"}
+            implicit_tls = (
+                (protocol_uses_tls_security and security not in {"", "none", "false", "0"}) or
+                scheme in {"trojan", "hysteria", "hysteria2", "tuic", "juicity", "anytls", "naive"}
+            )
+            sni = _normalize_identity_host(sni_value) if sni_value else (host if implicit_tls else "")
+
+        return host, port, sni
+    except (ValueError, UnicodeError):
+        return None
 
 def validate_lines(path: pathlib.Path) -> tuple[int, int]:
     try:
@@ -107,7 +290,21 @@ def validate_lines(path: pathlib.Path) -> tuple[int, int]:
 
     counts = Counter(lines)
     duplicates = sum(n - 1 for n in counts.values() if n > 1)
-    return len(lines), duplicates
+
+    # Catch different URI spellings that still describe one public service profile.
+    # This applies to every supported scheme, not only to WireGuard.
+    semantic_seen: dict[tuple, str] = {}
+    semantic_duplicates = 0
+    for line in dict.fromkeys(lines):
+        identity = semantic_subscription_identity(line)
+        if identity is None:
+            continue
+        if identity in semantic_seen and semantic_seen[identity] != line:
+            semantic_duplicates += 1
+        else:
+            semantic_seen[identity] = line
+
+    return len(lines), duplicates + semantic_duplicates
 
 
 def _validate_wireguard_key(value: str, label: str, path: pathlib.Path) -> None:
@@ -138,7 +335,19 @@ def _validate_wireguard_host(host: str, path: pathlib.Path) -> None:
         raise ValidationError(f"{path}: invalid WireGuard endpoint hostname {host!r}")
 
 
-def validate_wireguard_conf(path: pathlib.Path) -> None:
+def _normalize_wireguard_ip_list(value: str, *, interface_addresses: bool) -> tuple[str, ...]:
+    values = [item.strip() for item in value.split(",")]
+    if not values or any(not item for item in values):
+        raise ValueError("empty IP list entry")
+    parsed = [
+        ipaddress.ip_interface(item) if interface_addresses
+        else ipaddress.ip_network(item, strict=False)
+        for item in values
+    ]
+    return tuple(sorted(str(item) for item in parsed))
+
+
+def validate_wireguard_conf(path: pathlib.Path) -> tuple:
     try:
         content = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as exc:
@@ -187,11 +396,7 @@ def validate_wireguard_conf(path: pathlib.Path) -> None:
         _validate_wireguard_key(peer["presharedkey"], "PresharedKey", path)
 
     try:
-        addresses = [item.strip() for item in interface["address"].split(",")]
-        if not addresses or any(not item for item in addresses):
-            raise ValueError("empty address")
-        for item in addresses:
-            ipaddress.ip_interface(item)
+        addresses = _normalize_wireguard_ip_list(interface["address"], interface_addresses=True)
     except ValueError as exc:
         raise ValidationError(f"{path}: invalid [Interface] Address: {exc}") from exc
 
@@ -207,11 +412,7 @@ def validate_wireguard_conf(path: pathlib.Path) -> None:
             raise ValidationError(f"{path}: invalid [Interface] DNS: {exc}") from exc
 
     try:
-        allowed_ips = [item.strip() for item in peer["allowedips"].split(",")]
-        if not allowed_ips or any(not item for item in allowed_ips):
-            raise ValueError("empty AllowedIPs entry")
-        for item in allowed_ips:
-            ipaddress.ip_network(item, strict=False)
+        allowed_ips = _normalize_wireguard_ip_list(peer["allowedips"], interface_addresses=False)
     except ValueError as exc:
         raise ValidationError(f"{path}: invalid [Peer] AllowedIPs: {exc}") from exc
 
@@ -233,6 +434,19 @@ def validate_wireguard_conf(path: pathlib.Path) -> None:
     if keepalive is not None and (not keepalive.isdigit() or int(keepalive) > 65535):
         raise ValidationError(f"{path}: invalid PersistentKeepalive value")
 
+    reserved = tuple(item.strip() for item in peer.get("reserved", "").split(",") if item.strip())
+    if reserved and (len(reserved) != 3 or any(not item.isdigit() or int(item) > 255 for item in reserved)):
+        raise ValidationError(f"{path}: invalid WireGuard Reserved bytes")
+
+    try:
+        normalized_host = ipaddress.ip_address(host).compressed
+    except ValueError:
+        normalized_host = host.rstrip(".").encode("idna").decode("ascii").lower()
+
+    # Public-feed policy is one WireGuard entry per endpoint and port.
+    # Keys, routes, DNS, MTU and keepalive are still validated for a usable file,
+    # but do not create another copy of an already represented endpoint.
+    return (normalized_host, int(port_text), "")
 
 def validate_wireguard_confs(root: pathlib.Path) -> int:
     directory = root / "wireguard"
@@ -249,8 +463,15 @@ def validate_wireguard_confs(root: pathlib.Path) -> int:
                 f"{directory}: WireGuard YAML exists but no matching .conf files were generated"
             )
         return 0
+    seen: dict[tuple, pathlib.Path] = {}
     for path in paths:
-        validate_wireguard_conf(path)
+        identity = validate_wireguard_conf(path)
+        if identity in seen:
+            raise ValidationError(
+                f"{path}: duplicate WireGuard tunnel config already emitted as {seen[identity]} "
+                "(DNS/MTU differences do not create a distinct node)"
+            )
+        seen[identity] = path
     return len(paths)
 
 
@@ -334,6 +555,27 @@ def validate_tree(root: pathlib.Path, allow_legacy_oversized: bool = False) -> l
     def all_parts(base_path: pathlib.Path) -> list[pathlib.Path]:
         ordered = sorted(split_groups.get(base_path, []), key=lambda item: item[0])
         return [base_path] + [path for _, path in ordered]
+
+    # Per-file checks above cannot see duplicates split across two numbered parts.
+    # Run the same semantic identity check over each complete part family.
+    for base_path in split_groups:
+        seen_profiles: dict[tuple, str] = {}
+        for part_path in all_parts(base_path):
+            for line in (
+                line.strip()
+                for line in part_path.read_text(encoding="utf-8-sig").splitlines()
+                if line.strip()
+            ):
+                identity = semantic_subscription_identity(line)
+                if identity is None:
+                    continue
+                if identity in seen_profiles and seen_profiles[identity] != line:
+                    rel = base_path.relative_to(root).as_posix()
+                    raise ValidationError(
+                        f"{rel} contains semantically duplicate profiles across split parts: "
+                        f"{seen_profiles[identity][:100]!r} and {line[:100]!r}"
+                    )
+                seen_profiles[identity] = line
 
     # The ranked IPv6 shortlist is generated directly from ipv6_only.txt's
     # candidate pool. Every top_ipv6 entry must therefore exist in the family
@@ -437,6 +679,45 @@ def self_test() -> None:
     for line in good:
         if not URI_RE.fullmatch(line):
             raise ValidationError(f"self-test rejected valid URI: {line}")
+
+    wg_uri_a = "wireguard://private@wg.example.net:51820?pk=server&ip=10.0.0.2%2F32&dns=1.1.1.1&mtu=1280"
+    wg_uri_b = "wireguard://another-private@wg.example.net:51820?mtu=1420&ip=10.0.0.2%2F32&pk=another-server&dns=8.8.8.8"
+    if semantic_subscription_identity(wg_uri_a) != semantic_subscription_identity(wg_uri_b):
+        raise ValidationError("self-test failed to collapse WireGuard endpoint duplicates")
+    wg_uri_other_port = "wireguard://private@wg.example.net:51821?pk=server&ip=10.0.0.2%2F32"
+    if semantic_subscription_identity(wg_uri_a) == semantic_subscription_identity(wg_uri_other_port):
+        raise ValidationError("self-test incorrectly collapsed different WireGuard ports")
+
+    vless_a = "vless://uuid@same.example.net:443?security=tls&type=ws&sni=front.example.net&path=%2Fedge&fp=chrome&dns=1.1.1.1&mtu=1280&name=source-a"
+    vless_b = "trojan://different-secret@same.example.net:443?sni=front.example.net&mtu=1420&name=source-b&dns=8.8.8.8"
+    if semantic_subscription_identity(vless_a) != semantic_subscription_identity(vless_b):
+        raise ValidationError("self-test failed to collapse different protocol/credential/metadata variants at one endpoint")
+    vless_other_port = vless_b.replace(":443", ":8443")
+    if semantic_subscription_identity(vless_a) == semantic_subscription_identity(vless_other_port):
+        raise ValidationError("self-test incorrectly collapsed different endpoint ports")
+    vless_other_sni = vless_b.replace("front.example.net", "other-front.example.net")
+    if semantic_subscription_identity(vless_a) == semantic_subscription_identity(vless_other_sni):
+        raise ValidationError("self-test incorrectly collapsed different SNI values")
+
+    ss_a = "ss://YWVzLTEyOC1nY206cHc=@same.example.net:8388?dns=1.1.1.1&mtu=1280"
+    ss_b = "ss://YWVzLTEyOC1nY206b3RoZXI=@same.example.net:8388?mtu=1420&dns=8.8.8.8"
+    if semantic_subscription_identity(ss_a) != semantic_subscription_identity(ss_b):
+        raise ValidationError("self-test failed to collapse Shadowsocks endpoint duplicates")
+
+    mieru_a = "mierus://user:pass@same.example.net?profile=home&port=6666&protocol=UDP&mtu=1280&dns=1.1.1.1"
+    mieru_b = "mierus://other:secret@same.example.net?profile=travel&port=6666&protocol=udp&mtu=1400&dns=8.8.8.8"
+    if semantic_subscription_identity(mieru_a) != semantic_subscription_identity(mieru_b):
+        raise ValidationError("self-test failed to collapse Mieru endpoint duplicates")
+
+    ssr_password = base64.urlsafe_b64encode(b"secret").decode("ascii").rstrip("=")
+    ssr_tls_a = "ssr://" + base64.urlsafe_b64encode(
+        f"same.example.net:8388:origin:aes-128-gcm:tls1.2_ticket_auth:{ssr_password}/?obfsparam=front.example.net".encode()
+    ).decode("ascii").rstrip("=")
+    ssr_tls_b = "ssr://" + base64.urlsafe_b64encode(
+        f"same.example.net:8388:origin:aes-128-gcm:tls1.2_ticket_auth:{ssr_password}/?obfsparam=other-front.example.net".encode()
+    ).decode("ascii").rstrip("=")
+    if semantic_subscription_identity(ssr_tls_a) == semantic_subscription_identity(ssr_tls_b):
+        raise ValidationError("self-test incorrectly collapsed SSR TLS obfs links with different SNI")
     for line in (
         "https://example.com/subscription",
         "not a proxy URI",
@@ -488,12 +769,50 @@ def self_test() -> None:
             "Endpoint = [2001:4860:4860::8888]:51820\n"
             "AllowedIPs = 0.0.0.0/0, ::/0\n"
             "PersistentKeepalive = 25\n"
+            "MTU = 1380\n"
         )
         wg_conf_path = wg_dir / "valid.conf"
         wg_conf_path.write_text(valid_conf, encoding="utf-8")
         report = validate_tree(root)
         if not any("Validated 1 WireGuard .conf file(s)." in line for line in report):
             raise ValidationError("self-test failed to report validated WireGuard .conf output")
+
+        duplicate_conf = valid_conf.replace(
+            "DNS = 1.1.1.1, 2606:4700:4700::1111",
+            "DNS = 8.8.8.8"
+        ).replace("MTU = 1380", "MTU = 1280")
+        duplicate_path = wg_dir / "duplicate-local-preferences.conf"
+        duplicate_path.write_text(duplicate_conf, encoding="utf-8")
+        try:
+            validate_wireguard_confs(root)
+        except ValidationError as exc:
+            if "duplicate WireGuard tunnel config" not in str(exc):
+                raise
+        else:
+            raise ValidationError("self-test failed to reject a WireGuard duplicate differing only in DNS/MTU")
+        finally:
+            duplicate_path.unlink(missing_ok=True)
+
+        # Under endpoint-first public dedup, a different client-side interface
+        # address is still not a second public node when endpoint and port match.
+        different_address = valid_conf.replace(
+            "Address = 10.0.0.2/32, fd00::2/128",
+            "Address = 10.0.0.3/32, fd00::2/128"
+        )
+        different_address_path = wg_dir / "different-interface-address.conf"
+        different_address_path.write_text(different_address, encoding="utf-8")
+        try:
+            validate_wireguard_confs(root)
+        except ValidationError as exc:
+            if "duplicate WireGuard tunnel config" not in str(exc):
+                raise
+        else:
+            raise ValidationError(
+                "self-test failed to reject a second WireGuard config at the same endpoint/port"
+            )
+        finally:
+            different_address_path.unlink(missing_ok=True)
+
         invalid_keepalive_yaml = yaml.replace("persistent-keepalive: 0", "persistent-keepalive: 65536")
         (root / "protocols" / "wireguard.txt").write_text(invalid_keepalive_yaml, encoding="utf-8")
         try:

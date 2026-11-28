@@ -202,7 +202,12 @@ def semantic_subscription_identity(line: str) -> tuple | None:
 
         if scheme == "mieru":
             binding = params.get("port", "")
-            port = int(binding.split("-", 1)[0])
+            range_parts = binding.split("-", 1)
+            first_port = int(range_parts[0])
+            port = (
+                f"{first_port}-{int(range_parts[1])}"
+                if len(range_parts) == 2 else first_port
+            )
         else:
             defaults = {
                 "socks": 1080, "socks4": 1080, "socks5": 1080,

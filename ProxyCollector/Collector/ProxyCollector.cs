@@ -1902,7 +1902,10 @@ namespace ProxyCollector.Collector
                     ? new[] { literal }
                     : await Resolver.ResolveAllAsync(p.Host); // full cached A/AAAA set
                 string canonical = BuildAliasCanonicalHost(p.Host, addresses);
+                p.CanonicalEndpointHost = canonical;
 
+                // Keep exact connection variants for testing. The compact public-feed
+                // selector runs after tests so it can choose the strongest one.
                 string key = p.EndpointKey(canonical);
                 if (index.TryGetValue(key, out var pos))
                 {
@@ -4409,6 +4412,9 @@ namespace ProxyCollector.Collector
         public bool   EdgeTested    { get; set; }  // current-run edge probe returned a per-node result
         public bool   EdgeVerified  { get; set; }  // TLS verified from the CF edge vantage (this run)
         public string BaseLink    { get; set; } = "";
+        // DNS-canonical endpoint used only by the compact public-feed identity.
+        // Set after resolution so a hostname and its single-IP alias can collapse.
+        public string CanonicalEndpointHost { get; set; } = "";
         // Original display metadata is kept separately because BaseLink is canonicalized
         // without fragments before connection parsing and identity calculation.
         public string SourceRemark { get; set; } = "";
@@ -4423,13 +4429,40 @@ namespace ProxyCollector.Collector
         public string DeduplicationKey =>
             BuildIdentityKey(Host, includeCredential: true, aliasMode: false);
 
-        // Precision feeds collapse credential variants of the same service profile.
-        // WireGuard is the exception: its private key identifies the local tunnel.
-        public string SelectionProfileKey =>
-            BuildIdentityKey(Host, includeCredential: ProxyCollector.NormalizeProto(Protocol) == "wireguard", aliasMode: false);
+        // Public feeds intentionally keep one representative per canonical host/IP +
+        // port + effective SNI. Credentials, protocol aliases, paths, local preferences,
+        // and display metadata do not create extra copies. A different port or effective
+        // SNI remains a separate candidate.
+        public string SelectionProfileKey
+        {
+            get
+            {
+                string endpointHost = string.IsNullOrWhiteSpace(CanonicalEndpointHost)
+                    ? Host : CanonicalEndpointHost;
+                return BuildEndpointSelectionKey(endpointHost);
+            }
+        }
 
         public string EndpointKey(string canonicalHost) =>
             BuildIdentityKey(canonicalHost, includeCredential: true, aliasMode: true);
+
+        private string BuildEndpointSelectionKey(string endpointHost)
+        {
+            string protocol = ProxyCollector.NormalizeProto(Protocol);
+            string originalHostKey = ProxyCollector.NormalizeIdentityHost(Host);
+            string hostKey = ProxyCollector.NormalizeIdentityHost(endpointHost);
+            string portKey = int.TryParse(Port, out int pn)
+                ? pn.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                : Port.Trim();
+
+            bool implicitTlsSni = !string.IsNullOrEmpty(Security) ||
+                protocol is "trojan" or "hysteria" or "hysteria2" or "tuic" or "juicity" or "anytls" or "naive";
+            string sniKey = !string.IsNullOrWhiteSpace(Sni)
+                ? ProxyCollector.NormalizeIdentityHost(Sni)
+                : implicitTlsSni ? originalHostKey : "";
+
+            return JsonSerializer.Serialize(new[] { hostKey, portKey, sniKey });
+        }
 
         private string BuildIdentityKey(string identityHost, bool includeCredential, bool aliasMode)
         {

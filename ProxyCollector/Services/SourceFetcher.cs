@@ -249,7 +249,7 @@ public sealed class SourceFetcher
                                                     {
                                                         Interlocked.Increment(ref stat.ProviderFailures);
                                                         logWarning(
-                                                            $"  provider fetch failed (after retry) for {url} → {fetchUrl}: {exception.Message}");
+                                                            $"  provider fetch failed after {MaxAttempts} attempts for {url} → {fetchUrl}: {exception.Message}");
                                                     }
                                                     else
                                                     {

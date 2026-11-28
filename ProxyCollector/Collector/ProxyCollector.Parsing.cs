@@ -158,7 +158,7 @@ namespace ProxyCollector.Collector
                     // endpoint hostname when no explicit "sni" is present.
                     string sni = r.TryGetProperty("sni", out var sniEl)
                         ? (sniEl.GetString() ?? "") : "";
-                    string path = r.TryGetProperty("path", out var pathEl) ? (pathEl.GetString() ?? "").TrimEnd('/') : "";
+                    string path = r.TryGetProperty("path", out var pathEl) ? (pathEl.GetString() ?? "") : "";
                     int aid = 0;
                     if (r.TryGetProperty("aid", out var aidEl))
                     {
@@ -204,7 +204,7 @@ namespace ProxyCollector.Collector
                         Port = (uri.Port > 0 ? uri.Port : 443).ToString(),
                         Credential = Uri.UnescapeDataString(uri.UserInfo ?? ""),
                         Network = net, Security = sec,
-                        Sni = sni, Path = q.GetValueOrDefault("path", "").TrimEnd('/'),
+                        Sni = sni, Path = q.GetValueOrDefault("path", ""),
                         Aid = int.TryParse(q.GetValueOrDefault("aid", "0"), out var a) ? a : 0,
                         BaseLink = baseLink,
                         ConnectionOptionsKey = BuildQueryIdentityKey(uri.Query,
@@ -249,7 +249,7 @@ namespace ProxyCollector.Collector
                 // "host" is a transport HTTP Host/authority override, not an implicit TLS SNI.
                 // The TLS layer falls back to the endpoint hostname when SNI is absent.
                 string sni  = q.GetValueOrDefault("sni", "");
-                string path = q.GetValueOrDefault("path", "").TrimEnd('/'); // trailing-slash-only difference shouldn't produce a different dedup key
+                string path = q.GetValueOrDefault("path", "");
                 string pbk  = q.GetValueOrDefault("pbk", "");
                 string sid  = q.GetValueOrDefault("sid", "");
 

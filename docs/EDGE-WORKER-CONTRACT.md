@@ -50,6 +50,25 @@ a pre-TCP connection failure is not.
 - A mismatch leaves the node **not tested**; it is never counted as a verification
   failure and never causes the node to be removed.
 
+## Controlled deployment test
+
+The repository tests the collector's response validation rules, but it cannot prove that
+the separately deployed Worker uses the requested SNI. The Worker source and deployment
+are external to this repository; a successful CI run is not an end-to-end Worker test.
+
+Use a controlled TLS endpoint that records the ClientHello SNI and exercise this matrix:
+
+| Scenario | Expected Worker result | Collector interpretation |
+|---|---|---|
+| TCP succeeds; custom SNI is applied; TLS succeeds | `tcp: ok`, `tls: ok`, exact `sni` echo | Edge-verified |
+| TCP succeeds; custom SNI is applied; TLS fails | `tcp: ok`, TLS failure, exact `sni` echo | Tested failure; not removed |
+| TCP fails before TLS | Non-`ok` `tcp` status; no SNI echo | Not tested by edge TLS |
+| TCP succeeds but SNI is absent or mismatched | Missing or mismatched `sni` | Not tested; never credited |
+
+For the custom-SNI case, verify the recorded ClientHello rather than trusting an echoed
+request field alone. Repeat the test after every Worker deployment. This is the only
+way to prove that the external service actually applied the requested SNI.
+
 ## Deployment checklist
 
 1. Update the external Worker to consume `target.sni` and apply it to the TLS socket.

@@ -88,6 +88,36 @@ internal static class Program
         Checks.Equal(8, untouchedHistory.XrayOk,
             "a successful Xray probe increments the Xray streak");
 
+        var presenceHistory = new Dictionary<string, ProxyCollector.Collector.NodeHistory>(StringComparer.Ordinal);
+        ProxyCollector.Collector.ParsedProxy NewPresenceNode() => new()
+        {
+            Protocol = "vless", Host = "presence.example.net", Port = "443",
+            Credential = "presence-user", Network = "tcp", Security = "tls"
+        };
+        var firstPresence = NewPresenceNode();
+        CollectorType.UpdateStreaks(presenceHistory, new List<ProxyCollector.Collector.ParsedProxy> { firstPresence });
+        Checks.Equal(1, firstPresence.Streak, "the first observed collection run counts as presence streak one");
+        Checks.That(!firstPresence.IsStable, "a node is not stable after only its first observed run");
+        var secondPresence = NewPresenceNode();
+        CollectorType.UpdateStreaks(presenceHistory, new List<ProxyCollector.Collector.ParsedProxy> { secondPresence });
+        Checks.Equal(2, secondPresence.Streak, "the second consecutive collection run counts as presence streak two");
+        Checks.That(!secondPresence.IsStable, "a node is not stable after only two consecutive runs");
+        var thirdPresence = NewPresenceNode();
+        CollectorType.UpdateStreaks(presenceHistory, new List<ProxyCollector.Collector.ParsedProxy> { thirdPresence });
+        Checks.Equal(3, thirdPresence.Streak, "the third consecutive collection run counts as presence streak three");
+        Checks.That(thirdPresence.IsStable, "a node becomes stable on its third consecutive collection run");
+
+        var preservedPresenceHistory = presenceHistory.Values.Single();
+        preservedPresenceHistory.TlsOk = 4;
+        preservedPresenceHistory.XrayOk = 5;
+        CollectorType.UpdateStreaks(presenceHistory, new List<ProxyCollector.Collector.ParsedProxy>());
+        var returnedAfterGap = NewPresenceNode();
+        CollectorType.UpdateStreaks(presenceHistory, new List<ProxyCollector.Collector.ParsedProxy> { returnedAfterGap });
+        Checks.Equal(1, returnedAfterGap.Streak, "a missing collection run resets the consecutive presence streak on return");
+        Checks.That(!returnedAfterGap.IsStable, "a returning node must earn three new consecutive appearances");
+        Checks.Equal(4, returnedAfterGap.VerifiedStreak, "a missed presence run preserves independent TLS verification history");
+        Checks.Equal(5, returnedAfterGap.XrayStreak, "a missed presence run preserves independent Xray verification history");
+
         var interleavedFamilies = HappyEyeballsConnector.OrderAddresses(new[]
         {
             IPAddress.Parse("192.0.2.1"), IPAddress.Parse("192.0.2.2"),
@@ -1515,6 +1545,29 @@ internal static class Program
                     upperPath.DeduplicationKey != lowerPath.DeduplicationKey &&
                     upperPath.EndpointKey("203.0.113.10") != lowerPath.EndpointKey("203.0.113.10"),
             "Deduplication preserves case-sensitive transport paths");
+        var slashPath = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&type=ws&path=%2Fedge");
+        var trailingSlashPath = CollectorType.ParseProxyLine(
+            "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&type=ws&path=%2Fedge%2F");
+        Checks.That(slashPath is not null && trailingSlashPath is not null &&
+                    slashPath.Path == "/edge" && trailingSlashPath.Path == "/edge/" &&
+                    slashPath.DeduplicationKey != trailingSlashPath.DeduplicationKey,
+            "transport paths differing only by a trailing slash remain distinct");
+        var trailingSlashOutbound = CollectorType.BuildXrayOutbound(trailingSlashPath!, "trailing-slash-path-test")!;
+        var trailingSlashStream = (Dictionary<string, object?>)trailingSlashOutbound["streamSettings"]!;
+        var trailingSlashWs = (Dictionary<string, object?>)trailingSlashStream["wsSettings"]!;
+        Checks.Equal("/edge/", (string)trailingSlashWs["path"]!, "Xray probes the exact trailing-slash transport path");
+
+        var vmessPathJson = """{"add":"vmess-path.example.net","port":"443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","path":"/edge","aid":0}""";
+        var vmessTrailingPathJson = """{"add":"vmess-path.example.net","port":"443","id":"01234567-89ab-cdef-0123-456789abcdef","net":"ws","tls":"tls","path":"/edge/","aid":0}""";
+        var vmessPath = CollectorType.ParseProxyLine("vmess://" +
+            Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessPathJson)));
+        var vmessTrailingPath = CollectorType.ParseProxyLine("vmess://" +
+            Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessTrailingPathJson)));
+        Checks.That(vmessPath is not null && vmessTrailingPath is not null &&
+                    vmessPath.Path == "/edge" && vmessTrailingPath.Path == "/edge/" &&
+                    vmessPath.DeduplicationKey != vmessTrailingPath.DeduplicationKey,
+            "VMess JSON parsing preserves and distinguishes trailing-slash paths");
         var upperPbk = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=reality&pbk=AbCd");
         var lowerPbk = CollectorType.ParseProxyLine(

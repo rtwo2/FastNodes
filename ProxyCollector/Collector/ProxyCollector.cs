@@ -476,7 +476,7 @@ namespace ProxyCollector.Collector
             Console.ResetColor();
         }
 
-        private static void SummaryTable(List<FinalProxy> proxies, TimeSpan elapsed, int sourceCount, long rawLineCount)
+        private static void SummaryTable(List<FinalProxy> proxies, TimeSpan elapsed, int sourceCount, long extractedLineCount)
         {
             const int w = 56;
             void Row(string label, string value)
@@ -494,7 +494,7 @@ namespace ProxyCollector.Collector
             Console.ResetColor();
 
             Row("Sources", sourceCount.ToString("N0"));
-            Row("Raw lines fetched", rawLineCount.ToString("N0"));
+            Row("Extracted proxy lines", extractedLineCount.ToString("N0"));
             Row("Total proxies", proxies.Count.ToString("N0"));
             Row("Elapsed", $"{elapsed:hh\\:mm\\:ss}");
 
@@ -1321,9 +1321,9 @@ namespace ProxyCollector.Collector
             LogInfo($"🔍 Fetching from {urls.Length} sources (parallel)...");
 
             GroupStart("🔍 Step 1/5 — Fetching sources");
-            // STEP 1: parallel fetch — one retry on failure. With 500+ independent sources,
-            // a transient timeout or blip is common; a single failed attempt shouldn't
-            // permanently drop that whole source for the run.
+            // STEP 1: parallel fetch with bounded retries and host-level backoff. With
+            // 1,000+ independent sources, transient timeouts and rate limits are common;
+            // exhausted retries affect only that source and are reported separately.
             using var sourceFetchResult = await new SourceFetcher(_http, FetchMemoryBudget).FetchAsync(
                 urls,
                 GetSourceResponseByteLimit,
@@ -1336,8 +1336,8 @@ namespace ProxyCollector.Collector
             var sourceSpool = sourceFetchResult.Spool;
             var sourceIndexByUrl = sourceFetchResult.SourceIndices;
             var sourceStats = sourceFetchResult.Statistics;
-            long totalRawLines = sourceFetchResult.TotalExtractedLines;
-            LogInfo($"Total raw lines: {totalRawLines} (spooled to disk and replayed in configured source order)");
+            long totalExtractedLines = sourceFetchResult.TotalExtractedLines;
+            LogInfo($"Total extracted proxy lines: {totalExtractedLines} (spooled to disk and replayed in configured source order)");
             GroupEnd();
 
             GroupStart("🧹 Step 2/5 — Parsing & smart dedup");
@@ -1373,7 +1373,7 @@ namespace ProxyCollector.Collector
                 foreach (var line in sourceSpool.ReadSourceLines(sourceIndex))
                 {
                     processed++;
-                    if (processed % 100000 == 0) LogInfo($"  {processed}/{totalRawLines} parsed...");
+                    if (processed % 100000 == 0) LogInfo($"  {processed}/{totalExtractedLines} parsed...");
 
                     var t = line.Trim();
                     if (string.IsNullOrWhiteSpace(t) || t.StartsWith("#")) continue;
@@ -1449,7 +1449,7 @@ namespace ProxyCollector.Collector
                 if (fetchSuccesses == 0)
                 {
                     fetchFailed++;
-                    LogWarning($"  fetch-failed (both attempts): {kv.Key}");
+                    LogWarning($"  fetch-failed (all configured attempts exhausted): {kv.Key}");
                 }
                 else if (rawBytes == 0)
                 {
@@ -1662,7 +1662,7 @@ namespace ProxyCollector.Collector
 
             runStopwatch.Stop();
             LogSuccess("🎉 Done!");
-            SummaryTable(finalProxies, runStopwatch.Elapsed, urls.Length, totalRawLines);
+            SummaryTable(finalProxies, runStopwatch.Elapsed, urls.Length, totalExtractedLines);
         }
 		
         // ====================== DEAD-NODE FILTERS ======================
@@ -2981,7 +2981,7 @@ namespace ProxyCollector.Collector
             proxy.XrayStreak = history.XrayOk;
         }
 
-        private static void UpdateStreaks(Dictionary<string, NodeHistory> history, List<ParsedProxy> alive)
+        internal static void UpdateStreaks(Dictionary<string, NodeHistory> history, List<ParsedProxy> alive)
         {
             var seenNow = new HashSet<string>();
             foreach (var p in alive)
@@ -3002,11 +3002,17 @@ namespace ProxyCollector.Collector
                     }
                     else
                     {
-                        h = history[k] = new NodeHistory { Streak = 1, Misses = 0 };
+                        h = history[k] = new NodeHistory { Streak = 0, Misses = 0 };
                     }
                 }
+
+                // Presence stability means consecutive collection runs. The grace miss
+                // keeps verification history available, but a missing run breaks only
+                // the presence streak; TLS/Xray success history remains independent.
+                if (h.Misses > 0)
+                    h.Streak = 0;
                 h.Streak = Math.Min(h.Streak + 1, MaxStreak);
-                h.Misses = 0; // returning from probation resumes its streak
+                h.Misses = 0;
 
                 // A completed failed probe decays the corresponding streak. A node
                 // outside this run's probe budget (or unsupported by the probe adapter)

@@ -77,11 +77,11 @@ We keep different kinds of evidence separate. A TLS handshake is useful, but it 
 
 | Feed | What the label actually means |
 |:--|:--|
-| `verified.txt` | Full Xray proxy round-trip completed, including the expected **HTTP 204** response, during the current run. It may be empty when nothing passes. |
-| `verified_tls.txt` | TLS handshake succeeded during the current run. This is partial connectivity evidence, not a full proxy test. |
+| `verified.txt` | Xray completed a proxy round-trip over HTTPS with normal certificate/hostname validation and received the expected **HTTP 204** response during the current run. It may be empty when nothing passes. |
+| `verified_tls.txt` | A TLS handshake completed during the current run using the configured SNI. The probe intentionally does not validate certificate identity, so this is partial connectivity evidence, not proof of server identity or a working proxy. |
 | `top.txt` | Global shortlist using 55% full-roundtrip, 30% partial-connectivity, and 15% source/stability evidence lanes, with an IPv6 reservation and diversity caps. |
 | `top_ipv6.txt` | IPv6-capable shortlist using the same 55/30/15 evidence mix and source/provider/hostname/transport/protocol diversity controls. |
-| `stable.txt` | The selected credential variant has appeared in at least three consecutive collection runs. Stability history is tracked per exact configuration; other credentials collapsed into the same service profile do not inherit that status. Persistence is not a promise of reachability. |
+| `stable.txt` | The selected credential variant has appeared in at least three consecutive collection runs. Any missing run resets its presence streak. Stability is tracked per exact configuration; other credentials collapsed into the same service profile do not inherit that status. Persistence is not a promise of reachability. |
 | `curated.txt` | Trusted-source candidates, or candidates that are both stable and TLS-verified. |
 | `everything.txt` | One best representative per distinct service profile that survives parsing and safety filters. Many entries are not individually verified. |
 
@@ -219,7 +219,7 @@ You can follow each collection in the [Actions workflow](https://github.com/rtwo
 | Report | What it tells you |
 |:--|:--|
 | [`source-health.csv`](https://github.com/rtwo2/FastNodes/blob/outputs/sub/diagnostics/source-health.csv) | Fetching, parsing, contribution, and provider outcomes per source |
-| [`source-health-trends.csv`](https://github.com/rtwo2/FastNodes/blob/outputs/sub/diagnostics/source-health-trends.csv) | Source health across recent collection runs |
+| [`source-health-trends.csv`](https://github.com/rtwo2/FastNodes/blob/outputs/sub/diagnostics/source-health-trends.csv) | Source health across recent runs, including last-seen time and whether each feed is still in the current source list |
 | [`ranking-calibration-summary.csv`](https://github.com/rtwo2/FastNodes/blob/outputs/sub/diagnostics/ranking-calibration-summary.csv) | How previous score bands performed in later Xray checks |
 | [`verification-status.csv.gz`](https://raw.githubusercontent.com/rtwo2/FastNodes/outputs/sub/diagnostics/verification-status.csv.gz) | Candidate-level evidence, test status, and ranking details |
 

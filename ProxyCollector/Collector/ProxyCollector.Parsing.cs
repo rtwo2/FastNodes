@@ -795,6 +795,18 @@ namespace ProxyCollector.Collector
                 string.Equals(network, "ws", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(network, "httpupgrade", StringComparison.OrdinalIgnoreCase) ||
                 tcpWithoutHttpHeader;
+            // Do not discard an explicit host when a separate custom-header option
+            // could also specify Host; Xray gives the explicit host precedence.
+            bool hasCustomHeaders = query.TrimStart('?')
+                .Split('&', StringSplitOptions.RemoveEmptyEntries)
+                .Any(pair =>
+                {
+                    int equals = pair.IndexOf('=');
+                    string rawKey = equals < 0 ? pair : pair[..equals];
+                    string key = UnescapeQueryComponent(rawKey, decodeQueryForm);
+                    return key.Equals("header", StringComparison.OrdinalIgnoreCase) ||
+                           key.Equals("headers", StringComparison.OrdinalIgnoreCase);
+                });
             string normalizedEndpoint = string.IsNullOrWhiteSpace(endpointHost)
                 ? ""
                 : ProxyCollector.NormalizeIdentityHost(endpointHost);
@@ -831,7 +843,7 @@ namespace ProxyCollector.Collector
                     // redundant: Xray falls back to address when host is omitted.
                     // TCP+headerType=none does not use a transport Host header at all.
                     if (item.Key == "host" && usesAddressAsDefaultHost &&
-                        normalizedEndpoint.Length > 0 &&
+                        !hasCustomHeaders && normalizedEndpoint.Length > 0 &&
                         string.Equals(
                             ProxyCollector.NormalizeIdentityHost(item.Value),
                             normalizedEndpoint,

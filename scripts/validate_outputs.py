@@ -9,7 +9,7 @@ import json
 import pathlib
 import re
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from urllib.parse import parse_qsl, unquote, urlsplit
 
 SCHEMES = (
@@ -73,28 +73,6 @@ def wireguard_uri_identity(line: str) -> tuple | None:
     except (ValueError, UnicodeError):
         return None
 
-
-def _normalize_reality_key(value: str) -> str:
-    raw = (value or "").strip()
-    if not raw:
-        return ""
-    try:
-        token = raw.replace("-", "+").replace("_", "/")
-        token += "=" * ((4 - len(token) % 4) % 4)
-        decoded = base64.b64decode(token, validate=True)
-        if len(decoded) == 32:
-            return base64.urlsafe_b64encode(decoded).decode("ascii").rstrip("=")
-    except (ValueError, base64.binascii.Error):
-        pass
-    return raw
-
-
-def _canonical_json_value(value):
-    if isinstance(value, dict):
-        return {key: _canonical_json_value(value[key]) for key in sorted(value)}
-    if isinstance(value, list):
-        return [_canonical_json_value(item) for item in value]
-    return value
 
 
 def _vmess_json_identity(line: str) -> tuple | None:

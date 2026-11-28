@@ -1640,6 +1640,24 @@ internal static class Program
                     vmessLocalA.DeduplicationKey == vmessLocalB.DeduplicationKey,
             "VMess JSON property ordering, ps, tag, DNS and MTU do not create duplicate node identities");
 
+        string vmessNestedOptionsA = """{"add":"nested-vmess.example.net","port":"443","id":"123e4567-e89b-12d3-a456-426614174000","net":"ws","tls":"tls","path":"/ws","extra":{"headers":{"X-One":"1","X-Two":"2"},"mode":"fast"}}""";
+        string vmessNestedOptionsB = """{"extra":{"mode":"fast","headers":{"X-Two":"2","X-One":"1"}},"path":"/ws","tls":"tls","net":"ws","id":"123e4567-e89b-12d3-a456-426614174000","port":"443","add":"nested-vmess.example.net"}""";
+        var vmessNestedA = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessNestedOptionsA)));
+        var vmessNestedB = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessNestedOptionsB)));
+        Checks.That(vmessNestedA is not null && vmessNestedB is not null &&
+                    vmessNestedA.DeduplicationKey == vmessNestedB.DeduplicationKey,
+            "nested VMess option-object property order does not create duplicate service identities");
+
+        string vmessDifferentNestedValue = vmessNestedOptionsB.Replace(
+            "\"X-One\":\"1\"", "\"X-One\":\"changed\"", StringComparison.Ordinal);
+        var vmessNestedDifferent = CollectorType.ParseProxyLine(
+            "vmess://" + Convert.ToBase64String(Encoding.UTF8.GetBytes(vmessDifferentNestedValue)));
+        Checks.That(vmessNestedDifferent is not null && vmessNestedA is not null &&
+                    vmessNestedDifferent.DeduplicationKey != vmessNestedA.DeduplicationKey,
+            "nested VMess connection-option value changes remain identity-significant");
+
         var unknownOptionA = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@example.com:443?security=tls&custom-mode=alpha");
         var unknownOptionB = CollectorType.ParseProxyLine(

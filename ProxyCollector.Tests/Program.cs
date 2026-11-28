@@ -42,7 +42,7 @@ internal static class Program
             Link = "hysteria://user-c@alias.example.net:443", Proto = "hysteria",
             Host = "alias.example.net", Port = "443", Network = "udp", Security = "tls"
         };
-        Checks.Equal(1, CollectorType.SelectBestEndpointProfiles(
+        Checks.Equal(2, CollectorType.SelectBestEndpointProfiles(
                 new[] { hy2Alias, hysteria2Canonical, hysteriaV1 }).Count,
             "Hysteria2 spelling aliases with the same auth collapse; Hysteria v1 with different auth remains separate");
 
@@ -1811,6 +1811,8 @@ internal static class Program
         Checks.That(passwordA is not null && passwordB is not null, "Trojan password variants parse");
         Checks.That(passwordA!.DeduplicationKey != passwordB!.DeduplicationKey,
             "Deduplication preserves case-sensitive Trojan passwords");
+        Checks.That(passwordA.SelectionProfileKey != passwordB.SelectionProfileKey,
+            "Public outputs also preserve case-sensitive Trojan password variants");
 
         var canonicalOrderA = CollectorType.ParseProxyLine(
             "vless://123e4567-e89b-12d3-a456-426614174000@NODE.EXAMPLE.NET.:443?security=TLS&type=WS&sni=CDN.EXAMPLE.NET.&path=%2Fws&fp=chrome&alpn=h2");
@@ -2527,6 +2529,19 @@ internal static class Program
         };
         Checks.That(wireguardProfileA.SelectionProfileKey != wireguardProfileB.SelectionProfileKey,
             "WireGuard private-key alternatives at the same endpoint and port remain separate authenticated profiles");
+
+        var wireguardPskA = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "wireguard", Host = "wg.example.net", Port = "51820",
+            Credential = "same-private", Pbk = "same-public", PresharedKey = "psk-a"
+        };
+        var wireguardPskB = new ProxyCollector.Collector.ParsedProxy
+        {
+            Protocol = "wireguard", Host = "wg.example.net", Port = "51820",
+            Credential = "same-private", Pbk = "same-public", PresharedKey = "psk-b"
+        };
+        Checks.That(wireguardPskA.SelectionProfileKey != wireguardPskB.SelectionProfileKey,
+            "WireGuard preshared-key variants remain distinct authenticated public profiles");
 
         var endpointSame = CollectorType.ParseProxyLine(
             "trojan://credential-a@profile.example.net:443?sni=profile.example.net");

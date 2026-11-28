@@ -2608,6 +2608,15 @@ namespace ProxyCollector.Collector
         internal static bool IsValidEdgeResultId(int id, IReadOnlySet<int> expectedBatchIds, int poolCount)
             => id >= 0 && id < poolCount && expectedBatchIds.Contains(id);
 
+        // A duplicated result ID makes the Worker response ambiguous. Reject every
+        // occurrence of that ID rather than accepting whichever record happens to
+        // appear first in the response array.
+        internal static HashSet<int> FindDuplicateEdgeResultIds(IEnumerable<int> resultIds)
+            => resultIds.GroupBy(id => id)
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Key)
+                .ToHashSet();
+
         // The Worker reports tcp="ok" only after the endpoint TCP connection is
         // established. Without that signal, no TLS handshake/SNI confirmation can
         // be evaluated and the result must not count as an edge test failure.
@@ -2739,7 +2748,24 @@ namespace ProxyCollector.Collector
                             using var resp = await _http.SendAsync(req, ct);
                             resp.EnsureSuccessStatusCode();
                             using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
-                            foreach (var r in doc.RootElement.GetProperty("results").EnumerateArray())
+                            var resultsElement = doc.RootElement.GetProperty("results");
+                            if (resultsElement.ValueKind != JsonValueKind.Array)
+                                throw new InvalidOperationException("Edge verification response has no results array.");
+
+                            var resultRows = resultsElement.EnumerateArray().ToArray();
+                            var validResultIds = resultRows
+                                .Where(row => row.ValueKind == JsonValueKind.Object &&
+                                    row.TryGetProperty("id", out var resultId) &&
+                                    resultId.ValueKind == JsonValueKind.Number &&
+                                    resultId.TryGetInt32(out int parsedId) &&
+                                    IsValidEdgeResultId(parsedId, expectedBatchIds, pool.Count))
+                                .Select(row => row.GetProperty("id").GetInt32())
+                                .ToList();
+                            var duplicateResultIds = FindDuplicateEdgeResultIds(validResultIds);
+                            foreach (int duplicateId in duplicateResultIds)
+                                LogWarning($"Edge verification returned duplicate result ID {duplicateId}; ignoring all results for it.");
+
+                            foreach (var r in resultRows)
                             {
                                 if (r.ValueKind != JsonValueKind.Object ||
                                     !r.TryGetProperty("id", out var idElement) ||
@@ -2750,6 +2776,9 @@ namespace ProxyCollector.Collector
                                     LogWarning("Edge verification returned an invalid or out-of-batch result ID; ignoring it.");
                                     continue;
                                 }
+
+                                if (duplicateResultIds.Contains(id))
+                                    continue;
 
                                 // SNI is only meaningful after the Worker confirms that
                                 // the endpoint TCP connection was established. A timeout,
